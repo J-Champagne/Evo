@@ -1,6 +1,6 @@
 ---
-name: 'User Story '
-about: Issue for user stories
+name: 'Backlog Items '
+about: Issue for Backlog Items
 title: ''
 labels: Backlog Items
 assignees: ''
