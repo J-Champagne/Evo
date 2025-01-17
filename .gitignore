@@ -26,5 +26,6 @@ replay_pid*
 # Swap files
 *.swp
 
-# Intellij folder
+# Other folders
 .idea/
+target/
