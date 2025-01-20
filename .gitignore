@@ -20,11 +20,10 @@
 hs_err_pid*
 replay_pid*
 
-# MacOS finder files
+# Other files
 *.DS_Store
-
-# Swap files
 *.swp
+*.iml
 
 # Other folders
 .idea/
