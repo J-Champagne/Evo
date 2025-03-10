@@ -1,6 +1,9 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -10,6 +13,7 @@ import java.util.Optional;
 
 import ca.uqam.latece.evo.server.core.model.Actor;
 import ca.uqam.latece.evo.server.core.repository.ActorRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Actor Service.
@@ -18,65 +22,143 @@ import ca.uqam.latece.evo.server.core.repository.ActorRepository;
  * @author Edilton Lima dos Santos.
  */
 @Service
+@Transactional
 public class ActorService extends AbstractEvoService<Actor> {
-	
+	private static final Logger logger = LoggerFactory.getLogger(ActorService.class);
+	private static final String ERROR_EMAIL_ALREADY_REGISTERED = "Actor already registered with the same email!";
+
+
 	@Autowired
 	private ActorRepository actorRepository;
 	
 	/**
 	 * Inserts an Actor in the database.
-	 * @param actor
+	 * @param actor the Actor entity.
 	 * @return The saved Actor.
-	 * @throws IllegalArgumentException in case the given Actor is null.
+	 * @throws IllegalArgumentException in case the given Actor is null or Actor already registered with the same email.
 	 * @throws OptimisticLockingFailureException when the Actor uses optimistic locking and has a version attribute with
 	 *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
 	 *           present but does not exist in the database.
 	 */
 	@Override
 	public Actor create(Actor actor) {
-		return this.save(actor);
+		Actor actorCreated = null;
+
+		ObjectValidator.validateObject(actor);
+		ObjectValidator.validateString(actor.getName());
+		ObjectValidator.validateEmail(actor.getEmail());
+
+		// The email should be unique.
+		if (this.existsByEmail(actor.getEmail())) {
+			throw this.createDuplicateActorException(actor);
+		} else {
+			actorCreated = this.save(actor);
+			logger.info("Actor created: {}", actorCreated);
+		}
+
+		return actorCreated;
+	}
+
+	/**
+	 * Create duplicate Actor Exception.
+	 * @param actor the Actor entity.
+	 * @return an exception object.
+	 */
+	private IllegalArgumentException createDuplicateActorException(Actor actor) {
+		IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_EMAIL_ALREADY_REGISTERED +
+				" Actor Name: " + actor.getName() +
+				". Actor Email: " + actor.getEmail());
+		logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
+		return illegalArgumentException;
 	}
 	
 	/**
-	 * Update an Actor in the database.
-	 * @param actor
+	 * Updates an Actor in the database.
+	 * @param actor the Actor entity.
 	 * @return The updated Actor.
-	 * @throws IllegalArgumentException in case the given Actor is null.
+	 * @throws IllegalArgumentException in case the given Actor is null or Actor already registered with the same email.
 	 * @throws OptimisticLockingFailureException when the Actor uses optimistic locking and has a version attribute with
 	 *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
 	 *           present but does not exist in the database.
 	 */
 	@Override
 	public Actor update(Actor actor) {
-		return this.save(actor);
-	}
-	
-	/**
-	 * Method used to creates or update an Actor.
-	 * @param actor
-	 * @return The Actor.
-	 */
-	private Actor save(Actor actor) {
+		Actor actorUpdated = null;
+		Actor actorFound = this.findById(actor.getId());
+
 		ObjectValidator.validateObject(actor);
 		ObjectValidator.validateString(actor.getName());
 		ObjectValidator.validateEmail(actor.getEmail());
-		return actorRepository.save(actor);
+		
+		if (actorFound.getEmail().equalsIgnoreCase(actor.getEmail())) {
+			actorUpdated = this.save(actor);
+		} else {
+			List<Actor> actorEmailFound = this.findByEmail(actor.getEmail());
+
+			// The email should be unique.
+			if (actorEmailFound.isEmpty()) {
+				actorUpdated = this.save(actor);
+			} else {
+				throw this.createDuplicateActorException(actor);
+			}
+		}
+
+		logger.info("Actor updated: {}", actorUpdated);
+		return actorUpdated;
 	}
 
+	/**
+	 * Method used to create or update an Actor.
+	 * @param actor the Actor entity.
+	 * @return The inserted or updated Actor.
+	 * @throws IllegalArgumentException in case the given Actor is null or Actor already registered with the same email.
+	 * @throws OptimisticLockingFailureException when the Actor uses optimistic locking and has a version attribute with
+	 *          a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+	 *          present but does not exist in the database.
+	 */
+	@Transactional
+	protected Actor save(Actor actor) {
+		return this.actorRepository.save(actor);
+	}
+
+	/**
+	 * Checks if an Actor entity with the specified id exists in the repository.
+	 * @param id the id of the Actor to check for existence, must not be null.
+	 * @return true if an Actor with the specified id exists, false otherwise.
+	 * @throws IllegalArgumentException if the id is null.
+	 */
 	@Override
 	public boolean existsById(Long id) {
+		ObjectValidator.validateId(id);
 		return this.actorRepository.existsById(id);
 	}
-	
+
+	/**
+	 * Checks if an Actor entity with the specified name exists in the repository.
+	 * @param name the name of the Actor to check for existence, must not be null.
+	 * @return true if an Actor with the specified name exists, false otherwise.
+	 * @throws IllegalArgumentException if the name is null.
+	 */
 	public boolean existsByName(String name) {
+		ObjectValidator.validateString(name);
 		return this.actorRepository.existsByName(name);
+	}
+
+	/**
+	 * Checks if an Actor entity with the specified email exists in the repository.
+	 * @param email the email of the Actor to check for existence, must not be null.
+	 * @return true if an Actor with the specified email exists, false otherwise.
+	 * @throws IllegalArgumentException if the email is null.
+	 */
+	public boolean existsByEmail(String email) {
+		ObjectValidator.validateString(email);
+		return this.actorRepository.existsByEmail(email);
 	}
 
 	/**
 	 * Deletes the Actor with the given id.
 	 * <p>
 	 * If the Actor is not found in the persistence store it is silently ignored.
-	 *
 	 * @param id the unique identifier of the actor to be retrieved; must not be null or invalid.
 	 * @throws IllegalArgumentException in case the given id is null.
 	 */
@@ -84,6 +166,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	public void deleteById(Long id) {
 		ObjectValidator.validateId(id);
 		actorRepository.deleteById(id);
+		logger.info("Actor deleted: {}", id);
 	}
 	
 	/**
@@ -104,7 +187,8 @@ public class ActorService extends AbstractEvoService<Actor> {
 	@Override
 	public Actor findById(Long id) {
 		ObjectValidator.validateId(id);
-		return actorRepository.findById(id).get();
+		return actorRepository.findById(id).
+				orElseThrow(() -> new EntityNotFoundException("Actor not found!"));
 	}
 
 	/**
@@ -121,7 +205,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	 * Finds an Actor by its name.
 	 * @param name must not be null.
 	 * @return the Actor with the given id or Optional#empty() if none found.
-	 * @throws IllegalArgumentException if name is null.
+	 * @throws IllegalArgumentException if the name is null.
 	 */
 	public List<Actor> findByName(String name){
 		ObjectValidator.validateString(name);
@@ -139,4 +223,13 @@ public class ActorService extends AbstractEvoService<Actor> {
 		return actorRepository.findByEmail(email);
 	}
 
+	/**
+	 * Retrieves a list of Actor entities that match the specified Role Id.
+	 * @param roleId The Role Id to filter Develops entities by, must not be null.
+	 * @return a list of Actor entities that have the specified Role id, or an empty list if no matches are found.
+	 */
+	public List<Actor> findByRole(Long roleId) {
+		ObjectValidator.validateId(roleId);
+		return actorRepository.findByRole(roleId);
+	}
 }

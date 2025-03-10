@@ -5,6 +5,7 @@ import ca.uqam.latece.evo.server.core.model.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,19 +15,19 @@ import static org.junit.jupiter.api.Assertions.*;
  * The test class for the {@link ActorService}, responsible for testing its various functionalities.
  * This class includes integration tests for CRUD operations and other repository queries using a
  * PostgreSQL database in a containerized setup.
- *
+ * <p>
  * The tests in this class ensure the proper functionality of ActorService
  * and its interaction with the database using test containers to provide
  * a consistent test environment. Each test verifies specific business rules
  * or data retrieval criteria related to the Actor entity.
- *
+ * <p>
  * Annotations used for test setup include:
  * - @ContextConfiguration: Specifies test-specific configurations.
- *
+ * <p>
  * Dependencies injected into this test include:
  * - ActorService to perform business logic operations specific to Actor entities.
  * - RoleService to associate roles with actors during testing.
- *
+ * <p>
  * @version 1.0
  * @author Edilton Lima dos Santos.
  */
@@ -42,7 +43,7 @@ public class ActorServiceTest extends AbstractServiceTest {
      * Tests the save functionality of the ActorRepository.
      * The method verifies if a new Actor entity can be persisted into the database and
      * ensures that the returned saved entity contains a valid generated ID.
-     *
+     * <p>
      * Steps:
      * 1. Creates a new Actor instance with name and email fields populated.
      * 2. Persists the Actor entity using the save method of ActorRepository.
@@ -61,7 +62,7 @@ public class ActorServiceTest extends AbstractServiceTest {
      * Tests the update functionality for the ActorService.
      * This test verifies that an existing Actor entity can be updated in the database
      * with new details, including a different name, email, and associated role.
-     *
+     * <p>
      * Steps:
      * 1. Creates a new Actor instance with initial name and email and saves it.
      * 2. Creates a new Role instance and saves it to be associated with the updated Actor.
@@ -93,14 +94,36 @@ public class ActorServiceTest extends AbstractServiceTest {
         assertEquals(actorSaved.getId(), actorUpdated.getId());
         // Checks the Actor updates.
         assertNotEquals("Pierre", actorUpdated.getName());
-        assertNotEquals("pierre@gmail.com", actorUpdated.getName());
+        assertNotEquals("pierre@gmail.com", actorUpdated.getEmail());
         assertFalse(actorUpdated.getRole().getName().isBlank());
+    }
+
+    /**
+     * Tests the testFindById functionality of the ActorRepository.
+     * This method verifies that actors can be successfully queried from the repository by their id.
+     * <p>
+     * The test includes the following steps:
+     * 1. Creates and sets up a new Actor instance with a name and email.
+     * 2. Persists the created Actor instance into the repository.
+     * 3. Queries the repository to retrieve an actor by the specified id.
+     * 4. Asserts that the resulting actor saved is equals to actor found id,
+     *    confirming that the actor was correctly retrieved.
+     */
+    @Test
+    @Override
+    public void testFindById() {
+        Actor actor = new Actor();
+        actor.setName("Pierre");
+        actor.setEmail("pierre@gmail.com");
+        Actor actorSaved = actorService.create(actor);
+        Actor actorFound = actorService.findById(actorSaved.getId());
+        assertEquals(actorSaved.getId(), actorFound.getId());
     }
 
     /**
      * Tests the findByName functionality of the ActorRepository.
      * This method verifies that actors can be successfully queried from the repository by their name.
-     *
+     * <p>
      * The test includes the following steps:
      * 1. Creates and sets up a new Actor instance with a name and email.
      * 2. Persists the created Actor instance into the repository.
@@ -125,9 +148,8 @@ public class ActorServiceTest extends AbstractServiceTest {
 
     /**
      * Tests the findByEmail functionality of the ActorRepository.
-     *
      * This test ensures that an actor can be successfully queried from the repository by its email address.
-     *
+     * <p>
      * The following test steps are performed:
      * 1. Creates a new Actor instance with a name and email.
      * 2. Persists the created Actor instance into the repository using the save method.
@@ -151,18 +173,62 @@ public class ActorServiceTest extends AbstractServiceTest {
     }
 
     /**
+     * Tests the testFindByRole functionality of the ActorRepository.
+     * This test ensures that an actor can be successfully queried from the repository by its role.
+     * <p>
+     * The following test steps are performed:
+     * 1. Creates a new Role instance with a name.
+     * 2. Persists the created Role instance into the repository using the save method.
+     * 3. Create two new Actor instances with a name and email.
+     * 4. Persists the created Actors instance into the repository using the save method.
+     * 5. Queries the repository to retrieve a list of actors by the defined email.
+     * 6. Asserts that the resulting list is not empty, which confirms that the actor was successfully retrieved.
+     * 7. Asserts that the actor emails saved are equals that the emails retrieved.
+     */
+    @Test
+    public void testFindByRole() {
+        // Create a Role that will be used to update the Actor.
+        Role actorRole = new Role("e-Facilitator");
+        Role roleCreated = roleService.create(actorRole);
+
+        System.out.println("Role: " + roleCreated);
+
+        // Creates an Actor with Role association.
+        Actor actor = new Actor();
+        actor.setName("Pierre");
+        actor.setEmail("pierre@gmail.com");
+        actor.setRole(roleCreated);
+        Actor actorSaved = actorService.create(actor);
+
+        // Creates an Actor with Role association.
+        Actor actor2 = new Actor();
+        actor2.setName("Pierre2");
+        actor2.setEmail("pierre2@gmail.com");
+        actor2.setRole(roleCreated);
+        Actor actorSaved2 = actorService.create(actor2);
+
+        // Query the actor by role.
+        List<Actor> result = actorService.findByRole(roleCreated.getId());
+
+        // Assert that the result is not empty.
+        assertFalse(result.isEmpty(), "Actor list should not be empty!");
+        assertEquals(actorSaved.getEmail(), result.get(0).getEmail());
+        assertEquals(actorSaved2.getEmail(), result.get(1).getEmail());
+    }
+
+    /**
      * Tests the deleteById functionality of the ActorRepository.
-     *
      * This method ensures that an Actor entity can be successfully deleted
      * from the database by its ID.
-     *
+     * <p>
      * Steps:
-     * 1. Creates a new Actor instance with name and email fields populated.
+     * 1. Create a new Actor instance with name and email fields populated.
      * 2. Persists the Actor instance into the repository for setup.
      * 3. Deletes the Actor entity by invoking the deleteById method using the Actor's ID.
      * 4. Confirms the deletion by asserting that querying the repository for the same ID returns an empty result.
      */
     @Test
+    @Transactional
     public void testDeleteById() {
         // Ensure the database contains the actor, so the test is isolated.
         Actor actor = new Actor();
@@ -179,10 +245,10 @@ public class ActorServiceTest extends AbstractServiceTest {
 
     /**
      * Tests the findAll functionality of the ActorRepository.
-     *
+     * <p>
      * This test verifies that all Actor entities saved in the repository
      * can be successfully retrieved.
-     *
+     * <p>
      * Test workflow:
      * 1. Creates two Actor instances with distinct "name" and "email" fields.
      * 2. Persists the Actor instances into the repository using the save method.
@@ -207,5 +273,4 @@ public class ActorServiceTest extends AbstractServiceTest {
         List<Actor> result = actorService.findAll();
         assertEquals(2, result.size());
     }
-
 }

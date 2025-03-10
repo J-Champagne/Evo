@@ -22,7 +22,7 @@ public interface SkillRepository extends EvoRepository<Skill> {
      * Finds a list of Skill entities by their name.
      * @param name the name of the Skill to search for.
      * @return the Skill with the given name or Optional#empty() if none found.
-     * @throws IllegalArgumentException if name is null.
+     * @throws IllegalArgumentException if the name is null.
      */
     List<Skill> findByName(String name);
 
@@ -47,8 +47,8 @@ public interface SkillRepository extends EvoRepository<Skill> {
      * @param id the id of the skills to search for.
      * @return a list of skills matching the given id.
      */
-    @Query(value = "SELECT s.* FROM skill AS s WHERE s.skill_skill_id = :skill_id",
+    @Query(value = "SELECT s.* FROM skill AS s WHERE s.skill_skill_id = :skill_skill_id",
             nativeQuery = true)
-    List<Skill> findByRequiredSkill(@Param("skill_id") Long id);
+    List<Skill> findByRequiredSkill(@Param("skill_skill_id") Long id);
 
 }

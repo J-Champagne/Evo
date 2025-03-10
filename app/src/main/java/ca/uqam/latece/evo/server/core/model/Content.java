@@ -1,7 +1,9 @@
 package ca.uqam.latece.evo.server.core.model;
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,18 +15,22 @@ import java.util.List;
  */
 @Entity
 @Table(name = "content")
+@JsonPropertyOrder({"id", "name", "description", "type"})
 public class Content extends AbstractEvoModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="content_id")
     private Long id;
 
+    @NotNull
     @Column(name = "content_name", nullable = false, length = 128)
     private String name;
 
+    @NotNull
     @Column(name = "content_description", nullable = false, length = 256)
     private String description;
 
+    @NotNull
     @Column(name = "content_type", nullable = false, length = 256)
     private String type;
 
@@ -39,7 +45,21 @@ public class Content extends AbstractEvoModel {
     @ManyToMany(mappedBy = "contents",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
+    @JsonProperty("skill")
     private List<Skill> skills = new ArrayList<>();
+
+    /**
+     * Represents a collection of associated BCIActivity entities linked to the Content entity
+     * via a many-to-many relationship.
+     * The relationship is managed on the "contentBCIActivities" side defined in the BCIActivity entity.
+     * Cascade operations include PERSIST and MERGE, ensuring changes in Content
+     * propagate to associated BCIActivity accordingly. The fetch type is LAZY, meaning
+     * the associated BCIActivity are fetched only when explicitly accessed.
+     */
+    @ManyToMany(mappedBy = "contentBCIActivities",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY)
+    private List<BCIActivity> bciActivitiesContent = new ArrayList<>();
 
     public Content() {}
 
@@ -102,45 +122,40 @@ public class Content extends AbstractEvoModel {
         this.skills = skills;
     }
 
-    /**
-     * Method used at @ContentControllertest.class to @ContentController.class.
-     * @return
-     */
-    @Override
-    public String toString() {
-        StringBuilder json = new StringBuilder();
-
-        json.append("{\"id\":").
-                append(this.getId()).
-                append(",\"name\":\"").
-                append(this.getName()).
-                append("\",\"description\":\"").
-                append(this.getDescription()).
-                append("\",\"type\":\"").
-                append(this.getType()).
-                append("\",\"skills\":").
-                append("[");
-
-        if (this.getSkills() != null) {
-            // Starts the skill collection.
-            for (Skill skill : this.getSkills()) {
-                if (skill != null) {
-                    json.append("{\"id\":").
-                            append(skill.getId()).
-                            append(",\"name\":\"").
-                            append(skill.getName()).
-                            append("\",\"description\":\"").
-                            append(skill.getDescription()).
-                            append("\",\"type\":\"").
-                            append(skill.getType()).
-                            append("\"},");
-                }
-            }
-
-            // Remover the last virgule.
-            json.setLength(json.length() - 1);
-        }
-
-        return json.append("]}").toString();
+    public List<BCIActivity> getBCIActivity() {
+        return this.bciActivitiesContent;
     }
+
+    public void addBCIActivity(BCIActivity bciActivity) {
+        List<BCIActivity> bciActivityList = new ArrayList<>();
+
+        if (bciActivity != null) {
+            bciActivityList.add(bciActivity);
+            this.addAllBCIActivity(bciActivityList);
+        }
+    }
+
+    public void removeBCIActivity(BCIActivity bciActivity) {
+        List<BCIActivity> bciActivityList = new ArrayList<>();
+
+        if (bciActivity != null) {
+            bciActivityList.add(bciActivity);
+            this.removeAllBCIActivity(bciActivityList);
+        }
+    }
+
+    public void addAllBCIActivity(List<BCIActivity> bciActivity) {
+        if (bciActivity != null && !bciActivity.isEmpty()) {
+            this.getBCIActivity().addAll(bciActivity);
+        }
+    }
+
+    public void removeAllBCIActivity(List<BCIActivity> bciActivity) {
+        if (bciActivity != null && !bciActivity.isEmpty()) {
+            if (!this.getBCIActivity().isEmpty()) {
+                this.getBCIActivity().removeAll(bciActivity);
+            }
+        }
+    }
+
 }

@@ -1,7 +1,10 @@
 package ca.uqam.latece.evo.server.core.model;
 
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Develops model class.
@@ -10,23 +13,35 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name = "develops")
+@JsonPropertyOrder({"id", "level"})
 public class Develops extends AbstractEvoModel {
+    @JsonProperty("id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="develops_id")
     private Long id;
 
+    @NotNull
+    @JsonProperty("level")
     @Enumerated(EnumType.STRING)
     @Column(name = "develops_level", nullable = false)
     private SkillLevel level;
 
+    @NotNull
     @OneToOne
-    @JoinColumn(name = "develops_role_id", referencedColumnName = "role_id")
+    @JoinColumn(name = "develops_role_id", referencedColumnName = "role_id", nullable = false)
     private Role role;
 
+    @NotNull
     @OneToOne
-    @JoinColumn(name = "develops_skill_id", referencedColumnName = "skill_id")
+    @JoinColumn(name = "develops_skill_id", referencedColumnName = "skill_id", nullable = false)
     private Skill skill;
+
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "develops_bci_activity_id", referencedColumnName = "bci_activity_id", nullable = false) // Ensures foreign key setup in the database
+    private BCIActivity bciActivityDevelops;
+
 
     public Develops() {}
 
@@ -62,44 +77,12 @@ public class Develops extends AbstractEvoModel {
         return skill;
     }
 
-    /**
-     * Converts the current Develops object into its JSON string representation.
-     * The JSON includes the object's id, level, role, and skill attributes.
-     * If the role or skill is not set, it represents them as empty.
-     * @return A JSON string representation of the Develops object.
-     */
-    @Override
-    public String toString() {
-        StringBuilder roleJson = new StringBuilder();
-        roleJson.append("{\"id\":").
-                append(this.id).
-                append(",\"level\":\"").
-                append(this.level).
-                append("\",\"role\":");
-
-        if (this.role != null) {
-            // Starts the actor collection.
-            roleJson.append("[").
-                    append("{\"id\":").
-                        append(this.role.getId()).
-                        append(",\"name\":\"").
-                        append(this.role.getName()).
-                        append("\"}]");
-        } else {
-            roleJson.append("[]");
-        }
-
-        if (this.skill != null) {
-            roleJson.append(",\"skill\":[").
-                    append("{\"id\":").
-                    append(this.skill.getId()).
-                    append(",\"name\":\"").
-                    append(this.skill.getName()).
-                    append("\"}]");
-        } else {
-            roleJson.append(",\"skill\":[]");
-        }
-
-        return roleJson.append("}").toString();
+    public void setBciActivity(BCIActivity bciActivity) {
+        this.bciActivityDevelops = bciActivity;
     }
+
+    public BCIActivity getBciActivity() {
+        return bciActivityDevelops;
+    }
+
 }

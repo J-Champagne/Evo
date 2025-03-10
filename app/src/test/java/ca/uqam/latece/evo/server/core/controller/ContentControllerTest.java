@@ -1,7 +1,8 @@
 package ca.uqam.latece.evo.server.core.controller;
 
-
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Content;
 import ca.uqam.latece.evo.server.core.model.Skill;
 import ca.uqam.latece.evo.server.core.repository.ContentRepository;
@@ -18,7 +19,9 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Content Controller Test class.
+ * The Content Controller test class for the {@link ContentController}, responsible for testing its various
+ * functionalities. This class includes integration tests for CRUD operations supported the controller class,
+ * using WebMvcTes, and repository queries using MockMvc (Mockito).
  * @version 1.0
  * @author Edilton Lima dos Santos.
  */
@@ -138,6 +141,59 @@ public class ContentControllerTest extends AbstractControllerTest {
         // Perform a GET request to test the controller.
         performGetRequest("/contents/find/type/" + content.getType(),
                 "$[0].type", content.getType());
+    }
+
+    @Test
+    void testFindBySkill() throws Exception {
+        // Create the Content.
+        Content content = new Content();
+        content.setId(3L);
+        content.setName("Content 22");
+        content.setType("Type22");
+        content.setDescription("Content description 22");
+        // Add the skill in the content.
+        content.addSkill(skill);
+
+        // Save the content.
+        when(contentRepository.save(content)).thenReturn(content);
+
+        // Mock behavior for contentRepository.findByType().
+        when(contentRepository.findBySkill(skill.getId())).thenReturn(Collections.singletonList(content));
+
+        // Perform a GET request to test the controller.
+        performGetRequest("/contents/find/skill/" + skill.getId(),
+                "$[0].name", content.getName());
+    }
+
+    @Test
+    void testFindByBCIActivity() throws Exception {
+        // Create the Content.
+        Content content = new Content();
+        content.setId(3L);
+        content.setName("Content 223");
+        content.setType("Type223");
+        content.setDescription("Content description 223");
+        // Add the skill in the content.
+        content.addSkill(skill);
+
+        BCIActivity bciActivity = new BCIActivity();
+        bciActivity.setId(6L);
+        bciActivity.setName("BCI Activity 6");
+        bciActivity.setDescription("BCI Activity 6");
+        bciActivity.setType(ActivityType.LEARNING);
+
+        // Add the BCIActivity in the content.
+        content.addBCIActivity(bciActivity);
+
+        // Save the content.
+        when(contentRepository.save(content)).thenReturn(content);
+
+        // Mock behavior for contentRepository.findByType().
+        when(contentRepository.findByBCIActivity(bciActivity.getId())).thenReturn(Collections.singletonList(content));
+
+        // Perform a GET request to test the controller.
+        performGetRequest("/contents/find/bciactivityid/" + bciActivity.getId(),
+                "$[0].name", content.getName());
     }
 
     @Test

@@ -21,7 +21,7 @@ public abstract class AbstractEvoController <T extends AbstractEvoModel>{
     public abstract ResponseEntity<T> create(@RequestBody T model);
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.OK) // 200
     public abstract ResponseEntity<T> update(@RequestBody T model);
 
     @DeleteMapping("/{id}")
@@ -29,10 +29,10 @@ public abstract class AbstractEvoController <T extends AbstractEvoModel>{
     public abstract void deleteById(@PathVariable Long id);
 
     @GetMapping("/find/{id}")
-    @ResponseStatus(HttpStatus.OK) // 302
+    @ResponseStatus(HttpStatus.OK) // 200
     public abstract ResponseEntity<T> findById(@PathVariable Long id);
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK) // 302
+    @ResponseStatus(HttpStatus.OK) // 200
     public abstract ResponseEntity<List<T>> findAll();
 }

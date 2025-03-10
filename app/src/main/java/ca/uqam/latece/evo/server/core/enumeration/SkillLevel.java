@@ -2,12 +2,12 @@ package ca.uqam.latece.evo.server.core.enumeration;
 
 /**
  * Represents the levels of skill.
- *
+ * <p>
  * The SkillLevel enum defines three levels of skill:
  * BEGINNER - for individuals new to a skill.
  * INTERMEDIATE - for those with moderate experience and knowledge.
  * ADVANCED - for highly skilled and experienced.
- *
+ * <p>
  * @since 22.01.2025.
  * @version 1.0
  * @author Edilton Lima dos Santos.
@@ -15,5 +15,5 @@ package ca.uqam.latece.evo.server.core.enumeration;
 public enum SkillLevel {
 	BEGINNER,
 	INTERMEDIATE,
-	ADVANCED;
+	ADVANCED
 }

@@ -1,7 +1,10 @@
 package ca.uqam.latece.evo.server.core.model;
 
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Requires model class.
@@ -10,24 +13,37 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name = "requires")
+@JsonPropertyOrder({"id", "level"})
 public class Requires extends AbstractEvoModel {
 
+    @JsonProperty("id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="requires_id")
     private Long id;
 
+    @NotNull
+    @JsonProperty("level")
     @Enumerated(EnumType.STRING)
     @Column(name = "requires_level", nullable = false)
     private SkillLevel level;
 
+    @NotNull
+    @JsonProperty("role")
     @OneToOne
-    @JoinColumn(name = "requires_role_id", referencedColumnName = "role_id")
+    @JoinColumn(name = "requires_role_id", referencedColumnName = "role_id", nullable = false)
     private Role role;
 
+    @NotNull
+    @JsonProperty("skill")
     @OneToOne
-    @JoinColumn(name = "requires_skill_id", referencedColumnName = "skill_id")
+    @JoinColumn(name = "requires_skill_id", referencedColumnName = "skill_id", nullable = false)
     private Skill skill;
+
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "requires_bci_activity_id", referencedColumnName = "bci_activity_id", nullable = false) // Ensures foreign key setup in the database
+    private BCIActivity bciActivityRequires;
 
     public void setId(Long id) {
         this.id = id;
@@ -59,6 +75,14 @@ public class Requires extends AbstractEvoModel {
 
     public SkillLevel getLevel() {
         return level;
+    }
+
+    public void setBciActivity(BCIActivity bciActivity) {
+        this.bciActivityRequires = bciActivity;
+    }
+
+    public BCIActivity getBciActivity() {
+        return this.bciActivityRequires;
     }
 
 }

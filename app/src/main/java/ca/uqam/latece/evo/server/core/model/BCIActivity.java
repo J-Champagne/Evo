@@ -1,0 +1,240 @@
+package ca.uqam.latece.evo.server.core.model;
+
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * BCIActivity model class.
+ * @version 1.0
+ * @author Edilton Lima dos Santos.
+ */
+@Entity
+@Table(name = "bci_activity")
+@JsonPropertyOrder({"id", "name", "description", "type", "preconditions", "postconditions"})
+public class BCIActivity extends AbstractEvoModel {
+    private static final Logger logger = LogManager.getLogger(BCIActivity.class);
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="bci_activity_id")
+    private Long id;
+
+    @NotNull
+    @Column(name = "bci_activity_name", nullable = false, length = 256)
+    private String name;
+
+    @NotNull
+    @Column(name = "bci_activity_description", nullable = false, length = 256)
+    private String description;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "bci_activity_type", nullable = false, length = 128)
+    private ActivityType type;
+
+    @Column(name = "bci_activity_preconditions", nullable = true, length = 256)
+    private String preconditions;
+
+    @Column(name = "bci_activity_postconditions", nullable = true, length = 256)
+    private String postconditions;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "bciActivityDevelops", orphanRemoval = true, targetEntity = Develops.class)
+    private List<Develops> developsBCIActivity = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "bciActivityRequires", orphanRemoval = true, targetEntity = Requires.class)
+    private List<Requires> requiresBCIActivities = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "bci_activity_content",
+            joinColumns = @JoinColumn(name = "bci_activity_content_bci_activity_id", referencedColumnName="bci_activity_id"),
+            inverseJoinColumns = @JoinColumn(name = "bci_activity_content_content_id", referencedColumnName="content_id")
+    )
+    private List<Content> contentBCIActivities = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "bci_activity_role",
+            joinColumns = @JoinColumn(name = "bci_activity_role_bci_activity_id", referencedColumnName="bci_activity_id"),
+            inverseJoinColumns = @JoinColumn(name = "bci_activity_role_role_id", referencedColumnName="role_id")
+    )
+    private List<Role> roleBCIActivities = new ArrayList<>();
+
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Override
+    public Long getId() {
+        return this.id;
+    }
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setType(ActivityType type) {
+        this.type = type;
+    }
+
+    public ActivityType getType() {
+        return this.type;
+    }
+
+    public void setPreconditions(String preconditions) {
+        this.preconditions = preconditions;
+    }
+
+    public String getPreconditions() {
+        return this.preconditions;
+    }
+
+    public void setPostconditions(String postconditions) {
+        this.postconditions = postconditions;
+    }
+
+    public String getPostconditions() {
+        return this.postconditions;
+    }
+
+    public void setDevelops(List<Develops> develops) {
+        ObjectValidator.validateObject(develops);
+
+        if(!develops.isEmpty()) {
+            this.developsBCIActivity = develops;
+        }
+    }
+
+    public List<Develops> getDevelops() {
+        return this.developsBCIActivity;
+    }
+
+    public void setRequires(List<Requires> requires) {
+        ObjectValidator.validateObject(requires);
+        if(!requires.isEmpty()) {
+            this.requiresBCIActivities = requires;
+        }
+    }
+
+    public List<Requires> getRequires() {
+        return this.requiresBCIActivities;
+    }
+
+    public void addRequires(Requires requires) {
+        ObjectValidator.validateObject(requires);
+        this.requiresBCIActivities.add(requires);
+    }
+
+    public void removeRequires(Requires requires) {
+        ObjectValidator.validateObject(requires);
+
+        if(!this.requiresBCIActivities.isEmpty()) {
+            this.requiresBCIActivities.remove(requires);
+        }
+    }
+
+    public void addContent(Content content) {
+        ObjectValidator.validateObject(content);
+        this.contentBCIActivities.add(content);
+    }
+
+    public void removeContent(Content content) {
+        List<Content> contentList = new ArrayList<>();
+        ObjectValidator.validateObject(content);
+        contentList.add(content);
+        this.removeAllContent(contentList);
+    }
+
+    public void removeAllContent(List<Content> content){
+        ObjectValidator.validateObject(content);
+
+        if(!this.contentBCIActivities.isEmpty()) {
+            this.contentBCIActivities.removeAll(content);
+        }
+    }
+
+    public void setContent(List<Content> content) {
+        ObjectValidator.validateObject(content);
+        if(!content.isEmpty()) {
+            this.contentBCIActivities = content;
+        }
+    }
+
+    public List<Content> getContent() {
+        return this.contentBCIActivities;
+    }
+
+    public void addRole(Role role) {
+        ObjectValidator.validateObject(role);
+        this.roleBCIActivities.add(role);
+    }
+
+    public void addDevelops(Develops develops) {
+        ObjectValidator.validateObject(develops);
+        this.developsBCIActivity.add(develops);
+    }
+
+    public void removeDevelops(Develops develops) {
+        ObjectValidator.validateObject(develops);
+
+        if(!this.developsBCIActivity.isEmpty()) {
+            this.developsBCIActivity.remove(develops);
+        }
+    }
+
+    public void removeRole(Role role) {
+        List<Role> roleList = new ArrayList<>();
+        ObjectValidator.validateObject(role);
+        roleList.add(role);
+
+        this.removeAllRole(roleList);
+    }
+
+    public void removeAllRole(List<Role> roles) {
+        ObjectValidator.validateObject(roles);
+
+        if(!this.roleBCIActivities.isEmpty()) {
+            this.roleBCIActivities.removeAll(roles);
+        }
+    }
+
+    public List<Role> getRole() {
+        return this.roleBCIActivities;
+    }
+
+    public void setRole(List<Role> role) {
+        ObjectValidator.validateObject(role);
+        if(!role.isEmpty()) {
+            this.roleBCIActivities = role;
+        }
+    }
+
+}

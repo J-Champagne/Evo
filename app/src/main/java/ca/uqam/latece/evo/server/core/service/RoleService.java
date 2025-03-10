@@ -4,8 +4,11 @@ import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.persistence.EntityNotFoundException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,12 +20,15 @@ import java.util.List;
  * @author Edilton Lima dos Santos.
  */
 @Service
+@Transactional
 public class RoleService extends AbstractEvoService<Role> {
+    private static final Logger logger = LogManager.getLogger(RoleService.class);
+    private static final String ERROR_NULL_MESSAGE = "The role object is null!";
+    private static final String ERROR_EMPTY_MESSAGE = "The role name is empty!";
+
     @Autowired
     private RoleRepository roleRepository;
 
-    private static final String ERROR_NULL_MESSAGE = "The role object is null!";
-    private static final String ERROR_EMPTY_MESSAGE = "The role name is empty!";
 
     public RoleService() {}
 
@@ -42,9 +48,10 @@ public class RoleService extends AbstractEvoService<Role> {
         ObjectValidator.validateObject(role.getName());
 
         if (this.existsByName(role.getName())) {
-            throw new IllegalArgumentException("Role already registered!");
+            throw createDuplicateRoleException(role);
         } else {
-            roleSeved = save(role);
+            roleSeved = this.save(role);
+            logger.info("Role created: {}", roleSeved);
         }
 
         return roleSeved;
@@ -56,10 +63,43 @@ public class RoleService extends AbstractEvoService<Role> {
      * @return the updated and saved role object.
      * @throws IllegalArgumentException if the role object is invalid or null.
      */
-
     public Role update(Role role) {
+        Role roleSeved = null;
+
+        // Validate the object.
         ObjectValidator.validateObject(role);
-        return save(role);
+        ObjectValidator.validateObject(role.getName());
+
+        if (this.existsByName(role.getName())) {
+            throw createDuplicateRoleException(role);
+        } else {
+            roleSeved = this.save(role);
+            logger.info("Role update: {}", roleSeved);
+        }
+
+        return roleSeved;
+    }
+
+    /**
+     * Create duplicate Role Exception.
+     * @param role the Role entity.
+     * @return an exception object.
+     */
+    private IllegalArgumentException createDuplicateRoleException(Role role) {
+        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_NAME_ALREADY_REGISTERED +
+                " Role Name: " + role.getName());
+        logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
+        return illegalArgumentException;
+    }
+
+    /**
+     * Saves the given role into the repository.
+     * @param role the role object to be saved.
+     * @return the saved role object.
+     */
+    @Transactional
+    protected Role save(Role role){
+        return roleRepository.save(role);
     }
 
     /**
@@ -72,6 +112,7 @@ public class RoleService extends AbstractEvoService<Role> {
     public void deleteById(Long id) {
         ObjectValidator.validateId(id);
         roleRepository.deleteById(id);
+        logger.info("Role deleted: {}", id);
     }
 
     /**
@@ -110,16 +151,6 @@ public class RoleService extends AbstractEvoService<Role> {
     }
 
     /**
-     * Saves the given role into the repository.
-     * @param role the role object to be saved.
-     * @return the saved role object.
-     */
-    private Role save(Role role){
-        ObjectValidator.validateObject(role);
-        return roleRepository.save(role);
-    }
-
-    /**
      * Retrieves all roles from the repository.
      * @return a list of all roles present in the repository.
      */
@@ -134,12 +165,22 @@ public class RoleService extends AbstractEvoService<Role> {
      * @param id the unique identifier of the role to be retrieved.
      * @return the role corresponding to the specified identifier.
      * @throws IllegalArgumentException if the provided id is null or invalid.
+     * @throws EntityNotFoundException if the role not found.
      */
     @Override
     public Role findById(Long id) {
         ObjectValidator.validateId(id);
         return roleRepository.findById(id).
                 orElseThrow(() -> new EntityNotFoundException("Role not found!"));
+    }
 
+    /**
+     * Retrieves a list of Role entities that match the specified BCI Activity Id.
+     * @param bciActivityId The BCI Activity Id to filter Role entities by, must not be null.
+     * @return a list of Role entities that have the specified BCI Activity Id, or an empty list if no matches are found.
+     */
+    public List<Role> findByBCIActivity(Long bciActivityId) {
+        ObjectValidator.validateId(bciActivityId);
+        return roleRepository.findByBCIActivity(bciActivityId);
     }
 }

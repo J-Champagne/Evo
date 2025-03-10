@@ -1,5 +1,8 @@
 package ca.uqam.latece.evo.server.core.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.regex.Pattern;
 
 /**
@@ -12,6 +15,7 @@ import java.util.regex.Pattern;
  * @author Edilton Lima dos Santos.
  */
 public class ObjectValidator {
+    private static final Logger logger = LogManager.getLogger(ObjectValidator.class);
 
     private static final String ERROR_ID_NULL = "The Id is null!";
     private static final String ERROR_OBJECT_NULL = "The Object is null!";
@@ -20,7 +24,6 @@ public class ObjectValidator {
 
     /**
      * A compiled regular expression pattern used to validate email addresses.
-     *
      * The pattern ensures that:
      * - An email address has a valid format with a local part (before the '@') and domain part (after the '@').
      * - The local part allows alphanumeric characters, underscores, hyphens, Unicode letters,
@@ -43,6 +46,7 @@ public class ObjectValidator {
      */
     public static void validateId(Long id) {
         if (id == null) {
+            logger.error(ERROR_ID_NULL);
             throw new IllegalArgumentException(ERROR_ID_NULL);
         }
     }
@@ -55,6 +59,7 @@ public class ObjectValidator {
      */
     public static void validateObject(Object object) {
         if (object == null) {
+            logger.error(ERROR_OBJECT_NULL);
             throw new IllegalArgumentException(ERROR_OBJECT_NULL);
         }
     }
@@ -68,8 +73,10 @@ public class ObjectValidator {
      */
     public static void validateString(String value, String nullMessage, String emptyMessage) {
         if (value == null) {
+            logger.error(nullMessage);
             throw new IllegalArgumentException(nullMessage);
         } else if (value.isBlank()) {
+            logger.error(emptyMessage);
             throw new IllegalArgumentException(emptyMessage);
         }
     }
@@ -95,8 +102,8 @@ public class ObjectValidator {
         ObjectValidator.validateString(email);
 
         if (!EMAIL_PATTERN.matcher(email).matches()){
+            logger.error(ERROR_INVALID_EMAIL);
             throw new IllegalArgumentException(ERROR_INVALID_EMAIL);
         }
     }
-
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +36,13 @@ public class ActorController extends AbstractEvoController<Actor> {
 	private ActorService actorService;
 
 	/**
-	 * Creates an Actor in the database.
+	 * Inserts an Actor in the database.
+	 * @param actor the Actor entity.
+	 * @return The saved Actor.
+	 * @throws IllegalArgumentException in case the given Actor is null or Actor already registered with the same email.
+	 * @throws OptimisticLockingFailureException when the Actor uses optimistic locking and has a version attribute with
+	 *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+	 *           present but does not exist in the database.
 	 */
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) // 201
@@ -45,43 +52,57 @@ public class ActorController extends AbstractEvoController<Actor> {
 				new ResponseEntity<>(actor, HttpStatus.CREATED) :
 				new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
-	
+
 	/**
 	 * Updates an Actor in the database.
+	 * @param actor the Actor entity.
+	 * @return The updated Actor.
+	 * @throws IllegalArgumentException in case the given Actor is null or Actor already registered with the same email.
+	 * @throws OptimisticLockingFailureException when the Actor uses optimistic locking and has a version attribute with
+	 *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+	 *           present but does not exist in the database.
 	 */
 	@PutMapping
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<Actor> update(@RequestBody Actor actor) {
         return Optional.ofNullable(actorService.update(actor)).isPresent() ?
 				new ResponseEntity<>(actor, HttpStatus.OK) :
 				new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    } 
+    }
 
 	/**
-	 * Delete an Actor.
+	 * Deletes the Actor with the given id.
+	 * <p>
+	 * If the Actor is not found in the persistence store it is silently ignored.
+	 * @param id the unique identifier of the actor to be retrieved; must not be null or invalid.
+	 * @throws IllegalArgumentException in case the given id is null.
 	 */
     @DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT) // 204
     public void deleteById(@PathVariable Long id) {
 		actorService.deleteById(id);
 	}
-	
+
 	/**
 	 * Gets all actors.
+	 * @return all actors.
 	 */
 	@GetMapping
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<List<Actor>> findAll() {
 		return Optional.ofNullable(actorService.findAll()).isPresent() ?
 				new ResponseEntity<>(actorService.findAll(), HttpStatus.OK) :
 				new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
-	
+
 	/**
 	 * Finds an Actor by its id.
+	 * @param id the unique identifier of the actor to be retrieved; must not be null or invalid.
+	 * @return the Actor with the given id or Optional#empty() if none found.
+	 * @throws IllegalArgumentException if id is null.
 	 */
 	@GetMapping("/find/{id}")
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<Actor> findById(@PathVariable Long id) {
 		return Optional.ofNullable(actorService.findById(id)).isPresent() ?
 				new ResponseEntity<>(actorService.findById(id), HttpStatus.OK) :
@@ -92,10 +113,10 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 * Finds an Actor by its name.
 	 * @param name must not be null.
 	 * @return the Actor with the given id or Optional#empty() if none found.
-	 * @throws IllegalArgumentException if name is null.
+	 * @throws IllegalArgumentException if the name is null.
 	 */
 	@GetMapping("/find/name/{name}")
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<List<Actor>> findByName(@PathVariable String name) {
 		return Optional.ofNullable(actorService.findByName(name)).isPresent() ?
 				new ResponseEntity<>(actorService.findByName(name), HttpStatus.OK) :
@@ -109,10 +130,24 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 * @throws IllegalArgumentException if email is null.
 	 */
 	@GetMapping("/find/email/{email}")
-	@ResponseStatus(HttpStatus.OK)
-	public ResponseEntity<List<Actor>>  findByEmail(@PathVariable String email) {
+	@ResponseStatus(HttpStatus.OK) // 200
+	public ResponseEntity<List<Actor>> findByEmail(@PathVariable String email) {
 		return Optional.ofNullable(actorService.findByEmail(email)).isPresent() ?
 				new ResponseEntity<>(actorService.findByEmail(email), HttpStatus.OK) :
+				new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Finds an Actor by its role id.
+	 * @param id must not be null.
+	 * @return the Actor with the given id or Optional#empty() if none found.
+	 * @throws IllegalArgumentException if email is null.
+	 */
+	@GetMapping("/find/role/{id}")
+	@ResponseStatus(HttpStatus.OK) // 200
+	public ResponseEntity<List<Actor>> findByRole(@PathVariable Long id) {
+		return Optional.ofNullable(actorService.findByRole(id)).isPresent() ?
+				new ResponseEntity<>(actorService.findByRole(id), HttpStatus.OK) :
 				new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 }

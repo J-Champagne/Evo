@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS actor (
 );
 
 /***********************************************************************************************************************
-skill table:This table stores details about skills that actors may hold or require.
+skill table: This table stores details about skills that actors may hold or require.
 - Columns:
   - skill_id: A unique identifier for each skill, auto-incremented.
   - skill_name: The name of the skill. It's required and must be unique.
@@ -114,14 +114,42 @@ CREATE TABLE IF NOT EXISTS skill_content (
 );
 
 /***********************************************************************************************************************
+bci_activity table:This table stores details about Behavior Change Technique Intervention Activity.
+- Columns:
+  - bci_activity_id: A unique identifier for each Behavior Change Technique Intervention Activity, auto-incremented.
+  - bci_activity_name: The name of the Behavior Change Technique Intervention Activity. It's required and must be unique.
+  - bci_activity_description: An optional description of the Behavior Change Technique Intervention Activity.
+  - bci_activity_type: An optional string to classify the Behavior Change Technique Intervention Activity.
+  - bci_activity_preconditions: An optional string to define a preconditions of Behavior Change Technique
+    Intervention Activity.
+  - bci_activity_postconditions: An optional string to define a post-conditions of Behavior Change Technique
+    Intervention Activity.
+- Constraints:
+  - bci_activity_pkey: Establishes bci_activity_id as the primary key.
+  - bci_activity_name_ukey: Ensures that bci_activity_name is unique.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_activity (
+    bci_activity_id BIGSERIAL NOT NULL,
+    bci_activity_name VARCHAR NOT NULL,
+    bci_activity_description VARCHAR NULL,
+    bci_activity_type VARCHAR NULL,
+    bci_activity_preconditions VARCHAR NULL,
+    bci_activity_postconditions VARCHAR NULL,
+    CONSTRAINT bci_activity_pkey PRIMARY KEY (bci_activity_id),
+    CONSTRAINT bci_activity_name_ukey UNIQUE (bci_activity_name)
+);
+
+/***********************************************************************************************************************
 requires table: This table represents skills required for certain roles at a particular level.
 - Columns:
   - requires_id: A unique identifier for each requirement, auto-incremented.
   - requires_level: Denotes the level of proficiency required (e.g., "Beginner", "Intermediate", "Advanced").
   - requires_role_id: A foreign key linking to a role_id in the role table.
   - requires_skill_id: A foreign key linking to a skill_id in the skill table.
+  - requires_bci_activity_id: A foreign key linking to a bci_activity_id in the bci_activity table.
 - Constraints:
   - requires_pkey: Primary key for this table.
+  - requires_bci_activity_fkey: Ensures that requires_bci_activity_id references a valid record in the bci_activity table.
   - requires_skill_fkey: Ensures that requires_skill_id references a valid record in the skill table.
   - requires_role_fkey: Ensures that requires_role_id references a valid record in the role table.
 ***********************************************************************************************************************/
@@ -130,7 +158,9 @@ CREATE TABLE IF NOT EXISTS requires (
     requires_level VARCHAR NOT NULL,
     requires_role_id BIGINT NOT NULL,
     requires_skill_id BIGINT NOT NULL,
+    requires_bci_activity_id BIGINT NOT NULL,
     CONSTRAINT requires_pkey PRIMARY KEY (requires_id),
+    CONSTRAINT requires_bci_activity_fkey FOREIGN KEY (requires_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
     CONSTRAINT requires_skill_fkey FOREIGN KEY (requires_skill_id) REFERENCES skill (skill_id),
     CONSTRAINT requires_role_fkey FOREIGN KEY (requires_role_id) REFERENCES role (role_id)
 );
@@ -142,8 +172,10 @@ develops table: This table represents skills that are developed by roles at a ce
   - develops_level: Denotes the level of expertise developed (e.g., "Beginner", "Intermediate", "Advanced").
   - develops_role_id: A foreign key linking to a role_id in the role table.
   - develops_skill_id: A foreign key linking to a skill_id in the skill table.
+  - develops_bci_activity_id: A foreign key linking to a bci_activity_id in the bci_activity table.
 - Constraints:
   - develops_pkey: Primary key for this table.
+  - develops_bci_activity_fkey: Ensures that develops_bci_activity_id references a valid record in the bci_activity table.
   - develops_skill_fkey: Ensures that develops_skill_id references a valid record in the skill table.
   - develops_role_fkey: Ensures that develops_role_id references a valid record in the role table.
 ***********************************************************************************************************************/
@@ -152,27 +184,56 @@ CREATE TABLE IF NOT EXISTS develops (
     develops_level VARCHAR NOT NULL,
     develops_role_id BIGINT NOT NULL,
     develops_skill_id BIGINT NOT NULL,
+    develops_bci_activity_id BIGINT NOT NULL,
     CONSTRAINT develops_pkey PRIMARY KEY (develops_id),
+    CONSTRAINT develops_bci_activity_fkey FOREIGN KEY (develops_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
     CONSTRAINT develops_skill_fkey FOREIGN KEY (develops_skill_id) REFERENCES skill (skill_id),
     CONSTRAINT develops_role_fkey FOREIGN KEY (develops_role_id) REFERENCES role (role_id)
 );
 
 /***********************************************************************************************************************
-BehaviorChangeTechnique table:This table stores details about Behavior Change Technique that actors may hold or require.
+bci_activity_content table: This is a junction table that represents a many-to-many relationship between bci_activity
+  and content. It links which content corresponds to which bci_activity(s).
 - Columns:
-  - behavior_change_technique_id: A unique identifier for each Behavior Change Technique, auto-incremented.
-  - behavior_change_technique_name: The name of the Behavior Change Technique. It's required and must be unique.
-  - behavior_change_technique_description: A description of the Behavior Change Technique.
-  - behavior_change_technique_type: An optional string to classify the Behavior Change Technique.
+  - bci_activity_content_id: A unique identifier for each mapping, auto-incremented.
+  - bci_activity_content_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table.
+  - bci_activity_content_content_id: A foreign key referencing a content_id in the content table.
 - Constraints:
-  - behavior_change_technique_pkey: Establishes behavior_change_technique_id as the primary key.
-  - behavior_change_technique_name_ukey: Ensures that behavior_change_technique_name is unique.
+  - bci_activity_content_pkey: Primary key for this table.
+  - bci_activity_content_bci_activity_fkey: Ensures that bci_activity_content_bci_activity_id references a valid record
+    in the bci_activity table.
+  - bci_activity_content_content_fkey: Ensures that bci_activity_content_content_id references a valid record in the
+    content table.
 ***********************************************************************************************************************/
-CREATE TABLE IF NOT EXISTS behavior_change_technique (
-    behavior_change_technique_id BIGSERIAL NOT NULL,
-    behavior_change_technique_name VARCHAR NOT NULL,
-    behavior_change_technique_description VARCHAR NULL,
-    behavior_change_technique_type VARCHAR NULL,
-    CONSTRAINT behavior_change_technique_pkey PRIMARY KEY (behavior_change_technique_id),
-    CONSTRAINT behavior_change_technique_name_ukey UNIQUE (behavior_change_technique_name)
+CREATE TABLE IF NOT EXISTS bci_activity_content (
+    bci_activity_content_id BIGSERIAL NOT NULL,
+    bci_activity_content_bci_activity_id BIGINT NOT NULL,
+    bci_activity_content_content_id BIGINT NOT NULL,
+    CONSTRAINT bci_activity_content_pkey PRIMARY KEY (bci_activity_content_id),
+    CONSTRAINT bci_activity_content_bci_activity_fkey FOREIGN KEY (bci_activity_content_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT bci_activity_content_content_fkey FOREIGN KEY (bci_activity_content_content_id) REFERENCES content (content_id)
 );
+
+/***********************************************************************************************************************
+bci_activity_role table: This is a junction table that represents a many-to-many relationship between bci_activity
+  and role. It links which role corresponds to which bci_activity(s).
+- Columns:
+  - bci_activity_role_id: A unique identifier for each mapping, auto-incremented.
+  - bci_activity_role_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table.
+  - bci_activity_role_role_id: A foreign key referencing a role_id in the role table.
+- Constraints:
+  - bci_activity_role_pkey: Primary key for this table.
+  - bci_activity_role_bci_activity_fkey: Ensures that bci_activity_content_bci_activity_id references a valid record
+    in the bci_activity table.
+  - bci_activity_role_content_fkey: Ensures that bci_activity_role_role_id references a valid record in the
+    role table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_activity_role (
+    bci_activity_role_id BIGSERIAL NOT NULL,
+    bci_activity_role_bci_activity_id BIGINT NOT NULL,
+    bci_activity_role_role_id BIGINT NOT NULL,
+    CONSTRAINT bci_activity_role_pkey PRIMARY KEY (bci_activity_role_id),
+    CONSTRAINT bci_activity_role_bci_activity_fkey FOREIGN KEY (bci_activity_role_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT bci_activity_role_content_fkey FOREIGN KEY (bci_activity_role_role_id) REFERENCES role (role_id)
+);
+

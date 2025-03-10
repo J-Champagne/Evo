@@ -1,8 +1,12 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.Objects;
 
 
 /**
@@ -12,6 +16,8 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "actor")
+@Transactional
+@JsonPropertyOrder({"id", "name", "email", "role"})
 public class Actor extends AbstractEvoModel {
 	
 	@Id
@@ -35,7 +41,7 @@ public class Actor extends AbstractEvoModel {
 
 	public Actor() {}
 
-	public Actor(String name, String email) {
+	public Actor(@NotNull String name, @NotNull String email) {
 		this.name = name;
 		this.email = email;
 	}
@@ -75,10 +81,13 @@ public class Actor extends AbstractEvoModel {
 	}
 
 	@Override
-	public String toString() {
-		return "{\"id\":" + this.id + ",\"name\":\"" + this.name + "\",\"email\":\"" + this.email +
-					"\",\"role\":" + (this.actorRole != null ? "{\"id\":" + actorRole.getId() + ",\"name\":\"" +
-				actorRole.getName() + "\"}" : "null") + "}";
+	public boolean equals(Object object) {
+		if (this == object) return true;
+		if (object == null || getClass() != object.getClass()) return false;
+		Actor actor = (Actor) object;
+		return Objects.equals(this.getId(), actor.getId()) &&
+			   Objects.equals(this.getName(), actor.getName()) &&
+			   Objects.equals(this.getEmail(), actor.getEmail());
 	}
 
 }

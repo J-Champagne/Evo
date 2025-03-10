@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.2</version>
-		<relativePath/>
-	</parent>
-	<groupId>ca.uqam.latece.evo.server.core</groupId>
-	<artifactId>application</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>application</name>
-	<description>Evo+</description>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<!-- PROPERTIES -->
-	 <properties>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.1.2</version>
+        <relativePath/>
+    </parent>
+    <groupId>ca.uqam.latece.evo.server.core</groupId>
+    <artifactId>application</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>application</name>
+    <description>Evo+</description>
+
+    <!-- PROPERTIES -->
+    <properties>
         <java.version>17</java.version>
         <testcontainers.version>1.19.0</testcontainers.version>
     </properties>
-    
-	<!-- DEPENDENCIES -->
-	<dependencies>
-		  <!-- REST endpoints -->
+
+    <!-- DEPENDENCIES -->
+    <dependencies>
+        <!-- REST endpoints -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -79,6 +79,7 @@
             <artifactId>lombok</artifactId>
             <version>1.18.34</version>
         </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -93,15 +94,66 @@
         </dependencies>
     </dependencyManagement>
 
-	<!-- BUILD -->
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			
-			<plugin>
+    <!-- BUILD -->
+    <build>
+        <plugins>
+            <!-- JaCoCO is a tool for generating Code Coverage (CC) reports for Java projects.
+            CC is a software metric used to measure how many lines of our code are executed
+            during automated tests. -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.11</version>
+                <configuration>
+                    <excludes>
+                        <exclude>javax/*</exclude>
+                        <exclude>java/*</exclude>
+                        <exclude>sun/*</exclude>
+                        <exclude>jdk/*</exclude>
+                        <exclude>com/sun/*</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-style</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -109,6 +161,6 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 </project>

@@ -1,49 +1,62 @@
 package ca.uqam.latece.evo.server.core.model;
 
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
- * Represents a Skill entity having a unique ID, name, description, and type.
+ * Represents a Skill entity having a unique ID, name, description, type, skill_id.
  * The Skill entity is associated with a collection of Content entities through
  * a many-to-many relationship.
  * This class is mapped to the "skill" table in the database with columns for:
- * - `skill_id` (primary key)
- * - `skill_name` (name of the skill, must be unique and is mandatory)
- * - `skill_description` (optional description of the skill)
- * - `skill_type` (type of the skill)
- * - skill_skill_id (Auto relationship for skill table. Foreign key to identify a sub-skill.)
+ * - skill_id - primary key.
+ * - skill_name - name of the skill, must be unique and is mandatory.
+ * - skill_description - optional description of the skill.
+ * - skill_type - type of the skill.
+ * - skill_skill_id - Auto relationship for skill table. Foreign key to identify a required skill.
  *
  * @version 1.0
  * @author Edilton Lima dos Santos.
  */
 @Entity
 @Table(name = "skill")
+@JsonPropertyOrder({"id", "name", "description", "type"})
 public class Skill extends AbstractEvoModel {
     @Id
+    @JsonProperty("id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="skill_id")
     private Long id;
 
+    @NotNull
+    @JsonProperty("name")
     @Column(name = "skill_name", nullable = false, unique = true, length = 128)
     private String name;
 
+    @JsonProperty("description")
     @Column(name = "skill_description", nullable = true, length = 256)
     private String description;
 
+    @NotNull
+    @JsonProperty("type")
     @Enumerated(EnumType.STRING)
     @Column(name = "skill_type", nullable = false)
     private SkillType type;
 
     /**
-     * Auto relationship for skill table. Foreign key to identify a sub-skill.
+     * Represents the many-to-one auto relationship for skill table. Foreign key to identify a skill required.
+     * "FetchType.LAZY" ensures that the associated Content entities are loaded lazily.
      */
-   // @Column(name = "skill_skill_id", nullable = true)
-   // private Skill requiredSkill;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "skill_skill_id", referencedColumnName = "skill_id", nullable = true) // Ensures foreign key setup in the database
+    @JsonProperty("skill")
+    private Skill requiredSkill;
 
     /**
      * Represents the many-to-many relationship between Skill and Content entities.
@@ -60,24 +73,37 @@ public class Skill extends AbstractEvoModel {
             name = "skill_content",
             joinColumns = @JoinColumn(name = "skill_content_skill_id", referencedColumnName="skill_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_content_content_id", referencedColumnName="content_id"))
+    @JsonProperty("contents")
     private List<Content> contents = new ArrayList<>();
 
-    public Skill() {}
+    @JsonProperty("develops")
+    @OneToOne(mappedBy = "skill")
+    private Develops develops;
 
-    /**
-     * Constructs a new Skill instance with the specified parameters.
-     * @param name the name of the skill.
-     * @param description a brief description of the skill.
-     * @param type the type of the skill.
-     */
-    public Skill(String name, String description, SkillType type) {
-        this.name = name;
-        this.description = description;
-        this.type = type;
+    @JsonProperty("requires")
+    @OneToOne(mappedBy = "skill")
+    private Requires requires;
+
+
+
+    public Requires getRequires() {
+        return requires;
+    }
+
+    public void setRequires(Requires requires) {
+        this.requires = requires;
+    }
+
+    public Develops getDevelops() {
+        return develops;
+    }
+
+    public void setDevelops(Develops develops) {
+        this.develops = develops;
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Long id) {
@@ -85,7 +111,7 @@ public class Skill extends AbstractEvoModel {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -93,7 +119,7 @@ public class Skill extends AbstractEvoModel {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public void setDescription(String description) {
@@ -101,7 +127,7 @@ public class Skill extends AbstractEvoModel {
     }
 
     public SkillType getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(SkillType type) {
@@ -109,52 +135,39 @@ public class Skill extends AbstractEvoModel {
     }
 
     public List<Content> getContents() {
-        return contents;
+        return this.contents;
     }
 
     public void setContents(List<Content> contents) {
-        this.contents = contents;
+        if (contents != null) {
+            if (!contents.isEmpty()) {
+                this.contents = contents;
+            }
+        }
     }
 
     public void addContent(Content content) {
-        this.contents.add(content);
+        if (this.contents != null) {
+            this.contents.add(content);
+        }
     }
 
     public void removeContent(Content content) {
-        this.contents.remove(content);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder json = new StringBuilder();
-        json.append("{\"id\":").
-                append(this.getId()).
-                append(",\"name\":\"").
-                append(this.getName()).
-                append("\",\"description\":\"").
-                append(this.getDescription()).
-                append("\",\"type\":\"").
-                append(this.getType()).
-                append("\",\"contents\":").
-                append("[");
-
-        if (this.contents != null && !this.contents.isEmpty()) {
-            // Starts the content collection.
-            for (Content content : this.contents){
-                json.append("{\"id\":").
-                        append(content.getId()).
-                        append(",\"name\":\"").
-                        append(content.getName()).
-                        append("\",\"description\":\"").
-                        append(content.getDescription()).
-                        append("\",\"type\":\"").
-                        append(content.getType()).
-                        append("\"},");
+        if (this.contents != null) {
+            if (!this.contents.isEmpty()) {
+                this.contents.remove(content);
             }
-            // Remover the last virgule.
-            json.setLength(json.length() - 1);
         }
-
-        return json.append("]}").toString();
     }
+
+    public void setRequiredSkill(Skill requiredSkill) {
+        if (requiredSkill != null) {
+            this.requiredSkill = requiredSkill;
+        }
+    }
+
+    public Skill getRequiredSkill() {
+        return this.requiredSkill;
+    }
+
 }
