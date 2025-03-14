@@ -38,7 +38,7 @@ public class BCIActivityController extends AbstractEvoController <BCIActivity> {
         ObjectValidator.validateObject(model);
 
         return Optional.ofNullable(bciActivityService.create(model)).isPresent() ?
-                new ResponseEntity<>(HttpStatus.CREATED) :
+                new ResponseEntity<>(model, HttpStatus.CREATED) :
                 new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 

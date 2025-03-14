@@ -41,7 +41,7 @@ public class SkillController extends AbstractEvoController<Skill> {
     public ResponseEntity<Skill> create(@RequestBody Skill skill) {
         ObjectValidator.validateObject(skill);
         return Optional.ofNullable(skillService.create(skill)).isPresent() ?
-                new ResponseEntity<>(HttpStatus.CREATED) :
+                new ResponseEntity<>(skill, HttpStatus.CREATED) :
                 new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 

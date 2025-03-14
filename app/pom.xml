@@ -139,8 +139,6 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>check-style</id>
-                        <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
@@ -163,4 +161,17 @@
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

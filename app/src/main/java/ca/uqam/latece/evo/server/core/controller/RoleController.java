@@ -45,7 +45,7 @@ public class RoleController extends AbstractEvoController <Role> {
     public ResponseEntity<Role> create(@RequestBody Role role) {
         ObjectValidator.validateObject(role);
         return Optional.ofNullable(roleService.create(role)).isPresent() ?
-                new ResponseEntity<>(HttpStatus.CREATED) :
+                new ResponseEntity<>(role, HttpStatus.CREATED) :
                 new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 

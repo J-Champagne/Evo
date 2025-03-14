@@ -47,7 +47,7 @@ public class RequiresController extends AbstractEvoController <Requires> {
     public ResponseEntity<Requires> create(@RequestBody Requires requires) {
         ObjectValidator.validateObject(requires);
         return Optional.ofNullable(requiresService.create(requires)).isPresent() ?
-                new ResponseEntity<>(HttpStatus.CREATED) :
+                new ResponseEntity<>(requires, HttpStatus.CREATED) :
                 new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 

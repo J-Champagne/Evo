@@ -8,6 +8,6 @@ public class Controller {
 
     @GetMapping("/")
     public String index() {
-        return "Hello World";
+        return "Welcome to the Evo Server!";
     }
 }

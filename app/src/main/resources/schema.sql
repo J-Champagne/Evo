@@ -237,3 +237,90 @@ CREATE TABLE IF NOT EXISTS bci_activity_role (
     CONSTRAINT bci_activity_role_content_fkey FOREIGN KEY (bci_activity_role_role_id) REFERENCES role (role_id)
 );
 
+/***********************************************************************************************************************
+behavior_change_intervention table: This table stores information about Behavior Change Intervention.
+- Columns:
+  - behavior_change_intervention_id: A unique identifier for each Behavior Change Intervention. It's type BIGSERIAL, meaning it's an auto-incrementing integer.
+  - behavior_change_intervention_name: The name of the behavior change intervention.
+- Constraints:
+  - behavior_change_intervention_pkey: Declares behavior_change_intervention_id as the primary key — ensuring each row has a unique identifier.
+  - behavior_change_intervention_name_ukey: Ensures that behavior_change_intervention_name is unique, meaning no
+    duplicate behavior change intervention names can exist.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS behavior_change_intervention (
+    behavior_change_intervention_id BIGSERIAL NOT NULL,
+    behavior_change_intervention_name VARCHAR,
+    CONSTRAINT behavior_change_intervention_pkey PRIMARY KEY (behavior_change_intervention_id),
+    CONSTRAINT behavior_change_intervention_name_ukey UNIQUE (behavior_change_intervention_name)
+);
+
+/***********************************************************************************************************************
+behavior_change_intervention_block table: This table stores information about Behavior Change Intervention Block.
+- Columns:
+  - behavior_change_intervention_block_id: A unique identifier for each Behavior Change Intervention Block.
+    It's type BIGSERIAL, meaning it's an auto-incrementing integer.
+  - behavior_change_intervention_block_entry_conditions: The entry conditions of the behavior change intervention block.
+  - behavior_change_intervention_block_exit_conditions: The exit conditions of the behavior change intervention block.
+- Constraints:
+  - behavior_change_intervention_block_pkey: Declares behavior_change_intervention_block_id as the primary key —
+    ensuring each row has a unique identifier.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS behavior_change_intervention_block (
+    behavior_change_intervention_block_id BIGSERIAL NOT NULL,
+    behavior_change_intervention_block_entry_conditions VARCHAR (256) NOT NULL,
+    behavior_change_intervention_block_exit_conditions VARCHAR (256) NOT NULL,
+    CONSTRAINT behavior_change_intervention_block_pkey PRIMARY KEY (behavior_change_intervention_block_id)
+);
+
+/***********************************************************************************************************************
+behavior_change_intervention_phase table: This table stores information about Behavior Change Intervention Phase.
+- Columns:
+  - behavior_change_intervention_phase_id: A unique identifier for each Behavior Change Intervention Phase.
+    It's type BIGSERIAL, meaning it's an auto-incrementing integer.
+  - behavior_change_intervention_phase_entry_conditions: The entry conditions of the behavior change intervention phase.
+  - behavior_change_intervention_phase_exit_conditions: The exit conditions of the behavior change intervention phase.
+  - behavior_change_intervention_phase_bci_id: A foreign key referencing a behavior_change_intervention_id in the
+  behavior_change_intervention table.
+- Constraints:
+  - behavior_change_intervention_phase_pkey: Declares behavior_change_intervention_phase_id as the primary key —
+    ensuring each row has a unique identifier.
+  - behavior_change_intervention_phase_bci_fkey: Ensures that behavior_change_intervention_phase_bci_id references a valid
+  record in the behavior_change_intervention table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS behavior_change_intervention_phase (
+    behavior_change_intervention_phase_id BIGSERIAL NOT NULL,
+    behavior_change_intervention_phase_entry_conditions VARCHAR (256) NOT NULL,
+    behavior_change_intervention_phase_exit_conditions VARCHAR (256) NOT NULL,
+    behavior_change_intervention_phase_bci_id BIGINT NULL,
+    CONSTRAINT behavior_change_intervention_phase_pkey PRIMARY KEY (behavior_change_intervention_phase_id),
+    CONSTRAINT behavior_change_intervention_phase_bci_fkey FOREIGN KEY (behavior_change_intervention_phase_bci_id)
+        REFERENCES behavior_change_intervention (behavior_change_intervention_id)
+);
+
+/***********************************************************************************************************************
+compose_of_phase_block table: This is a junction table that represents a many-to-many relationship between
+  behavior_change_intervention_phase and behavior_change_intervention_block.
+- Columns:
+  - compose_of_phase_block_id: A unique identifier for each mapping, auto-incremented.
+  - compose_of_phase_block_bci_phase_id: A foreign key referencing a behavior_change_intervention_phase_id in the
+  behavior_change_intervention_phase table.
+  - compose_of_phase_block_bci_block_id: A foreign key referencing a behavior_change_intervention_block_id in the
+  behavior_change_intervention_block table.
+- Constraints:
+  - compose_of_phase_block_block_pkey: Primary key for this table.
+  - compose_of_phase_block_bci_phase_fkey: Ensures that compose_of_phase_block_bci_phase_id references a valid
+  record in the behavior_change_intervention_phase table.
+  - compose_of_phase_block_bci_block_fkey: Ensures that compose_of_phase_block_bci_block_id references a valid
+  record in the behavior_change_intervention_block table.
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS compose_of_phase_block (
+    compose_of_phase_block_id BIGSERIAL NOT NULL,
+    compose_of_phase_block_bci_phase_id BIGINT NOT NULL,
+    compose_of_phase_block_bci_block_id BIGINT NOT NULL,
+    CONSTRAINT compose_of_phase_block_block_pkey PRIMARY KEY (compose_of_phase_block_id),
+    CONSTRAINT compose_of_phase_block_bci_phase_fkey FOREIGN KEY (compose_of_phase_block_bci_phase_id)
+        REFERENCES behavior_change_intervention_phase (behavior_change_intervention_phase_id),
+    CONSTRAINT compose_of_phase_block_bci_block_fkey FOREIGN KEY (compose_of_phase_block_bci_block_id)
+        REFERENCES behavior_change_intervention_block (behavior_change_intervention_block_id)
+);
+
