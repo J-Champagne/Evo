@@ -2,7 +2,10 @@ package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.model.Content;
 import ca.uqam.latece.evo.server.core.service.ContentService;
+import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
@@ -10,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Content Controller.
@@ -20,20 +22,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/contents")
 public class ContentController extends AbstractEvoController<Content> {
+    private static final Logger logger = LoggerFactory.getLogger(ContentController.class);
+
     @Autowired
     private ContentService contentService;
-
-    /**
-     * Gets all Content.
-     * @return all Content.
-     */
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<Content>> findAll() {
-        return Optional.ofNullable(contentService.findAll()).isPresent() ?
-                new ResponseEntity<>(contentService.findAll(), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
 
     /**
      * Inserts a Content in the database.
@@ -47,9 +39,25 @@ public class ContentController extends AbstractEvoController<Content> {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     public ResponseEntity<Content> create(@Valid @RequestBody Content content) {
-        return Optional.ofNullable(contentService.create(content)).isPresent() ?
-                new ResponseEntity<>(content, HttpStatus.CREATED) :
-                new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Content> response;
+
+        try {
+            ObjectValidator.validateObject(content);
+            Content saved = contentService.create(content);
+
+            if (saved != null && saved.getId() > 0) {
+                response = new ResponseEntity<>(saved, HttpStatus.CREATED);
+                logger.info("Created new Content: {}", saved);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to create new Content.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to create new Content. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -64,9 +72,25 @@ public class ContentController extends AbstractEvoController<Content> {
     @PutMapping
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<Content> update(@Valid @RequestBody Content content) {
-        return Optional.ofNullable(contentService.update(content)).isPresent() ?
-                new ResponseEntity<>(content, HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<Content> response;
+
+        try {
+            ObjectValidator.validateObject(content);
+            Content updated = contentService.update(content);
+
+            if (updated != null && updated.getId() > 0) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated Content: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to update Content.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update Content. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -80,6 +104,7 @@ public class ContentController extends AbstractEvoController<Content> {
     @ResponseStatus(HttpStatus.NO_CONTENT) // 204
     public void deleteById(@PathVariable Long id) {
         contentService.deleteById(id);
+        logger.info("Content deleted: {}", id);
     }
 
     /**
@@ -91,9 +116,25 @@ public class ContentController extends AbstractEvoController<Content> {
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<Content> findById(@PathVariable Long id) {
-        return Optional.ofNullable(contentService.findById(id)).isPresent() ?
-                new ResponseEntity<>(contentService.findById(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<Content> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            Content content = contentService.findById(id);
+
+            if (content != null && content.getId().equals(id)) {
+                response = new ResponseEntity<>(content, HttpStatus.OK);
+                logger.info("Found Content: {}", content);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Content by id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Content by id. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -105,9 +146,25 @@ public class ContentController extends AbstractEvoController<Content> {
     @GetMapping("/find/name/{name}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<Content>> findByName(@PathVariable String name) {
-        return Optional.ofNullable(contentService.findByName(name)).isPresent() ?
-                new ResponseEntity<>(contentService.findByName(name), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Content>> response;
+
+        try {
+            ObjectValidator.validateString(name);
+            List<Content> contentList = contentService.findByName(name);
+
+            if (contentList != null && !contentList.isEmpty()) {
+                response = new ResponseEntity<>(contentList, HttpStatus.OK);
+                logger.info("Found Content list by name: {}", contentList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Content list by name: {}", name);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Content list name. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -118,9 +175,25 @@ public class ContentController extends AbstractEvoController<Content> {
     @GetMapping("/find/bciactivityid/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<Content>> findByBCIActivity(@PathVariable Long id) {
-        return Optional.ofNullable(contentService.findByBCIActivity(id)).isPresent() ?
-                new ResponseEntity<>(contentService.findByBCIActivity(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Content>> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            List<Content> contentList = contentService.findByBCIActivity(id);
+
+            if (contentList != null && !contentList.isEmpty()) {
+                response = new ResponseEntity<>(contentList, HttpStatus.OK);
+                logger.info("Found Content list by BCIActivity id: {}", contentList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Content list by BCIActivity id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Content list by BCIActivity id. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -131,9 +204,25 @@ public class ContentController extends AbstractEvoController<Content> {
     @GetMapping("/find/skill/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<Content>> findBySkill(@PathVariable Long id) {
-        return Optional.ofNullable(contentService.findBySkill(id)).isPresent() ?
-                new ResponseEntity<>(contentService.findBySkill(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Content>> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            List<Content> contentList = contentService.findBySkill(id);
+
+            if (contentList != null && !contentList.isEmpty()) {
+                response = new ResponseEntity<>(contentList, HttpStatus.OK);
+                logger.info("Found Content list by Skill id: {}", contentList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Content list by Skill id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Content list by Skill id. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -144,8 +233,51 @@ public class ContentController extends AbstractEvoController<Content> {
     @GetMapping("/find/type/{type}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<Content>> findByType(@PathVariable String type) {
-        return Optional.ofNullable(contentService.findByType(type)).isPresent() ?
-                new ResponseEntity<>(contentService.findByType(type), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Content>> response;
+
+        try {
+            List<Content> contentList = contentService.findByType(type);
+
+            if (contentList != null && !contentList.isEmpty()) {
+                response = new ResponseEntity<>(contentList, HttpStatus.OK);
+                logger.info("Found Content list by type: {}", contentList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Content list by type: {}", type);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Content list by type. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Gets all Content.
+     * @return all Content.
+     */
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<Content>> findAll() {
+        ResponseEntity<List<Content>> response;
+
+        try {
+            List<Content> contentList = contentService.findAll();
+
+            if (contentList != null && !contentList.isEmpty()) {
+                response = new ResponseEntity<>(contentList, HttpStatus.OK);
+                logger.info("Found all Content: {}", contentList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find all Content list.");
+                System.out.println("Failed to find all Content list.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find all Content list. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 }

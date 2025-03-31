@@ -1,7 +1,5 @@
 /***********************************************************************************************************************
-The provided SQL script defines a relational database structure involving multiple tables —
-role, actor, skill, content, skill_content, requires, and develops.
-
+The provided SQL script defines a relational database structure involving multiple tables part of Evo+ implementation.
  - since 22.01.2025.
  - version 1.0
  - author Edilton Lima dos Santos.
@@ -19,7 +17,7 @@ role table: This table stores information about roles in the system (e.g., admin
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS role (
     role_id BIGSERIAL NOT NULL,
-    role_name VARCHAR,
+    role_name VARCHAR(128),
     CONSTRAINT role_pkey PRIMARY KEY (role_id),
     CONSTRAINT role_role_name_ukey UNIQUE (role_name)
 );
@@ -38,8 +36,8 @@ actor table: This table stores information about actors (users or individuals) i
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS actor (
     actor_id BIGSERIAL NOT NULL,
-    actor_name VARCHAR NOT NULL,
-    actor_email VARCHAR NOT NULL,
+    actor_name VARCHAR(256) NOT NULL,
+    actor_email VARCHAR(256) NOT NULL,
     actor_role_id BIGINT NULL,
     CONSTRAINT actor_pkey PRIMARY KEY (actor_id),
     CONSTRAINT actor_actor_email_ukey UNIQUE (actor_email),
@@ -62,9 +60,9 @@ skill table: This table stores details about skills that actors may hold or requ
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS skill (
      skill_id BIGSERIAL NOT NULL,
-     skill_name VARCHAR NOT NULL,
-     skill_description VARCHAR NULL,
-     skill_type VARCHAR NULL,
+     skill_name VARCHAR(128) NOT NULL,
+     skill_description VARCHAR(256) NULL,
+     skill_type VARCHAR(256) NULL,
      skill_skill_id BIGINT NULL,
      CONSTRAINT skill_pkey PRIMARY KEY (skill_id),
      CONSTRAINT skill_skill_name_ukey UNIQUE (skill_name),
@@ -85,9 +83,9 @@ content table: This table stores details about content.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS content (
     content_id BIGSERIAL NOT NULL,
-    content_name VARCHAR NOT NULL,
-    content_description VARCHAR NOT NULL,
-    content_type VARCHAR NULL,
+    content_name VARCHAR(128) NOT NULL,
+    content_description VARCHAR(256) NOT NULL,
+    content_type VARCHAR(256) NULL,
     CONSTRAINT content_pkey PRIMARY KEY (content_id),
     CONSTRAINT content_content_name_ukey UNIQUE (content_name)
 );
@@ -114,7 +112,7 @@ CREATE TABLE IF NOT EXISTS skill_content (
 );
 
 /***********************************************************************************************************************
-bci_activity table:This table stores details about Behavior Change Technique Intervention Activity.
+bci_activity table: This table stores details about Behavior Change Technique Intervention Activity.
 - Columns:
   - bci_activity_id: A unique identifier for each Behavior Change Technique Intervention Activity, auto-incremented.
   - bci_activity_name: The name of the Behavior Change Technique Intervention Activity. It's required and must be unique.
@@ -124,19 +122,87 @@ bci_activity table:This table stores details about Behavior Change Technique Int
     Intervention Activity.
   - bci_activity_postconditions: An optional string to define a post-conditions of Behavior Change Technique
     Intervention Activity.
+  - bci_activity_type_class: Used by the Hibernate to map the subclass of BCIActivity.
 - Constraints:
   - bci_activity_pkey: Establishes bci_activity_id as the primary key.
   - bci_activity_name_ukey: Ensures that bci_activity_name is unique.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_activity (
     bci_activity_id BIGSERIAL NOT NULL,
-    bci_activity_name VARCHAR NOT NULL,
-    bci_activity_description VARCHAR NULL,
-    bci_activity_type VARCHAR NULL,
-    bci_activity_preconditions VARCHAR NULL,
-    bci_activity_postconditions VARCHAR NULL,
+    bci_activity_name VARCHAR(256) NOT NULL,
+    bci_activity_description VARCHAR(256) NULL,
+    bci_activity_type VARCHAR(128) NULL,
+    bci_activity_preconditions VARCHAR(256) NULL,
+    bci_activity_postconditions VARCHAR(256) NULL,
+    bci_activity_type_class VARCHAR(128),
     CONSTRAINT bci_activity_pkey PRIMARY KEY (bci_activity_id),
     CONSTRAINT bci_activity_name_ukey UNIQUE (bci_activity_name)
+);
+
+/***********************************************************************************************************************
+goal_setting table: This table stores details about Goal Setting.
+- Columns:
+  - goal_setting_id: A unique identifier for each Goal Setting, auto-incremented.
+  - goal_setting_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table used by the
+  Hibernate to map the subclass of BCIActivity.
+  - goal_setting_concerns_bci_activity_id: This foreign key is used to mapping the relationship between a goal setting
+  (goal_setting) and bci activity (bci_activity). Consequently, the goal_setting_concerns_bci_activity_id key referencing
+  a bci_activity_id in the bci_activity table.
+- Constraints:
+  - goal_setting_pkey: Primary key for this table.
+  - goal_setting_fkey: This constraint is used by the Hibernate to map the subclass of BCIActivity.
+  - goal_setting_concerns_fkey: Ensures that goal_setting_bci_activity_id references a valid record in the bci_activity table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS goal_setting (
+    goal_setting_id BIGSERIAL NOT NULL,
+    goal_setting_bci_activity_id BIGINT NULL,
+    goal_setting_concerns_bci_activity_id BIGINT NULL,
+    CONSTRAINT goal_setting_pkey PRIMARY KEY (goal_setting_id),
+    CONSTRAINT goal_setting_fkey FOREIGN KEY (goal_setting_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT goal_setting_concerns_fkey FOREIGN KEY (goal_setting_concerns_bci_activity_id) REFERENCES bci_activity (bci_activity_id)
+);
+
+/***********************************************************************************************************************
+reporting table: This table stores details about reporting.
+- Columns:
+  - reporting_id: A unique identifier for each reporting, auto-incremented.
+  - reporting_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table used by the
+  Hibernate to map the subclass of BCIActivity.
+  - reporting_frequency: The report frequency.
+  - reporting_concerns_bci_activity_id: This foreign key is used to mapping the relationship between a reporting
+  (reporting) and bci activity (bci_activity). Consequently, the reporting_concerns_bci_activity_id key referencing
+  a bci_activity_id in the bci_activity table.
+- Constraints:
+  - reporting_pkey: Primary key for this table.
+  - reporting_fkey: This constraint is used by the Hibernate to map the subclass of BCIActivity.
+  - reporting_concerns_fkey: Ensures that reporting_bci_activity_id references a valid record in the bci_activity table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS reporting (
+    reporting_id BIGSERIAL NOT NULL,
+    reporting_bci_activity_id BIGINT NULL,
+    reporting_concerns_bci_activity_id BIGINT NULL,
+    reporting_frequency VARCHAR(256) NOT NULL,
+    CONSTRAINT reporting_pkey PRIMARY KEY (reporting_id),
+    CONSTRAINT reporting_fkey FOREIGN KEY (reporting_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT reporting_concerns_fkey FOREIGN KEY (reporting_concerns_bci_activity_id) REFERENCES bci_activity (bci_activity_id)
+);
+
+/***********************************************************************************************************************
+behavior_performance table: This table stores details about Behavior Performance.
+- Columns:
+  - behavior_performance_id: A unique identifier for each Goal Setting, auto-incremented.
+  - behavior_performance_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table. This
+  key is used by the Hibernate to map the subclass of BCIActivity.
+- Constraints:
+  - behavior_performance_pkey: Primary key for this table.
+  - behavior_performance_fkey: Ensures that behavior_performance_bci_activity_id references a valid record in the
+  bci_activity table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS behavior_performance (
+    behavior_performance_id BIGSERIAL NOT NULL,
+    behavior_performance_bci_activity_id BIGINT NULL,
+    CONSTRAINT behavior_performance_pkey PRIMARY KEY (behavior_performance_id),
+    CONSTRAINT behavior_performance_fkey FOREIGN KEY (behavior_performance_bci_activity_id) REFERENCES bci_activity (bci_activity_id)
 );
 
 /***********************************************************************************************************************
@@ -155,7 +221,7 @@ requires table: This table represents skills required for certain roles at a par
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS requires (
     requires_id BIGSERIAL NOT NULL,
-    requires_level VARCHAR NOT NULL,
+    requires_level VARCHAR(256) NOT NULL,
     requires_role_id BIGINT NOT NULL,
     requires_skill_id BIGINT NOT NULL,
     requires_bci_activity_id BIGINT NOT NULL,
@@ -181,7 +247,7 @@ develops table: This table represents skills that are developed by roles at a ce
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS develops (
     develops_id BIGSERIAL NOT NULL,
-    develops_level VARCHAR NOT NULL,
+    develops_level VARCHAR(256) NOT NULL,
     develops_role_id BIGINT NOT NULL,
     develops_skill_id BIGINT NOT NULL,
     develops_bci_activity_id BIGINT NOT NULL,
@@ -249,7 +315,7 @@ behavior_change_intervention table: This table stores information about Behavior
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS behavior_change_intervention (
     behavior_change_intervention_id BIGSERIAL NOT NULL,
-    behavior_change_intervention_name VARCHAR,
+    behavior_change_intervention_name VARCHAR(256) NOT NULL,
     CONSTRAINT behavior_change_intervention_pkey PRIMARY KEY (behavior_change_intervention_id),
     CONSTRAINT behavior_change_intervention_name_ukey UNIQUE (behavior_change_intervention_name)
 );
@@ -267,8 +333,8 @@ behavior_change_intervention_block table: This table stores information about Be
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS behavior_change_intervention_block (
     behavior_change_intervention_block_id BIGSERIAL NOT NULL,
-    behavior_change_intervention_block_entry_conditions VARCHAR (256) NOT NULL,
-    behavior_change_intervention_block_exit_conditions VARCHAR (256) NOT NULL,
+    behavior_change_intervention_block_entry_conditions VARCHAR(256) NOT NULL,
+    behavior_change_intervention_block_exit_conditions VARCHAR(256) NOT NULL,
     CONSTRAINT behavior_change_intervention_block_pkey PRIMARY KEY (behavior_change_intervention_block_id)
 );
 
@@ -289,8 +355,8 @@ behavior_change_intervention_phase table: This table stores information about Be
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS behavior_change_intervention_phase (
     behavior_change_intervention_phase_id BIGSERIAL NOT NULL,
-    behavior_change_intervention_phase_entry_conditions VARCHAR (256) NOT NULL,
-    behavior_change_intervention_phase_exit_conditions VARCHAR (256) NOT NULL,
+    behavior_change_intervention_phase_entry_conditions VARCHAR(256) NOT NULL,
+    behavior_change_intervention_phase_exit_conditions VARCHAR(256) NOT NULL,
     behavior_change_intervention_phase_bci_id BIGINT NULL,
     CONSTRAINT behavior_change_intervention_phase_pkey PRIMARY KEY (behavior_change_intervention_phase_id),
     CONSTRAINT behavior_change_intervention_phase_bci_fkey FOREIGN KEY (behavior_change_intervention_phase_bci_id)
@@ -323,4 +389,3 @@ CREATE TABLE IF NOT EXISTS compose_of_phase_block (
     CONSTRAINT compose_of_phase_block_bci_block_fkey FOREIGN KEY (compose_of_phase_block_bci_block_id)
         REFERENCES behavior_change_intervention_block (behavior_change_intervention_block_id)
 );
-

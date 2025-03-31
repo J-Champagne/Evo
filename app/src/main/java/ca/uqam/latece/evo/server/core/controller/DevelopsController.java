@@ -5,9 +5,11 @@ import ca.uqam.latece.evo.server.core.model.Develops;
 import ca.uqam.latece.evo.server.core.service.DevelopsService;
 
 import java.util.List;
-import java.util.Optional;
 
+import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,8 @@ import org.springframework.http.HttpStatus;
 @RestController
 @RequestMapping("/develops")
 public class DevelopsController extends AbstractEvoController<Develops> {
+    private static final Logger logger = LoggerFactory.getLogger(DevelopsController.class);
+
     @Autowired
     private DevelopsService developsService;
 
@@ -45,9 +49,25 @@ public class DevelopsController extends AbstractEvoController<Develops> {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     public ResponseEntity<Develops> create(@RequestBody Develops develops) {
-        return Optional.ofNullable(developsService.create(develops)).isPresent() ?
-                new ResponseEntity<>(develops, HttpStatus.CREATED) :
-                new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Develops> response;
+
+        try {
+            ObjectValidator.validateObject(develops);
+            Develops saved = developsService.create(develops);
+
+            if (saved != null && saved.getId() > 0) {
+                response = new ResponseEntity<>(saved, HttpStatus.CREATED);
+                logger.info("Created new Develops: {}", saved);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to create new Develops.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to create new Develops. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -62,9 +82,25 @@ public class DevelopsController extends AbstractEvoController<Develops> {
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Develops> update(@RequestBody Develops develops) {
-        return Optional.ofNullable(developsService.update(develops)).isPresent() ?
-                new ResponseEntity<>(develops, HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<Develops> response;
+
+        try {
+            ObjectValidator.validateObject(develops);
+            Develops updated = developsService.update(develops);
+
+            if (updated != null && updated.getId().equals(develops.getId())) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated Develops: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to update Develops.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update Develops. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -77,18 +113,7 @@ public class DevelopsController extends AbstractEvoController<Develops> {
     @ResponseStatus(HttpStatus.NO_CONTENT) // 204
     public void deleteById(@PathVariable Long id) {
         developsService.deleteById(id);
-    }
-
-    /**
-     * Gets all Develops.
-     * @return all Develops.
-     */
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<Develops>> findAll() {
-        return Optional.ofNullable(developsService.findAll()).isPresent() ?
-                new ResponseEntity<>(developsService.findAll(), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        logger.info("Develops deleted: {}", id);
     }
 
     /**
@@ -101,9 +126,25 @@ public class DevelopsController extends AbstractEvoController<Develops> {
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Develops> findById(@PathVariable Long id) {
-        return Optional.ofNullable(developsService.findById(id)).isPresent() ?
-                new ResponseEntity<>(developsService.findById(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<Develops> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            Develops develops = developsService.findById(id);
+
+            if (develops != null && develops.getId().equals(id)) {
+                response = new ResponseEntity<>(develops, HttpStatus.OK);
+                logger.info("Found develops: {}", develops);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find develops by id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find develops by id. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -114,9 +155,24 @@ public class DevelopsController extends AbstractEvoController<Develops> {
     @GetMapping("/find/level/{level}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Develops>> findByLevel(@PathVariable SkillLevel level){
-        return Optional.ofNullable(developsService.findByLevel(level)).isPresent() ?
-                new ResponseEntity<>(developsService.findByLevel(level), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Develops>> response;
+
+        try {
+            List<Develops> developsList = developsService.findByLevel(level);
+
+            if (developsList != null && !developsList.isEmpty()) {
+                response = new ResponseEntity<>(developsList, HttpStatus.OK);
+                logger.info("Found develops list by Skill level: {}", developsList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find develops list by Skill level: {}", level);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find develops list by Skill level. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -127,9 +183,24 @@ public class DevelopsController extends AbstractEvoController<Develops> {
     @GetMapping("/find/roleid/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Develops>> findByRoleId(@PathVariable Long id) {
-        return Optional.ofNullable(developsService.findByRoleId(id)).isPresent() ?
-                new ResponseEntity<>(developsService.findByRoleId(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Develops>> response;
+
+        try {
+            List<Develops> developsList = developsService.findByRoleId(id);
+
+            if (developsList != null && !developsList.isEmpty()) {
+                response = new ResponseEntity<>(developsList, HttpStatus.OK);
+                logger.info("Found develops list by Role id: {}", developsList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find develops list by Role id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find develops list by Role id. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -140,9 +211,24 @@ public class DevelopsController extends AbstractEvoController<Develops> {
     @GetMapping("/find/skillid/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Develops>> findBySkillId(@PathVariable Long id) {
-        return Optional.ofNullable(developsService.findBySkillId(id)).isPresent() ?
-                new ResponseEntity<>(developsService.findBySkillId(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Develops>> response;
+
+        try {
+            List<Develops> developsList = developsService.findBySkillId(id);
+
+            if (developsList != null && !developsList.isEmpty()) {
+                response = new ResponseEntity<>(developsList, HttpStatus.OK);
+                logger.info("Found develops list by Skill id: {}", developsList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find develops list by Skill id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find develops list by Skill id. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -153,8 +239,50 @@ public class DevelopsController extends AbstractEvoController<Develops> {
     @GetMapping("/find/bciactivityid/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Develops>> findByBCIActivityId(@PathVariable Long id) {
-        return Optional.ofNullable(developsService.findByBCIActivityId(id)).isPresent() ?
-                new ResponseEntity<>(developsService.findByBCIActivityId(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Develops>> response;
+
+        try {
+            List<Develops> developsList = developsService.findByBCIActivityId(id);
+
+            if (developsList != null && !developsList.isEmpty()) {
+                response = new ResponseEntity<>(developsList, HttpStatus.OK);
+                logger.info("Found develops list by BCIActivity id: {}", developsList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find develops list by BCIActivity id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find develops list by BCIActivity id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Gets all Develops.
+     * @return all Develops.
+     */
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Develops>> findAll() {
+        ResponseEntity<List<Develops>> response;
+
+        try {
+            List<Develops> developsList = developsService.findAll();
+
+            if (developsList != null && !developsList.isEmpty()) {
+                response = new ResponseEntity<>(developsList, HttpStatus.OK);
+                logger.info("Found all develops: {}", developsList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find all develops.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find all develops. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 }

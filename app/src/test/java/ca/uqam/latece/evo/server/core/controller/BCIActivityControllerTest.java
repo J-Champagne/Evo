@@ -29,9 +29,9 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = BCIActivityController.class)
 @ContextConfiguration(classes = {BCIActivityController.class, BCIActivityService.class, BCIActivity.class})
 public class BCIActivityControllerTest extends AbstractControllerTest {
-
     @MockBean
-    private BCIActivityRepository bciActivityRepository;
+    private
+     BCIActivityRepository bciActivityRepository;
 
     private BCIActivity bciActivity  = new BCIActivity();
     private Develops develops = new Develops();
@@ -88,6 +88,14 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
         content.setDescription("Content description");
 
         performCreateRequest("/bciactivity", bciActivity);
+    }
+
+    @Test
+    void testCreateBadRequest() throws Exception {
+        BCIActivity bciActivity  = new BCIActivity();
+        bciActivity.setId(1L);
+
+        performCreateRequestBadRequest("/bciactivity", bciActivity);
     }
 
     @Test

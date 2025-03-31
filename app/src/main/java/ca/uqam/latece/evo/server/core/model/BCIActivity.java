@@ -19,6 +19,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "bci_activity")
+@Inheritance(strategy = InheritanceType.JOINED)
 @JsonPropertyOrder({"id", "name", "description", "type", "preconditions", "postconditions"})
 public class BCIActivity extends AbstractEvoModel {
     private static final Logger logger = LogManager.getLogger(BCIActivity.class);
@@ -73,7 +74,6 @@ public class BCIActivity extends AbstractEvoModel {
     )
     private List<Role> roleBCIActivities = new ArrayList<>();
 
-
     @Override
     public void setId(Long id) {
         this.id = id;
@@ -83,7 +83,6 @@ public class BCIActivity extends AbstractEvoModel {
     public Long getId() {
         return this.id;
     }
-
 
     public void setName(String name) {
         this.name = name;

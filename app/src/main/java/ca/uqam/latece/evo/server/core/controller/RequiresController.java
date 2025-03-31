@@ -3,9 +3,9 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.model.Requires;
 import ca.uqam.latece.evo.server.core.service.RequiresService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Requires Controller.
@@ -30,6 +29,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/requires")
 public class RequiresController extends AbstractEvoController <Requires> {
+    private static final Logger logger = LoggerFactory.getLogger(RequiresController.class);
+
     @Autowired
     private RequiresService requiresService;
 
@@ -37,36 +38,58 @@ public class RequiresController extends AbstractEvoController <Requires> {
      * Inserts a Requires in the database.
      * @param requires The Requires entity.
      * @return The saved Requires.
-     * @throws IllegalArgumentException in case the given Requires is null.
-     * @throws OptimisticLockingFailureException when the Requires uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     public ResponseEntity<Requires> create(@RequestBody Requires requires) {
-        ObjectValidator.validateObject(requires);
-        return Optional.ofNullable(requiresService.create(requires)).isPresent() ?
-                new ResponseEntity<>(requires, HttpStatus.CREATED) :
-                new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Requires> response;
+
+        try {
+            ObjectValidator.validateObject(requires);
+            Requires saved = requiresService.create(requires);
+
+            if (saved != null && saved.getId() > 0) {
+                response = new ResponseEntity<>(saved, HttpStatus.CREATED);
+                logger.info("Created new requires: {}", saved);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to create new requires.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to create new requires. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
      * Update a Requires in the database.
      * @param requires The Requires entity.
      * @return The saved Requires.
-     * @throws IllegalArgumentException in case the given Requires is null.
-     * @throws OptimisticLockingFailureException when the Requires uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Requires> update (@RequestBody Requires requires) {
-        ObjectValidator.validateObject(requires);
-        return Optional.ofNullable(requiresService.update(requires)).isPresent() ?
-                new ResponseEntity<>(requires, HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<Requires> response;
+
+        try {
+            ObjectValidator.validateObject(requires);
+            Requires updated = requiresService.update(requires);
+
+            if (updated != null && updated.getId().equals(requires.getId())) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated requires: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to update requires.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update requires. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -80,18 +103,7 @@ public class RequiresController extends AbstractEvoController <Requires> {
     @ResponseStatus(HttpStatus.NO_CONTENT) // 204
     public void deleteById(@PathVariable Long id){
         requiresService.deleteById(id);
-    }
-
-    /**
-     * Gets all Requires.
-     * @return all Requires.
-     */
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<Requires>> findAll() {
-        return Optional.ofNullable(requiresService.findAll()).isPresent() ?
-                new ResponseEntity<>(requiresService.findAll(), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        logger.info("Requires deleted: {}", id);
     }
 
      /**
@@ -99,15 +111,29 @@ public class RequiresController extends AbstractEvoController <Requires> {
      * <p>Note: <p/>Validates the provided identifier before fetching the role from the repository.
      * @param id the unique identifier of the requires to be retrieved.
      * @return the requires corresponding to the specified identifier.
-     * @throws IllegalArgumentException if the provided id is null or invalid.
-     * @throws EntityNotFoundException if the requires not found.
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<Requires> findById(@PathVariable Long id) {
-        return Optional.ofNullable(requiresService.findById(id)).isPresent() ?
-                new ResponseEntity<>(requiresService.findById(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<Requires> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            Requires requires = requiresService.findById(id);
+
+            if (requires != null && requires.getId().equals(id)) {
+                response = new ResponseEntity<>(requires, HttpStatus.OK);
+                logger.info("Found requires: {}", requires);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find requires by id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find reporting. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -118,9 +144,25 @@ public class RequiresController extends AbstractEvoController <Requires> {
     @GetMapping("/find/roleid/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<Requires>> findByRoleId(@PathVariable Long id) {
-        return Optional.ofNullable(requiresService.findByRoleId(id)).isPresent() ?
-                new ResponseEntity<>(requiresService.findByRoleId(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Requires>> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            List<Requires> requiresList = requiresService.findByRoleId(id);
+
+            if (requiresList != null && !requiresList.isEmpty()) {
+                response = new ResponseEntity<>(requiresList, HttpStatus.OK);
+                logger.info("Found Requires list by Role id: {}", requiresList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Requires list by Role id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Requires list by Role id. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -131,9 +173,25 @@ public class RequiresController extends AbstractEvoController <Requires> {
     @GetMapping("/find/skillid/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<Requires>> findBySkillId(@PathVariable Long id) {
-        return Optional.ofNullable(requiresService.findBySkillId(id)).isPresent() ?
-                new ResponseEntity<>(requiresService.findBySkillId(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Requires>> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            List<Requires> requiresList = requiresService.findBySkillId(id);
+
+            if (requiresList != null && !requiresList.isEmpty()) {
+                response = new ResponseEntity<>(requiresList, HttpStatus.OK);
+                logger.info("Found Requires list by Skill id: {}", requiresList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Requires list by Skill id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Requires list by Skill id. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -144,8 +202,51 @@ public class RequiresController extends AbstractEvoController <Requires> {
     @GetMapping("/find/bciactivityid/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<Requires>> findByBCIActivityId(@PathVariable Long id) {
-        return Optional.ofNullable(requiresService.findByBCIActivityId(id)).isPresent() ?
-                new ResponseEntity<>(requiresService.findByBCIActivityId(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<Requires>> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            List<Requires> requiresList = requiresService.findByBCIActivityId(id);
+
+            if (requiresList != null && !requiresList.isEmpty()) {
+                response = new ResponseEntity<>(requiresList, HttpStatus.OK);
+                logger.info("Found Requires list by BCIActivity id: {}", requiresList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Requires list by BCIActivity id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Requires list by BCIActivity id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Gets all Requires.
+     * @return all Requires.
+     */
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<Requires>> findAll() {
+        ResponseEntity<List<Requires>> response;
+
+        try {
+            List<Requires> requiresList = requiresService.findAll();
+
+            if (requiresList != null && !requiresList.isEmpty()) {
+                response = new ResponseEntity<>(requiresList, HttpStatus.OK);
+                logger.info("Found all Requires: {}", requiresList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find all Requires list.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find all Requires list. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 }

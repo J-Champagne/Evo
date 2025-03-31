@@ -60,6 +60,25 @@ public abstract class AbstractControllerTest {
                 .andExpect(jsonPath(expression).value(expectedValue)); // Used to check the data in the JSON.
     }
 
+
+    /**
+     * Perform a GET request not found to test the controller.
+     * @param urlTemplate URL template; the resulting URL will be encoded.
+     * @param expression the JSON path expression. For example:
+     *                   - $.name to retrieve the nome value in the entity;
+     *                   - $.id to retrieve the id value in the entity;
+     *                   - $.email to retrieve the email value in the entity;
+     *                   - $[0].type to retrieve the type properties inside the JSON array. Uses it if your
+     *                   get method return a collection like List.
+     * @throws Exception An exception will be throws if the test fail.
+     */
+    protected void performGetRequestNotFound(@NotNull String urlTemplate, @NotNull String expression) throws Exception {
+        // Perform a GET request to test the controller.
+        mockMvc.perform(get(urlTemplate).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound()) // HttpStatus OK (404).
+                .andExpect(jsonPath(expression).doesNotExist()); // Used to check the data in the JSON.
+    }
+
     /**
      * Perform a POST request to test the controller.
      * @param urlTemplate URL template; the resulting URL will be encoded.
@@ -71,6 +90,19 @@ public abstract class AbstractControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(evoModel.toString()))
                         .andExpect(status().isCreated()); // Check if the insert was performed via the HttpStatus OK (200).
+    }
+
+    /**
+     * Perform a POST request with bad request to test the controller.
+     * @param urlTemplate URL template; the resulting URL will be encoded.
+     * @param evoModel The model that will be inserted in the database.
+     * @throws Exception An exception will be throws if the test fail.
+     */
+    protected void performCreateRequestBadRequest(@NotNull String urlTemplate, @NotNull AbstractEvoModel evoModel) throws Exception {
+        mockMvc.perform(post(urlTemplate)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(evoModel.toString()))
+                .andExpect(status().isBadRequest()); // Check if the insert was performed via the HttpStatus OK (400).
     }
 
     /**

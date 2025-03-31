@@ -57,12 +57,12 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
     @BeforeEach
     void beforeEach(){
         // Create a Role.
-        role.setName("Admin");
-        role2.setName("Participant");
+        role.setName("Admin - BCIActivity Test");
+        role2.setName("Participant - BCIActivity Test");
 
         // Create a Skill.
-        skill.setName("Java");
-        skill.setDescription("Programming language");
+        skill.setName("Java - BCIActivity Test");
+        skill.setDescription("Programming language - BCIActivity Test");
         skill.setType(SkillType.BCT);
 
         // Create a Role.
@@ -72,20 +72,20 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         skillService.create(skill);
 
         // Create a BCI Activity.
-        bciActivity.setName("Programming 2");
-        bciActivity.setDescription("Programming language training 2");
+        bciActivity.setName("Programming 2 - BCIActivity Test");
+        bciActivity.setDescription("Programming language training 2 - BCIActivity Test");
         bciActivity.setType(ActivityType.LEARNING);
-        bciActivity.setPreconditions("Preconditions 2");
-        bciActivity.setPostconditions("Post-conditions 2");
+        bciActivity.setPreconditions("Preconditions 2 - BCIActivity Test");
+        bciActivity.setPostconditions("Post-conditions 2 - BCIActivity Test");
         bciActivity.addRole(role);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity);
 
-        bciActivity2.setName("Testing 2");
-        bciActivity2.setDescription("Testing training 2");
+        bciActivity2.setName("Testing 2 - BCIActivity Test");
+        bciActivity2.setDescription("Testing training 2 - BCIActivity Test");
         bciActivity2.setType(ActivityType.LEARNING);
-        bciActivity2.setPreconditions("Testing Preconditions 2");
-        bciActivity2.setPostconditions("Testing Post-conditions 2");
+        bciActivity2.setPreconditions("Testing Preconditions 2 - BCIActivity Test");
+        bciActivity2.setPostconditions("Testing Post-conditions 2 - BCIActivity Test");
         bciActivity2.addRole(role2);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity2);
@@ -112,14 +112,14 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         developsService.create(develops);
 
         // Create Content.
-        content.setName("Content Name");
-        content.setDescription("Content Description");
-        content.setType("Content Video");
+        content.setName("Content Name - BCIActivity Test");
+        content.setDescription("Content Description - BCIActivity Test");
+        content.setType("Content Video - BCIActivity Test");
         content.addBCIActivity(bciActivity);
 
-        content2.setName("Content2");
-        content2.setDescription("Content 2 Description");
-        content2.setType("Content Test");
+        content2.setName("Content2 - BCIActivity Test");
+        content2.setDescription("Content 2 Description - BCIActivity Test");
+        content2.setType("Content Test - BCIActivity Test");
         content2.addBCIActivity(bciActivity2);
 
         // Save the Content.
@@ -131,6 +131,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
     void afterEach(){
         // Delete a BCI Activity.
         bciActivityService.deleteById(bciActivity.getId());
+        bciActivityService.deleteById(bciActivity2.getId());
         // Create a Role.
         roleService.deleteById(role.getId());
         // Create a Skill.
@@ -150,11 +151,11 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
     void testSave() {
         BCIActivity bciActivity = new BCIActivity();
         // Create a BCI Activity.
-        bciActivity.setName("Programming 1112");
-        bciActivity.setDescription("Programming language training 1112");
+        bciActivity.setName("Programming 312 - BCIActivity Test");
+        bciActivity.setDescription("Programming language training - BCIActivity Test");
         bciActivity.setType(ActivityType.LEARNING);
-        bciActivity.setPreconditions("Preconditions 1112");
-        bciActivity.setPostconditions("Post-conditions 1112");
+        bciActivity.setPreconditions("Preconditions - BCIActivity Test");
+        bciActivity.setPostconditions("Post-conditions - BCIActivity Test");
         bciActivity.addRole(role);
         // Create a BCI Activity.
         BCIActivity bciActivitySaved = bciActivityService.create(bciActivity);
@@ -169,10 +170,10 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         // Create a BCI Activity.
         BCIActivity bciActivitySaved = new BCIActivity();
         bciActivitySaved.setId(bciActivity.getId());
-        bciActivitySaved.setName("Database");
-        bciActivitySaved.setDescription("Database training");
-        bciActivitySaved.setPreconditions("Preconditions");
-        bciActivitySaved.setPostconditions("Post-conditions");
+        bciActivitySaved.setName("Database - BCIActivity Test");
+        bciActivitySaved.setDescription("Database training - BCIActivity Test");
+        bciActivitySaved.setPreconditions("Preconditions - BCIActivity Test");
+        bciActivitySaved.setPostconditions("Post-conditions - BCIActivity Test");
         bciActivitySaved.setType(bciActivity.getType());
         bciActivitySaved.setRole(bciActivity.getRole());
 
@@ -182,9 +183,9 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         // Checks if the BCI Activity id saved is the same of the BCI Activity updated.
         assertEquals(bciActivitySaved.getId(), bciActivityUpdated.getId());
         // Checks if the BCI Activity name is different.
-        assertNotEquals("Programming 2", bciActivityUpdated.getName());
-        assertEquals("Database", bciActivityUpdated.getName());
-        assertEquals("Database training", bciActivityUpdated.getDescription());
+        assertNotEquals("Programming 2 - BCIActivity Test", bciActivityUpdated.getName());
+        assertEquals("Database - BCIActivity Test", bciActivityUpdated.getName());
+        assertEquals("Database training - BCIActivity Test", bciActivityUpdated.getDescription());
     }
 
     @Test
@@ -192,10 +193,10 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
     public void testFindById() {
         // Create a BCI Activity.
         BCIActivity bciActivity = new BCIActivity();
-        bciActivity.setName("Database");
-        bciActivity.setDescription("Database training");
-        bciActivity.setPreconditions("Preconditions");
-        bciActivity.setPostconditions("Post-conditions");
+        bciActivity.setName("Database - BCIActivity Test");
+        bciActivity.setDescription("Database training - BCIActivity Test");
+        bciActivity.setPreconditions("Preconditions - BCIActivity Test");
+        bciActivity.setPostconditions("Post-conditions - BCIActivity Test");
         bciActivity.setType(ActivityType.LEARNING);
 
         // Update a BCI Activity.
@@ -216,15 +217,15 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
     void testDeleteById() {
         // Create a BCI Activity.
         BCIActivity bciActivitySaved = new BCIActivity();
-        bciActivitySaved.setName("Database");
-        bciActivitySaved.setDescription("Database training");
+        bciActivitySaved.setName("Database ioi - BCIActivity Test");
+        bciActivitySaved.setDescription("Database training oioi - BCIActivity Test");
         bciActivitySaved.setType(ActivityType.LEARNING);
-        bciActivitySaved.setPreconditions("Preconditions");
-        bciActivitySaved.setPostconditions("Post-conditions");
+        bciActivitySaved.setPreconditions("Preconditions - BCIActivity Test");
+        bciActivitySaved.setPostconditions("Post-conditions - BCIActivity Test");
         bciActivityService.create(bciActivitySaved);
         // Delete a BCI Activity.
         bciActivityService.deleteById(bciActivitySaved.getId());
-        // Checks if the role was deleted.
+        // Checks if the BCI Activity was deleted.
         assertFalse(bciActivityService.existsById(bciActivitySaved.getId()));
     }
 
@@ -249,7 +250,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         List<BCIActivity> result = bciActivityService.findByDevelops(develops.getId());
         // Assert that the result
         assertEquals(1, result.size());
-        assertEquals("Programming 2", result.get(0).getName());
+        assertEquals("Programming 2 - BCIActivity Test", result.get(0).getName());
         System.out.println("BCIActivity name: " + result.get(0).getName());
     }
 
@@ -258,7 +259,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         List<BCIActivity> result = bciActivityService.findByRequires(requires1.getId());
         // Assert that the result
         assertEquals(1, result.size());
-        assertEquals("Testing 2", result.get(0).getName());
+        assertEquals("Testing 2 - BCIActivity Test", result.get(0).getName());
         System.out.println("BCIActivity name: " + result.get(0).getName());
     }
 
@@ -267,7 +268,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         List<BCIActivity> result = bciActivityService.findByRequires(requires1.getId());
         // Assert that the result
         assertEquals(1, result.size());
-        assertEquals("Testing 2", result.get(0).getName());
+        assertEquals("Testing 2 - BCIActivity Test", result.get(0).getName());
         System.out.println("BCIActivity name: " + result.get(0).getName());
     }
 
@@ -276,7 +277,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         List<BCIActivity> result = bciActivityService.findByRole(role.getId());
         // Assert that the result
         assertEquals(1, result.size());
-        assertNotEquals("Testing 2", result.get(0).getName());
+        assertNotEquals("Testing 2 - BCIActivity Test", result.get(0).getName());
         System.out.println("BCIActivity name: " + result.get(0).getName());
     }
 
@@ -285,22 +286,20 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
     void testFindAll() {
         // Create a BCI Activity.
         BCIActivity bciActivity3 = new BCIActivity();
-        bciActivity3.setName("Database");
-        bciActivity3.setDescription("Database training");
+        bciActivity3.setName("Database 3 - BCIActivity Test");
+        bciActivity3.setDescription("Database training 3 - BCIActivity Test");
         bciActivity3.setType(ActivityType.LEARNING);
-        bciActivity3.setPreconditions("Preconditions DB");
-        bciActivity3.setPostconditions("Post-conditions DB");
+        bciActivity3.setPreconditions("Preconditions DB 3 - BCIActivity Test");
+        bciActivity3.setPostconditions("Post-conditions DB 3 - BCIActivity Test");
         bciActivityService.create(bciActivity3);
 
+        // Find all bciActivities.
         List<BCIActivity> bciActivities = bciActivityService.findAll();
 
         // Tests.
         assertEquals(3, bciActivities.size());
-        assertEquals(bciActivity.getId(), bciActivities.get(0).getId());
-        assertEquals(bciActivity.getName(), bciActivities.get(0).getName());
-        assertEquals(bciActivity2.getId(), bciActivities.get(1).getId());
-        assertEquals(bciActivity2.getName(), bciActivities.get(1).getName());
-        assertEquals(bciActivity3.getId(), bciActivities.get(2).getId());
-        assertEquals(bciActivity3.getName(), bciActivities.get(2).getName());
+        assertTrue(bciActivities.contains(bciActivity));
+        assertTrue(bciActivities.contains(bciActivity2));
+        assertTrue(bciActivities.contains(bciActivity3));
     }
 }

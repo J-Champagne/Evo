@@ -1,11 +1,12 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
 import ca.uqam.latece.evo.server.core.service.BehaviorChangeInterventionService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ import org.springframework.http.HttpStatus;
 @RestController
 @RequestMapping("/bahaviorchangeintervention")
 public class BehaviorChangeInterventionController extends AbstractEvoController<BehaviorChangeIntervention> {
+    private static final Logger logger = LoggerFactory.getLogger(BehaviorChangeInterventionController.class);
 
     @Autowired
     private BehaviorChangeInterventionService behaviorChangeInterventionService;
@@ -35,16 +37,29 @@ public class BehaviorChangeInterventionController extends AbstractEvoController<
      * Creates a new behavior change intervention if it does not already exist in the repository.
      * @param intervention the behavior change intervention object to be created and saved.
      * @return the saved behavior change intervention object.
-     * @throws IllegalArgumentException if the behavior change intervention name already exists or
-     * if the role object or its name is null.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     public ResponseEntity<BehaviorChangeIntervention> create(@RequestBody BehaviorChangeIntervention intervention) {
-        ObjectValidator.validateObject(intervention);
-        return Optional.ofNullable(behaviorChangeInterventionService.create(intervention)).isPresent() ?
-                new ResponseEntity<>(intervention, HttpStatus.CREATED) :
-                new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ResponseEntity<BehaviorChangeIntervention> response;
+
+        try {
+            ObjectValidator.validateObject(intervention);
+            BehaviorChangeIntervention saved = behaviorChangeInterventionService.create(intervention);
+
+            if (saved != null && saved.getId() > 0) {
+                response = new ResponseEntity<>(saved, HttpStatus.CREATED);
+                logger.info("Created new Behavior Change Intervention: {}", saved);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to create new Behavior Change Intervention.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to create new Behavior Change Intervention. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -52,28 +67,42 @@ public class BehaviorChangeInterventionController extends AbstractEvoController<
      * object before saving the updated behavior change intervention.
      * @param intervention the behavior change intervention object containing updated information to be saved.
      * @return the updated and saved behavior change intervention object.
-     * @throws IllegalArgumentException if the behavior change intervention object is invalid or null.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<BehaviorChangeIntervention> update(@RequestBody BehaviorChangeIntervention intervention) {
-        ObjectValidator.validateObject(intervention);
-        return Optional.ofNullable(behaviorChangeInterventionService.update(intervention)).isPresent() ?
-                new ResponseEntity<>(intervention, HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<BehaviorChangeIntervention> response;
+
+        try {
+            ObjectValidator.validateObject(intervention);
+            BehaviorChangeIntervention updated = behaviorChangeInterventionService.update(intervention);
+
+            if (updated != null && updated.getId().equals(intervention.getId())) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated new Behavior Change Intervention: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.error("Failed to update new Behavior Change Intervention: {}", intervention);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update new Behavior Change Intervention. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
      * Deletes a behavior change intervention from the repository by its unique identifier.
      * <p>Note: <p/>Validates the identifier before proceeding with the deletion.
      * @param id the unique identifier of the behavior change intervention to be deleted.
-     * @throws IllegalArgumentException if the provided id is null.
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // 204
     public void deleteById(@PathVariable Long id) {
         ObjectValidator.validateId(id);
         behaviorChangeInterventionService.deleteById(id);
+        logger.info("Behavior Change Intervention deleted: {}", id);
     }
 
     /**
@@ -82,29 +111,58 @@ public class BehaviorChangeInterventionController extends AbstractEvoController<
      * from the repository.
      * @param id the unique identifier of the behavior change intervention to be retrieved.
      * @return the behavior change intervention corresponding to the specified identifier.
-     * @throws IllegalArgumentException if the provided id is null or invalid.
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<BehaviorChangeIntervention> findById(@PathVariable Long id) {
-        ObjectValidator.validateId(id);
-        return Optional.ofNullable(behaviorChangeInterventionService.findById(id)).isPresent() ?
-                new ResponseEntity<>(behaviorChangeInterventionService.findById(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<BehaviorChangeIntervention> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            BehaviorChangeIntervention intervention = behaviorChangeInterventionService.findById(id);
+
+            if (intervention != null && intervention.getId().equals(id)) {
+                response = new ResponseEntity<>(intervention, HttpStatus.OK);
+                logger.info("Found Behavior Change Intervention: {}", intervention);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Behavior Change Intervention by id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Behavior Change Intervention. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
      * Finds a behavior change intervention by its name.
      * @param name must not be null.
      * @return the behavior change intervention with the given name or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the name is null.
      */
     @GetMapping("/find/name/{name}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<BehaviorChangeIntervention>> findByName(@PathVariable String name) {
-        return Optional.ofNullable(behaviorChangeInterventionService.findByName(name)).isPresent() ?
-                new ResponseEntity<>(behaviorChangeInterventionService.findByName(name), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<BehaviorChangeIntervention>> response;
+
+        try {
+            ObjectValidator.validateObject(name);
+            List<BehaviorChangeIntervention> interventionList = behaviorChangeInterventionService.findByName(name);
+
+            if (interventionList != null && !interventionList.isEmpty()) {
+                response = new ResponseEntity<>(interventionList, HttpStatus.OK);
+                logger.info("Found Behavior Change Intervention by name: {}", interventionList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Behavior Change Intervention by name: {}", name);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Behavior Change Intervention by name. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -112,15 +170,30 @@ public class BehaviorChangeInterventionController extends AbstractEvoController<
      * @param id The Behavior Change Intervention Phase id.
      * @return the behavior change intervention corresponding with association with Behavior Change Intervention
      * Phase Id specified.
-     * @throws IllegalArgumentException if the provided id is null or invalid.
      */
     @GetMapping("/find/behaviorchangeinterventionphase/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<BehaviorChangeIntervention>> findByBehaviorChangeInterventionPhase(@PathVariable Long id) {
-        ObjectValidator.validateObject(id);
-        return Optional.ofNullable(behaviorChangeInterventionService.findByBehaviorChangeInterventionPhase(id)).isPresent() ?
-                new ResponseEntity<>(behaviorChangeInterventionService.findByBehaviorChangeInterventionPhase(id), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<BehaviorChangeIntervention>> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            List<BehaviorChangeIntervention> interventionList = behaviorChangeInterventionService.
+                    findByBehaviorChangeInterventionPhase(id);
+
+            if (interventionList != null && !interventionList.isEmpty()) {
+                response = new ResponseEntity<>(interventionList, HttpStatus.OK);
+                logger.info("Found Behavior Change Intervention with BehaviorChangeInterventionPhase association: {}", interventionList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Behavior Change Intervention with BehaviorChangeInterventionPhase association by id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Behavior Change Intervention with BehaviorChangeInterventionPhase association. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 
     /**
@@ -129,8 +202,23 @@ public class BehaviorChangeInterventionController extends AbstractEvoController<
     @GetMapping
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<BehaviorChangeIntervention>> findAll() {
-        return Optional.ofNullable(behaviorChangeInterventionService.findAll()).isPresent() ?
-                new ResponseEntity<>(behaviorChangeInterventionService.findAll(), HttpStatus.OK) :
-                new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<List<BehaviorChangeIntervention>> response;
+
+        try {
+            List<BehaviorChangeIntervention> interventionList = behaviorChangeInterventionService.findAll();
+
+            if (interventionList != null && !interventionList.isEmpty()) {
+                response = new ResponseEntity<>(interventionList, HttpStatus.OK);
+                logger.info("Found all Behavior Change Intervention list: {}", interventionList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find all Behavior Change Intervention list.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find all Behavior Change Intervention list. Error: {}", e.getMessage());
+        }
+
+        return response;
     }
 }

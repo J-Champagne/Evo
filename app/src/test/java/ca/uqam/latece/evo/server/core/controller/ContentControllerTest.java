@@ -205,4 +205,13 @@ public class ContentControllerTest extends AbstractControllerTest {
         // Perform a GET request to test the controller.
         performGetRequest("/contents","$[0].id",1);
     }
+
+    @Test
+    void testFindAllNotFound() throws Exception {
+        // Mock behavior for contentRepository.findAll().
+        when(contentRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Perform a GET request to test the controller.
+        performGetRequestNotFound("/contents","$[0].id");
+    }
 }
