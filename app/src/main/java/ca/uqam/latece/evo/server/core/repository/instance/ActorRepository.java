@@ -1,17 +1,18 @@
-package ca.uqam.latece.evo.server.core.repository;
+package ca.uqam.latece.evo.server.core.repository.instance;
 
-import ca.uqam.latece.evo.server.core.model.Actor;
+import ca.uqam.latece.evo.server.core.model.instance.Actor;
+import ca.uqam.latece.evo.server.core.repository.EvoRepository;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 /**
  * Actor repository creates CRUD implementation at runtime automatically.
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @Repository
 public interface ActorRepository extends EvoRepository<Actor> {
@@ -32,11 +33,21 @@ public interface ActorRepository extends EvoRepository<Actor> {
 	List<Actor> findByEmail(String email);
 
 	/**
+	 * Finds a list of Actor entities by their contact information.
+	 * @param contactInformation must not be null.
+	 * @return the Actor with the given id or Optional#empty() if none found.
+	 * @throws IllegalArgumentException if contactInformation is null.
+	 */
+	List<Actor> findByContactInformation(String contactInformation);
+
+	/**
 	 * Retrieves a list of Actor entities that match the specified Role Id.
 	 * @param roleId The Role Id to filter Develops entities by, must not be null.
 	 * @return a list of Actor entities that have the specified Role id, or an empty list if no matches are found.
 	 */
-	@Query(value = "SELECT ac.* FROM actor AS ac WHERE ac.actor_role_id = :role_id",
+	@Query(value = "SELECT ac.*, hcp.*, 0 AS clazz_ FROM actor AS ac " +
+			"LEFT OUTER JOIN healthcareprofessional hcp ON (ac.actor_id = hcp.healthcareprofessional_actor_id) " +
+			"WHERE ac.actor_role_id = :role_id",
 			nativeQuery = true)
 	List<Actor> findByRole (@Param("role_id") Long roleId);
 
@@ -55,4 +66,12 @@ public interface ActorRepository extends EvoRepository<Actor> {
 	 * @throws IllegalArgumentException if the email is null.
 	 */
 	boolean existsByEmail(String email);
+
+	/**
+	 * Checks if an Actor entity with the specified contact information exists in the repository.
+	 * @param contactInformation the contact information of the Actor to check for existence, must not be null.
+	 * @return true if an Actor with the specified contact information exists, false otherwise.
+	 * @throws IllegalArgumentException if the contactInformation is null.
+	 */
+	boolean existsByContactInformation(String contactInformation);
 }

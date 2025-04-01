@@ -1,7 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
-import ca.uqam.latece.evo.server.core.model.Actor;
+import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Role;
 
@@ -74,8 +74,8 @@ public class RoleServiceTest extends AbstractServiceTest {
     public void testSave(){
         // Creates the Actors.
         List<Actor> actors = new ArrayList<>();
-        actors.add(new Actor("Pierre", "pierre@gmail.com"));
-        actors.add(new Actor("Yves", "yves@gmail.com"));
+        actors.add(new Actor("Pierre", "pierre@gmail.com", "Phone: 222-222-2222"));
+        actors.add(new Actor("Yves", "yves@gmail.com", "Phone: 333-333-3333"));
 
         // Create a Role.
         Role role = new Role("Admin");
@@ -202,8 +202,8 @@ public class RoleServiceTest extends AbstractServiceTest {
     @Test
     public void testDeleteById(){
         List<Actor> actors = new ArrayList<>();
-        actors.add(new Actor("Pierre", "pierre@gmail.com"));
-        actors.add(new Actor("Yves", "yves@gmail.com"));
+        actors.add(new Actor("Pierre", "pierre@gmail.com", "Phone: 222-222-2222"));
+        actors.add(new Actor("Yves", "yves@gmail.com", "Phone: 333-333-3333"));
 
         Role role = new Role("Admin");
         role.setActors(actors);
@@ -236,8 +236,8 @@ public class RoleServiceTest extends AbstractServiceTest {
     public void testFindById(){
         // Create the Actors list.
         List<Actor> actorsAdm = new ArrayList<>();
-        actorsAdm.add(new Actor("Pierre", "pierre@gmail.com"));
-        actorsAdm.add(new Actor("Yves", "yves@gmail.com"));
+        actorsAdm.add(new Actor("Pierre", "pierre@gmail.com", "Phone: 222-222-2222"));
+        actorsAdm.add(new Actor("Yves", "yves@gmail.com", "Phone: 333-333-3333"));
 
         // Create the role.
         Role role = new Role("Admin");
@@ -321,12 +321,12 @@ public class RoleServiceTest extends AbstractServiceTest {
     @Test
     public void testFindAll(){
         List<Actor> actorsAdm = new ArrayList<>();
-        actorsAdm.add(new Actor("Pierre", "pierre@gmail.com"));
-        actorsAdm.add(new Actor("Yves", "yves@gmail.com"));
+        actorsAdm.add(new Actor("Pierre", "pierre@gmail.com", "Phone: 222-222-2222"));
+        actorsAdm.add(new Actor("Yves", "yves@gmail.com", "Phone: 333-333-3333"));
 
         List<Actor> actorseFacilitator = new ArrayList<>();
-        actorseFacilitator.add(new Actor("Marie", "marie@gmail.com"));
-        actorseFacilitator.add(new Actor("Pierre-Yves", "pierre-yves@gmail.com"));
+        actorseFacilitator.add(new Actor("Marie", "marie@gmail.com", "Phone: 222-222-2222"));
+        actorseFacilitator.add(new Actor("Pierre-Yves", "pierre-yves@gmail.com", "Phone: 333-333-3333"));
 
 
         Role role0 = new Role("Admin");

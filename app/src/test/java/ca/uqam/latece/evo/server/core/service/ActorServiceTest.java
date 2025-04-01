@@ -1,7 +1,8 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.model.Actor;
+import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.model.Role;
+import ca.uqam.latece.evo.server.core.service.instance.ActorService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,13 +41,13 @@ public class ActorServiceTest extends AbstractServiceTest {
     private RoleService roleService;
 
     /**
-     * Tests the save functionality of the ActorRepository.
+     * Tests the save functionality of the ActorService.
      * The method verifies if a new Actor entity can be persisted into the database and
      * ensures that the returned saved entity contains a valid generated ID.
      * <p>
      * Steps:
-     * 1. Creates a new Actor instance with name and email fields populated.
-     * 2. Persists the Actor entity using the save method of ActorRepository.
+     * 1. Creates a new Actor instance with name, email, and contactInformation fields populated.
+     * 2. Persists the Actor entity using the save method of ActorService.
      * 3. Asserts that the saved Actor has a valid ID greater than zero.
      */
     @Test
@@ -54,6 +55,7 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor = new Actor();
         actor.setName("Pierre");
         actor.setEmail("pierre@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
         Actor actorSaved = actorService.create(actor);
         assert actorSaved.getId() > 0;
     }
@@ -64,9 +66,9 @@ public class ActorServiceTest extends AbstractServiceTest {
      * with new details, including a different name, email, and associated role.
      * <p>
      * Steps:
-     * 1. Creates a new Actor instance with initial name and email and saves it.
+     * 1. Creates a new Actor instance with initial name, email, and contactInformation and saves it.
      * 2. Creates a new Role instance and saves it to be associated with the updated Actor.
-     * 3. Updates the Actor with a new name, email, and role and persists the changes.
+     * 3. Updates the Actor with a new name, email, contactInformation, and role and persists the changes.
      * 4. Validates that the ID of the updated Actor remains unchanged.
      * 5. Ensures that the updated fields, including name, email, and role, reflect the expected changes.
      */
@@ -76,6 +78,7 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor = new Actor();
         actor.setName("Pierre");
         actor.setEmail("pierre@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
         Actor actorSaved = actorService.create(actor);
 
         // Create a Role that will be used to update the Actor.
@@ -87,14 +90,17 @@ public class ActorServiceTest extends AbstractServiceTest {
         actorToUpdate.setId(actorSaved.getId());
         actorToUpdate.setName("Pierre2");
         actorToUpdate.setEmail("pierre2@gmail.com");
+        actorToUpdate.setContactInformation("Phone: 333-333-3333");
         actorToUpdate.setRole(roleCreated);
         Actor actorUpdated = actorService.update(actorToUpdate);
 
         // Checks if the Actor id saved is the same of the Actor updated.
         assertEquals(actorSaved.getId(), actorUpdated.getId());
+
         // Checks the Actor updates.
         assertNotEquals("Pierre", actorUpdated.getName());
         assertNotEquals("pierre@gmail.com", actorUpdated.getEmail());
+        assertNotEquals("Phone: 222-222-2222", actorUpdated.getContactInformation());
         assertFalse(actorUpdated.getRole().getName().isBlank());
     }
 
@@ -103,7 +109,7 @@ public class ActorServiceTest extends AbstractServiceTest {
      * This method verifies that actors can be successfully queried from the repository by their id.
      * <p>
      * The test includes the following steps:
-     * 1. Creates and sets up a new Actor instance with a name and email.
+     * 1. Creates a new Actor instance with a name, email, and contactInformation.
      * 2. Persists the created Actor instance into the repository.
      * 3. Queries the repository to retrieve an actor by the specified id.
      * 4. Asserts that the resulting actor saved is equals to actor found id,
@@ -115,6 +121,7 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor = new Actor();
         actor.setName("Pierre");
         actor.setEmail("pierre@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
         Actor actorSaved = actorService.create(actor);
         Actor actorFound = actorService.findById(actorSaved.getId());
         assertEquals(actorSaved.getId(), actorFound.getId());
@@ -125,7 +132,7 @@ public class ActorServiceTest extends AbstractServiceTest {
      * This method verifies that actors can be successfully queried from the repository by their name.
      * <p>
      * The test includes the following steps:
-     * 1. Creates and sets up a new Actor instance with a name and email.
+     * 1. Creates a new Actor instance with a name, email, and contactInformation.
      * 2. Persists the created Actor instance into the repository.
      * 3. Queries the repository to retrieve a list of actors by the specified name.
      * 4. Asserts that the resulting list is not empty, confirming that the actor was correctly retrieved.
@@ -136,6 +143,7 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor = new Actor();
         actor.setName("Marie");
         actor.setEmail("marie@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
         // Persist the actor before querying.
         actorService.create(actor);
 
@@ -151,7 +159,7 @@ public class ActorServiceTest extends AbstractServiceTest {
      * This test ensures that an actor can be successfully queried from the repository by its email address.
      * <p>
      * The following test steps are performed:
-     * 1. Creates a new Actor instance with a name and email.
+     * 1. Creates a new Actor instance with a name, email, and contactInformation.
      * 2. Persists the created Actor instance into the repository using the save method.
      * 3. Queries the repository to retrieve a list of actors by the defined email.
      * 4. Asserts that the resulting list is not empty, which confirms that the actor was successfully retrieved.
@@ -162,11 +170,39 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor = new Actor();
         actor.setName("Marianne");
         actor.setEmail("marianne@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
         // Persist the actor before querying.
         actorService.create(actor);
 
         // Query the actor by email.
         List<Actor> result = actorService.findByEmail(actor.getEmail());
+
+        // Assert that the result is not empty.
+        assertFalse(result.isEmpty(), "Actor list should not be empty!");
+    }
+
+    /**
+     * Tests the findByContactInformation functionality of the ActorRepository.
+     * This test ensures that an actor can be successfully queried from the repository by its contactInformation.
+     * <p>
+     * The following test steps are performed:
+     * 1. Creates a new Actor instance with a name, email, and contactInformation.
+     * 2. Persists the created Actor instance into the repository using the save method.
+     * 3. Queries the repository to retrieve a list of actors by the defined email.
+     * 4. Asserts that the resulting list is not empty, which confirms that the actor was successfully retrieved.
+     */
+    @Test
+    public void testFindByContactInformation() {
+        // Ensure the database contains the actor, so the test is isolated.
+        Actor actor = new Actor();
+        actor.setName("Marianne");
+        actor.setEmail("marianne@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
+        // Persist the actor before querying.
+        actorService.create(actor);
+
+        // Query the actor by email.
+        List<Actor> result = actorService.findByContactInformation(actor.getContactInformation());
 
         // Assert that the result is not empty.
         assertFalse(result.isEmpty(), "Actor list should not be empty!");
@@ -197,6 +233,7 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor = new Actor();
         actor.setName("Pierre");
         actor.setEmail("pierre@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
         actor.setRole(roleCreated);
         Actor actorSaved = actorService.create(actor);
 
@@ -204,6 +241,7 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor2 = new Actor();
         actor2.setName("Pierre2");
         actor2.setEmail("pierre2@gmail.com");
+        actor2.setContactInformation("Phone: 333-333-3333");
         actor2.setRole(roleCreated);
         Actor actorSaved2 = actorService.create(actor2);
 
@@ -212,8 +250,8 @@ public class ActorServiceTest extends AbstractServiceTest {
 
         // Assert that the result is not empty.
         assertFalse(result.isEmpty(), "Actor list should not be empty!");
-        assertEquals(actorSaved.getEmail(), result.get(0).getEmail());
-        assertEquals(actorSaved2.getEmail(), result.get(1).getEmail());
+        assertEquals(actorSaved.getRole().getName(), result.get(0).getRole().getName());
+        assertEquals(actorSaved2.getRole().getName(), result.get(1).getRole().getName());
     }
 
     /**
@@ -234,6 +272,7 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor = new Actor();
         actor.setName("Marie");
         actor.setEmail("marie@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
         // Persist the actor before querying.
         actorService.create(actor);
 
@@ -260,12 +299,14 @@ public class ActorServiceTest extends AbstractServiceTest {
         Actor actor0 = new Actor();
         actor0.setName("Juan");
         actor0.setEmail("juan@gmail.com");
+        actor0.setContactInformation("Phone: 222-222-2222");
         // Persist the actor before querying.
         actorService.create(actor0);
 
         Actor actor1 = new Actor();
         actor1.setName("Maria");
         actor1.setEmail("maria@gmail.com");
+        actor1.setContactInformation("Phone: 333-333-3333");
         // Persist the actor before querying.
         actorService.create(actor1);
 

@@ -1,35 +1,35 @@
 package ca.uqam.latece.evo.server.core.controller;
 
-import ca.uqam.latece.evo.server.core.model.Actor;
+import ca.uqam.latece.evo.server.core.controller.instance.ActorController;
+import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.model.Role;
-import ca.uqam.latece.evo.server.core.repository.ActorRepository;
+import ca.uqam.latece.evo.server.core.repository.instance.ActorRepository;
 import ca.uqam.latece.evo.server.core.repository.RoleRepository;
-import ca.uqam.latece.evo.server.core.service.ActorService;
+import ca.uqam.latece.evo.server.core.service.instance.ActorService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Optional;
-
-import static org.mockito.Mockito.when;
-
 
 /**
  * The Actor Controller test class for the {@link ActorController}, responsible for testing its various functionalities.
  * This class includes integration tests for CRUD operations supported the controller class, using WebMvcTes, and
  * repository queries using MockMvc (Mockito).
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @WebMvcTest(controllers = ActorController.class)
 @ContextConfiguration(classes = {ActorController.class, ActorService.class, Actor.class})
 public class ActorControllerTest extends AbstractControllerTest {
-
     @MockBean
     private ActorRepository actorRepository;
+
     @MockBean
     private RoleRepository roleRepository;
 
@@ -40,6 +40,7 @@ public class ActorControllerTest extends AbstractControllerTest {
         actor.setId(1L);
         actor.setName("Bernard");
         actor.setEmail("bernard@gmail.com");
+        actor.setContactInformation("Phone: 222-222-2222");
 
         // Mock behavior for actorRepository.save().
         when(actorRepository.save(actor)).thenReturn(actor);
@@ -60,6 +61,7 @@ public class ActorControllerTest extends AbstractControllerTest {
         actorToUpdate.setId(actor.getId());
         actorToUpdate.setName("Bernard 2");
         actorToUpdate.setEmail("bernard@gmail.com");
+        actorToUpdate.setContactInformation("Phone: 333-333-3333");
 
         // Mock behavior for actorRepository.save().
         when(actorRepository.save(actorToUpdate)).thenReturn(actorToUpdate);
@@ -84,6 +86,7 @@ public class ActorControllerTest extends AbstractControllerTest {
         actor.setId(3L);
         actor.setName("Bernard 2");
         actor.setEmail("bernard2@gmail.com");
+        actor.setContactInformation("Phone: 333-333-3333");
 
         // Save the actor.
         when(actorRepository.save(actor)).thenReturn(actor);
@@ -102,12 +105,14 @@ public class ActorControllerTest extends AbstractControllerTest {
         actor.setId(4L);
         actor.setName("Bernardo");
         actor.setEmail("bernardo@gmail.com");
+        actor.setContactInformation("Phone: 444-444-4444");
 
         // Save the actor.
         when(actorRepository.save(actor)).thenReturn(actor);
 
         // Mock behavior for actorRepository.findByName().
         when(actorRepository.findByName(actor.getName())).thenReturn(Collections.singletonList(actor));
+
         // Perform a GET request to test the controller.
         performGetRequest("/actors/find/name/" + actor.getName(),
                 "$[0].name", actor.getName());
@@ -119,15 +124,36 @@ public class ActorControllerTest extends AbstractControllerTest {
         actor.setId(4L);
         actor.setName("Bernardo");
         actor.setEmail("bernardo@gmail.com");
+        actor.setContactInformation("Phone: 444-444-4444");
 
         // Save the actor.
         when(actorRepository.save(actor)).thenReturn(actor);
 
         // Mock behavior for actorRepository.findByEmail().
         when(actorRepository.findByEmail(actor.getEmail())).thenReturn(Collections.singletonList(actor));
+
         // Perform a GET request to test the controller.
         performGetRequest("/actors/find/email/" + actor.getEmail(),
                 "$[0].email", actor.getEmail());
+    }
+
+    @Test
+    void findByContactInformation() throws Exception {
+        // Create the Actor.
+        actor.setId(5L);
+        actor.setName("Dali");
+        actor.setEmail("SalvadorD@gmail.com");
+        actor.setContactInformation("Phone: 514-555-5555");
+
+        // Save the actor.
+        when(actorRepository.save(actor)).thenReturn(actor);
+
+        // Mock behavior for actorRepository.findByContactInformation().
+        when(actorRepository.findByContactInformation(actor.getContactInformation())).thenReturn(Collections.singletonList(actor));
+
+        // Perform a GET request to test the controller.
+        performGetRequest("/actors/find/contactInformation/" + actor.getContactInformation(),
+                "$[0].contactInformation", actor.getContactInformation());
     }
 
     @Test
@@ -142,6 +168,7 @@ public class ActorControllerTest extends AbstractControllerTest {
         actor.setId(4L);
         actor.setName("Bernardo");
         actor.setEmail("bernardo@gmail.com");
+        actor.setContactInformation("Phone: 444-444-4444");
         actor.setRole(actorRole);
 
         // Save the actor.
@@ -149,6 +176,7 @@ public class ActorControllerTest extends AbstractControllerTest {
 
         // Mock behavior for actorRepository.findByRole().
         when(actorRepository.findByRole(actor.getRole().getId())).thenReturn(Collections.singletonList(actor));
+
         // Perform a GET request to test the controller.
         performGetRequest("/actors/find/role/" + actor.getRole().getId(),
                 "$[0].role.id", actor.getRole().getId());

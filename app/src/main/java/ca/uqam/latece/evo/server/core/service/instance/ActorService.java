@@ -1,32 +1,31 @@
-package ca.uqam.latece.evo.server.core.service;
+package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.model.instance.Actor;
+import ca.uqam.latece.evo.server.core.repository.instance.ActorRepository;
+import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-import ca.uqam.latece.evo.server.core.model.Actor;
-import ca.uqam.latece.evo.server.core.repository.ActorRepository;
-import org.springframework.transaction.annotation.Transactional;
-
 /**
  * Actor Service.
- * @since 22.01.2025.
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @Service
 @Transactional
 public class ActorService extends AbstractEvoService<Actor> {
 	private static final Logger logger = LoggerFactory.getLogger(ActorService.class);
 	private static final String ERROR_EMAIL_ALREADY_REGISTERED = "Actor already registered with the same email!";
-
 
 	@Autowired
 	private ActorRepository actorRepository;
@@ -47,6 +46,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 		ObjectValidator.validateObject(actor);
 		ObjectValidator.validateString(actor.getName());
 		ObjectValidator.validateEmail(actor.getEmail());
+		ObjectValidator.validateString(actor.getContactInformation());
 
 		// The email should be unique.
 		if (this.existsByEmail(actor.getEmail())) {
@@ -89,6 +89,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 		ObjectValidator.validateObject(actor);
 		ObjectValidator.validateString(actor.getName());
 		ObjectValidator.validateEmail(actor.getEmail());
+		ObjectValidator.validateString(actor.getContactInformation());
 		
 		if (actorFound.getEmail().equalsIgnoreCase(actor.getEmail())) {
 			actorUpdated = this.save(actor);
@@ -156,10 +157,20 @@ public class ActorService extends AbstractEvoService<Actor> {
 	}
 
 	/**
+	 * Checks if an Actor entity with the specified contact information exists in the repository.
+	 * @param contactInformation the contactInformation of the Actor to check for existence, must not be null.
+	 * @return true if an Actor with the specified contactInformation exists, false otherwise.
+	 * @throws IllegalArgumentException if the contactInformation is null or blank.
+	 */
+	public boolean existsByContactInformation(String contactInformation) {
+		ObjectValidator.validateString(contactInformation);
+		return this.actorRepository.existsByContactInformation(contactInformation);
+	}
+
+	/**
 	 * Deletes the Actor with the given id.
-	 * <p>
 	 * If the Actor is not found in the persistence store it is silently ignored.
-	 * @param id the unique identifier of the actor to be retrieved; must not be null or invalid.
+	 * @param id the unique identifier of the Actor to be retrieved; must not be null or invalid.
 	 * @throws IllegalArgumentException in case the given id is null.
 	 */
 	@Override
@@ -204,7 +215,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	/**
 	 * Finds an Actor by its name.
 	 * @param name must not be null.
-	 * @return the Actor with the given id or Optional#empty() if none found.
+	 * @return the Actor with the given name or Optional#empty() if none found.
 	 * @throws IllegalArgumentException if the name is null.
 	 */
 	public List<Actor> findByName(String name){
@@ -215,7 +226,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	/**
 	 * Finds an Actor by its email.
 	 * @param email must not be null.
-	 * @return the Actor with the given id or Optional#empty() if none found.
+	 * @return the Actor with the given email or Optional#empty() if none found.
 	 * @throws IllegalArgumentException if email is null.
 	 */
 	public List<Actor> findByEmail(String email){
@@ -224,9 +235,20 @@ public class ActorService extends AbstractEvoService<Actor> {
 	}
 
 	/**
+	 * Retrieves a list of Actor entities that match the specified contactInformation.
+	 * @param contactInformation must not be null or blank.
+	 * @return List<Actor> with the given contactInformation or Optional#empty() if none found.
+	 * @throws IllegalArgumentException if contactInformation is null or blank.
+	 */
+	public List<Actor> findByContactInformation(String contactInformation) {
+		ObjectValidator.validateString(contactInformation);
+		return this.actorRepository.findByContactInformation(contactInformation);
+	}
+
+	/**
 	 * Retrieves a list of Actor entities that match the specified Role Id.
 	 * @param roleId The Role Id to filter Develops entities by, must not be null.
-	 * @return a list of Actor entities that have the specified Role id, or an empty list if no matches are found.
+	 * @return List<Actor> that have the specified Role id, or an empty list if no matches are found.
 	 */
 	public List<Actor> findByRole(Long roleId) {
 		ObjectValidator.validateId(roleId);

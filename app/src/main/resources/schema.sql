@@ -28,6 +28,7 @@ actor table: This table stores information about actors (users or individuals) i
   - actor_id: A unique identifier for each actor, auto-incremented.
   - actor_name: The name of the actor. It's required (NOT NULL).
   - actor_email: The email of the actor, which is also required and must be unique.
+  - actor_contactInformation: The contact information of the actor. It's required (NOT NULL).
   - actor_role_id: A foreign key referencing the role_id in the role table. It links an actor to a role.
 - Constraints:
   - actor_pkey: Establishes actor_id as the primary key.
@@ -36,12 +37,35 @@ actor table: This table stores information about actors (users or individuals) i
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS actor (
     actor_id BIGSERIAL NOT NULL,
-    actor_name VARCHAR(256) NOT NULL,
-    actor_email VARCHAR(256) NOT NULL,
+    actor_name VARCHAR NOT NULL,
+    actor_email VARCHAR NOT NULL,
+    actor_contact_information VARCHAR NOT NULL,
     actor_role_id BIGINT NULL,
     CONSTRAINT actor_pkey PRIMARY KEY (actor_id),
     CONSTRAINT actor_actor_email_ukey UNIQUE (actor_email),
     CONSTRAINT actor_role_fkey FOREIGN KEY (actor_role_id) REFERENCES role (role_id)
+);
+
+/***********************************************************************************************************************
+healthcareprofessional table: This table stores information about health care professionals (a subtype of Actors) in the system.
+- Columns:
+  - healthcareprofessional_id: A unique identifier for each healthcareprofessional, auto-incremented.
+  - healthcareprofessional_position: The position of the healthcareprofessional.
+  - healthcareprofessional_affiliation: The affiliation of the healthcareprofessional.
+  - healthcareprofessional_specialties: The specialties of the healthcareprofessional.
+  - healthcareprofessional_actor_id: A foreign key referencing the actor_id in the actor table. It links a healthcareprofessional to an actor.
+- Constraints:
+  - healthcareprofessional_pkey: Establishes healthcareprofessional_id as the primary key.
+  - healthcareprofessional_fkey: Ensures that healthcareprofessional_actor_id references a valid actor in the actor table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS healthcareprofessional (
+    healthcareprofessional_id BIGSERIAL NOT NULL,
+    healthcareprofessional_position VARCHAR,
+    healthcareprofessional_affiliation VARCHAR,
+    healthcareprofessional_specialties VARCHAR,
+    healthcareprofessional_actor_id BIGINT NULL,
+    CONSTRAINT healthcareprofessional_pkey PRIMARY KEY (healthcareprofessional_id),
+    CONSTRAINT healthcareprofessional_fkey FOREIGN KEY (healthcareprofessional_actor_id) REFERENCES actor (actor_id)
 );
 
 /***********************************************************************************************************************

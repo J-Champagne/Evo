@@ -1,9 +1,10 @@
-package ca.uqam.latece.evo.server.core.controller;
+package ca.uqam.latece.evo.server.core.controller.instance;
 
-import java.util.List;
-import java.util.Optional;
-
+import ca.uqam.latece.evo.server.core.service.instance.ActorService;
+import ca.uqam.latece.evo.server.core.model.instance.Actor;
+import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +19,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
 
-import ca.uqam.latece.evo.server.core.service.ActorService;
-import ca.uqam.latece.evo.server.core.model.Actor;
-
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Actor Controller.
- * @since 22.01.2025.
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @RestController
 @RequestMapping("/actors")
@@ -72,7 +71,6 @@ public class ActorController extends AbstractEvoController<Actor> {
 
 	/**
 	 * Deletes the Actor with the given id.
-	 * <p>
 	 * If the Actor is not found in the persistence store it is silently ignored.
 	 * @param id the unique identifier of the actor to be retrieved; must not be null or invalid.
 	 * @throws IllegalArgumentException in case the given id is null.
@@ -112,7 +110,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	/**
 	 * Finds an Actor by its name.
 	 * @param name must not be null.
-	 * @return the Actor with the given id or Optional#empty() if none found.
+	 * @return the Actor with the given name or Optional#empty() if none found.
 	 * @throws IllegalArgumentException if the name is null.
 	 */
 	@GetMapping("/find/name/{name}")
@@ -126,7 +124,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	/**
 	 * Finds an Actor by its email.
 	 * @param email must not be null.
-	 * @return the Actor with the given id or Optional#empty() if none found.
+	 * @return the Actor with the given email or Optional#empty() if none found.
 	 * @throws IllegalArgumentException if email is null.
 	 */
 	@GetMapping("/find/email/{email}")
@@ -140,14 +138,28 @@ public class ActorController extends AbstractEvoController<Actor> {
 	/**
 	 * Finds an Actor by its role id.
 	 * @param id must not be null.
-	 * @return the Actor with the given id or Optional#empty() if none found.
-	 * @throws IllegalArgumentException if email is null.
+	 * @return the Actor with the given role id or Optional#empty() if none found.
+	 * @throws IllegalArgumentException if id is null.
 	 */
 	@GetMapping("/find/role/{id}")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<List<Actor>> findByRole(@PathVariable Long id) {
 		return Optional.ofNullable(actorService.findByRole(id)).isPresent() ?
 				new ResponseEntity<>(actorService.findByRole(id), HttpStatus.OK) :
+				new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Finds an Actor by its contact information.
+	 * @param contactInformation must not be null.
+	 * @return the Actor with the given contactInformation or Optional#empty() if none found.
+	 * @throws IllegalArgumentException if the contactInformation is null or blank.
+	 */
+	@GetMapping("/find/contactInformation/{contactInformation}")
+	@ResponseStatus(HttpStatus.OK) // 200
+	public ResponseEntity<List<Actor>> findByContactInformation(@PathVariable String contactInformation) {
+		return Optional.ofNullable(actorService.findByContactInformation(contactInformation)).isPresent() ?
+				new ResponseEntity<>(actorService.findByContactInformation(contactInformation), HttpStatus.OK) :
 				new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 }

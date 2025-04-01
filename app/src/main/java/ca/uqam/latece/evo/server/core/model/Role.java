@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
