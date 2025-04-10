@@ -47,25 +47,25 @@ CREATE TABLE IF NOT EXISTS actor (
 );
 
 /***********************************************************************************************************************
-healthcareprofessional table: This table stores information about health care professionals (a subtype of Actors) in the system.
+healthcare_professional table: This table stores information about health care professionals (a subtype of Actors) in the system.
 - Columns:
-  - healthcareprofessional_id: A unique identifier for each healthcareprofessional, auto-incremented.
-  - healthcareprofessional_position: The position of the healthcareprofessional.
-  - healthcareprofessional_affiliation: The affiliation of the healthcareprofessional.
-  - healthcareprofessional_specialties: The specialties of the healthcareprofessional.
-  - healthcareprofessional_actor_id: A foreign key referencing the actor_id in the actor table. It links a healthcareprofessional to an actor.
+  - healthcare_professional_id: A unique identifier for each healthcareprofessional, auto-incremented.
+  - healthcare_professional_position: The position of the healthcareprofessional.
+  - healthcare_professional_affiliation: The affiliation of the healthcareprofessional.
+  - healthcare_professional_specialties: The specialties of the healthcareprofessional.
+  - healthcare_professional_actor_id: A foreign key referencing the actor_id in the actor table. It links a healthcareprofessional to an actor.
 - Constraints:
-  - healthcareprofessional_pkey: Establishes healthcareprofessional_id as the primary key.
-  - healthcareprofessional_fkey: Ensures that healthcareprofessional_actor_id references a valid actor in the actor table.
+  - healthcare_professional_pkey: Establishes healthcare_professional_id as the primary key.
+  - healthcare_professional_fkey: Ensures that healthcare_professional_actor_id references a valid actor in the actor table.
 ***********************************************************************************************************************/
-CREATE TABLE IF NOT EXISTS healthcareprofessional (
-    healthcareprofessional_id BIGSERIAL NOT NULL,
-    healthcareprofessional_position VARCHAR,
-    healthcareprofessional_affiliation VARCHAR,
-    healthcareprofessional_specialties VARCHAR,
-    healthcareprofessional_actor_id BIGINT NULL,
-    CONSTRAINT healthcareprofessional_pkey PRIMARY KEY (healthcareprofessional_id),
-    CONSTRAINT healthcareprofessional_fkey FOREIGN KEY (healthcareprofessional_actor_id) REFERENCES actor (actor_id)
+CREATE TABLE IF NOT EXISTS healthcare_professional (
+    healthcare_professional_id BIGSERIAL NOT NULL,
+    healthcare_professional_position VARCHAR,
+    healthcare_professional_affiliation VARCHAR,
+    healthcare_professional_specialties VARCHAR,
+    healthcare_professional_actor_id BIGINT NULL,
+    CONSTRAINT healthcare_professional_pkey PRIMARY KEY (healthcare_professional_id),
+    CONSTRAINT healthcare_professional_fkey FOREIGN KEY (healthcare_professional_actor_id) REFERENCES actor (actor_id)
 );
 
 /***********************************************************************************************************************

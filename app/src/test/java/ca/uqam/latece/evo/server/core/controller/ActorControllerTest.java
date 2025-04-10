@@ -152,7 +152,7 @@ public class ActorControllerTest extends AbstractControllerTest {
         when(actorRepository.findByContactInformation(actor.getContactInformation())).thenReturn(Collections.singletonList(actor));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/actors/find/contactInformation/" + actor.getContactInformation(),
+        performGetRequest("/actors/find/contactinformation/" + actor.getContactInformation(),
                 "$[0].contactInformation", actor.getContactInformation());
     }
 

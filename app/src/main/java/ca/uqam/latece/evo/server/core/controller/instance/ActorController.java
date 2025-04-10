@@ -155,7 +155,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 * @return the Actor with the given contactInformation or Optional#empty() if none found.
 	 * @throws IllegalArgumentException if the contactInformation is null or blank.
 	 */
-	@GetMapping("/find/contactInformation/{contactInformation}")
+	@GetMapping("/find/contactinformation/{contactInformation}")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<List<Actor>> findByContactInformation(@PathVariable String contactInformation) {
 		return Optional.ofNullable(actorService.findByContactInformation(contactInformation)).isPresent() ?

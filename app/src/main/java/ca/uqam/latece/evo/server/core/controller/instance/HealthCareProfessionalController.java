@@ -19,7 +19,7 @@ import java.util.Optional;
  * @author Julien Champagne.
  */
 @Controller
-@RequestMapping("/HealthCareProfessional")
+@RequestMapping("/healthcareprofessional")
 public class HealthCareProfessionalController extends AbstractEvoController<HealthCareProfessional> {
 
     @Autowired
@@ -145,7 +145,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
      * @return the HealthCareProfessional with the given contactInformation or Optional#empty() if none found.
      * @throws IllegalArgumentException if the contactInformation is null or blank.
      */
-    @GetMapping("/find/contactInformation/{contactInformation}")
+    @GetMapping("/find/contactinformation/{contactInformation}")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<HealthCareProfessional>> findByContactInformation(@PathVariable String contactInformation) {
         return Optional.ofNullable(hcpService.findByContactInformation(contactInformation)).isPresent() ?

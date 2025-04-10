@@ -50,7 +50,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/HealthCareProfessional", hcp);
+        performCreateRequest("/healthcareprofessional", hcp);
     }
 
     @Test
@@ -63,13 +63,13 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.save(hcpToUpdate)).thenReturn(hcpToUpdate);
 
         when(healthCareProfessionalRepository.findById(hcpToUpdate.getId())).thenReturn(Optional.of(hcpToUpdate));
-        performUpdateRequest("/HealthCareProfessional", hcpToUpdate,"$.name",hcpToUpdate.getName());
+        performUpdateRequest("/healthcareprofessional", hcpToUpdate,"$.name",hcpToUpdate.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/HealthCareProfessional/" + hcp.getId(), hcp);
+        performDeleteRequest("/healthcareprofessional/" + hcp.getId(), hcp);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findById(hcp.getId())).thenReturn(Optional.of(hcp));
 
         //Perform a GET request to test the controller
-        performGetRequest("/HealthCareProfessional/find/" + hcp.getId(), "$.name", hcp.getName());
+        performGetRequest("/healthcareprofessional/find/" + hcp.getId(), "$.name", hcp.getName());
     }
 
     @Test
@@ -88,7 +88,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findByName(hcp.getName())).thenReturn(Collections.singletonList(hcp));
 
         //Perform a GET request to test the controller.
-        performGetRequest("/HealthCareProfessional/find/name/" + hcp.getName(),
+        performGetRequest("/healthcareprofessional/find/name/" + hcp.getName(),
                 "$[0].name", hcp.getName());
     }
 
@@ -98,7 +98,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findByEmail(hcp.getEmail())).thenReturn(Collections.singletonList(hcp));
 
         //Perform a GET request to test the controller.
-        performGetRequest("/HealthCareProfessional/find/email/" + hcp.getEmail(),
+        performGetRequest("/healthcareprofessional/find/email/" + hcp.getEmail(),
                 "$[0].email", hcp.getEmail());
     }
 
@@ -108,7 +108,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findByContactInformation(hcp.getContactInformation())).thenReturn(Collections.singletonList(hcp));
 
         //Perform a GET request to test the controller.
-        performGetRequest("/HealthCareProfessional/find/contactInformation/" + hcp.getContactInformation(),
+        performGetRequest("/healthcareprofessional/find/contactinformation/" + hcp.getContactInformation(),
                 "$[0].contactInformation", hcp.getContactInformation());
     }
 
@@ -117,7 +117,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findByRole(hcp.getRole().getId())).thenReturn(Collections.singletonList(hcp));
 
         //Perform a GET request to test the controller.
-        performGetRequest("/HealthCareProfessional/find/role/" + hcp.getRole().getId(),
+        performGetRequest("/healthcareprofessional/find/role/" + hcp.getRole().getId(),
                 "$[0].role.id", hcp.getRole().getId());
     }
 
@@ -127,7 +127,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findByPosition(hcp.getPosition())).thenReturn(Collections.singletonList(hcp));
 
         //Perform a GET request to test the controller.
-        performGetRequest("/HealthCareProfessional/find/position/" + hcp.getPosition(),
+        performGetRequest("/healthcareprofessional/find/position/" + hcp.getPosition(),
                 "$[0].position", hcp.getPosition());
     }
 
@@ -137,7 +137,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findByAffiliation(hcp.getAffiliation())).thenReturn(Collections.singletonList(hcp));
 
         //Perform a GET request to test the controller.
-        performGetRequest("/HealthCareProfessional/find/affiliation/" + hcp.getAffiliation(),
+        performGetRequest("/healthcareprofessional/find/affiliation/" + hcp.getAffiliation(),
                 "$[0].affiliation", hcp.getAffiliation());
     }
 
@@ -147,7 +147,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findBySpecialties(hcp.getSpecialties())).thenReturn(Collections.singletonList(hcp));
 
         //Perform a GET request to test the controller.
-        performGetRequest("/HealthCareProfessional/find/specialties/" + hcp.getSpecialties(),
+        performGetRequest("/healthcareprofessional/find/specialties/" + hcp.getSpecialties(),
                 "$[0].specialties", hcp.getSpecialties());
     }
 
@@ -158,6 +158,6 @@ public class HealthCareControllerTest extends AbstractControllerTest {
         when(healthCareProfessionalRepository.findAll()).thenReturn(Collections.singletonList(hcp));
 
         //Perform a GET request to test the controller.
-        performGetRequest("/HealthCareProfessional","$[0].id",1);
+        performGetRequest("/healthcareprofessional","$[0].id",1);
     }
 }

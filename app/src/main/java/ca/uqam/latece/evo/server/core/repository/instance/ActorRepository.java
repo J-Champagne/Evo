@@ -46,7 +46,7 @@ public interface ActorRepository extends EvoRepository<Actor> {
 	 * @return a list of Actor entities that have the specified Role id, or an empty list if no matches are found.
 	 */
 	@Query(value = "SELECT ac.*, hcp.*, 0 AS clazz_ FROM actor AS ac " +
-			"LEFT OUTER JOIN healthcareprofessional hcp ON (ac.actor_id = hcp.healthcareprofessional_actor_id) " +
+			"LEFT OUTER JOIN healthcare_professional hcp ON (ac.actor_id = hcp.healthcare_professional_actor_id) " +
 			"WHERE ac.actor_role_id = :role_id",
 			nativeQuery = true)
 	List<Actor> findByRole (@Param("role_id") Long roleId);

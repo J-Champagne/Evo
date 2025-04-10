@@ -11,18 +11,18 @@ import jakarta.validation.constraints.NotNull;
  * @author Julien Champagne.
  */
 @Entity
-@Table(name = "healthcareprofessional")
-@PrimaryKeyJoinColumn(name="healthcareprofessional_id", referencedColumnName = "actor_id")
+@Table(name = "healthcare_professional")
+@PrimaryKeyJoinColumn(name="healthcare_professional_id", referencedColumnName = "actor_id")
 @Transactional
 @JsonPropertyOrder({"position", "affiliation", "specialties"})
 public class HealthCareProfessional extends Actor {
-    @Column(name = "healthcareprofessional_position", length = 256)
+    @Column(name = "healthcare_professional_position", length = 256)
     private String position;
 
-    @Column(name = "healthcareprofessional_affiliation", length = 256)
+    @Column(name = "healthcare_professional_affiliation", length = 256)
     private String affiliation;
 
-    @Column(name = "healthcareprofessional_specialties", length = 256)
+    @Column(name = "healthcare_professional_specialties", length = 256)
     private String specialties;
 
     public HealthCareProfessional() {}
