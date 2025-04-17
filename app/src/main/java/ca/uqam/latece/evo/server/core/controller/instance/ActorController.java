@@ -5,6 +5,8 @@ import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Actor Controller.
@@ -30,7 +31,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/actors")
 public class ActorController extends AbstractEvoController<Actor> {
-	
+	private static final Logger logger = LoggerFactory.getLogger(ActorController.class);
+
 	@Autowired
 	private ActorService actorService;
 
@@ -46,10 +48,25 @@ public class ActorController extends AbstractEvoController<Actor> {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) // 201
 	public ResponseEntity<Actor> create(@RequestBody Actor actor) {
-		ObjectValidator.validateObject(actor);
-		return Optional.ofNullable(actorService.create(actor)).isPresent() ?
-				new ResponseEntity<>(actor, HttpStatus.CREATED) :
-				new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		ResponseEntity<Actor> response;
+
+		try {
+			Actor saved = actorService.create(actor);
+
+			if (saved != null && saved.getId() > 0) {
+				response = new ResponseEntity<>(saved, HttpStatus.CREATED);
+				logger.info("Created Actor: {}", saved);
+			} else {
+				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				logger.info("Failed to create new Actor");
+			}
+
+		} catch (Exception e) {
+			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.error("Failed to create new Actor. Error: {}", e.getMessage());
+		}
+
+		return response;
 	}
 
 	/**
@@ -64,9 +81,25 @@ public class ActorController extends AbstractEvoController<Actor> {
 	@PutMapping
 	@ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<Actor> update(@RequestBody Actor actor) {
-        return Optional.ofNullable(actorService.update(actor)).isPresent() ?
-				new ResponseEntity<>(actor, HttpStatus.OK) :
-				new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		ResponseEntity<Actor> response;
+
+		try {
+			Actor updated = actorService.update(actor);
+
+			if (updated != null && updated.getId().equals(actor.getId())) {
+				response = new ResponseEntity<>(updated, HttpStatus.OK);
+				logger.info("Updated Actor: {}", updated);
+			} else {
+				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				logger.info("Failed to update new Actor");
+			}
+
+		} catch (Exception e) {
+			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.error("Failed to update new Actor. Error: {}", e.getMessage());
+		}
+
+		return response;
     }
 
 	/**
@@ -79,6 +112,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	@ResponseStatus(HttpStatus.NO_CONTENT) // 204
     public void deleteById(@PathVariable Long id) {
 		actorService.deleteById(id);
+		logger.info("Actor deleted: {}", id);
 	}
 
 	/**
@@ -88,9 +122,25 @@ public class ActorController extends AbstractEvoController<Actor> {
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<List<Actor>> findAll() {
-		return Optional.ofNullable(actorService.findAll()).isPresent() ?
-				new ResponseEntity<>(actorService.findAll(), HttpStatus.OK) :
-				new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		ResponseEntity<List<Actor>> response;
+
+		try {
+			List<Actor> result = actorService.findAll();
+
+			if (result != null && !result.isEmpty()) {
+				response = new ResponseEntity<>(result, HttpStatus.OK);
+				logger.info("Found all Actor entities: {}", result);
+			} else {
+				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				logger.info("Failed to find all Actor entities");
+			}
+
+		} catch (Exception e) {
+			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.error("Failed to find all Actor entities. Error: {}", e.getMessage());
+		}
+
+		return response;
 	}
 
 	/**
@@ -102,9 +152,25 @@ public class ActorController extends AbstractEvoController<Actor> {
 	@GetMapping("/find/{id}")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<Actor> findById(@PathVariable Long id) {
-		return Optional.ofNullable(actorService.findById(id)).isPresent() ?
-				new ResponseEntity<>(actorService.findById(id), HttpStatus.OK) :
-				new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		ResponseEntity<Actor> response;
+
+		try {
+			Actor result = actorService.findById(id);
+
+			if (result != null && result.getId().equals(id)) {
+				response = new ResponseEntity<>(result, HttpStatus.OK);
+				logger.info("Found Actor entity: {}", result);
+			} else {
+				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				logger.info("Failed to find Actor entity");
+			}
+
+		} catch (Exception e) {
+			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.error("Failed to find Actor entity. Error: {}", e.getMessage());
+		}
+
+		return response;
 	}
 	
 	/**
@@ -116,9 +182,25 @@ public class ActorController extends AbstractEvoController<Actor> {
 	@GetMapping("/find/name/{name}")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<List<Actor>> findByName(@PathVariable String name) {
-		return Optional.ofNullable(actorService.findByName(name)).isPresent() ?
-				new ResponseEntity<>(actorService.findByName(name), HttpStatus.OK) :
-				new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		ResponseEntity<List<Actor>> response;
+
+		try {
+			List<Actor> result = actorService.findByName(name);
+
+			if (result != null && !result.isEmpty()) {
+				response = new ResponseEntity<>(result, HttpStatus.OK);
+				logger.info("Found Actor entities by name: {}", result);
+			} else {
+				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				logger.info("Failed to find Actor entities by name");
+			}
+
+		} catch (Exception e) {
+			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.error("Failed to find Actor entities by name. Error: {}", e.getMessage());
+		}
+
+		return response;
 	}
 	
 	/**
@@ -130,23 +212,25 @@ public class ActorController extends AbstractEvoController<Actor> {
 	@GetMapping("/find/email/{email}")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<List<Actor>> findByEmail(@PathVariable String email) {
-		return Optional.ofNullable(actorService.findByEmail(email)).isPresent() ?
-				new ResponseEntity<>(actorService.findByEmail(email), HttpStatus.OK) :
-				new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	}
+		ResponseEntity<List<Actor>> response;
 
-	/**
-	 * Finds an Actor by its role id.
-	 * @param id must not be null.
-	 * @return the Actor with the given role id or Optional#empty() if none found.
-	 * @throws IllegalArgumentException if id is null.
-	 */
-	@GetMapping("/find/role/{id}")
-	@ResponseStatus(HttpStatus.OK) // 200
-	public ResponseEntity<List<Actor>> findByRole(@PathVariable Long id) {
-		return Optional.ofNullable(actorService.findByRole(id)).isPresent() ?
-				new ResponseEntity<>(actorService.findByRole(id), HttpStatus.OK) :
-				new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		try {
+			List<Actor> result = actorService.findByEmail(email);
+
+			if (result != null && !result.isEmpty()) {
+				response = new ResponseEntity<>(result, HttpStatus.OK);
+				logger.info("Found Actor entity by email: {}", result);
+			} else {
+				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				logger.info("Failed to find Actor entity by email");
+			}
+
+		} catch (Exception e) {
+			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.error("Failed to find Actor entity by email. Error: {}", e.getMessage());
+		}
+
+		return response;
 	}
 
 	/**
@@ -158,8 +242,53 @@ public class ActorController extends AbstractEvoController<Actor> {
 	@GetMapping("/find/contactinformation/{contactInformation}")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public ResponseEntity<List<Actor>> findByContactInformation(@PathVariable String contactInformation) {
-		return Optional.ofNullable(actorService.findByContactInformation(contactInformation)).isPresent() ?
-				new ResponseEntity<>(actorService.findByContactInformation(contactInformation), HttpStatus.OK) :
-				new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		ResponseEntity<List<Actor>> response;
+
+		try {
+			List<Actor> result = actorService.findByContactInformation(contactInformation);
+
+			if (result != null && !result.isEmpty()) {
+				response = new ResponseEntity<>(result, HttpStatus.OK);
+				logger.info("Found Actor entities by contact information: {}", result);
+			} else {
+				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				logger.info("Failed to find Actor entities by contact information");
+			}
+
+		} catch (Exception e) {
+			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.error("Failed to find Actor entities by contact information. Error: {}", e.getMessage());
+		}
+
+		return response;
+	}
+
+	/**
+	 * Finds an Actor by its role id.
+	 * @param id must not be null.
+	 * @return the Actor with the given role id or Optional#empty() if none found.
+	 * @throws IllegalArgumentException if id is null.
+	 */
+	@GetMapping("/find/role/{id}")
+	@ResponseStatus(HttpStatus.OK) // 200
+	public ResponseEntity<List<Actor>> findByRole(@PathVariable Long id) {
+		ResponseEntity<List<Actor>> response;
+
+		try {
+			List<Actor> result = actorService.findByRole(id);
+
+			if (result != null && !result.isEmpty()) {
+				response = new ResponseEntity<>(result, HttpStatus.OK);
+				logger.info("Found Actor entities by roleId: {}", result);
+			} else {
+				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				logger.info("Failed to find Actor entities by roleId.");
+			}
+		} catch (Exception e) {
+			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.error("Failed to find Actor entities by roleId. Error: {}", e.getMessage());
+		}
+
+		return response;
 	}
 }
