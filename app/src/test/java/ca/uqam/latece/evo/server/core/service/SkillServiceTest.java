@@ -86,7 +86,6 @@ public class SkillServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Override
     public void testFindByName() {
         Skill skill = new Skill();
         skill.setName("Python 2");

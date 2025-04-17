@@ -216,7 +216,6 @@ public class ReportingServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Override
     void testFindByName() {
         // Checks if the name is equals.
         assertEquals(reporting.getName(),reportingService.findByName(reporting.getName()).get(0).getName());

@@ -206,7 +206,6 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Override
     void testFindByName() {
         // Checks if the name is equals.
         assertEquals(bciActivity.getName(), bciActivityService.findByName(bciActivity.getName()).get(0).getName());

@@ -96,7 +96,7 @@ public abstract class AbstractServiceTest {
      * - Behavior when no entities or multiple entities match the given name
      * - Handling of invalid or null input values
      */
-    abstract void testFindByName();
+   // abstract void testFindByName();
 
     /**
      * Abstract method to test the functionality of deleting an entity by its identifier in the database.

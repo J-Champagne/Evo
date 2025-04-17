@@ -146,7 +146,6 @@ public class BehaviorChangeInterventionPhaseServiceTest extends AbstractServiceT
     }
 
     @Test
-    @Override
     void testFindByName() {
         // Creates the BehaviorChangeInterventionPhase.
         BehaviorChangeInterventionPhase intervention = new BehaviorChangeInterventionPhase();

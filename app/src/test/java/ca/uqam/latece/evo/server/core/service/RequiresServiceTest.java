@@ -176,7 +176,6 @@ public class RequiresServiceTest extends AbstractServiceTest  {
     }
 
     @Test
-    @Override
     void testFindByName() {
         // Create a Requires.
         Requires requires = new Requires();

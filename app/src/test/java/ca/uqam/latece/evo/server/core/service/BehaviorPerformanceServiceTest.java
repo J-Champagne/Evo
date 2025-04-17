@@ -193,7 +193,6 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Override
     void testFindByName() {
         // Checks if the name is equals.
         assertEquals(behaviorPerformance.getName(),

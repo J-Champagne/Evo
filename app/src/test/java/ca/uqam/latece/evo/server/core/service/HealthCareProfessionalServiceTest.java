@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * - @ContextConfiguration: Specifies test-specific configurations.
  * <p>
  * Dependencies injected into this test include:
- * - HealthCareProfessionalService to perform business logic operations specific to Actor entities.
+ * - HealthCareProfessionalService to perform business logic operations specific to HealthCareProfessional entities.
  * - RoleService to associate roles during testing.
  * <p>
  * @version 1.0
@@ -146,7 +146,6 @@ public class HealthCareProfessionalServiceTest extends AbstractServiceTest {
      * 3. Queries the repository to retrieve a list of HealthCareProfessionals by the specified name.
      * 4. Asserts that the resulting list is not empty, confirming that the HealthCareProfessional was correctly retrieved.
      */
-    @Override
     @Test
     void testFindByName() {
         HealthCareProfessional hcp = new HealthCareProfessional("Bob", "Bobross@gmail.com", "514-222-2222",

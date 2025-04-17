@@ -132,7 +132,6 @@ public class BehaviorChangeInterventionBlockServiceTest extends AbstractServiceT
     }
 
     @Test
-    @Override
     void testFindByName() {
         BehaviorChangeInterventionBlock intervention = new BehaviorChangeInterventionBlock();
         intervention.setEntryConditions("Block ENTRY Find ALL");

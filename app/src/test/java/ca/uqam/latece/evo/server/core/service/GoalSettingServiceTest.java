@@ -211,7 +211,6 @@ public class GoalSettingServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Override
     void testFindByName() {
         // Checks if the name is equals.
         assertEquals(goalSetting.getName(),goalSettingService.findByName(goalSetting.getName()).get(0).getName());

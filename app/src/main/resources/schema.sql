@@ -69,6 +69,46 @@ CREATE TABLE IF NOT EXISTS healthcare_professional (
 );
 
 /***********************************************************************************************************************
+patient_medicalfile table: This table stores information about patient medical files in the system.
+- Columns:
+  - patient_medicalfile_id: A unique identifier for each PatientMedicalFile, auto-incremented.
+  - patient_medicalfile_date: The date of creation of the PatientMedicalFile.
+  - patient_medicalfile_medicalhistory: The medical history of the PatientMedicalFile.
+- Constraints:
+  - patient_medicalfile_pkey: Establishes patient_medicalfile_id as the primary key.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS patient_medicalfile (
+    patient_medicalfile_id BIGSERIAL NOT NULL,
+    patient_medicalfile_date DATE NOT NULL,
+    patient_medicalfile_medicalhistory VARCHAR,
+    CONSTRAINT patient_medicalfile_pkey PRIMARY KEY (patient_medicalfile_id)
+);
+
+/***********************************************************************************************************************
+patient table: This table stores information about patients (a subtype of Actors).
+- Columns:
+  - patient_id: A unique identifier for each patients, auto-incremented.
+  - patient_birthdate: The birthdate of the patient
+  - patient_occupation: The occupation of the patient
+  - patient_address: The address of the patient
+  - patient_actor_id: A foreign key referencing the actor_id in the actor table.
+- Constraints:
+  - patient_pkey: Establishes patient_id as the primary key.
+  - patient_fkey: Ensures that patient_actor_id references a valid actor in the actor table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS patient (
+    patient_id BIGSERIAL NOT NULL,
+    patient_birthdate VARCHAR,
+    patient_occupation VARCHAR,
+    patient_address VARCHAR,
+    patient_actor_id BIGINT NULL,
+    patient_patient_medical_file_id BIGINT NULL,
+    CONSTRAINT patient_pkey PRIMARY KEY (patient_id),
+    CONSTRAINT patient_fkey FOREIGN KEY (patient_actor_id) REFERENCES actor (actor_id),
+    CONSTRAINT patient_patient_medicalfile_fkey FOREIGN KEY (patient_patient_medical_file_id) REFERENCES patient_medicalfile (patient_medicalfile_id)
+);
+
+/***********************************************************************************************************************
 skill table: This table stores details about skills that actors may hold or require.
 - Columns:
   - skill_id: A unique identifier for each skill, auto-incremented.

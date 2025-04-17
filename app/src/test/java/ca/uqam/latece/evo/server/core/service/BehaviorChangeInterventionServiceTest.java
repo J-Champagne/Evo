@@ -96,7 +96,6 @@ public class BehaviorChangeInterventionServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Override
     void testFindByName() {
         // Query the Behavior Change Intervention by name.
         List<BehaviorChangeIntervention> result = behaviorChangeInterventionService.findByName(

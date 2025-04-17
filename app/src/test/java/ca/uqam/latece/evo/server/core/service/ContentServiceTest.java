@@ -120,7 +120,6 @@ public class ContentServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Override
     void testFindByName() {
         Content content = new Content();
         content.setName("Content Work");
