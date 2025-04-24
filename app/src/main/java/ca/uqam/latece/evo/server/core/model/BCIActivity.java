@@ -74,6 +74,10 @@ public class BCIActivity extends AbstractEvoModel {
     )
     private List<Role> roleBCIActivities = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "bciActivityComposedOf", orphanRemoval = true, targetEntity = ComposedOf.class)
+    private List<ComposedOf> composedOfList = new ArrayList<>();
+
     @Override
     public void setId(Long id) {
         this.id = id;
@@ -234,6 +238,14 @@ public class BCIActivity extends AbstractEvoModel {
         if(!role.isEmpty()) {
             this.roleBCIActivities = role;
         }
+    }
+
+    public List<ComposedOf> getComposedOf() {
+        return this.composedOfList;
+    }
+
+    public void setComposedOf(ComposedOf... composedOf) {
+        this.composedOfList.addAll(List.of(composedOf));
     }
 
 }

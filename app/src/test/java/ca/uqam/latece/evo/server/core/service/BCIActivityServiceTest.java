@@ -132,9 +132,9 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         // Delete a BCI Activity.
         bciActivityService.deleteById(bciActivity.getId());
         bciActivityService.deleteById(bciActivity2.getId());
-        // Create a Role.
+        // Delete a Role.
         roleService.deleteById(role.getId());
-        // Create a Skill.
+        // Delete a Skill.
         skillService.deleteById(skill.getId());
         // Delete the Requires.
         requiresService.deleteById(requires.getId());

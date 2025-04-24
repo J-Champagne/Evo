@@ -30,8 +30,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {BCIActivityController.class, BCIActivityService.class, BCIActivity.class})
 public class BCIActivityControllerTest extends AbstractControllerTest {
     @MockBean
-    private
-     BCIActivityRepository bciActivityRepository;
+    private BCIActivityRepository bciActivityRepository;
 
     private BCIActivity bciActivity  = new BCIActivity();
     private Develops develops = new Develops();

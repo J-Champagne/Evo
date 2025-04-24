@@ -403,6 +403,34 @@ CREATE TABLE IF NOT EXISTS behavior_change_intervention_block (
 );
 
 /***********************************************************************************************************************
+composed_of table: This is a junction table that represents a many-to-many relationship between bci_activity and
+  behavior_change_intervention_block.
+- Columns:
+  - composed_of_id: A unique identifier for each mapping, auto-incremented.
+  - composed_of_time_cycle: Represents the Time Cycle of Composed Of class.
+  - composed_of_order:
+  - composed_of_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table.
+  - composed_of_bci_block_id: A foreign key referencing a behavior_change_intervention_block_id in the
+  behavior_change_intervention_block table.
+- Constraints:
+  - composed_of_pkey: Primary key for this table.
+  - composed_of_bci_activity_fkey: Ensures that composed_of_bci_activity_id references a valid record in the bci_activity table.
+  - composed_of_bci_block_fkey: Ensures that composed_of_bci_block_id references a valid record in the
+  behavior_change_intervention_block table.
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS composed_of (
+    composed_of_id BIGSERIAL NOT NULL,
+    composed_of_time_cycle VARCHAR(128) NOT NULL,
+    composed_of_order INTEGER,
+    composed_of_bci_activity_id BIGINT NOT NULL,
+    composed_of_bci_block_id BIGINT NOT NULL,
+    CONSTRAINT composed_of_pkey PRIMARY KEY (composed_of_id),
+    CONSTRAINT composed_of_bci_activity_fkey FOREIGN KEY (composed_of_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT composed_of_bci_block_fkey FOREIGN KEY (composed_of_bci_block_id)
+        REFERENCES behavior_change_intervention_block (behavior_change_intervention_block_id)
+);
+
+/***********************************************************************************************************************
 behavior_change_intervention_phase table: This table stores information about Behavior Change Intervention Phase.
 - Columns:
   - behavior_change_intervention_phase_id: A unique identifier for each Behavior Change Intervention Phase.

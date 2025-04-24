@@ -65,6 +65,7 @@ public interface BCIActivityRepository extends EvoRepository<BCIActivity> {
             "WHERE req.requires_id = :requires_id",
             nativeQuery = true)
     List<BCIActivity> findByRequires(@Param("requires_id")Long requiresId);
+
     /**
      * Retrieves a list of BCIActivity entities that match the specified Role Id.
      * @param roleId The Role Id to filter BCIActivity entities by, must not be null.

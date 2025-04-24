@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Actor repository creates CRUD implementation at runtime automatically.
+ * BehaviorPerformance repository creates CRUD implementation at runtime automatically.
  * @version 1.0
  * @author Edilton Lima dos Santos.
  */

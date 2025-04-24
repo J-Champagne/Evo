@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
@@ -36,7 +37,6 @@ public class BehaviorChangeInterventionBlock extends AbstractEvoModel{
     @Column(name = "behavior_change_intervention_block_exit_conditions", nullable = false, length = 256)
     private String exitConditions;
 
-
     /**
      * Represents the many-to-many relationship between BehaviorChangeInterventionBlock and
      * BehaviorChangeInterventionPhase entities.
@@ -59,6 +59,10 @@ public class BehaviorChangeInterventionBlock extends AbstractEvoModel{
     )
     @JsonProperty("blockBehaviorChangeInterventionPhases")
     private List<BehaviorChangeInterventionPhase> blockBehaviorChangeInterventionPhases = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "bciBlockComposedOf", orphanRemoval = true, targetEntity = ComposedOf.class)
+    private List<ComposedOf> composedOfList = new ArrayList<>();
 
 
     @Override
@@ -108,6 +112,16 @@ public class BehaviorChangeInterventionBlock extends AbstractEvoModel{
             if (!this.blockBehaviorChangeInterventionPhases.isEmpty()) {
                 this.blockBehaviorChangeInterventionPhases.remove(behaviorChangeInterventionPhase);
             }
+        }
+    }
+
+    public List<ComposedOf> getComposedOfList() {
+        return composedOfList;
+    }
+
+    public void setComposedOfList(List<ComposedOf> composedOf) {
+        if (composedOf != null) {
+            this.composedOfList = composedOf;
         }
     }
 }
