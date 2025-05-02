@@ -1,8 +1,10 @@
 package ca.uqam.latece.evo.server.core.service;
 
+
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import ca.uqam.latece.evo.server.core.service.instance.BehaviorPerformanceInstanceService;
 import ca.uqam.latece.evo.server.core.model.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,17 +17,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * The test class for the {@link BehaviorPerformanceService}, responsible for testing its various functionalities.
+ * The test class for the {@link BehaviorPerformanceInstanceService}, responsible for testing its various functionalities.
  * This class includes integration tests for CRUD operations and other repository queries using a
  * PostgreSQL database in a containerized setup.
  * @version 1.0
  * @author Edilton Lima dos Santos.
  */
-@ContextConfiguration(classes = {BehaviorPerformanceService.class, BehaviorPerformance.class})
-public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
-
+@ContextConfiguration(classes = {BehaviorPerformanceInstanceService.class, BehaviorPerformance.class})
+public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest {
     @Autowired
-    private BehaviorPerformanceService behaviorPerformanceService;
+    private BehaviorPerformanceInstanceService behaviorPerformanceInstanceService;
 
     @Autowired
     private RequiresService requiresService;
@@ -77,7 +78,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         behaviorPerformance.setPreconditions("Preconditions 2");
         behaviorPerformance.setPostconditions("Post-conditions 2");
         behaviorPerformance.addRole(role);
-        behaviorPerformanceService.create(behaviorPerformance);
+        behaviorPerformanceInstanceService.create(behaviorPerformance);
 
         behaviorPerformance2.setName("Testing 2");
         behaviorPerformance2.setDescription("Testing training 2");
@@ -86,7 +87,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         behaviorPerformance2.setPostconditions("Testing Post-conditions 2");
         behaviorPerformance2.addRole(role2);
         // Create a behavior performance.
-        behaviorPerformanceService.create(behaviorPerformance2);
+        behaviorPerformanceInstanceService.create(behaviorPerformance2);
 
         // Create a Requires.
         requires.setLevel(SkillLevel.ADVANCED);
@@ -128,7 +129,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
     @AfterEach
     void afterEach(){
         // Delete a behavior performance.
-        behaviorPerformanceService.deleteById(behaviorPerformance.getId());
+        behaviorPerformanceInstanceService.deleteById(behaviorPerformance.getId());
         // Create a Role.
         roleService.deleteById(role.getId());
         // Create a Skill.
@@ -155,7 +156,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         behaviorPerformance.setPostconditions("Post-conditions 1112");
         behaviorPerformance.addRole(role);
         // Create a behavior performance.
-        BCIActivity bciActivitySaved = behaviorPerformanceService.create(behaviorPerformance);
+        BCIActivity bciActivitySaved = behaviorPerformanceInstanceService.create(behaviorPerformance);
 
         // Checks if the Behavior Performance was saved.
         assert bciActivitySaved.getId() > 0;
@@ -175,7 +176,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         saved.setRole(behaviorPerformance.getRole());
 
         // Update a Behavior Performance.
-        BehaviorPerformance updated = behaviorPerformanceService.update(saved);
+        BehaviorPerformance updated = behaviorPerformanceInstanceService.update(saved);
 
         // Checks if the Behavior Performance id saved is the same of the Behavior Performance updated.
         assertEquals(saved.getId(), updated.getId());
@@ -188,7 +189,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
     @Test
     @Override
     void testFindById() {
-        BehaviorPerformance found = behaviorPerformanceService.findById(behaviorPerformance.getId());
+        BehaviorPerformance found = behaviorPerformanceInstanceService.findById(behaviorPerformance.getId());
         assertEquals(behaviorPerformance.getId(), found.getId());
     }
 
@@ -196,7 +197,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
     void testFindByName() {
         // Checks if the name is equals.
         assertEquals(behaviorPerformance.getName(),
-                behaviorPerformanceService.findByName(behaviorPerformance.getName()).get(0).getName());
+                behaviorPerformanceInstanceService.findByName(behaviorPerformance.getName()).get(0).getName());
     }
 
     @Test
@@ -209,17 +210,17 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         saved.setType(ActivityType.LEARNING);
         saved.setPreconditions("Preconditions - Behavior Performance Test");
         saved.setPostconditions("Post-conditions - Behavior Performance Test");
-        behaviorPerformanceService.create(saved);
+        behaviorPerformanceInstanceService.create(saved);
         // Delete a Behavior Performance.
-        behaviorPerformanceService.deleteById(saved.getId());
+        behaviorPerformanceInstanceService.deleteById(saved.getId());
         // Checks if the Behavior Performance was deleted.
-        assertFalse(behaviorPerformanceService.existsById(saved.getId()));
+        assertFalse(behaviorPerformanceInstanceService.existsById(saved.getId()));
     }
 
     @Test
     void testFindType() {
         // Find a Behavior Performance by type.
-        List<BehaviorPerformance> found = behaviorPerformanceService.findByType(ActivityType.LEARNING);
+        List<BehaviorPerformance> found = behaviorPerformanceInstanceService.findByType(ActivityType.LEARNING);
 
         assertEquals(2, found.size());
         assertEquals(behaviorPerformance.getId(), found.get(0).getId());
@@ -231,7 +232,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
     @Test
     void existsByName() {
         assertEquals(behaviorPerformance.getName(),
-                behaviorPerformanceService.findByName(behaviorPerformance.getName()).get(0).getName());
+                behaviorPerformanceInstanceService.findByName(behaviorPerformance.getName()).get(0).getName());
     }
 
     @Test
@@ -244,10 +245,10 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         saved.setType(ActivityType.LEARNING);
         saved.setPreconditions("Preconditions DB 3 - Behavior Performance Test");
         saved.setPostconditions("Post-conditions DB 3 - Behavior Performance Test");
-        behaviorPerformanceService.create(saved);
+        behaviorPerformanceInstanceService.create(saved);
 
         // Find all Behavior Performance.
-        List<BehaviorPerformance> found = behaviorPerformanceService.findAll();
+        List<BCIActivity> found = behaviorPerformanceInstanceService.findAll();
 
         // Tests.
         assertEquals(3, found.size());

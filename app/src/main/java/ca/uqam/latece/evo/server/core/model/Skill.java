@@ -54,9 +54,27 @@ public class Skill extends AbstractEvoModel {
      * "FetchType.LAZY" ensures that the associated Content entities are loaded lazily.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skill_skill_id", referencedColumnName = "skill_id", nullable = true) // Ensures foreign key setup in the database
-    @JsonProperty("skill")
-    private Skill requiredSkill;
+    @JoinColumn(name = "skill_sub_skill_id", referencedColumnName = "skill_id", nullable = true) // Ensures foreign key setup in the database
+    @JsonProperty("subSkill")
+    private Skill subSkill;
+
+    /**
+     * Represents the many-to-many Skill self-relationship.
+     * This relationship is mapped to the "required_skill" join table in the database.
+     * Each Skill can have multiple associated with another Skill entity.
+     * The join table "required_skill" consists of the following columns:
+     * "required_skill_skill_id" as a foreign key referencing "skill_id" in the "skill" table.
+     * "required_skill_required_id" as a foreign key referencing required skill "skill_id" in the "skill" table.
+     * "FetchType.LAZY" ensures that the associated Skill entities are loaded lazily.
+     */
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
+            fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "required_skill",
+            joinColumns = @JoinColumn(name = "required_skill_skill_id", referencedColumnName= "skill_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "required_skill_required_id", referencedColumnName= "skill_id", nullable = false))
+    @JsonProperty("requiredSkill")
+    private List<Skill> requiredSkill = new ArrayList<>();
 
     /**
      * Represents the many-to-many relationship between Skill and Content entities.
@@ -160,14 +178,27 @@ public class Skill extends AbstractEvoModel {
         }
     }
 
-    public void setRequiredSkill(Skill requiredSkill) {
-        if (requiredSkill != null) {
-            this.requiredSkill = requiredSkill;
+    public void setSubSkill(Skill subSkill) {
+        if (subSkill != null) {
+            this.subSkill = subSkill;
         }
     }
 
-    public Skill getRequiredSkill() {
-        return this.requiredSkill;
+    public Skill getSubSkill() {
+        return this.subSkill;
     }
 
+    public void setRequiredSkill(List<Skill> requiredSkill) {
+        this.requiredSkill = requiredSkill;
+    }
+
+    public void addRequiredSkill(Skill requiredSkill) {
+        if (this.requiredSkill != null) {
+            this.requiredSkill.add(requiredSkill);
+        }
+    }
+
+    public List<Skill> getRequiredSkill() {
+        return this.requiredSkill;
+    }
 }

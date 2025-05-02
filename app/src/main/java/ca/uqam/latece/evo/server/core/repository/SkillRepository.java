@@ -43,12 +43,22 @@ public interface SkillRepository extends EvoRepository<Skill> {
 
 
     /**
+     * Finds and retrieves a list of skills based on their subskills.
+     * @param id the id of the subskills to search for.
+     * @return a list of skills matching the given subskill id.
+     */
+    @Query(value = "SELECT s.* FROM skill AS s WHERE s.skill_sub_skill_id = :subskill_id",
+            nativeQuery = true)
+    List<Skill> findBySubSkill(@Param("subskill_id") Long id);
+
+    /**
      * Finds and retrieves a list of skills based on their required skills.
-     * @param id the id of the skills to search for.
+     * @param id the required skill id to search for.
      * @return a list of skills matching the given id.
      */
-    @Query(value = "SELECT s.* FROM skill AS s WHERE s.skill_skill_id = :skill_skill_id",
+    @Query(value = "SELECT s.* FROM skill AS s " +
+            "JOIN required_skill rs ON (rs.required_skill_skill_id = s.skill_id) " +
+            "WHERE rs.required_skill_required_id = :skill_required_id ",
             nativeQuery = true)
-    List<Skill> findByRequiredSkill(@Param("skill_skill_id") Long id);
-
+    List<Skill> findByRequiredSkill(@Param("skill_required_id") Long id);
 }

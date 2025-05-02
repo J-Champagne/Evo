@@ -57,7 +57,7 @@ public class SkillServiceTest extends AbstractServiceTest {
         skill.setName("Java");
         skill.setDescription("Programming language");
         skill.setType(SkillType.BCT);
-        skill.setRequiredSkill(skill0);
+        skill.addRequiredSkill(skill0);
         skillService.create(skill);
 
         // Update the Skill name.
@@ -105,7 +105,7 @@ public class SkillServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void findByRequiredSkill() throws Exception {
+    void findByRequiredSkill() {
         Skill skill = new Skill();
         skill.setName("Python 2");
         skill.setDescription("Programming language 2");
@@ -122,7 +122,8 @@ public class SkillServiceTest extends AbstractServiceTest {
         skill3.setName("C++");
         skill3.setDescription("Programming language 4");
         skill3.setType(SkillType.BCT);
-        skill3.setRequiredSkill(skill);
+        skill3.addRequiredSkill(skill);
+        skill3.addRequiredSkill(skill2);
         skillService.create(skill3);
 
         // Get the Skill with association with skill "Python 2".
@@ -138,7 +139,39 @@ public class SkillServiceTest extends AbstractServiceTest {
         // Should be the Skill "C++".
         assertEquals(skill3.getName(), skillFound.getName());
         // The skill required should be "Python 2".
-        assertEquals(skill.getName(), skillFound.getRequiredSkill().getName());
+        assertEquals(skill.getName(), skillFound.getRequiredSkill().get(0).getName());
+    }
+
+    @Test
+    void findBySubSkill(){
+        Skill skill = new Skill();
+        skill.setName("Python 2");
+        skill.setDescription("Programming language 2");
+        skill.setType(SkillType.BCT);
+        skillService.create(skill);
+
+        Skill skill2 = new Skill();
+        skill2.setName("Java 3");
+        skill2.setDescription("Programming language 3");
+        skill2.setType(SkillType.BCT);
+        skill2.setSubSkill(skill);
+        skillService.create(skill2);
+
+        // Get the Skill with association with skill "Python 2".
+        List<Skill> skills = skillService.findBySubSkill(skill.getId());
+        // Should be not null.
+        assertNotNull(skills);
+
+        // Get the Skill found.
+        Skill skillFound = skills.get(0);
+
+        // Should be only one skill with association with "Python 2".
+        assertEquals(1, skills.size());
+        // Should be the Skill "C++".
+        assertEquals(skill2.getName(), skillFound.getName());
+        // The skill required should be "Python 2".
+        assertEquals(skill.getName(), skillFound.getSubSkill().getName());
+
     }
 
     @Test
@@ -150,10 +183,22 @@ public class SkillServiceTest extends AbstractServiceTest {
         skill.setType(SkillType.BCT);
         skillService.create(skill);
 
+        Skill skill2 = new Skill();
+        skill2.setName("Java 3");
+        skill2.setDescription("Programming language 3");
+        skill2.setType(SkillType.BCT);
+        skill2.addRequiredSkill(skill);
+        skillService.create(skill2);
+
         // Delete a Skill.
-        skillService.deleteById(skill.getId());
+        skillService.deleteById(skill2.getId());
+        // Get All Skill.
+        List<Skill> skillFound = skillService.findAll();
+
         // Should be empty.
-        assertEquals(0,skillService.findAll().size());
+        assertEquals(1, skillFound.size());
+        // Should be equals.
+        assertEquals(skill.getName(), skillFound.get(0).getName());
     }
 
     @Test
@@ -170,6 +215,7 @@ public class SkillServiceTest extends AbstractServiceTest {
         skill1.setName("C#");
         skill1.setDescription("Microsoft");
         skill1.setType(SkillType.BCT);
+        skill1.addRequiredSkill(skill);
         // Persist the Skill before querying.
         skillService.create(skill1);
 
@@ -190,6 +236,7 @@ public class SkillServiceTest extends AbstractServiceTest {
         skill1.setName("Architecture");
         skill1.setDescription("Architecture");
         skill1.setType(SkillType.PHYSICAL);
+        skill1.addRequiredSkill(skill);
         // Persist the Skill before querying.
         skillService.create(skill1);
 

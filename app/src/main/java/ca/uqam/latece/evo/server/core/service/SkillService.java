@@ -183,4 +183,14 @@ public class SkillService extends AbstractEvoService<Skill> {
         return skillRepository.findByRequiredSkill(id);
     }
 
+    /**
+     * Finds and retrieves a list of skills based on their subskills.
+     * @param id the id of the subskills to search for.
+     * @return a list of skills matching the given subskill id.
+     */
+    public List<Skill> findBySubSkill(Long id) {
+        ObjectValidator.validateId(id);
+        return skillRepository.findBySubSkill(id);
+    }
+
 }

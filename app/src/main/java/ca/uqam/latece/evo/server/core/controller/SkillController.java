@@ -163,6 +163,35 @@ public class SkillController extends AbstractEvoController<Skill> {
     }
 
     /**
+     * Finds and retrieves a list of skills based on their subskills.
+     * @param id the id of the subskills to search for.
+     * @return a list of skills matching the given subskill id.
+     */
+    @GetMapping("/find/subskill/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Skill>> findBySubSkill(@PathVariable Long id) {
+        ResponseEntity<List<Skill>> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            List<Skill> skillList = skillService.findBySubSkill(id);
+
+            if (skillList != null && !skillList.isEmpty()) {
+                response = new ResponseEntity<>(skillList, HttpStatus.OK);
+                logger.info("Found skill list by subskill id: {}", skillList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find skill list by subskill id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find skill list by subskill id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
      * Finds and retrieves a list of skills based on their name.
      * @param name the name of the skills to search for.
      * @return a list of skills matching the given type.

@@ -6,6 +6,7 @@ import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.service.BCIActivityService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class BCIActivityController extends AbstractEvoController <BCIActivity> {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
-    public ResponseEntity<BCIActivity> create(@RequestBody BCIActivity model) {
+    public ResponseEntity<BCIActivity> create(@Valid @RequestBody BCIActivity model) {
         ResponseEntity<BCIActivity> response;
 
         try{
@@ -53,7 +54,7 @@ public class BCIActivityController extends AbstractEvoController <BCIActivity> {
                 logger.info("Created new BCIActivity: {}", saved);
             } else {
                 response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                logger.info("Failed to create new BCIActivity.");
+                logger.error("Failed to create new BCIActivity.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -82,7 +83,7 @@ public class BCIActivityController extends AbstractEvoController <BCIActivity> {
                 logger.info("Updated BCIActivity: {}", updated);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to update BCIActivity.");
+                logger.error("Failed to update BCIActivity.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);

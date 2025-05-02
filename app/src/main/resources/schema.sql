@@ -115,22 +115,42 @@ skill table: This table stores details about skills that actors may hold or requ
   - skill_name: The name of the skill. It's required and must be unique.
   - skill_description: A description of the skill.
   - skill_type: An optional string to classify the skill.
-  - skill_skill_id: An optional foreign key used to identify the dependence between skills.
+  - skill_sub_skill_id: An optional foreign key used to identify the dependence between skill and subskill.
     It links a skill to another skill.
 - Constraints:
   - skill_pkey: Establishes skill_id as the primary key.
   - skill_skill_name_ukey: Ensures that skill_name is unique.
-  - skill_skill_fkey: Ensures that skill_skill_id references a valid skill (sub skill) in the skill table.
+  - skill_sub_skill_fkey: Ensures that skill_sub_skill_id references a valid skill (sub skill) in the skill table.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS skill (
      skill_id BIGSERIAL NOT NULL,
      skill_name VARCHAR(128) NOT NULL,
      skill_description VARCHAR(256) NULL,
      skill_type VARCHAR(256) NULL,
-     skill_skill_id BIGINT NULL,
+     skill_sub_skill_id BIGINT NULL,
      CONSTRAINT skill_pkey PRIMARY KEY (skill_id),
      CONSTRAINT skill_skill_name_ukey UNIQUE (skill_name),
-     CONSTRAINT skill_skill_fkey FOREIGN KEY (skill_skill_id) REFERENCES skill (skill_id)
+     CONSTRAINT skill_sub_skill_fkey FOREIGN KEY (skill_sub_skill_id) REFERENCES skill (skill_id)
+);
+
+/***********************************************************************************************************************
+required_skill table: This is a junction table that represents a many-to-many Skill self-relationship. It links a skill
+  corresponds to which required Skill(s).
+- Columns:
+  - required_skill_skill_id, required_skill_required_id: A unique identifier for each required skill, is a self-foreign key.
+  - required_skill_skill_id: A foreign key used to identify the main Skill.
+  - required_skill_required_id: A foreign key used to identify the required Skill. It links a Skill with the required Skill.
+- Constraints:
+  - required_skill_pkey: Establishes skill_id as the primary key.
+  - required_skill_fkey: Ensures that required_skill_requires_id references a valid required skill in the Skill table.
+  - required_skill_required_fkey: Ensures that required_skill_required_id references a valid required skill in the Skill table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS required_skill (
+    required_skill_skill_id BIGINT NOT NULL,
+    required_skill_required_id BIGINT NOT NULL,
+    CONSTRAINT required_skill_pkey PRIMARY KEY (required_skill_skill_id, required_skill_required_id),
+    CONSTRAINT required_skill_fkey FOREIGN KEY (required_skill_skill_id) REFERENCES skill (skill_id),
+    CONSTRAINT required_skill_required_fkey FOREIGN KEY (required_skill_required_id) REFERENCES skill (skill_id)
 );
 
 /***********************************************************************************************************************
