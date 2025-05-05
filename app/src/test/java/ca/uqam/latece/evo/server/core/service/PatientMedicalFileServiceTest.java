@@ -68,14 +68,14 @@ public class PatientMedicalFileServiceTest extends AbstractServiceTest {
 
     /**
      * Tests findByDate() of PatientMedicalFileService.
-     * Verifies that PatientMedicalFileService entities can be successfully retrieved by their Date of creation.
+     * Verifies that PatientMedicalFile entities can be successfully retrieved by their date of creation.
      */
     @Test
     void testFindByDate() {
         PatientMedicalFile medicalFile = new PatientMedicalFile("Healthy");
 
         PatientMedicalFile medicalFileSaved = patientMedicalFileService.save(medicalFile);
-        List<PatientMedicalFile> results = patientMedicalFileService.findByDate(medicalFile.getDate());
+        List<PatientMedicalFile> results = patientMedicalFileService.findByDate(medicalFileSaved.getDate());
 
         assertFalse(results.isEmpty());
         assertEquals(medicalFileSaved.getId(), results.get(0).getId());

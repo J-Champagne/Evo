@@ -109,6 +109,26 @@ CREATE TABLE IF NOT EXISTS patient (
 );
 
 /***********************************************************************************************************************
+patient assessment table: This table stores information about patient assessments.
+- Columns:
+  - patient_assessment_id: A unique identifier for each patient assessment, auto-incremented.
+  - patient_assessment_date: The date of creation of the patient assessment.
+  - patient_assessment_assessment: The assessment of the patient.
+  - patient_assessment_patient_id: A foreign key referencing the patient that is being assessed.
+- Constraints:
+  - patient_assessment_pkey: Establishes patient_assessment_id as the primary key.
+  - patient_assessment_patient_fkey: Ensures that patient_assessment_patient_id references a valid patient in the patient table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS patient_assessment (
+    patient_assessment_id BIGSERIAL NOT NULL,
+    patient_assessment_date DATE NOT NULL,
+    patient_assessment_assessment VARCHAR NOT NULL,
+    patient_assessment_patient BIGINT,
+    CONSTRAINT patient_assessment_pkey PRIMARY KEY (patient_assessment_id),
+    CONSTRAINT patient_assessment_patient_fkey FOREIGN KEY (patient_assessment_patient) REFERENCES patient (patient_id)
+);
+
+/***********************************************************************************************************************
 skill table: This table stores details about skills that actors may hold or require.
 - Columns:
   - skill_id: A unique identifier for each skill, auto-incremented.

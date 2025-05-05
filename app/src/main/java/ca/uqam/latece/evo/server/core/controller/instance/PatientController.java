@@ -364,9 +364,9 @@ public class PatientController extends AbstractEvoController<Patient> {
     }
 
     /**
-     * Finds a Patient by its id.
-     * @param id the unique identifier of the Patient to be retrieved; must not be null or invalid.
-     * @return Patient instance with the given id or Optional#empty() if none found.
+     * Finds a Patient by the id of its medical file.
+     * @param id the unique identifier of the medical file of the patient to be retrieved; must not be null or invalid.
+     * @return Patient instance with the given patient medical file id or Optional#empty() if none found.
      * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/patientmedicalfile/{id}")

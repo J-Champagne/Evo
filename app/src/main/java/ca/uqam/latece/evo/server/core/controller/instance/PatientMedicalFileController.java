@@ -15,7 +15,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,7 +23,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/patientmedicalfile")
-public class PatientMedicalFileController extends AbstractEvoController <PatientMedicalFile> {
+public class PatientMedicalFileController extends AbstractEvoController<PatientMedicalFile> {
     private static final Logger logger = LoggerFactory.getLogger(PatientMedicalFileController.class);
 
     @Autowired

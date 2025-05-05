@@ -67,7 +67,6 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
 
         ObjectValidator.validateObject(medicalFile.getDate());
         ObjectValidator.validateString(medicalFile.getMedicalHistory());
-        boolean test = this.existsById(medicalFile.getId());
         if (PatientMedicalFileFound != null) {
             medicalFileUpdated = patientMedicalFileRepository.save(medicalFile);
         }
@@ -76,7 +75,7 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
     }
 
     /**
-     * Method used to create or update an PatientMedicalFile.
+     * Method used to create or update a PatientMedicalFile.
      * @param medicalFile the PatientMedicalFile entity.
      * @return The inserted or updated PatientMedicalFile.
      * @throws IllegalArgumentException in case the given PatientMedicalFile is null.
@@ -91,38 +90,41 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
     }
 
     /**
-     * Checks if an PatientMedicalFile entity with the specified id exists in the repository.
+     * Checks if a PatientMedicalFile entity with the specified id exists in the repository.
      * @param id the id of the PatientMedicalFile to check for existence, must not be null.
      * @return true if an PatientMedicalFile with the specified id exists, false otherwise.
      * @throws IllegalArgumentException if the id is null.
      */
     @Override
     public boolean existsById(Long id) {
+        ObjectValidator.validateId(id);
         return this.patientMedicalFileRepository.existsById(id);
     }
 
     /**
-     * Checks if an PatientMedicalFile entity with the specified date exists in the repository.
+     * Checks if a PatientMedicalFile entity with the specified date exists in the repository.
      * @param date the date of the PatientMedicalFile to check for existence, must not be null.
      * @return true if an PatientMedicalFile with the specified date exists, false otherwise.
      * @throws IllegalArgumentException if the date is null.
      */
     public boolean existsByDate(Date date) {
+        ObjectValidator.validateObject(date);
         return this.patientMedicalFileRepository.existsByDate(date);
     }
 
     /**
-     * Checks if an PatientMedicalFile entity with the specified medicalHistory exists in the repository.
+     * Checks if a PatientMedicalFile entity with the specified medicalHistory exists in the repository.
      * @param medicalHistory the medicalHistory of the PatientMedicalFile to check for existence, must not be null or blank.
      * @return true if an PatientMedicalFile with the specified medicalHistory exists, false otherwise.
      * @throws IllegalArgumentException if the medicalHistory is null.
      */
     public boolean existsByMedicalHistory(String medicalHistory) {
+        ObjectValidator.validateString(medicalHistory);
         return this.patientMedicalFileRepository.existsByMedicalHistory(medicalHistory);
     }
 
     /**
-     * Finds an PatientMedicalFile by its id.
+     * Finds a PatientMedicalFile by its id.
      * @param id the unique identifier of the PatientMedicalFile to be retrieved; must not be null or invalid.
      * @return the PatientMedicalFile with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException if id is null.
@@ -135,7 +137,7 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
     }
 
     /**
-     * Finds an PatientMedicalFile by its date.
+     * Finds a PatientMedicalFile by its date.
      * @param date must not be null.
      * @return the PatientMedicalFile with the given date or Optional#empty() if none found.
      * @throws IllegalArgumentException if the date is null.
@@ -146,7 +148,7 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
     }
 
     /**
-     * Finds an PatientMedicalFile by its medicalHistory.
+     * Finds a PatientMedicalFile by its medicalHistory.
      * @param medicalHistory must not be null.
      * @return the PatientMedicalFile with the given medicalHistory or Optional#empty() if none found.
      * @throws IllegalArgumentException if the medicalHistory is null.
