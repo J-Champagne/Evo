@@ -1,15 +1,14 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
-import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
-
-import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
 import ca.uqam.latece.evo.server.core.service.instance.PatientAssessmentService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,6 +29,15 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
     @Autowired
     PatientAssessmentService patientAssessmentService;
 
+    /**
+     * Inserts a PatientAssessment in the database.
+     * @param pa the PatientAssessment entity.
+     * @return PatientAssessment instance that was saved.
+     * @throws IllegalArgumentException in case the given PatientAssessment is null.
+     * @throws OptimisticLockingFailureException when the PatientAssessment uses optimistic locking and has a version attribute with
+     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+     *           present but does not exist in the database.
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     public ResponseEntity<PatientAssessment> create(@RequestBody PatientAssessment pa) {
@@ -54,6 +62,15 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
         return response;
     }
 
+    /**
+     * Updates a PatientAssessment in the database.
+     * @param pa the PatientAssessment entity.
+     * @return PatientAssessment instance that was updated.
+     * @throws IllegalArgumentException in case the given PatientAssessment is null.
+     * @throws OptimisticLockingFailureException when the PatientAssessment uses optimistic locking and has a version attribute with
+     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+     *           present but does not exist in the database.
+     */
     @PutMapping
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<PatientAssessment> update(@RequestBody PatientAssessment pa) {
@@ -81,7 +98,7 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
     /**
      * Deletes the PatientAssessment with the given id.
      * If the PatientAssessment is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the PatientAssessment to be retrieved; must not be null or invalid.
+     * @param id the unique identifier of the PatientAssessment to be deleted; must not be null or invalid.
      * @throws IllegalArgumentException in case the given id is null.
      */
     @DeleteMapping("/{id}")

@@ -2,7 +2,6 @@ package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.PatientController;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
-import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientMedicalFileRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientRepository;
@@ -18,6 +17,13 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
+/**
+ * The Patient Controller test class for the {@link PatientController}, responsible for testing its various functionalities.
+ * This class includes integration tests for CRUD operations supported the controller class, using WebMvcTes, and
+ * repository queries using MockMvc (Mockito).
+ * @version 1.0
+ * @author Julien Champagne.
+ */
 @WebMvcTest(controllers = PatientController.class)
 @ContextConfiguration(classes = {PatientController.class, PatientService.class, Patient.class})
 public class PatientControllerTest extends AbstractControllerTest {

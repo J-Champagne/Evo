@@ -1,9 +1,8 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
-import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
-
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -50,20 +49,4 @@ public interface PatientAssessmentRepository extends EvoRepository<PatientAssess
      * @throws IllegalArgumentException if the date is null.
      */
     boolean existsByDate(LocalDate date);
-
-    /**
-     * Checks if a PatientAssessment entity with the specified assessment exists in the repository.
-     * @param assessment the assessment of the PatientAssessment to check for existence, must not be null or blank.
-     * @return true if a PatientAssessment with the specified assessment exists, false otherwise.
-     * @throws IllegalArgumentException if the assessment is null or blank.
-     */
-    boolean existsByAssessment(String assessment);
-
-    /**
-     * Checks if a PatientAssessment entity with the specified patient exists in the repository.
-     * @param patient the patient of the PatientAssessment to check for existence, must not be null.
-     * @return true if a PatientAssessment with the specified patient exists, false otherwise.
-     * @throws IllegalArgumentException if the patient is null.
-     */
-    boolean existsByPatient(Patient patient);
 }

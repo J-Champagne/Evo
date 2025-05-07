@@ -18,6 +18,13 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
+/**
+ * The PatientAssessment Controller test class for the {@link PatientAssessmentController}, responsible for testing its various
+ * functionalities. This class includes integration tests for CRUD operations supported the controller class,
+ * using WebMvcTes, and repository queries using MockMvc (Mockito).
+ * @version 1.0
+ * @author Julien Champagne.
+ */
 @WebMvcTest(controllers = PatientAssessmentController.class)
 @ContextConfiguration(classes = {PatientAssessment.class, PatientAssessmentService.class, PatientAssessmentController.class})
 public class PatientAssessmentControllerTest extends AbstractControllerTest {
@@ -29,6 +36,7 @@ public class PatientAssessmentControllerTest extends AbstractControllerTest {
 
     private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
             "3 December 455", "King", "Camelot, Britain");
+
     private PatientAssessment pa = new PatientAssessment("Ready", patient);
 
     @BeforeEach

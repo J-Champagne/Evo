@@ -1,12 +1,10 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
-import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientAssessmentRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
-
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -48,7 +46,7 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
         ObjectValidator.validateString(patientAssessment.getAssessment());
         ObjectValidator.validateObject(patientAssessment.getPatient());
 
-        pa = patientAssessmentRepository.save(patientAssessment);
+        pa = this.patientAssessmentRepository.save(patientAssessment);
         logger.info("PatientAssessment created: {}", pa);
         return pa;
     }
@@ -56,7 +54,7 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     /**
      * Updates a PatientAssessment in the database.
      * @param patientAssessment the PatientAssessment entity.
-     * @return The updated PatientAssessment or null is the PatientAssessment to be updated is not found within the database.
+     * @return The updated PatientAssessment or null if the PatientAssessment to be updated is not found within the database.
      * @throws IllegalArgumentException in case the given PatientAssessment is null.
      * @throws OptimisticLockingFailureException when the PatientAssessment uses optimistic locking and has a version attribute with
      *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
@@ -73,7 +71,7 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
         ObjectValidator.validateObject(patientAssessment.getPatient());
 
         if (paFound != null) {
-            paUpdated = patientAssessmentRepository.save(paFound);
+            paUpdated = this.patientAssessmentRepository.save(paFound);
         }
         return paUpdated;
     }
@@ -116,28 +114,6 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     }
 
     /**
-     * Checks if a PatientAssessment entity with the specified assessment exists in the repository.
-     * @param assessment the assessment of the PatientAssessment to check for existence, must not be null or blank.
-     * @return true if an PatientAssessment with the specified assessment exists, false otherwise.
-     * @throws IllegalArgumentException if the assessment is null or blank.
-     */
-    public boolean existsByAssessment(String assessment) {
-        ObjectValidator.validateString(assessment);
-        return this.patientAssessmentRepository.existsByAssessment(assessment);
-    }
-
-    /**
-     * Checks if a PatientAssessment entity with the specified patient exists in the repository.
-     * @param patient the patient of the PatientAssessment to check for existence, must not be null.
-     * @return true if an PatientAssessment with the specified patient exists, false otherwise.
-     * @throws IllegalArgumentException if the patient is null.
-     */
-    public boolean existsByPatient(Patient patient) {
-        ObjectValidator.validateObject(patient);
-        return this.patientAssessmentRepository.existsByPatient(patient);
-    }
-
-    /**
      * Finds a PatientAssessment by its id.
      * @param id the unique identifier of the PatientAssessment to be retrieved; must not be null or invalid.
      * @return the PatientAssessment with the given id or Optional#empty() if none found.
@@ -153,7 +129,7 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     /**
      * Finds an PatientAssessment by its date.
      * @param date must not be null.
-     * @return the PatientAssessment with the given date or Optional#empty() if none found.
+     * @return List<PatientAssessment> with the given date or Optional#empty() if none found.
      * @throws IllegalArgumentException if the date is null.
      */
     public List<PatientAssessment> findByDate(LocalDate date) {
@@ -164,7 +140,7 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     /**
      * Finds an PatientAssessment by its assessment.
      * @param assessment must not be null or blank.
-     * @return the PatientAssessment with the given assessment or Optional#empty() if none found.
+     * @return List<PatientAssessment> with the given assessment or Optional#empty() if none found.
      * @throws IllegalArgumentException if the assessment is null or blank.
      */
     public List<PatientAssessment> findByAssessment(String assessment) {
@@ -175,7 +151,7 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     /**
      * Finds an PatientAssessment by its patient id.
      * @param id must not be null.
-     * @return the PatientAssessment with the given patient id or Optional#empty() if none found.
+     * @return List<PatientAssessment> with the given patient id or Optional#empty() if none found.
      * @throws IllegalArgumentException if the id is null.
      */
     public List<PatientAssessment> findByPatient(Long id) {
