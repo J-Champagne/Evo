@@ -3,11 +3,10 @@ package ca.uqam.latece.evo.server.core.model;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +20,9 @@ import java.util.List;
 @Table(name = "bci_activity")
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonPropertyOrder({"id", "name", "description", "type", "preconditions", "postconditions"})
-public class BCIActivity extends AbstractEvoModel {
-    private static final Logger logger = LogManager.getLogger(BCIActivity.class);
+public class BCIActivity extends Activity {
 
+    @JsonProperty("id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="bci_activity_id")

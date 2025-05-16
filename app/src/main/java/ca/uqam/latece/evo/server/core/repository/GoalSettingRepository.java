@@ -47,7 +47,7 @@ public interface GoalSettingRepository extends  EvoRepository<GoalSetting> {
      */
     @Query(value = "SELECT bci.*, gst.*, 0 AS clazz_ FROM bci_activity AS bci " +
             "JOIN develops dev ON (bci.bci_activity_id = dev.develops_bci_activity_id) " +
-            "LEFT OUTER JOIN goal_setting gst ON (bci.bci_activity_id = gst.goal_setting_bci_activity_id) " +
+            "LEFT OUTER JOIN goal_setting gst ON (bci.bci_activity_id = gst.goal_setting_id) " +
             "WHERE dev.develops_id = :develops_id",
             nativeQuery = true)
     List<GoalSetting> findByDevelops(@Param("develops_id") Long developsId);
@@ -59,7 +59,7 @@ public interface GoalSettingRepository extends  EvoRepository<GoalSetting> {
      */
     @Query(value = "SELECT bci.*, gst.*, 0 AS clazz_ FROM bci_activity AS bci " +
             "JOIN requires req ON (bci.bci_activity_id = req.requires_bci_activity_id) " +
-            "LEFT OUTER JOIN goal_setting gst ON (bci.bci_activity_id = gst.goal_setting_bci_activity_id) " +
+            "LEFT OUTER JOIN goal_setting gst ON (bci.bci_activity_id = gst.goal_setting_id) " +
             "WHERE req.requires_id = :requires_id",
             nativeQuery = true)
     List<GoalSetting> findByRequires(@Param("requires_id") Long requiresId);
@@ -71,7 +71,7 @@ public interface GoalSettingRepository extends  EvoRepository<GoalSetting> {
      */
     @Query(value = "SELECT bci.*, gst.*, 0 AS clazz_ FROM bci_activity AS bci " +
             "JOIN bci_activity_role bro ON (bci.bci_activity_id = bro.bci_activity_role_bci_activity_id) " +
-            "LEFT OUTER JOIN goal_setting gst ON (bci.bci_activity_id = gst.goal_setting_bci_activity_id)" +
+            "LEFT OUTER JOIN goal_setting gst ON (bci.bci_activity_id = gst.goal_setting_id)" +
             "WHERE bro.bci_activity_role_role_id = :role_id",
             nativeQuery = true)
     List<GoalSetting> findByRole(@Param("role_id") Long roleId);
@@ -83,9 +83,8 @@ public interface GoalSettingRepository extends  EvoRepository<GoalSetting> {
      */
     @Query(value = "SELECT bci.*, gst.*, 0 AS clazz_ FROM bci_activity AS bci " +
             "JOIN bci_activity_content bco ON (bci.bci_activity_id = bco.bci_activity_content_bci_activity_id) " +
-            "LEFT OUTER JOIN goal_setting gst ON (bci.bci_activity_id = gst.goal_setting_bci_activity_id) " +
+            "LEFT OUTER JOIN goal_setting gst ON (bci.bci_activity_id = gst.goal_setting_id) " +
             "WHERE bco.bci_activity_content_content_id = :content_id",
             nativeQuery = true)
     List<GoalSetting> findByContent(@Param("content_id") Long contentId);
-
 }

@@ -4,14 +4,16 @@ import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
+import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,9 +28,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ContextConfiguration(classes = {BCIActivityInstanceService.class, BCIActivity.class})
 public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
-    @Qualifier("BCIActivityInstanceService")
     @Autowired
     private BCIActivityInstanceService bciActivityInstanceService;
+
+    @Autowired
+    private BCIActivityService bciActivityService;
 
     @Autowired
     private RequiresService requiresService;
@@ -48,6 +52,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     private GoalSettingService goalSettingService;
 
+    private BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
     private BCIActivity bciActivity = new BCIActivity();
     private BCIActivity bciActivity2 = new BCIActivity();
     private Role role = new Role();
@@ -58,6 +63,9 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     private Content content = new Content();
     private Content content2 = new Content();
     private Develops develops = new Develops();
+
+    private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
+    private LocalDate localExitDate = LocalDate.now();
 
     @BeforeEach
     void beforeEach(){
@@ -83,8 +91,8 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivity.setPreconditions("Preconditions 2 - BCIActivity Test");
         bciActivity.setPostconditions("Post-conditions 2 - BCIActivity Test");
         bciActivity.addRole(role);
-        // Create a BCI Activity Instance.
-        bciActivityInstanceService.create(bciActivity);
+        // Create a BCI Activity.
+        bciActivityService.create(bciActivity);
 
         bciActivity2.setName("Testing 2 - BCIActivity Test");
         bciActivity2.setDescription("Testing training 2 - BCIActivity Test");
@@ -92,8 +100,8 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivity2.setPreconditions("Testing Preconditions 2 - BCIActivity Test");
         bciActivity2.setPostconditions("Testing Post-conditions 2 - BCIActivity Test");
         bciActivity2.addRole(role2);
-        // Create a BCI Activity Instance.
-        bciActivityInstanceService.create(bciActivity2);
+        // Create a BCI Activity.
+        bciActivityService.create(bciActivity2);
 
         // Create a Requires.
         requires.setLevel(SkillLevel.ADVANCED);
@@ -130,13 +138,20 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         // Save the Content.
         contentService.create(content);
         contentService.create(content2);
+
+        // Create BCIActivityInstance.
+        bciActivityInstance.setStatus("BCIActivity Instance Java");
+        bciActivityInstance.setEntryDate(localEntryDate);
+        bciActivityInstance.setExitDate(localExitDate);
+        bciActivityInstance.setBciActivity(bciActivity);
+        bciActivityInstanceService.create(bciActivityInstance);
     }
 
     @AfterEach
     void afterEach(){
-        // Delete a BCI Activity instance.
-        bciActivityInstanceService. deleteById(bciActivity.getId());
-        bciActivityInstanceService.deleteById(bciActivity2.getId());
+        // Delete a BCI Activity.
+        bciActivityService.deleteById(bciActivity.getId());
+        bciActivityService.deleteById(bciActivity2.getId());
         // Create a Role.
         roleService.deleteById(role.getId());
         // Create a Skill.
@@ -149,132 +164,106 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         // Delete the Content.
         contentService.deleteById(content.getId());
         contentService.deleteById(content2.getId());
+        // Delete the BCIActivityInstance.
+        bciActivityInstanceService.deleteById(bciActivityInstance.getId());
     }
 
     @Test
     @Override
     void testSave() {
-        BCIActivity bciActivity = new BCIActivity();
-        // Create a BCI Activity.
-        bciActivity.setName("Programming - BCIActivity Test 1");
-        bciActivity.setDescription("Programming language training - BCIActivity Test");
-        bciActivity.setType(ActivityType.LEARNING);
-        bciActivity.setPreconditions("Preconditions - BCIActivity Test");
-        bciActivity.setPostconditions("Post-conditions - BCIActivity Test");
-        bciActivity.addRole(role);
-        // Create a BCI Activity Instance.
-        BCIActivity bciActivitySaved = bciActivityInstanceService.create(bciActivity);
+        // Create BCIActivityInstance.
+        BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
+        bciActivityInstance.setStatus("BCIActivity Instance Java");
+        bciActivityInstance.setEntryDate(localEntryDate);
+        bciActivityInstance.setExitDate(localExitDate);
+        bciActivityInstance.setBciActivity(bciActivity);
 
-        // Checks if the role was saved.
-        assert bciActivitySaved.getId() > 0;
-    }
+        BCIActivityInstance saved = bciActivityInstanceService.create(bciActivityInstance);
 
-    @Test
-    void testSaveWithAssociationWithGoalSetting() {
-        // Creates a GoalSetting.
-        GoalSetting goalSetting = new GoalSetting();
-        goalSetting.setName("Testing GoalSetting Name - BCIActivity Test");
-        goalSetting.setDescription("Testing GoalSetting - BCIActivity Test");
-        goalSetting.setType(ActivityType.GOAL_SETTING);
-        goalSetting.setPostconditions("Post-conditions - GoalSetting Test");
-        goalSetting.setPreconditions("Preconditions - GoalSetting Test");
-        goalSetting.addRole(role);
-        // Save a Goal Setting.
-        GoalSetting goalSettingSaved = goalSettingService.create(goalSetting);
-
-        // Create a BCI Activity.
-        BCIActivity bciActivity = new BCIActivity();
-        bciActivity.setName("Programming - BCIActivity Test 1");
-        bciActivity.setDescription("Programming language training - BCIActivity Test");
-        bciActivity.setType(ActivityType.LEARNING);
-        bciActivity.setPreconditions("Preconditions - BCIActivity Test");
-        bciActivity.setPostconditions("Post-conditions - BCIActivity Test");
-        // Create a BCI Activity Instance.
-        bciActivityInstanceService.setGoalSetting(goalSettingSaved);
-        BCIActivity bciActivitySaved = bciActivityInstanceService.create(bciActivity);
-
-        // Checks if the role was saved.
-        assert bciActivitySaved.getId() > 0;
+        // Checks if the BCIActivityInstance was saved.
+        assert saved.getId() > 0;
     }
 
     @Test
     @Override
     void testUpdate() {
-        // Create a BCI Activity.
-        BCIActivity bciActivitySaved = new BCIActivity();
-        bciActivitySaved.setId(bciActivity.getId());
-        bciActivitySaved.setName("Database - BCIActivity Test - Update");
-        bciActivitySaved.setDescription("Database training - BCIActivity Test - Update");
-        bciActivitySaved.setPreconditions("Preconditions - BCIActivity Test - Update");
-        bciActivitySaved.setPostconditions("Post-conditions - BCIActivity Test - Update");
-        bciActivitySaved.setType(bciActivity.getType());
-        bciActivitySaved.setRole(bciActivity.getRole());
+        // Update the BCIActivityInstance.
+        BCIActivityInstance instance = new BCIActivityInstance();
+        instance.setId(bciActivityInstance.getId());
+        instance.setStatus("BCIActivity Instance Java 62");
+        instance.setEntryDate(localEntryDate);
+        instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
+        BCIActivityInstance saved = bciActivityInstanceService.update(instance);
 
-        // Update a BCI Activity.
-        BCIActivity bciActivityUpdated = bciActivityInstanceService.update(bciActivitySaved);
-
-        // Checks if the BCI Activity id saved is the same of the BCI Activity updated.
-        assertEquals(bciActivitySaved.getId(), bciActivityUpdated.getId());
-        // Checks if the BCI Activity name is different.
-        assertNotEquals("Programming 2 - BCIActivity Test", bciActivityUpdated.getName());
-        assertEquals("Database - BCIActivity Test - Update", bciActivityUpdated.getName());
-        assertEquals("Database training - BCIActivity Test - Update", bciActivityUpdated.getDescription());
+        // Checks if the BCI Activity Instance id saved is the same of the BCI Activity Instance updated.
+        assertEquals(saved.getId(), bciActivityInstance.getId());
+        // Checks if the BCI Activity Instance Status is different.
+        assertNotEquals("BCIActivity Instance Java", saved.getStatus());
     }
 
     @Test
     @Override
     void testFindById() {
-        // Create a BCI Activity.
-        BCIActivity bciActivity = new BCIActivity();
-        bciActivity.setName("Database - BCIActivity Test");
-        bciActivity.setDescription("Database training - BCIActivity Test");
-        bciActivity.setPreconditions("Preconditions - BCIActivity Test");
-        bciActivity.setPostconditions("Post-conditions - BCIActivity Test");
-        bciActivity.setType(ActivityType.LEARNING);
+        BCIActivityInstance instance = new BCIActivityInstance();
+        instance.setStatus("BCIActivity Instance Java 63");
+        instance.setEntryDate(localEntryDate);
+        instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
 
-        // Update a BCI Activity.
-        BCIActivity bciActivitySaved = bciActivityInstanceService.update(bciActivity);
-        BCIActivity bciActivityFound = bciActivityInstanceService.findById(bciActivitySaved.getId());
-        assertEquals(bciActivitySaved.getId(), bciActivityFound.getId());
+        BCIActivityInstance saved =  bciActivityInstanceService.create(instance);
+        BCIActivityInstance bciInstanceFound = bciActivityInstanceService.findById(saved.getId());
+        assertEquals(saved.getId(), bciInstanceFound.getId());
     }
 
     @Test
     @Override
     void testDeleteById() {
-        // Create a BCI Activity.
-        BCIActivity bciActivitySaved = new BCIActivity();
-        bciActivitySaved.setName("Database ioi - BCIActivity Test");
-        bciActivitySaved.setDescription("Database training oioi - BCIActivity Test");
-        bciActivitySaved.setType(ActivityType.LEARNING);
-        bciActivitySaved.setPreconditions("Preconditions - BCIActivity Test");
-        bciActivitySaved.setPostconditions("Post-conditions - BCIActivity Test");
-        bciActivityInstanceService.create(bciActivitySaved);
-        // Delete a BCI Activity.
-        bciActivityInstanceService.deleteById(bciActivitySaved.getId());
-        // Checks if the BCI Activity was deleted.
-        assertFalse(bciActivityInstanceService.existsById(bciActivitySaved.getId()));
+        BCIActivityInstance instance = new BCIActivityInstance();
+        instance.setStatus("BCIActivity Instance Java 79");
+        instance.setEntryDate(localEntryDate);
+        instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
+        BCIActivityInstance saved = bciActivityInstanceService.create(instance);
 
+        // Delete a BCI Activity Instance.
+        bciActivityInstanceService.deleteById(saved.getId());
+        // Checks if the BCI Activity Instance was deleted.
+        assertFalse(bciActivityInstanceService.existsById(saved.getId()));
+    }
+
+    @Test
+    void testFindByStatus() {
+        // Creates a BCIActivityInstance.
+        BCIActivityInstance instance = new BCIActivityInstance();
+        instance.setStatus("Status 1");
+        instance.setEntryDate(localEntryDate);
+        instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
+        BCIActivityInstance saved = bciActivityInstanceService.create(instance);
+
+        // Find all BCIActivityInstance.
+        List<BCIActivityInstance> found = bciActivityInstanceService.findByStatus(saved.getStatus());
+        // Tests.
+        assertEquals(1, found.size());
+        assertEquals(instance.getStatus(), found.get(0).getStatus());
     }
 
     @Test
     @Override
     void testFindAll() {
-        // Create a BCI Activity.
-        BCIActivity bciActivity3 = new BCIActivity();
-        bciActivity3.setName("Database 3 - BCIActivity Test");
-        bciActivity3.setDescription("Database training 3 - BCIActivity Test");
-        bciActivity3.setType(ActivityType.LEARNING);
-        bciActivity3.setPreconditions("Preconditions DB 3 - BCIActivity Test");
-        bciActivity3.setPostconditions("Post-conditions DB 3 - BCIActivity Test");
-        bciActivityInstanceService.create(bciActivity3);
+        BCIActivityInstance instance = new BCIActivityInstance();
+        instance.setStatus("BCIActivity Instance Java 99");
+        instance.setEntryDate(localEntryDate);
+        instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
+        BCIActivityInstance saved = bciActivityInstanceService.create(instance);
 
         // Find all bciActivities.
-        List<BCIActivity> bciActivities = bciActivityInstanceService.findAll();
+        List<BCIActivityInstance> bciActivities = bciActivityInstanceService.findAll();
 
         // Tests.
-        assertEquals(3, bciActivities.size());
-        assertTrue(bciActivities.contains(bciActivity));
-        assertTrue(bciActivities.contains(bciActivity2));
-        assertTrue(bciActivities.contains(bciActivity3));
+        assertEquals(2, bciActivities.size());
+        assertTrue(bciActivities.contains(bciActivityInstance));
     }
 }

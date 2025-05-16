@@ -10,7 +10,7 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name = "goal_setting")
-@PrimaryKeyJoinColumn(name="goal_setting_bci_activity_id", referencedColumnName = "bci_activity_id")
+@PrimaryKeyJoinColumn(name="goal_setting_id", referencedColumnName = "bci_activity_id") // Foreign key to bci_activity table used to represent the super class BCIActivity in the database.
 public class GoalSetting extends BCIActivity {
 
     @OneToOne(fetch = FetchType.LAZY, optional = true)

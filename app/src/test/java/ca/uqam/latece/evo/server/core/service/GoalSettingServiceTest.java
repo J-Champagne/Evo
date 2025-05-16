@@ -173,6 +173,7 @@ public class GoalSettingServiceTest extends AbstractServiceTest {
         goalSetting.addRole(role);
         // Create a Goal Setting.
         GoalSetting goalSettingSaved = goalSettingService.create(goalSetting);
+        System.out.println(" Goal Setting: " + goalSettingSaved);
 
         // Checks if the goal setting was saved.
         assert goalSettingSaved.getId() > 0;

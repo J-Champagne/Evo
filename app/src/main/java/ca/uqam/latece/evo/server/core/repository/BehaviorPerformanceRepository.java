@@ -35,5 +35,4 @@ public interface BehaviorPerformanceRepository extends EvoRepository<BehaviorPer
      * @return a list of BehaviorPerformance entities matching the specified type.
      */
     List<BehaviorPerformance> findByType(ActivityType type);
-
 }

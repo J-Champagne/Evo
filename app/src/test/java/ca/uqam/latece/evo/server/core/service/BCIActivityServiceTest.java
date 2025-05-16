@@ -199,8 +199,8 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         bciActivity.setPostconditions("Post-conditions - BCIActivity Test");
         bciActivity.setType(ActivityType.LEARNING);
 
-        // Update a BCI Activity.
-        BCIActivity bciActivitySaved = bciActivityService.update(bciActivity);
+        // Create a BCI Activity.
+        BCIActivity bciActivitySaved = bciActivityService.create(bciActivity);
         BCIActivity bciActivityFound = bciActivityService.findById(bciActivitySaved.getId());
         assertEquals(bciActivitySaved.getId(), bciActivityFound.getId());
     }

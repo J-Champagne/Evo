@@ -114,7 +114,7 @@ public abstract class AbstractControllerTest {
      *                   - $.id to retrieve the id value in the entity;
      *                   - $.email to retrieve the email value in the entity;
      *                   - $[0].type to retrieve the type properties inside the JSON array. Uses it if your
-     *      *                   get method return a collection like List.
+     *                     get method return a collection like List.
      * @param expectedValue the expected result.
      * @throws Exception An exception will be throws if the test fail.
      */

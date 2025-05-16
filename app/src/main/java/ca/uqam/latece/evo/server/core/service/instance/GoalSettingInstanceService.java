@@ -1,15 +1,16 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
-import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
-import ca.uqam.latece.evo.server.core.model.BCIActivity;
-import ca.uqam.latece.evo.server.core.model.GoalSetting;
-import ca.uqam.latece.evo.server.core.service.GoalSettingService;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
+import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
+import ca.uqam.latece.evo.server.core.repository.instance.GoalSettingInstanceRepository;
+import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,220 +20,110 @@ import java.util.List;
  * @author Edilton Lima dos Santos.
  */
 @Service
-public class GoalSettingInstanceService extends BCIActivityInstanceService {
+public class GoalSettingInstanceService extends AbstractEvoService<GoalSettingInstance> {
     private static final Logger logger = LoggerFactory.getLogger(GoalSettingInstanceService.class);
 
-    private GoalSetting goalSetting;
-    private BCIActivity bciActivity;
-
     @Autowired
-    private GoalSettingService goalSettingService;
-    @Qualifier("BCIActivityInstanceService")
-    @Autowired
-    private BCIActivityInstanceService activityInstanceService;
-
+    private GoalSettingInstanceRepository goalSettingInstanceRepository;
 
     /**
-     * Creates GoalSetting without association with BCIActivity.
+     * Inserts a GoalSettingInstance in the database.
+     * @param goalSettingInstance The GoalSetting entity.
+     * @return The saved GoalSettingInstance.
+     * @throws IllegalArgumentException in case the given GoalSettingInstance is null.
      */
-    public GoalSettingInstanceService() {
-        this.goalSetting = new GoalSetting();
-        this.buildBCIActivity();
-    }
-
-    /**
-     * Build the BCIActivity.
-     */
-    private void buildBCIActivity() {
-        this.bciActivity = new BCIActivity();
+    @Transactional
+    public GoalSettingInstance create(GoalSettingInstance goalSettingInstance) {
+        GoalSettingInstance saved = null;
+        ObjectValidator.validateObject(goalSettingInstance);
+        saved = this.save(goalSettingInstance);
+        logger.info("Goal Setting Instance created: {}", saved);
+        return saved;
     }
 
     /**
-     * Creates the GoalSetting associated with BCIActivity.
-     * @param goalSetting The GoalSetting entity.
-     * @param bciActivity The BCIActivity entity.
+     * Updates a GoalSettingInstance in the database.
+     * @param goalSettingInstance The GoalSettingInstance entity.
+     * @return The saved GoalSettingInstance.
+     * @throws IllegalArgumentException in case the given GoalSettingInstance is null.
      */
-    public GoalSettingInstanceService(GoalSetting goalSetting, BCIActivity bciActivity) {
-        ObjectValidator.validateObject(goalSetting);
-        this.verifyBCIActivity(bciActivity);
-        this.goalSetting = goalSetting;
-        this.buildBCIActivity();
+    @Transactional
+    public GoalSettingInstance update(GoalSettingInstance goalSettingInstance) {
+        GoalSettingInstance updated = null;
+        ObjectValidator.validateObject(goalSettingInstance);
+        ObjectValidator.validateId(goalSettingInstance.getId());
+        updated = this.save(goalSettingInstance);
+        logger.info("Goal Setting Instance updated: {}", updated);
+        return updated;
     }
 
     /**
-     * Verify the BCIActivity before set.
-     * @param bciActivity The BCIActivity entity.
+     * Method used to create or update an GoalSettingInstance.
+     * @param evoModel he GoalSettingInstance entity.
+     * @return The GoalSettingInstance.
      */
-    private void verifyBCIActivity(BCIActivity bciActivity) {
-        if (bciActivity == null) {
-            logger.error("BCIActivity cannot be null!");
-            throw new IllegalArgumentException("BCIActivity cannot be null!");
-        } else {
-            if (bciActivity.getId() == null) {
-                logger.error("BCIActivity id cannot be null!");
-                throw new IllegalArgumentException("BCIActivity id cannot be null!");
-            } else {
-                if (this.activityInstanceService.existsById(bciActivity.getId())) {
-                    this.bciActivity = bciActivity;
-                } else {
-                    logger.error("BCIActivity not found! BCIActivity data: {}", bciActivity);
-                    throw new IllegalArgumentException("BCIActivity not found!");
-                }
-            }
-        }
-    }
-
-    public GoalSetting getGoalSetting() {
-        return goalSetting;
-    }
-
-    public void setGoalSetting(GoalSetting goalSetting) {
-        ObjectValidator.validateObject(goalSetting);
-        this.goalSetting = goalSetting;
-    }
-
+    @Transactional
     @Override
-    public BCIActivity getBciActivity() {
-        return bciActivity;
-    }
-
-    public void setBciActivity(BCIActivity bciActivity) {
-        this.verifyBCIActivity(bciActivity);
-    }
-
-    public BCIActivityInstanceService getActivityInstanceService() {
-        return activityInstanceService;
+    protected GoalSettingInstance save(GoalSettingInstance evoModel) {
+        ObjectValidator.validateObject(evoModel);
+        return goalSettingInstanceRepository.save(evoModel);
     }
 
     /**
-     * Inserts a GoalSetting in the database.
-     * @param goalSetting The GoalSetting entity.
-     * @return The saved GoalSetting.
-     * @throws IllegalArgumentException in case the given GoalSetting is null.
-     */
-    public GoalSetting create(GoalSetting goalSetting) {
-        this.goalSetting = this.goalSettingService.create(goalSetting);
-        return this.goalSetting;
-    }
-
-    /**
-     * Inserts a GoalSetting in the database with a BCIActivity.
-     * @param goalSetting The GoalSetting entity.
-     * @param bciActivity The BCIActivity entity.
-     * @return The saved GoalSetting.
-     * @throws IllegalArgumentException in case the given GoalSetting or BCIActivity are null.
-     */
-    public GoalSetting create(GoalSetting goalSetting, BCIActivity bciActivity) {
-       this.verifyBCIActivity(bciActivity);
-
-        if (goalSetting == null) {
-            logger.error("GoalSetting cannot be null!");
-            throw new IllegalArgumentException("GoalSetting cannot be null!");
-        } else {
-            goalSetting.setBciActivity(this.getBciActivity());
-            this.goalSetting = this.goalSettingService.create(goalSetting);
-            logger.info("Created goal setting: {}", this.goalSetting);
-        }
-
-        return this.goalSetting;
-    }
-
-    /**
-     * Updates a GoalSetting in the database.
-     * @param goalSetting The GoalSetting entity.
-     * @return The saved GoalSetting.
-     * @throws IllegalArgumentException in case the given GoalSetting is null.
-     */
-    public GoalSetting update(GoalSetting goalSetting, BCIActivity bciActivity) {
-        this.verifyBCIActivity(bciActivity);
-
-        if (goalSetting == null) {
-            logger.error("GoalSetting cannot be null!");
-            throw new IllegalArgumentException("GoalSetting cannot be null!");
-        } else {
-            if (goalSetting.getId() == null) {
-                logger.error("GoalSetting id cannot be null!");
-                throw new IllegalArgumentException("GoalSetting id cannot be null!");
-            } else {
-                goalSetting.setBciActivity(this.getBciActivity());
-                this.goalSetting = this.goalSettingService.create(goalSetting);
-                logger.info("Updated goal setting with BCIActivity: {}", this.goalSetting);
-            }
-        }
-
-        return this.goalSetting;
-    }
-
-    /**
-     * Updates a GoalSetting in the database.
-     * @param goalSetting The GoalSetting entity.
-     * @return The saved GoalSetting.
-     * @throws IllegalArgumentException in case the given GoalSetting is null.
-     */
-    public GoalSetting update(GoalSetting goalSetting) {
-        this.goalSetting = this.goalSettingService.update(goalSetting);
-        logger.info("Updated goal setting: {}", this.goalSetting);
-        return this.goalSetting;
-    }
-
-
-    /**
-     * Checks if a GoalSetting entity with the specified id exists in the repository.
-     * @param id the id of the GoalSetting to check for existence, must not be null.
-     * @return true if a GoalSetting with the specified id exists, false otherwise.
+     * Checks if a GoalSettingInstance entity with the specified id exists in the repository.
+     * @param id the id of the GoalSettingInstance to check for existence, must not be null.
+     * @return true if a GoalSettingInstance with the specified id exists, false otherwise.
      * @throws IllegalArgumentException if the id is null.
      */
     public boolean existsById(Long id) {
-        return this.goalSettingService.existsById(id);
+        ObjectValidator.validateId(id);
+        return this.goalSettingInstanceRepository.existsById(id);
     }
 
     /**
-     * Checks if a GoalSetting entity with the specified name exists in the repository.
-     * @param name the name of the GoalSetting to check for existence, must not be null.
-     * @return true if a GoalSetting with the specified name exists, false otherwise.
-     * @throws IllegalArgumentException if the name is null.
-     */
-    public boolean existsByName(String name) {
-        return this.goalSettingService.existsByName(name);
-    }
-
-    /**
-     * Deletes the GoalSetting with the given id.
+     * Deletes the GoalSettingInstance with the given id.
      * <p>
-     * If the GoalSetting is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the GoalSetting to be retrieved; must not be null or invalid.
+     * If the GoalSettingInstance is not found in the persistence store it is silently ignored.
+     * @param id the unique identifier of the GoalSettingInstance to be retrieved; must not be null or invalid.
      * @throws IllegalArgumentException in case the given id is null.
      */
+    @Transactional
     public void deleteById(Long id) {
-        this.goalSettingService.deleteById(id);
+        ObjectValidator.validateId(id);
+        this.goalSettingInstanceRepository.deleteById(id);
+        logger.info("Goal Setting Instance deleted: {}", id);
     }
 
     /**
-     * Retrieves a GoalSetting by its id.
-     * @param id The GoalSetting Id to filter GoalSetting entities by, must not be null.
-     * @return the GoalSetting with the given id or Optional#empty() if none found.
+     * Retrieves a GoalSettingInstance by its id.
+     * @param id The GoalSettingInstance Id to filter GoalSettingInstance entities by, must not be null.
+     * @return the GoalSettingInstance with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
      * @throws RuntimeException if the goal setting not found.
      */
-    public GoalSetting findById(Long id) {
-        return this.goalSettingService.findById(id);
+    public GoalSettingInstance findById(Long id) {
+        ObjectValidator.validateId(id);
+        return this.goalSettingInstanceRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("GoalSetting Instance not found!"));
     }
 
     /**
-     * Finds a list of GoalSetting entities by their name.
-     * @param name the type of the GoalSetting to search for.
-     * @return a list of GoalSetting entities matching the specified name.
+     * Checks if a GoalSettingInstance entity with the specified status exists in the repository.
+     * @param status the status of the GoalSettingInstance to check for existence, must not be null.
+     * @return A list of GoalSettingInstance with the specified status.
+     * @throws IllegalArgumentException if the status is null.
      */
-    public List<GoalSetting> findByName(String name) {
-        return this.goalSettingService.findByName(name);
+    public List<GoalSettingInstance> findByStatus(String status) {
+        ObjectValidator.validateString(status);
+        return this.goalSettingInstanceRepository.findByStatus(status);
     }
 
     /**
-     * Finds a list of GoalSetting entities by their type.
-     * @param type the type of the GoalSetting to search for.
-     * @return a list of GoalSetting entities matching the specified type.
+     * Gets all GoalSettingInstance.
+     * @return all GoalSettingInstance.
      */
-    public List<GoalSetting> findByType(ActivityType type) {
-        return this.goalSettingService.findByType(type);
+    @Override
+    public List<GoalSettingInstance> findAll() {
+        return this.goalSettingInstanceRepository.findAll();
     }
 }

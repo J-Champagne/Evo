@@ -1,13 +1,16 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
-import ca.uqam.latece.evo.server.core.model.BCIActivity;
-import ca.uqam.latece.evo.server.core.model.GoalSetting;
-import ca.uqam.latece.evo.server.core.service.BCIActivityService;
-import jakarta.validation.constraints.NotNull;
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
+import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
+import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,130 +20,121 @@ import java.util.List;
  * @author Edilton Lima dos Santos.
  */
 @Service
-public class BCIActivityInstanceService {
+public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityInstance> {
     private static final Logger logger = LoggerFactory.getLogger(BCIActivityInstanceService.class);
 
-    private BCIActivity bciActivity;
-    private GoalSetting goalSetting;
-
     @Autowired
-    private BCIActivityService bciActivityService;
-    private GoalSettingInstanceService goalSettingInstanceService;
-
-
-    public BCIActivityInstanceService() {
-    }
+    private BCIActivityInstanceRepository bciActivityInstanceRepository;
 
     /**
-     * Creates a BCIActivity without association.
-     * @param bciActivity
+     * Inserts a BCIActivityInstance in the database.
+     * @param evoModel The BCIActivityInstance entity.
+     * @return The saved BCIActivityInstance.
+     * @throws IllegalArgumentException in case the given BCIActivityInstance is null.
+     * @throws OptimisticLockingFailureException when the BCIActivityInstance uses optimistic locking and has a version
+     * attribute with a different value from that found in the persistence store. Also thrown if the entity is assumed
+     * to be present but does not exist in the database.
      */
-    public BCIActivityInstanceService(BCIActivity bciActivity) {
-        this.bciActivitySetUp(bciActivity);
+    public BCIActivityInstance create (BCIActivityInstance evoModel) {
+        BCIActivityInstance bciActivityInstance = null;
+
+        // Save the BCIActivityInstance.
+        bciActivityInstance = this.bciActivityInstanceRepository.save(evoModel);
+        logger.info("BCIActivityInstance created: {}", bciActivityInstance);
+
+        return bciActivityInstance;
     }
 
     /**
-     * Creates the BCIActivity associated with GoalSetting.
-     * @param bciActivity The BCIActivity entity.
-     * @param goalSetting The GoalSetting entity.
+     * Updates a BCIActivityInstance in the database.
+     * @param evoModel The BCIActivityInstance entity.
+     * @return The saved BCIActivityInstance.
+     * @throws IllegalArgumentException in case the given BCIActivityInstance is null.
+     * @throws OptimisticLockingFailureException when the BCIActivityInstance uses optimistic locking and has a version
+     * attribute with a different value from that found in the persistence store. Also thrown if the entity is assumed
+     * to be present but does not exist in the database.
      */
-    public BCIActivityInstanceService(BCIActivity bciActivity, GoalSetting goalSetting) {
-        this.bciActivitySetUp(bciActivity);
+    public BCIActivityInstance update (BCIActivityInstance evoModel) {
+        BCIActivityInstance bciActivityInstance = null;
 
-        if (goalSetting == null) {
-            logger.error("goalSetting cannot be null!");
-            throw new IllegalArgumentException("goalSetting cannot be null!");
-        } else {
-            this.setGoalSetting(goalSetting);
-            this.goalSettingInstanceService = new GoalSettingInstanceService(this.getGoalSetting(), this.getBciActivity());
-        }
-    }
+        // Checks the mandatory properties.
+        ObjectValidator.validateObject(evoModel);
+        ObjectValidator.validateId(evoModel.getId());
 
-    private void bciActivitySetUp(BCIActivity bciActivity){
-        if (bciActivity == null) {
-            logger.error("bciActivity cannot be null!");
-            throw new IllegalArgumentException("bciActivity cannot be null!");
-        } else {
-            this.bciActivity = bciActivity;
-        }
-    }
+        // Save the BCIActivityInstance.
+        bciActivityInstance = this.bciActivityInstanceRepository.save(evoModel);
+        logger.info("BCIActivityInstance updated: {}", bciActivityInstance);
 
-    public void setBCIActivity(@NotNull BCIActivity bciActivity) {
-        this.bciActivity = bciActivity;
-    }
-
-    public BCIActivity getBciActivity() {
-        return bciActivity;
-    }
-
-    public void setGoalSetting(@NotNull GoalSetting goalSetting) {
-        this.goalSetting = goalSetting;
-
-        if (bciActivity != null) {
-            this.goalSetting.setBciActivity(this.bciActivity);
-        }
-    }
-
-    public GoalSetting getGoalSetting() {
-        return this.goalSetting;
+        return bciActivityInstance;
     }
 
     /**
-     * Inserts a BCIActivity in the database.
-     * @param bciActivity The BCIActivity entity.
-     * @return The saved BCIActivity.
-     * @throws IllegalArgumentException in case the given BCIActivity is null.
+     * Method used to create or update an BCIActivityInstance.
+     * @param evoModel he BCIActivityInstance entity.
+     * @return The BCIActivityInstance.
      */
-    public BCIActivity create (BCIActivity bciActivity) {
-        return this.bciActivityService.create(bciActivity);
+    @Transactional
+    @Override
+    protected BCIActivityInstance save(BCIActivityInstance evoModel) {
+        // Checks the mandatory properties.
+        ObjectValidator.validateObject(evoModel);
+        ObjectValidator.validateString(evoModel.getStatus());
+        ObjectValidator.validateObject(evoModel.getEntryDate());
+        ObjectValidator.validateObject(evoModel.getExitDate());
+        ObjectValidator.validateObject(evoModel.getBciActivity());
+        return bciActivityInstanceRepository.save(evoModel);
     }
 
     /**
-     * Updates a BCIActivity in the database.
-     * @param bciActivity The BCIActivity entity.
-     * @return The saved BCIActivity.
-     * @throws IllegalArgumentException in case the given BCIActivity is null.
-     */
-    public BCIActivity update (BCIActivity bciActivity) {
-        return this.bciActivityService.update(bciActivity);
-    }
-
-    /**
-     * Checks if a BCIActivity entity with the specified id exists in the repository.
-     * @param id the id of the BCIActivity to check for existence, must not be null.
-     * @return true if a BCIActivity with the specified id exists, false otherwise.
+     * Checks if a BCIActivityInstance entity with the specified id exists in the repository.
+     * @param id the id of the BCIActivityInstance to check for existence, must not be null.
+     * @return true if a BCIActivityInstance with the specified id exists, false otherwise.
      * @throws IllegalArgumentException if the id is null.
      */
     public boolean existsById(Long id) {
-        return this.bciActivityService.existsById(id);
+        return this.bciActivityInstanceRepository.existsById(id);
     }
 
     /**
-     * Deletes the BCIActivity with the given id.If the BCIActivity is not found in the persistence
+     * Deletes the BCIActivityInstance with the given id.If the BCIActivityInstance is not found in the persistence
      * store it is silently ignored.
-     * @param id the unique identifier of the BCIActivity to be retrieved; must not be null or invalid.
+     * @param id the unique identifier of the BCIActivityInstance to be retrieved; must not be null or invalid.
      * @throws IllegalArgumentException in case the given id is null.
      */
+    @Transactional
     public void deleteById(Long id) {
-        this.bciActivityService.deleteById(id);
+        this.bciActivityInstanceRepository.deleteById(id);
+        logger.info("BCIActivityInstance deleted: {}", id);
     }
 
     /**
-     * Retrieves a BCIActivity by its id.
-     * @param id The BCIActivity Id to filter BCIActivity entities by, must not be null.
-     * @return the BCIActivity with the given id or Optional#empty() if none found.
+     * Retrieves a BCIActivityInstance by its id.
+     * @param id The BCIActivityInstance Id to filter BCIActivityInstance entities by, must not be null.
+     * @return the BCIActivityInstance with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws RuntimeException if the BCIActivity not found.
+     * @throws RuntimeException if the BCIActivityInstance not found.
      */
-    public BCIActivity findById(Long id) {
-        return this.bciActivityService.findById(id);
+    public BCIActivityInstance findById(Long id) {
+        return this.bciActivityInstanceRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("BCI Activity Instance not found!"));
     }
 
     /**
-     * Gets all BCIActivity.
-     * @return all BCIActivity.
+     * Checks if a BCIActivityInstance entity with the specified status exists in the repository.
+     * @param status the status of the BCIActivityInstance to check for existence, must not be null.
+     * @return A list of BCIActivityInstance with the specified status.
+     * @throws IllegalArgumentException if the status is null.
      */
-    public List<BCIActivity> findAll() {
-        return this.bciActivityService.findAll();
+    public List<BCIActivityInstance> findByStatus(String status) {
+        ObjectValidator.validateString(status);
+        return this.bciActivityInstanceRepository.findByStatus(status);
+    }
+
+    /**
+     * Gets all BCIActivityInstance.
+     * @return all BCIActivityInstance.
+     */
+    public List<BCIActivityInstance> findAll() {
+        return this.bciActivityInstanceRepository.findAll();
     }
 }

@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
  * The Behavior Performance Controller test class for the {@link BehaviorPerformanceController}, responsible for
  * testing its various functionalities. This class includes integration tests for CRUD operations supported the
  * controller class, using WebMvcTes, and repository queries using MockMvc (Mockito).
+ *
  * @version 1.0
  * @author Edilton Lima dos Santos.
  */
@@ -222,5 +223,4 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
         // Perform a GET request to test the controller.
         performGetRequest("/behaviorperformance", "$[0].id", bPerformance.getId());
     }
-
 }

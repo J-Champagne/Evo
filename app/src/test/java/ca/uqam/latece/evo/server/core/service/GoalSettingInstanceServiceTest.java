@@ -4,13 +4,18 @@ import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
+import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
 import ca.uqam.latece.evo.server.core.service.instance.GoalSettingInstanceService;
+import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,13 +24,19 @@ import static org.junit.jupiter.api.Assertions.*;
  * The test class for the {@link GoalSettingInstanceService}, responsible for testing its various functionalities.
  * This class includes integration tests for CRUD operations and other repository queries using a
  * PostgreSQL database in a containerized setup.
- * @version 1.0
+ * @version 1.0s
  * @author Edilton Lima dos Santos.
  */
-@ContextConfiguration(classes = {GoalSettingInstanceService.class, GoalSetting.class})
+@ContextConfiguration(classes = {GoalSettingInstanceService.class, GoalSettingInstance.class})
 public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     private GoalSettingInstanceService goalSettingInstanceService;
+
+    @Autowired
+    private BCIActivityInstanceService bciActivityInstanceService;
+
+    @Autowired
+    private GoalSettingService goalSettingService;
 
     @Autowired
     private BCIActivityService bciActivityService;
@@ -45,6 +56,8 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     private DevelopsService developsService;
 
+    private GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
+    private BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
     private GoalSetting goalSetting = new GoalSetting();
     private GoalSetting goalSetting2 = new GoalSetting();
     private BCIActivity bciActivity = new BCIActivity();
@@ -57,6 +70,8 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
     private Content content = new Content();
     private Content content2 = new Content();
     private Develops develops = new Develops();
+    private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
+    private LocalDate localExitDate = LocalDate.now();
 
     @BeforeEach
     void beforeEach(){
@@ -104,7 +119,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSetting.addRole(role);
         goalSetting.setBciActivity(bciActivity);
         // Create a Goal Setting.
-        goalSettingInstanceService.create(goalSetting);
+        goalSettingService.create(goalSetting);
 
         goalSetting2.setName("Testing 233");
         goalSetting2.setDescription("Testing training 2");
@@ -114,18 +129,18 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSetting2.addRole(role2);
         goalSetting2.setBciActivity(bciActivity);
         // Create a Goal Setting.
-        goalSettingInstanceService.create(goalSetting2);
+        goalSettingService.create(goalSetting2);
 
         // Create a Requires.
         requires.setLevel(SkillLevel.ADVANCED);
         requires.setRole(role);
         requires.setSkill(skill);
-        requires.setBciActivity(goalSetting);
+        requires.setBciActivity(bciActivity);
 
         requires1.setLevel(SkillLevel.INTERMEDIATE);
         requires1.setRole(role2);
         requires1.setSkill(skill);
-        requires1.setBciActivity(goalSetting2);
+        requires1.setBciActivity(bciActivity2);
 
         // Save the requires.
         requiresService.create(requires);
@@ -134,30 +149,47 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         develops.setLevel(SkillLevel.INTERMEDIATE);
         develops.setRole(role2);
         develops.setSkill(skill);
-        develops.setBciActivity(goalSetting);
+        develops.setBciActivity(bciActivity);
         developsService.create(develops);
 
         // Create Content.
         content.setName("Content Name");
         content.setDescription("Content Description");
         content.setType("Content Video");
-        content.addBCIActivity(goalSetting);
+        content.addBCIActivity(bciActivity);
 
         content2.setName("Content2");
         content2.setDescription("Content 2 Description");
         content2.setType("Content Test");
-        content2.addBCIActivity(goalSetting2);
+        content2.addBCIActivity(bciActivity2);
 
         // Save the Content.
         contentService.create(content);
         contentService.create(content2);
+
+        // Create BCIActivityInstance.
+        bciActivityInstance.setStatus("BCIActivity Instance Java");
+        bciActivityInstance.setEntryDate(localEntryDate);
+        bciActivityInstance.setExitDate(localExitDate);
+        bciActivityInstance.setBciActivity(bciActivity);
+        bciActivityInstanceService.create(bciActivityInstance);
+
+        // Save a GoalSettingInstance
+        goalSettingInstance.setStatus("Status - Goal Setting Instance Test");
+        goalSettingInstance.setGoalSetting(goalSetting);
+        goalSettingInstance.setEntryDate(localEntryDate);
+        goalSettingInstance.setExitDate(localExitDate);
+        goalSettingInstance.setBciActivity(bciActivity2);
+        goalSettingInstanceService.create(goalSettingInstance);
     }
 
     @AfterEach
     void afterEach(){
+        // Delete GoalSettingInstance
+        goalSettingInstanceService.deleteById(goalSettingInstance.getId());
         // Delete a Goal Setting.
-        goalSettingInstanceService.deleteById(goalSetting.getId());
-        goalSettingInstanceService.deleteById(goalSetting2.getId());
+        goalSettingService.deleteById(goalSetting.getId());
+        goalSettingService.deleteById(goalSetting2.getId());
         // Create a Role.
         roleService.deleteById(role.getId());
         // Create a Skill.
@@ -170,159 +202,134 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         // Delete the Content.
         contentService.deleteById(content.getId());
         contentService.deleteById(content2.getId());
+        // Delete the bciActivity
+        bciActivityService.deleteById(bciActivity.getId());
+        // Delete bciActivityInstance
+        bciActivityInstanceService.deleteById(bciActivityInstance.getId());
     }
 
     @Test
     @Override
     void testSave() {
-        // Create a Goal Setting.
-        GoalSetting goalSetting = new GoalSetting();
-        goalSetting.setName("Programming 111002");
-        goalSetting.setDescription("Programming language training 22223");
-        goalSetting.setType(ActivityType.LEARNING);
-        goalSetting.setPreconditions("Preconditions 1112");
-        goalSetting.setPostconditions("Post-conditions 1112");
-        goalSetting.addRole(role);
-        // Create a Goal Setting.
-        GoalSetting goalSettingSaved = goalSettingInstanceService.create(goalSetting);
+        // Create a GoalSettingInstance.
+        GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
+        goalSettingInstance.setStatus("Status 12 - Goal Setting Instance Test");
+        goalSettingInstance.setGoalSetting(goalSetting);
+        goalSettingInstance.setEntryDate(localEntryDate);
+        goalSettingInstance.setExitDate(localExitDate);
+        goalSettingInstance.setBciActivity(bciActivity2);
+        // Save the Goal Setting Instance.
+        GoalSettingInstance saved = goalSettingInstanceService.create(goalSettingInstance);
 
         // Checks if the goal setting was saved.
-        assert goalSettingSaved.getId() > 0;
-        assert goalSetting2.getId() > 0;
-    }
-
-    @Test
-    void testSaveWithAssociationWithBCIActivity() {
-        // Create a Goal Setting.
-        GoalSetting goalSettingWithBCIActiviy = new GoalSetting();
-        goalSettingWithBCIActiviy.setName("1 Evo+");
-        goalSettingWithBCIActiviy.setDescription("Programming language training 22223");
-        goalSettingWithBCIActiviy.setType(ActivityType.LEARNING);
-        goalSettingWithBCIActiviy.setPreconditions("Preconditions 1112");
-        goalSettingWithBCIActiviy.setPostconditions("Post-conditions 1112");
-        goalSettingWithBCIActiviy.addRole(role);
-        // Create a Goal Setting With Association With BCIActivity.
-        GoalSetting goalSettingSaved = goalSettingInstanceService.create(goalSettingWithBCIActiviy, bciActivity);
-
-        // Checks if the goal setting was saved.
-        assert goalSettingSaved.getId() > 0;
-        assert goalSetting2.getId() > 0;
+        assert saved.getId() > 0;
     }
 
     @Test
     @Override
     void testUpdate() {
-        // Create a Goal Setting.
-        GoalSetting saved = new GoalSetting();
-        saved.setId(goalSetting.getId());
-        saved.setName("Database - Goal Setting Test");
-        saved.setDescription("Database training - Goal Setting Test");
-        saved.setPreconditions("Preconditions - Goal Setting Test");
-        saved.setPostconditions("Post-conditions - Goal Setting Test");
-        saved.setType(goalSetting.getType());
-        saved.setRole(goalSetting.getRole());
-
-        // Update a Behavior Setting.
-        GoalSetting updated = goalSettingInstanceService.update(saved);
+        // Create a GoalSettingInstance.
+        GoalSettingInstance instance = new GoalSettingInstance();
+        instance.setId(goalSettingInstance.getId());
+        instance.setStatus("Status - Goal Setting Instance Test - Test 1");
+        instance.setGoalSetting(goalSetting2);
+        instance.setEntryDate(localEntryDate);
+        instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity2);
+        // Updated the Goal Setting Instance.
+        GoalSettingInstance updated = goalSettingInstanceService.update(instance);
 
         // Checks if the Behavior Setting id saved is the same of the Behavior Setting updated.
-        assertEquals(saved.getId(), updated.getId());
-        // Checks if the Behavior Setting name is different.
-        assertNotEquals("Programming 2 - Goal Setting Test", updated.getName());
-        assertEquals("Database - Goal Setting Test", updated.getName());
-        assertEquals("Database training - Goal Setting Test", updated.getDescription());
-    }
+        assertEquals(instance.getId(), updated.getId());
+        // Checks if the Behavior Performance Instance status is different.
+        assertNotEquals("Status - Goal Setting Instance Test", updated.getStatus());
 
-    @Test
-    void testUpdateWithAssociationWithBCIActivity() {
-        // Create a Goal Setting.
-        GoalSetting saved = new GoalSetting();
-        saved.setId(goalSetting.getId());
-        saved.setName("Database - Goal Setting Test 1");
-        saved.setDescription("Database training - Goal Setting Test 1");
-        saved.setPreconditions("Preconditions - Goal Setting Test 1");
-        saved.setPostconditions("Post-conditions - Goal Setting Test 1");
-        saved.setType(goalSetting.getType());
-        saved.setRole(goalSetting.getRole());
-
-        // Update a Behavior Setting.
-        GoalSetting updated = goalSettingInstanceService.update(saved, bciActivity2);
-
-        // Checks if the Behavior Setting id saved is the same of the Behavior Setting updated.
-        assertEquals(saved.getId(), updated.getId());
-        // Checks if the Behavior Setting name is different.
-        assertNotEquals("Programming 2 - Goal Setting Test", updated.getName());
-        assertEquals("Database - Goal Setting Test 1", updated.getName());
-        assertEquals("Database training - Goal Setting Test 1", updated.getDescription());
+        assertEquals(localEntryDate, updated.getEntryDate());
+        assertEquals(localExitDate, updated.getExitDate());
     }
 
     @Test
     @Override
     void testFindById() {
-        GoalSetting found = goalSettingInstanceService.findById(goalSetting.getId());
-        assertEquals(goalSetting.getId(), found.getId());
-    }
-
-    @Test
-    void testFindByName() {
-        // Checks if the name is equals.
-        assertEquals(goalSetting.getName(),goalSettingInstanceService.findByName(goalSetting.getName()).get(0).getName());
+        GoalSettingInstance found = goalSettingInstanceService.findById(goalSettingInstance.getId());
+        assertEquals(goalSettingInstance.getId(), found.getId());
     }
 
     @Test
     @Override
     void testDeleteById() {
-        // Create a Goal Setting.
-        GoalSetting saved = new GoalSetting();
-        saved.setName("Database ioi - Goal Setting Test");
-        saved.setDescription("Database training oioi - Goal Setting Test");
-        saved.setType(ActivityType.LEARNING);
-        saved.setPreconditions("Preconditions - Goal Setting Test");
-        saved.setPostconditions("Post-conditions - Goal Setting Test");
-        goalSettingInstanceService.create(saved);
+        // Create a GoalSettingInstance.
+        GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
+        goalSettingInstance.setStatus("Status - Goal Setting Instance Test 2");
+        goalSettingInstance.setGoalSetting(goalSetting);
+        goalSettingInstance.setEntryDate(localEntryDate);
+        goalSettingInstance.setExitDate(localExitDate);
+        goalSettingInstance.setBciActivity(bciActivity2);
+
+        // Save the Goal Setting Instance.
+        GoalSettingInstance saved = goalSettingInstanceService.create(goalSettingInstance);
+
         // Delete a Goal Setting.
         goalSettingInstanceService.deleteById(saved.getId());
-        // Checks if the Goal Setting was deleted.
+
+        // Checks if the Goal Setting Instance was deleted.
         assertFalse(goalSettingInstanceService.existsById(saved.getId()));
     }
 
     @Test
-    void testFindType() {
-        // Find a Goal Setting by type.
-        List<GoalSetting> found = goalSettingInstanceService.findByType(ActivityType.LEARNING);
+    void testFindByStatus() {
+        // Create a GoalSettingInstance.
+        GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
+        goalSettingInstance.setStatus("Status-Goal Setting Instance 2");
+        goalSettingInstance.setGoalSetting(goalSetting);
+        goalSettingInstance.setEntryDate(localEntryDate);
+        goalSettingInstance.setExitDate(localExitDate);
+        goalSettingInstance.setBciActivity(bciActivity2);
 
-        assertEquals(2, found.size());
-        assertEquals(goalSetting.getId(), found.get(0).getId());
-        assertEquals(goalSetting.getType(), found.get(0).getType());
-        assertEquals(goalSetting2.getId(), found.get(1).getId());
-        assertEquals(goalSetting2.getType(), found.get(1).getType());
-    }
+        // Save the Goal Setting Instance.
+        GoalSettingInstance saved = goalSettingInstanceService.create(goalSettingInstance);
 
-    @Test
-    void existsByName() {
-        assertEquals(goalSetting.getName(),
-                goalSettingInstanceService.findByName(goalSetting.getName()).get(0).getName());
+        // Find all GoalSettingInstance.
+        List<GoalSettingInstance> found = goalSettingInstanceService.findByStatus(saved.getStatus());
+
+        // Tests.
+        assertEquals(1, found.size());
+        assertEquals(goalSettingInstance.getStatus(), found.get(0).getStatus());
     }
 
     @Test
     @Override
     void testFindAll() {
         // Create a Goal Setting.
-        GoalSetting saved = new GoalSetting();
-        saved.setName("Database 3 - Goal Setting Test");
-        saved.setDescription("Database training 3 - Goal Setting Test");
-        saved.setType(ActivityType.LEARNING);
-        saved.setPreconditions("Preconditions DB 3 - Goal Setting Test");
-        saved.setPostconditions("Post-conditions DB 3 - Goal Setting Test");
-        goalSettingInstanceService.create(saved);
+        GoalSetting goalSetting = new GoalSetting();
+        goalSetting.setName("GoalSetting 222");
+        goalSetting.setDescription("GoalSetting training 2");
+        goalSetting.setType(ActivityType.LEARNING);
+        goalSetting.setPreconditions("GoalSetting Preconditions 2");
+        goalSetting.setPostconditions("GoalSetting Post-conditions 2");
+        goalSetting.addRole(role);
+        goalSetting.setBciActivity(bciActivity);
 
-        // Find all Goal Setting.
-        List<BCIActivity> found = goalSettingInstanceService.findAll();
+        // Create a Goal Setting.
+        GoalSetting savedGoalSetting = goalSettingService.create(goalSetting);
+
+        // Create a GoalSettingInstance.
+        GoalSettingInstance settingInstance = new GoalSettingInstance();
+        settingInstance.setStatus("Status - Goal Setting Instance Test 22");
+        settingInstance.setGoalSetting(savedGoalSetting);
+        settingInstance.setEntryDate(localEntryDate);
+        settingInstance.setExitDate(localExitDate);
+        settingInstance.setBciActivity(bciActivity2);
+
+        // Save the Goal Setting Instance.
+        GoalSettingInstance saved = goalSettingInstanceService.create(settingInstance);
+
+        // Find all Goal Setting Instance.
+        List<GoalSettingInstance> found = goalSettingInstanceService.findAll();
 
         // Tests.
-        assertEquals(5, found.size());
-        assertTrue(found.contains(goalSetting));
-        assertTrue(found.contains(goalSetting2));
+        assertEquals(2, found.size());
+        assertTrue(found.contains(goalSettingInstance));
         assertTrue(found.contains(saved));
     }
 }

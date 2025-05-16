@@ -274,34 +274,82 @@ CREATE TABLE IF NOT EXISTS bci_activity (
 );
 
 /***********************************************************************************************************************
+bci_activity_instance table: This table stores details about Behavior Change Technique Intervention Activity Instance.
+- Columns:
+  - bci_activity_instance_id: A unique identifier for each Behavior Change Technique Intervention Activity Instance,
+  auto-incremented.
+  - bci_activity_instance_status: Define a bci_activity_instance status.
+  - bci_activity_instance_entry_date: A string to define a preconditions of Behavior Change Technique Intervention Activity.
+  - bci_activity_instance_exit_date: A string to define a post-conditions of Behavior Change Technique Intervention Activity.
+  - bci_activity_instance_bci_id: This foreign key is used to mapping the relationship between a bci_activity_instance
+  and bci_activity. Consequently, the bci_activity_instance_bci_id key referencing a bci_activity_id in the bci_activity table.
+- Constraints:
+  - bci_activity_pkey: Establishes bci_activity_instance_id as the primary key.
+  - bci_activity_instance_bci_fkey: Ensures that bci_activity_instance_bci_id references a valid record in the bci_activity table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_activity_instance (
+    bci_activity_instance_id BIGSERIAL NOT NULL,
+    bci_activity_instance_status VARCHAR(128) NOT NULL,
+    bci_activity_instance_entry_date DATE NOT NULL,
+    bci_activity_instance_exit_date DATE NOT NULL,
+    bci_activity_instance_bci_id BIGINT NULL,
+    CONSTRAINT bci_activity_instance_pkey PRIMARY KEY (bci_activity_instance_id),
+    CONSTRAINT bci_activity_instance_bci_fkey FOREIGN KEY (bci_activity_instance_bci_id) REFERENCES bci_activity (bci_activity_id)
+);
+
+/***********************************************************************************************************************
 goal_setting table: This table stores details about Goal Setting.
 - Columns:
-  - goal_setting_id: A unique identifier for each Goal Setting, auto-incremented.
-  - goal_setting_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table used by the
-  Hibernate to map the subclass of BCIActivity.
+  - goal_setting_id: A unique identifier for each Goal Setting. Also works as a foreign key referencing a bci_activity_id
+  in the bci_activity table used by the Hibernate to map the subclass of BCIActivity.
   - goal_setting_concerns_bci_activity_id: This foreign key is used to mapping the relationship between a goal setting
   (goal_setting) and bci activity (bci_activity). Consequently, the goal_setting_concerns_bci_activity_id key referencing
   a bci_activity_id in the bci_activity table.
 - Constraints:
   - goal_setting_pkey: Primary key for this table.
   - goal_setting_fkey: This constraint is used by the Hibernate to map the subclass of BCIActivity.
-  - goal_setting_concerns_fkey: Ensures that goal_setting_bci_activity_id references a valid record in the bci_activity table.
+  - goal_setting_concerns_fkey: Ensures that goal_setting_concerns_bci_activity_id references a valid record in the bci_activity table.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS goal_setting (
-    goal_setting_id BIGSERIAL NOT NULL,
-    goal_setting_bci_activity_id BIGINT NULL,
+    goal_setting_id BIGINT NOT NULL,
     goal_setting_concerns_bci_activity_id BIGINT NULL,
     CONSTRAINT goal_setting_pkey PRIMARY KEY (goal_setting_id),
-    CONSTRAINT goal_setting_fkey FOREIGN KEY (goal_setting_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT goal_setting_fkey FOREIGN KEY (goal_setting_id) REFERENCES bci_activity (bci_activity_id),
     CONSTRAINT goal_setting_concerns_fkey FOREIGN KEY (goal_setting_concerns_bci_activity_id) REFERENCES bci_activity (bci_activity_id)
+);
+
+/***********************************************************************************************************************
+goal_setting_instance table: This table stores details about Goal Setting Instance.
+- Columns:
+  - goal_setting_instance_id: A unique identifier for each Goal Setting Instance. Also works as a foreign key referencing
+  bci_activity_instance_id in the bci_activity_instance table used by the Hibernate to map the subclass of BCIActivityInstance.
+  - goal_setting_instance_bci_concerns_instance_id: This foreign key is used to mapping the relationship between a goal
+  setting instance (goal_setting_instance) and bci activity instance (bci_activity_instance). Consequently, the
+  goal_setting_instance_bci_concerns_instance_id key referencing a bci_activity_instance_id in the bci_activity_instance table.
+  - goal_setting_instance_goal_setting_id: This foreign key is used to mapping the relationship between a goal
+  setting instance (goal_setting_instance) and goal setting (goal_setting).
+- Constraints:
+  - goal_setting_instance_pkey: Primary key for this table.
+  - goal_setting_instance_fkey: This constraint is used by the Hibernate to map the subclass of BCIActivityInstance.
+  - goal_setting_instance_bci_concerns_instance_fkey: Ensures that goal_setting_instance_bci_concerns_instance_id references a valid
+  record in the bci_activity_instance table.
+  - goal_setting_instance_goal_setting_fkey: Ensures that goal_setting_instance_goal_setting_id references a valid record in the goal_setting_id table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS goal_setting_instance (
+    goal_setting_instance_id BIGINT NOT NULL,
+    goal_setting_instance_bci_concerns_instance_id BIGINT NULL,
+    goal_setting_instance_goal_setting_id BIGINT NOT NULL,
+    CONSTRAINT goal_setting_instance_pkey PRIMARY KEY (goal_setting_instance_id),
+    CONSTRAINT goal_setting_instance_fkey FOREIGN KEY (goal_setting_instance_id) REFERENCES bci_activity_instance (bci_activity_instance_id),
+    CONSTRAINT goal_setting_instance_bci_concerns_instance_fkey FOREIGN KEY (goal_setting_instance_bci_concerns_instance_id) REFERENCES bci_activity_instance (bci_activity_instance_id),
+    CONSTRAINT goal_setting_instance_goal_setting_fkey FOREIGN KEY (goal_setting_instance_goal_setting_id) REFERENCES goal_setting (goal_setting_id)
 );
 
 /***********************************************************************************************************************
 reporting table: This table stores details about reporting.
 - Columns:
-  - reporting_id: A unique identifier for each reporting, auto-incremented.
-  - reporting_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table used by the
-  Hibernate to map the subclass of BCIActivity.
+  - reporting_id: A unique identifier for each reporting. Also works as a foreign key referencing a bci_activity_id in
+  the bci_activity table used by the Hibernate to map the subclass of BCIActivity.
   - reporting_frequency: The report frequency.
   - reporting_concerns_bci_activity_id: This foreign key is used to mapping the relationship between a reporting
   (reporting) and bci activity (bci_activity). Consequently, the reporting_concerns_bci_activity_id key referencing
@@ -309,34 +357,49 @@ reporting table: This table stores details about reporting.
 - Constraints:
   - reporting_pkey: Primary key for this table.
   - reporting_fkey: This constraint is used by the Hibernate to map the subclass of BCIActivity.
-  - reporting_concerns_fkey: Ensures that reporting_bci_activity_id references a valid record in the bci_activity table.
+  - reporting_concerns_fkey: Ensures that reporting_concerns_bci_activity_id references a valid record in the bci_activity table.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS reporting (
-    reporting_id BIGSERIAL NOT NULL,
-    reporting_bci_activity_id BIGINT NULL,
+    reporting_id BIGINT NOT NULL,
     reporting_concerns_bci_activity_id BIGINT NULL,
     reporting_frequency VARCHAR(256) NOT NULL,
     CONSTRAINT reporting_pkey PRIMARY KEY (reporting_id),
-    CONSTRAINT reporting_fkey FOREIGN KEY (reporting_bci_activity_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT reporting_fkey FOREIGN KEY (reporting_id) REFERENCES bci_activity (bci_activity_id),
     CONSTRAINT reporting_concerns_fkey FOREIGN KEY (reporting_concerns_bci_activity_id) REFERENCES bci_activity (bci_activity_id)
 );
 
 /***********************************************************************************************************************
 behavior_performance table: This table stores details about Behavior Performance.
 - Columns:
-  - behavior_performance_id: A unique identifier for each Goal Setting, auto-incremented.
-  - behavior_performance_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table. This
-  key is used by the Hibernate to map the subclass of BCIActivity.
+  - behavior_performance_id: A unique identifier for each Behavior Performance. Also, works as a foreign key referencing
+  a bci_activity_id in the bci_activity table. This key is used by the Hibernate to map the subclass of BCIActivity.
 - Constraints:
   - behavior_performance_pkey: Primary key for this table.
-  - behavior_performance_fkey: Ensures that behavior_performance_bci_activity_id references a valid record in the
+  - behavior_performance_fkey: Ensures that behavior_performance_id references a valid record in the
   bci_activity table.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS behavior_performance (
-    behavior_performance_id BIGSERIAL NOT NULL,
-    behavior_performance_bci_activity_id BIGINT NULL,
+    behavior_performance_id BIGINT NOT NULL,
     CONSTRAINT behavior_performance_pkey PRIMARY KEY (behavior_performance_id),
-    CONSTRAINT behavior_performance_fkey FOREIGN KEY (behavior_performance_bci_activity_id) REFERENCES bci_activity (bci_activity_id)
+    CONSTRAINT behavior_performance_fkey FOREIGN KEY (behavior_performance_id) REFERENCES bci_activity (bci_activity_id)
+);
+
+/***********************************************************************************************************************
+behavior_performance_instance table: This table stores details about Behavior Performance Instance.
+- Columns:
+  - behavior_performance_instance_id: A unique identifier for each Behavior Performance Instance. Also works as a foreign
+  key referencing a bci_activity_instance_id in the bci_activity_instance table. This key is used by the Hibernate to
+  map the subclass of BCIActivityInstance.
+- Constraints:
+  - behavior_performance_instance_pkey: Primary key for this table.
+  - behavior_performance_instance_fkey: Ensures that behavior_performance_instance_id references a valid record in the
+  bci_activity_instance table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS behavior_performance_instance (
+    behavior_performance_instance_id BIGINT NOT NULL,
+    behavior_performance_instance_behavior_performance_id BIGINT NOT NULL,
+    CONSTRAINT behavior_performance_instance_pkey PRIMARY KEY (behavior_performance_instance_id),
+    CONSTRAINT behavior_performance_instance_fkey FOREIGN KEY (behavior_performance_instance_id) REFERENCES bci_activity_instance (bci_activity_instance_id)
 );
 
 /***********************************************************************************************************************
