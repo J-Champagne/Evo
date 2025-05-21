@@ -60,7 +60,6 @@ public abstract class AbstractControllerTest {
                 .andExpect(jsonPath(expression).value(expectedValue)); // Used to check the data in the JSON.
     }
 
-
     /**
      * Perform a GET request not found to test the controller.
      * @param urlTemplate URL template; the resulting URL will be encoded.
@@ -89,7 +88,20 @@ public abstract class AbstractControllerTest {
         mockMvc.perform(post(urlTemplate)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(evoModel.toString()))
-                        .andExpect(status().isCreated()); // Check if the insert was performed via the HttpStatus OK (200).
+                        .andExpect(status().isCreated()); // Check if the insert was performed via the HttpStatus OK (201).
+    }
+
+    /**
+     * Perform a request with the status OK to test the controller method received as parameter an object in the request.
+     * @param urlTemplate URL template; the resulting URL will be encoded.
+     * @param evoModel The model that will be look for the entity.
+     * @throws Exception An exception will be throws if the test fail.
+     */
+    protected void performCreateRequest_Status_Ok(@NotNull String urlTemplate, @NotNull AbstractEvoModel evoModel) throws Exception {
+        mockMvc.perform(post(urlTemplate)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(evoModel.toString()))
+                .andExpect(status().isOk()); // Check if the insert was performed via the HttpStatus OK (200).
     }
 
     /**

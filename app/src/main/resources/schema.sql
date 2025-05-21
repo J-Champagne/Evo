@@ -614,3 +614,70 @@ CREATE TABLE IF NOT EXISTS compose_of_phase_block (
     CONSTRAINT compose_of_phase_block_bci_block_fkey FOREIGN KEY (compose_of_phase_block_bci_block_id)
         REFERENCES behavior_change_intervention_block (behavior_change_intervention_block_id)
 );
+
+/***********************************************************************************************************************
+bci_module table: This table stores information about Module.
+- Columns:
+  - bci_module_id: A unique identifier for each Module. It's type BIGSERIAL, meaning it's an auto-incrementing integer.
+  - bci_module_name: The name of the module.
+  - bci_module_description: Used to describe a module.
+  - bci_module_preconditions: Used to define th module preconditions.
+  - bci_module_postconditions: Used to define th module pos-conditions.
+- Constraints:
+  - bci_module_pk: Declares bci_module_id as the primary key — ensuring each row has a unique identifier.
+  - bci_module_name_unique: Ensures that bci_module_name is unique, meaning no duplicate module names can exist.
+***********************************************************************************************************************/
+CREATE TABLE bci_module (
+    bci_module_id bigserial NOT NULL,
+    bci_module_name varchar NOT NULL,
+    bci_module_description varchar NULL,
+    bci_module_preconditions varchar NOT NULL,
+    bci_module_postconditions varchar NOT NULL,
+    CONSTRAINT bci_module_pk PRIMARY KEY (bci_module_id),
+    CONSTRAINT bci_module_name_unique UNIQUE (bci_module_name)
+);
+
+/***********************************************************************************************************************
+bci_module_skill table: This is a junction table that represents a many-to-many relationship between bci_module and skill.
+- Columns:
+  - bci_module_skill_bci_module_id: A foreign key referencing a bci_module_id in the bci_module table.
+  - bci_module_skill_skill_id: A foreign key referencing a skill_id in the skill table.
+- Constraints:
+  - bci_module_skill_pk: Primary key for this table is composed of bci_module_skill_bci_module_id and bci_module_skill_skill_id.
+  - bci_module_skill_bci_module_fkey: Ensures that bci_module_skill_bci_module_id references a valid record in the bci_module table.
+  - bci_module_skill_skill_fkey: Ensures that bci_module_skill_skill_id references a valid record in the skill_id table.
+ **********************************************************************************************************************/
+CREATE TABLE bci_module_skill (
+    bci_module_skill_bci_module_id BIGINT NOT NULL,
+    bci_module_skill_skill_id BIGINT NOT NULL,
+    CONSTRAINT bci_module_skill_pk PRIMARY KEY (bci_module_skill_bci_module_id, bci_module_skill_skill_id),
+    CONSTRAINT bci_module_skill_bci_module_fkey FOREIGN KEY (bci_module_skill_bci_module_id)
+        REFERENCES bci_module (bci_module_id),
+    CONSTRAINT bci_module_skill_skill_fkey FOREIGN KEY (bci_module_skill_skill_id)
+        REFERENCES skill (skill_id)
+);
+
+/***********************************************************************************************************************
+bci_phase_contains_module table: This is a junction table that represents a many-to-many relationship between bci_module
+  and behavior_change_intervention_phase.
+- Columns:
+  - bci_phase_contains_module_phase_id: A foreign key referencing a behavior_change_intervention_phase_id in the
+  behavior_change_intervention_phase table.
+  - bci_phase_contains_module_module_id: A foreign key referencing a bci_module_id in the bci_module table.
+- Constraints:
+  - bci_phase_contains_module_pk: Primary key for this table is composed of bci_phase_contains_module_phase_id and
+  bci_phase_contains_module_module_id.
+  - bci_phase_contains_module_bci_module_fkey: Ensures that bci_phase_contains_module_module_id references a valid record
+  in the bci_module table.
+  - behavior_change_intervention_phase: Ensures that behavior_change_intervention_phase_id references a valid record in
+  the behavior_change_intervention_phase table.
+ **********************************************************************************************************************/
+CREATE TABLE bci_phase_contains_module (
+    bci_phase_contains_module_phase_id BIGINT NOT NULL,
+    bci_phase_contains_module_module_id BIGINT NOT NULL,
+    CONSTRAINT bci_phase_contains_module_pk PRIMARY KEY (bci_phase_contains_module_phase_id, bci_phase_contains_module_module_id),
+     CONSTRAINT bci_phase_contains_module_bci_module_fkey FOREIGN KEY (bci_phase_contains_module_module_id)
+         REFERENCES bci_module (bci_module_id),
+     CONSTRAINT bci_phase_contains_module_phase_fkey FOREIGN KEY (bci_phase_contains_module_phase_id)
+         REFERENCES behavior_change_intervention_phase (behavior_change_intervention_phase_id)
+);
