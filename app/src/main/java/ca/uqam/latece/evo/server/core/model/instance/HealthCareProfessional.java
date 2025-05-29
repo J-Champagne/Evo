@@ -1,13 +1,15 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
+import ca.uqam.latece.evo.server.core.model.Role;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 /**
  * HealthCareProfessional instance class.
- * @version 1.0
  * @author Julien Champagne.
  */
 @Entity
@@ -16,24 +18,25 @@ import jakarta.validation.constraints.NotNull;
 @Transactional
 @JsonPropertyOrder({"position", "affiliation", "specialties"})
 public class HealthCareProfessional extends Actor {
-    @Column(name = "healthcare_professional_position", length = 256)
+    @Column(name = "healthcare_professional_position")
     private String position;
 
-    @Column(name = "healthcare_professional_affiliation", length = 256)
+    @Column(name = "healthcare_professional_affiliation")
     private String affiliation;
 
-    @Column(name = "healthcare_professional_specialties", length = 256)
+    @Column(name = "healthcare_professional_specialties")
     private String specialties;
 
     public HealthCareProfessional() {}
 
-    public HealthCareProfessional(@NotNull String name, @NotNull String email, @NotNull String contactInformation) {
-        super(name, email, contactInformation);
+    public HealthCareProfessional(@NotNull String name, @NotNull String email, @NotNull String contactInformation,
+                                  @NotNull Role role) {
+        super(name, email, contactInformation, role);
     }
 
     public HealthCareProfessional(@NotNull String name, @NotNull String email, @NotNull String contactInformation,
-                                  String position, String affiliation, String specialties) {
-        super(name, email, contactInformation);
+                                  @NotNull Role role, String position, String affiliation, String specialties) {
+        this(name, email, contactInformation, role);
         this.position = position;
         this.affiliation = affiliation;
         this.specialties = specialties;
@@ -61,5 +64,19 @@ public class HealthCareProfessional extends Actor {
 
     public void setSpecialties(String specialties) {
         this.specialties = specialties;
+    }
+
+    @Override
+    public boolean equals (Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        if (super.equals(object)) {
+            HealthCareProfessional hcp = (HealthCareProfessional) object;
+            return Objects.equals(this.getPosition(), hcp.getPosition()) &&
+                    Objects.equals(this.getAffiliation(), hcp.getAffiliation()) &&
+                    Objects.equals(this.getSpecialties(), hcp.getSpecialties());
+        } else {
+            return false;
+        }
     }
 }

@@ -9,8 +9,6 @@ import java.util.List;
 
 /**
  * Role repository creates CRUD implementation at runtime automatically.
- * @since 22.01.2025
- * @version 1.0
  * @author Edilton Lima dos Santos.
  */
 @Repository

@@ -30,16 +30,15 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
     private PatientMedicalFileService patientMedicalFileService;
 
     /**
-     * Inserts an PatientMedicalFile in the database.
-     * @param medicalFile the PatientMedicalFile entity.
-     * @return The inserted PatientMedicalFile.
-     * @throws IllegalArgumentException in case the given PatientMedicalFile is null.
-     * @throws OptimisticLockingFailureException when the PatientMedicalFile uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a PatientMedicalFile in the database.
+     * @param medicalFile PatientMedicalFile.
+     * @return The created PatientMedicalFile in JSON format.
+     * @throws IllegalArgumentException if medicalFile is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) // 201
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PatientMedicalFile> create(@RequestBody PatientMedicalFile medicalFile) {
         ResponseEntity<PatientMedicalFile> response;
 
@@ -63,16 +62,15 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
     }
 
     /**
-     * Updates an PatientMedicalFile in the database.
-     * @param medicalFile the PatientMedicalFile entity.
-     * @return The updated PatientMedicalFile.
-     * @throws IllegalArgumentException in case the given PatientMedicalFile is null.
-     * @throws OptimisticLockingFailureException when the PatientMedicalFile uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Updates a PatientMedicalFile in the database.
+     * @param medicalFile PatientMedicalFile.
+     * @return The updated PatientMedicalFile in JSON format.
+     * @throws IllegalArgumentException if medicalFile is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PatientMedicalFile> update(@RequestBody PatientMedicalFile medicalFile) {
         ResponseEntity<PatientMedicalFile> response;
 
@@ -96,24 +94,24 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
     }
 
     /**
-     * Deletes the PatientMedicalFile with the given id.
-     * If the PatientMedicalFile is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the PatientMedicalFile to be retrieved; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Deletes a PatientMedicalFile by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT) // 204
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
         patientMedicalFileService.deleteById(id);
         logger.info("PatientMedicalFile deleted: {}", id);
     }
 
     /**
-     * Gets all PatientMedicalFile entities.
-     * @return all PatientMedicalFile.
+     * Finds all PatientMedicalFile entities.
+     * @return List<PatientMedicalFile> in JSON format.
      */
     @GetMapping
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<PatientMedicalFile>> findAll() {
         ResponseEntity<List<PatientMedicalFile>> response;
 
@@ -135,13 +133,13 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
     }
 
     /**
-     * Finds an PatientMedicalFile by its id.
-     * @param id must not be null or invalid.
-     * @return the PatientMedicalFile with the given id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null.
+     * Finds a PatientMedicalFile by its id.
+     * @param id Long.
+     * @return PatientMedicalFile in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PatientMedicalFile> findById(@PathVariable Long id) {
         ResponseEntity<PatientMedicalFile> response;
 
@@ -164,13 +162,13 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
     }
 
     /**
-     * Finds an PatientMedicalFile by its date of creation.
-     * @param date must not be null.
-     * @return the PatientMedicalFile with the given date or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the date is null.
+     * Finds PatientMedicalFile entities by their date.
+     * @param date String.
+     * @return List<PatientMedicalFile> in JSON format.
+     * @throws IllegalArgumentException if date is null or blank.
      */
     @GetMapping("/find/date/{date}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<PatientMedicalFile>> findByDate(@PathVariable String date) {
         ResponseEntity<List<PatientMedicalFile>> response;
 
@@ -193,10 +191,10 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
     }
 
     /**
-     * Finds an PatientMedicalFile by its medical history.
-     * @param medicalHistory must not be null or blank.
-     * @return the PatientMedicalFile with the given medicalHistory or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the medicalHistory is null or blank.
+     * Finds PatientMedicalFile entities by their medicalHistory.
+     * @param medicalHistory String.
+     * @return List<PatientMedicalFile> in JSON format.
+     * @throws IllegalArgumentException if medicalHistory is null or blank.
      */
     @GetMapping("/find/medicalhistory/{medicalHistory}")
     @ResponseStatus(HttpStatus.OK) // 200

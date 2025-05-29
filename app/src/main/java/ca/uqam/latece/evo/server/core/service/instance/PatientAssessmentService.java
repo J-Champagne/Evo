@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientAssessmentRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -23,19 +24,18 @@ import java.util.List;
 @Service
 @Transactional
 public class PatientAssessmentService extends AbstractEvoService<PatientAssessment> {
-    private final Logger logger = LoggerFactory.getLogger(PatientAssessmentService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PatientAssessmentService.class);
 
     @Autowired
     private PatientAssessmentRepository patientAssessmentRepository;
 
     /**
-     * Inserts a PatientAssessment in the database.
-     * @param patientAssessment the PatientAssessment entity.
-     * @return The saved PatientAssessment.
-     * @throws IllegalArgumentException in case the given PatientAssessment is null.
-     * @throws OptimisticLockingFailureException when the PatientAssessment uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a PatientAssessment in the database.
+     * @param patientAssessment PatientAssessment.
+     * @return The created PatientAssessment.
+     * @throws IllegalArgumentException if patientAssessment is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public PatientAssessment create(PatientAssessment patientAssessment) {
@@ -53,12 +53,11 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
 
     /**
      * Updates a PatientAssessment in the database.
-     * @param patientAssessment the PatientAssessment entity.
-     * @return The updated PatientAssessment or null if the PatientAssessment to be updated is not found within the database.
-     * @throws IllegalArgumentException in case the given PatientAssessment is null.
-     * @throws OptimisticLockingFailureException when the PatientAssessment uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * @param patientAssessment PatientAssessment.
+     * @return The updated PatientAssessment.
+     * @throws IllegalArgumentException if patientAssessment is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public PatientAssessment update(PatientAssessment patientAssessment) {
@@ -77,13 +76,12 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     }
 
     /**
-     * Method used to create or update a PatientAssessment.
-     * @param patientAssessment the PatientAssessment entity.
-     * @return The inserted or updated PatientAssessment.
-     * @throws IllegalArgumentException in case the given PatientAssessment is null.
-     * @throws OptimisticLockingFailureException when the PatientAssessment uses optimistic locking and has a version attribute with
-     *          a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *          present but does not exist in the database.
+     * Saves the given PatientAssessment in the database.
+     * @param patientAssessment PatientAssessment.
+     * @return The saved PatientAssessment.
+     * @throws IllegalArgumentException if patientAssessment is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public PatientAssessment save(PatientAssessment patientAssessment) {
@@ -91,32 +89,29 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     }
 
     /**
-     * Checks if a PatientAssessment entity with the specified id exists in the repository.
-     * @param id the id of the PatientAssessment to check for existence, must not be null.
-     * @return true if an PatientAssessment with the specified id exists, false otherwise.
-     * @throws IllegalArgumentException if the id is null.
+     * Deletes a PatientAssessment by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
-    @Override
-    public boolean existsById(Long id) {
+    public void deleteById(Long id) {
         ObjectValidator.validateId(id);
-        return this.patientAssessmentRepository.existsById(id);
+        patientAssessmentRepository.deleteById(id);
+        logger.info("PatientAssessment deleted {}", id);
     }
 
     /**
-     * Checks if a PatientAssessment entity with the specified date exists in the repository.
-     * @param date the date of the PatientAssessment to check for existence, must not be null.
-     * @return true if an PatientAssessment with the specified date exists, false otherwise.
-     * @throws IllegalArgumentException if the date is null.
+     * Finds all PatientAssessment entities.
+     * @return List<PatientAssessment>.
      */
-    public boolean existsByDate(LocalDate date) {
-        ObjectValidator.validateObject(date);
-        return this.patientAssessmentRepository.existsByDate(date);
+    public List<PatientAssessment> findAll() {
+        return this.patientAssessmentRepository.findAll();
     }
 
     /**
      * Finds a PatientAssessment by its id.
-     * @param id the unique identifier of the PatientAssessment to be retrieved; must not be null or invalid.
-     * @return the PatientAssessment with the given id or Optional#empty() if none found.
+     * @param id Long.
+     * @return PatientAssessment with the given id.
      * @throws IllegalArgumentException if id is null.
      */
     @Override
@@ -127,10 +122,10 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     }
 
     /**
-     * Finds an PatientAssessment by its date.
-     * @param date must not be null.
-     * @return List<PatientAssessment> with the given date or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the date is null.
+     * Finds PatientAssessment entities by their date.
+     * @param date LocalDate.
+     * @return List<PatientAssessment> with the given date.
+     * @throws IllegalArgumentException if date is null.
      */
     public List<PatientAssessment> findByDate(LocalDate date) {
         ObjectValidator.validateObject(date);
@@ -138,10 +133,10 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     }
 
     /**
-     * Finds an PatientAssessment by its assessment.
-     * @param assessment must not be null or blank.
-     * @return List<PatientAssessment> with the given assessment or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the assessment is null or blank.
+     * Finds PatientAssessment entities by their assessment.
+     * @param assessment String.
+     * @return List<PatientAssessment> with the given assessment.
+     * @throws IllegalArgumentException if assessment is blank or null.
      */
     public List<PatientAssessment> findByAssessment(String assessment) {
         ObjectValidator.validateString(assessment);
@@ -149,33 +144,36 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
     }
 
     /**
-     * Finds an PatientAssessment by its patient id.
-     * @param id must not be null.
-     * @return List<PatientAssessment> with the given patient id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null.
+     * Finds PatientAssessment entities by their Patient.
+     * @param patient Patient.
+     * @return List<PatientAssessment> with the given Patient.
+     * @throws IllegalArgumentException if patient is null.
      */
-    public List<PatientAssessment> findByPatient(Long id) {
-        ObjectValidator.validateId(id);
-        return this.patientAssessmentRepository.findByPatient(id);
+    public List<PatientAssessment> findByPatient(Patient patient) {
+        ObjectValidator.validateObject(patient);
+        return this.patientAssessmentRepository.findByPatient(patient);
     }
 
     /**
-     * Deletes the PatientAssessment with the given id.
-     * If the PatientAssessment is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the PatientAssessment to be retrieved; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Finds PatientAssessment entities by their Patient id.
+     * @param id Long.
+     * @return List<PatientAssessment> with the given Patient id.
+     * @throws IllegalArgumentException if id is null.
      */
-    public void deleteById(Long id) {
+    public List<PatientAssessment> findByPatientId(Long id) {
         ObjectValidator.validateId(id);
-        patientAssessmentRepository.deleteById(id);
-        logger.info("PatientAssessment deleted {}", id);
+        return this.patientAssessmentRepository.findByPatientId(id);
     }
 
     /**
-     * Gets all PatientAssessment entities.
-     * @return all PatientAssessment.
+     * Checks if a PatientAssessment exists in the database by its id
+     * @param id Long
+     * @return boolean
+     * @throws IllegalArgumentException if id is null.
      */
-    public List<PatientAssessment> findAll() {
-        return this.patientAssessmentRepository.findAll().stream().toList();
+    @Override
+    public boolean existsById(Long id) {
+        ObjectValidator.validateId(id);
+        return this.patientAssessmentRepository.existsById(id);
     }
 }

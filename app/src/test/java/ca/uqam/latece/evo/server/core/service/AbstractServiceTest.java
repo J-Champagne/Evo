@@ -22,8 +22,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * Designed to be extended by service-specific test classes, this class enforces the implementation
  * of abstract methods to verify common database interactions such as saving, updating, finding, and deleting entities.
  * <p>
- * @since 22.01.2025
- * @version 1.0
  * @author Edilton Lima dos Santos.
  */
 @DataJpaTest
@@ -82,21 +80,6 @@ public abstract class AbstractServiceTest {
      * - Handling of invalid or null input values.
      */
     abstract void testFindById();
-
-    /**
-     * Abstract method to test the functionality of finding entities by their name in the database.
-     * <p>
-     * Implementations of this method should verify that the correct entities are retrieved
-     * when queried by name. This includes ensuring that the query matches the expected records
-     * based on their name or relevant naming criteria.
-     * <p>
-     * The method should also consider handling scenarios such as:
-     * - Case sensitivity in name matching
-     * - Partial or exact name matching depending on requirements
-     * - Behavior when no entities or multiple entities match the given name
-     * - Handling of invalid or null input values
-     */
-   // abstract void testFindByName();
 
     /**
      * Abstract method to test the functionality of deleting an entity by its identifier in the database.

@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.repository.instance.HealthCareProfessionalRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -17,30 +18,28 @@ import java.util.List;
 
 /**
  * HealthCareProfessional Service.
- * @version 1.0
  * @author Julien Champagne.
  */
 @Service
 @Transactional
 public class HealthCareProfessionalService extends AbstractEvoService<HealthCareProfessional> {
-    private final Logger logger = LoggerFactory.getLogger(HealthCareProfessionalService.class);
+    private static final Logger logger = LoggerFactory.getLogger(HealthCareProfessionalService.class);
     private static final String ERROR_EMAIL_ALREADY_REGISTERED = "HealthCareProfessional already registered with the same email!";
 
     @Autowired
     HealthCareProfessionalRepository hcpRepository;
 
     /**
-     * Inserts a HealthCareProfessional in the database.
-     * @param hcp the HealthCareProfessional entity.
-     * @return The saved HealthCareProfessional.
-     * @throws IllegalArgumentException in case the given HealthCareProfessional is null or is already registered with the same email.
-     * @throws OptimisticLockingFailureException when the HealthCareProfessional uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a HealthCareProfessional in the database.
+     * @param hcp HealthCareProfessional.
+     * @return The created HealthCareProfessional.
+     * @throws IllegalArgumentException if hcp is null or if another HealthCareProfessional was saved with the same email.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public HealthCareProfessional create(HealthCareProfessional hcp) {
-        HealthCareProfessional hcpCreated = null;
+        HealthCareProfessional hcpCreated;
 
         ObjectValidator.validateObject(hcp);
         ObjectValidator.validateEmail(hcp.getEmail());
@@ -48,40 +47,25 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
         ObjectValidator.validateString(hcp.getContactInformation());
 
         // The email should be unique.
-        if (this.existsByEmail(hcp.getEmail())) {
+        if (existsByEmail(hcp.getEmail())) {
             throw this.createDuplicateHcpException(hcp);
         } else {
             hcpCreated = this.save(hcp);
-            logger.info("HealthCareProfessional created: {}", hcpCreated);
         }
 
         return hcpCreated;
     }
 
     /**
-     * Create duplicate HealthCareProfessional Exception.
-     * @param hcp the HealthCareProfessional entity.
-     * @return an exception object.
-     */
-    private IllegalArgumentException createDuplicateHcpException(HealthCareProfessional hcp) {
-        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_EMAIL_ALREADY_REGISTERED +
-                " HealthCareProfessional Name: " + hcp.getName() +
-                ". HealthCareProfessional Email: " + hcp.getEmail());
-        logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
-        return illegalArgumentException;
-    }
-
-    /**
-     * Updates an HealthCareProfessional in the database.
-     * @param hcp the HealthCareProfessional entity.
+     * Updates a HealthCareProfessional in the database.
+     * @param hcp HealthCareProfessional.
      * @return The updated HealthCareProfessional.
-     * @throws IllegalArgumentException in case the given HealthCareProfessional is null or is already registered with the same email.
-     * @throws OptimisticLockingFailureException when the HealthCareProfessional uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * @throws IllegalArgumentException if hcp is null or if another HealthCareProfessional was saved with the same email.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     public HealthCareProfessional update(HealthCareProfessional hcp) {
-        HealthCareProfessional hcpUpdated = null;
+        HealthCareProfessional hcpUpdated;
         HealthCareProfessional hcpFound = this.findById(hcp.getId());
 
         ObjectValidator.validateObject(hcp);
@@ -89,16 +73,14 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
         ObjectValidator.validateString(hcp.getName());
         ObjectValidator.validateString(hcp.getContactInformation());
 
+        // The email should be the same or unique
         if (hcpFound.getEmail().equalsIgnoreCase(hcp.getEmail())) {
             hcpUpdated = this.save(hcp);
         } else {
-            List<HealthCareProfessional> hcpEmailFound = hcpRepository.findByEmail(hcp.getEmail());
-
-            // The email should be unique
-            if (hcpEmailFound.isEmpty()) {
-                hcpUpdated = this.save(hcp);
-            } else {
+            if (existsByEmail(hcp.getEmail())) {
                 throw this.createDuplicateHcpException(hcp);
+            } else {
+                hcpUpdated = this.save(hcp);
             }
         }
 
@@ -107,13 +89,12 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
     }
 
     /**
-     * Method used to create or update an HealthCareProfessional.
-     * @param hcp the HealthCareProfessional entity.
-     * @return The inserted or updated HealthCareProfessional.
-     * @throws IllegalArgumentException in case the given HealthCareProfessional is null or is already registered with the same email.
-     * @throws OptimisticLockingFailureException when the HealthCareProfessional uses optimistic locking and has a version attribute with
-     *          a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *          present but does not exist in the database.
+     * Saves the given HealthCareProfessional in the database.
+     * @param hcp HealthCareProfessional.
+     * @return The saved HealthCareProfessional.
+     * @throws IllegalArgumentException if hcp is null or if another HealthCareProfessional was saved with the same email.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     @Transactional
@@ -122,88 +103,10 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
     }
 
     /**
-     * Checks if an HealthCareProfessional entity with the specified id exists in the repository.
-     * @param id the id of the HealthCareProfessional to check for existence, must not be null.
-     * @return true if an HealthCareProfessional with the specified id exists, false otherwise.
-     * @throws IllegalArgumentException if the id is null.
-     */
-    @Override
-    public boolean existsById(Long id) {
-        ObjectValidator.validateId(id);
-        return hcpRepository.existsById(id);
-    }
-
-    /**
-     * Checks if an HealthCareProfessional entity with the specified name exists in the repository.
-     * @param name the name of the HealthCareProfessional to check for existence, must not be null.
-     * @return true if an HealthCareProfessional with the specified name exists, false otherwise.
-     * @throws IllegalArgumentException if the name is null.
-     */
-    public boolean existsByName(String name) {
-        ObjectValidator.validateString(name);
-        return this.hcpRepository.existsByName(name);
-    }
-
-    /**
-     * Checks if an HealthCareProfessional entity with the specified email exists in the repository.
-     * @param email the email of the HealthCareProfessional to check for existence, must not be null.
-     * @return true if an HealthCareProfessional with the specified email exists, false otherwise.
-     * @throws IllegalArgumentException if the email is null.
-     */
-    public boolean existsByEmail(String email) {
-        ObjectValidator.validateString(email);
-        return this.hcpRepository.existsByEmail(email);
-    }
-
-    /**
-     * Checks if an HealthCareProfessional entity with the specified contact information exists in the repository.
-     * @param contactInformation the contactInformation of the HealthCareProfessional to check for existence, must not be null.
-     * @return true if an HealthCareProfessional with the specified contactInformation exists, false otherwise.
-     * @throws IllegalArgumentException if the contactInformation is null or blank.
-     */
-    public boolean existsByContactInformation(String contactInformation) {
-        ObjectValidator.validateString(contactInformation);
-        return this.hcpRepository.existsByContactInformation(contactInformation);
-    }
-
-    /**
-     * Checks if an HealthCareProfessional entity with the specified position exists in the repository.
-     * @param position the position of the HealthCareProfessional to check for existence, must not be null.
-     * @return true if an HealthCareProfessional with the specified position exists, false otherwise.
-     * @throws IllegalArgumentException if the position is null or blank.
-     */
-    public boolean existsByPosition(String position) {
-        ObjectValidator.validateString(position);
-        return hcpRepository.existsByPosition(position);
-    }
-
-    /**
-     * Checks if an HealthCareProfessional entity with the specified affiliation exists in the repository.
-     * @param affiliation the affiliation of the HealthCareProfessional to check for existence, must not be null.
-     * @return true if an HealthCareProfessional with the specified affiliation exists, false otherwise.
-     * @throws IllegalArgumentException if the affiliation is null or blank.
-     */
-    public boolean existsByAffiliation(String affiliation) {
-        ObjectValidator.validateString(affiliation);
-        return hcpRepository.existsByAffiliation(affiliation);
-    }
-
-    /**
-     * Checks if an HealthCareProfessional entity with the specified specialties exists in the repository.
-     * @param specialties the specialties of the HealthCareProfessional to check for existence, must not be null.
-     * @return true if an HealthCareProfessional with the specified specialties exists, false otherwise.
-     * @throws IllegalArgumentException if the specialties is null or blank.
-     */
-    public boolean existsBySpecialties(String specialties) {
-        ObjectValidator.validateString(specialties);
-        return hcpRepository.existsBySpecialties(specialties);
-    }
-
-    /**
-     * Deletes the HealthCareProfessional with the given id.
-     * If the HealthCareProfessional is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the HealthCareProfessional to be retrieved; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Deletes a HealthCareProfessional by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
     @Override
     public void deleteById(Long id) {
@@ -213,18 +116,18 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
     }
 
     /**
-     * Gets all HealthCareProfessional.
-     * @return all HealthCareProfessional.
+     * Finds all HealthCareProfessional entities.
+     * @return List<HealthCareProfessional>.
      */
     @Override
     public List<HealthCareProfessional> findAll() {
-        return hcpRepository.findAll().stream().toList();
+        return hcpRepository.findAll();
     }
 
     /**
      * Finds a HealthCareProfessional by its id.
-     * @param id the unique identifier of the HealthCareProfessional to be retrieved; must not be null or invalid.
-     * @return the HealthCareProfessional with the given id or Optional#empty() if none found.
+     * @param id Long.
+     * @return HealthCareProfessional with the given id.
      * @throws IllegalArgumentException if id is null.
      */
     @Override
@@ -235,10 +138,10 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
     }
 
     /**
-     * Finds a HealthCareProfessional by its name.
-     * @param name must not be null.
-     * @return the HealthCareProfessional with the given id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the name is null.
+     * Finds HealthCareProfessional entities by their name.
+     * @param name String.
+     * @return HealthCareProfessional with the given name.
+     * @throws IllegalArgumentException if name is null or blank.
      */
     public List<HealthCareProfessional> findByName(String name) {
         ObjectValidator.validateString(name);
@@ -247,19 +150,19 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
 
     /**
      * Finds a HealthCareProfessional by its email.
-     * @param email must not be null.
-     * @return the HealthCareProfessional the given email or Optional#empty() if none found.
-     * @throws IllegalArgumentException if email is null.
+     * @param email String.
+     * @return HealthCareProfessional with the given email.
+     * @throws IllegalArgumentException if email is null or blank.
      */
-    public List<HealthCareProfessional> findByEmail(String email) {
-        ObjectValidator.validateString(email);
+    public HealthCareProfessional findByEmail(String email) {
+        ObjectValidator.validateEmail(email);
         return hcpRepository.findByEmail(email);
     }
 
     /**
-     * Retrieves a list of HealthCareProfessional entities that match the specified contactInformation.
-     * @param contactInformation must not be null or blank.
-     * @return List<HealthCareProfessional> with the given contactInformation or Optional#empty() if none found.
+     * Finds HealthCareProfessional entities by their contactInformation.
+     * @param contactInformation String.
+     * @return List<HealthCareProfessional> with the given contactInformation.
      * @throws IllegalArgumentException if contactInformation is null or blank.
      */
     public List<HealthCareProfessional> findByContactInformation(String contactInformation) {
@@ -268,19 +171,31 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
     }
 
     /**
-     * Retrieves a list of HealthCareProfessional entities that match the specified Role Id.
-     * @param roleId The Role Id to filter HealthCareProfessional entities by, must not be null.
-     * @return List<HealthCareProfessional> that have the specified Role id, or an empty list if no matches are found.
+     * Finds HealthCareProfessional entities by their Role.
+     * @param role Role.
+     * @return List<HealthCareProfessional> with the specified Role.
+     * @throws IllegalArgumentException if role is null.
      */
-    public List<HealthCareProfessional> findByRole(Long roleId) {
-        ObjectValidator.validateId(roleId);
-        return hcpRepository.findByRole(roleId);
+    public List<HealthCareProfessional> findByRole(Role role) {
+        ObjectValidator.validateObject(role);
+        return hcpRepository.findByRole(role);
     }
 
     /**
-     * Retrieves a list of HealthCareProfessional entities that match the specified position.
-     * @param position must not be null or blank.
-     * @return List<HealthCareProfessional> with the given position or Optional#empty() if none found.
+     * Finds HealthCareProfessional entities by their Role id.
+     * @param id Long.
+     * @return List<HealthCareProfessional> with the specified Role id.
+     * @throws IllegalArgumentException if id is null.
+     */
+    public List<HealthCareProfessional> findByRoleId(Long id) {
+        ObjectValidator.validateId(id);
+        return hcpRepository.findByRoleId(id);
+    }
+
+    /**
+     * Finds HealthCareProfessional entities by their position.
+     * @param position String.
+     * @return List<HealthCareProfessional> with the given position.
      * @throws IllegalArgumentException if position is null or blank.
      */
     public List<HealthCareProfessional> findByPosition(String position) {
@@ -289,9 +204,9 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
     }
 
     /**
-     * Retrieves a list of HealthCareProfessional entities that match the specified affiliation.
-     * @param affiliation must not be null or blank.
-     * @return List<HealthCareProfessional> with the given affiliation or Optional#empty() if none found.
+     * Finds HealthCareProfessional entities by their affiliation.
+     * @param affiliation String.
+     * @return List<HealthCareProfessional> with the given affiliation.
      * @throws IllegalArgumentException if affiliation is null or blank.
      */
     public List<HealthCareProfessional> findByAffiliation(String affiliation) {
@@ -300,13 +215,49 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
     }
 
     /**
-     * Retrieves a list of HealthCareProfessional entities that match the specified specialities.
-     * @param specialities must not be null or blank.
-     * @return List<HealthCareProfessional> with the given specialities or Optional#empty() if none found.
-     * @throws IllegalArgumentException if specialities is null ir blank.
+     * Finds HealthCareProfessional entities by their specialities.
+     * @param specialities String.
+     * @return List<HealthCareProfessional> with the given specialities.
+     * @throws IllegalArgumentException if specialities is null or blank.
      */
     public List<HealthCareProfessional> findBySpecialties(String specialities) {
         ObjectValidator.validateString(specialities);
         return hcpRepository.findBySpecialties(specialities);
+    }
+
+    /**
+     * Checks if a HealthCareProfessional exists in the database by its id
+     * @param id Long
+     * @return boolean
+     * @throws IllegalArgumentException if id is null.
+     */
+    @Override
+    public boolean existsById(Long id) {
+        ObjectValidator.validateId(id);
+        return hcpRepository.existsById(id);
+    }
+
+    /**
+     * Checks if a HealthCareProfessional exists in the database by its email
+     * @param email String
+     * @return boolean
+     * @throws IllegalArgumentException if email is null or blank.
+     */
+    public boolean existsByEmail(String email) {
+        ObjectValidator.validateString(email);
+        return this.hcpRepository.existsByEmail(email);
+    }
+
+    /**
+     * Creates an IllegalArgumentException with a message indicating that a HealthCareProfessional with the same email was found.
+     * @param hcp HealthCareProfessional.
+     * @return IllegalArgumentException.
+     */
+    private IllegalArgumentException createDuplicateHcpException(HealthCareProfessional hcp) {
+        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_EMAIL_ALREADY_REGISTERED +
+                " HealthCareProfessional Name: " + hcp.getName() +
+                ". HealthCareProfessional Email: " + hcp.getEmail());
+        logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
+        return illegalArgumentException;
     }
 }

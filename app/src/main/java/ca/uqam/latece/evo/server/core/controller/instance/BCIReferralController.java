@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
+import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.model.instance.BCIReferral;
 import ca.uqam.latece.evo.server.core.service.instance.BCIReferralService;
 
@@ -22,23 +23,22 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/bcireferral")
-public class BCIReferralController {
+public class BCIReferralController extends AbstractEvoController<BCIReferral> {
     private static final Logger logger = LoggerFactory.getLogger(BCIReferralController.class);
 
     @Autowired
     BCIReferralService bciReferralService;
 
     /**
-     * Inserts a BCIReferral in the database.
-     * @param bcir the BCIReferral entity.
-     * @return BCIReferral instance that was saved.
-     * @throws IllegalArgumentException in case the given BCIReferral is null.
-     * @throws OptimisticLockingFailureException when the BCIReferral uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a BCIReferral in the database.
+     * @param bcir BCIReferral.
+     * @return The created BCIReferral in JSON format.
+     * @throws IllegalArgumentException if bcir is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) // 201
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<BCIReferral> create(@RequestBody BCIReferral bcir) {
         ResponseEntity<BCIReferral> response;
 
@@ -63,15 +63,14 @@ public class BCIReferralController {
 
     /**
      * Updates a BCIReferral in the database.
-     * @param bcir the BCIReferral entity.
-     * @return BCIReferral instance that was updated.
-     * @throws IllegalArgumentException in case the given BCIReferral is null.
-     * @throws OptimisticLockingFailureException when the BCIReferral uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * @param bcir BCIReferral.
+     * @return The updated BCIReferral in JSON format.
+     * @throws IllegalArgumentException if bcir is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<BCIReferral> update(@RequestBody BCIReferral bcir) {
         ResponseEntity<BCIReferral> response;
 
@@ -95,24 +94,24 @@ public class BCIReferralController {
     }
 
     /**
-     * Deletes the BCIReferral with the given id.
-     * If the BCIReferral is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the BCIReferral to be deleted; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Deletes a BCIReferral by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT) // 204
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
         bciReferralService.deleteById(id);
         logger.info("BCIReferral deleted: {}", id);
     }
 
     /**
-     * Gets all BCIReferral entities.
-     * @return all BCIReferral.
+     * Finds all BCIReferral entities.
+     * @return List<BCIReferral> in JSON format.
      */
     @GetMapping
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<BCIReferral>> findAll() {
         ResponseEntity<List<BCIReferral>> response;
 
@@ -134,13 +133,13 @@ public class BCIReferralController {
     }
 
     /**
-     * Finds an BCIReferral by its id.
-     * @param id must not be null or invalid.
-     * @return the BCIReferral with the given id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null.
+     * Finds a BCIReferral by its id.
+     * @param id Long.
+     * @return List<BCIReferral> in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<BCIReferral> findById(@PathVariable Long id) {
         ResponseEntity<BCIReferral> response;
 
@@ -163,13 +162,13 @@ public class BCIReferralController {
     }
 
     /**
-     * Finds an BCIReferral by its date of creation.
-     * @param date must not be null.
-     * @return the BCIReferral with the given date or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the date is null.
+     * Finds BCIReferral entities by their Patient.
+     * @param date LocalDate.
+     * @return List<BCIReferral> in JSON format.
+     * @throws IllegalArgumentException if date is null.
      */
     @GetMapping("/find/date/{date}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<BCIReferral>> findByDate(@PathVariable String date) {
         ResponseEntity<List<BCIReferral>> response;
 
@@ -192,13 +191,13 @@ public class BCIReferralController {
     }
 
     /**
-     * Finds an BCIReferral by its reason.
-     * @param reason must not be null or blank.
-     * @return the BCIReferral with the given reason or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the reason is null or blank.
+     * Finds BCIReferral entities by their reason.
+     * @param reason String.
+     * @return List<BCIReferral> in JSON format.
+     * @throws IllegalArgumentException if reason is blank or null.
      */
     @GetMapping("/find/reason/{reason}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<BCIReferral>> findByReason(@PathVariable String reason) {
         ResponseEntity<List<BCIReferral>> response;
 
@@ -220,18 +219,18 @@ public class BCIReferralController {
     }
 
     /**
-     * Finds an BCIReferral by the id its patient.
-     * @param id must not be null or blank.
-     * @return the BCIReferral with the given patient or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null or blank.
+     * Finds BCIReferral entities by their Patient id.
+     * @param id Long.
+     * @return List<BCIReferral> in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/patient/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<BCIReferral>> findByPatient(@PathVariable Long id) {
         ResponseEntity<List<BCIReferral>> response;
 
         try {
-            List<BCIReferral> result = bciReferralService.findByPatient(id);
+            List<BCIReferral> result = bciReferralService.findByPatientId(id);
 
             if (result != null) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
@@ -249,18 +248,18 @@ public class BCIReferralController {
     }
 
     /**
-     * Finds an BCIReferral by the id of its patient assessment.
-     * @param id must not be null.
-     * @return the BCIReferral with the given patient assessment or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null.
+     * Finds BCIReferral entities by their PatientAssessment id.
+     * @param id Long.
+     * @return List<BCIReferral> in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/patientassessment/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<BCIReferral> findByPatientAssessment(@PathVariable Long id) {
-        ResponseEntity<BCIReferral> response;
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<BCIReferral>> findByPatientAssessment(@PathVariable Long id) {
+        ResponseEntity<List<BCIReferral>> response;
 
         try {
-            BCIReferral result = bciReferralService.findByPatientAssessment(id);
+            List<BCIReferral> result = bciReferralService.findByPatientAssessmentId(id);
 
             if (result != null) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
@@ -278,18 +277,18 @@ public class BCIReferralController {
     }
 
     /**
-     * Finds an BCIReferral by the id of its referring health care professional.
-     * @param id must not be null.
-     * @return the BCIReferral with the given referring health care professional or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null.
+     * Finds BCIReferral entities by their ReferringProfessional id.
+     * @param id Long.
+     * @return List<BCIReferral> in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/referringprofessional/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<BCIReferral> findByReferringProfessional(@PathVariable Long id) {
-        ResponseEntity<BCIReferral> response;
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<BCIReferral>> findByReferringProfessional(@PathVariable Long id) {
+        ResponseEntity<List<BCIReferral>> response;
 
         try {
-            BCIReferral result = bciReferralService.findByReferringProfessional(id);
+            List<BCIReferral> result = bciReferralService.findByReferringProfessionalId(id);
 
             if (result != null) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
@@ -307,18 +306,18 @@ public class BCIReferralController {
     }
 
     /**
-     * Finds an BCIReferral by the id of its health care professional interventionist.
-     * @param id must not be null.
-     * @return the BCIReferral with the given health care interventionist or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null.
+     * Finds BCIReferral entities by their BehaviorChangeInterventionist id.
+     * @param id Long.
+     * @return List<BCIReferral> in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/behaviorchangeinterventionist/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<BCIReferral> findByBehaviorChangeInterventionist(@PathVariable Long id) {
-        ResponseEntity<BCIReferral> response;
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<BCIReferral>> findByBehaviorChangeInterventionist(@PathVariable Long id) {
+        ResponseEntity<List<BCIReferral>> response;
 
         try {
-            BCIReferral result = bciReferralService.findByBehaviorChangeInterventionist(id);
+            List<BCIReferral> result = bciReferralService.findByBehaviorChangeInterventionistId(id);
 
             if (result != null) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);

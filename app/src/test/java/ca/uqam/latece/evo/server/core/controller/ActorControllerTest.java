@@ -12,16 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Optional;
 
 /**
- * The Actor Controller test class for the {@link ActorController}, responsible for testing its various functionalities.
- * This class includes integration tests for CRUD operations supported the controller class, using WebMvcTes, and
- * repository queries using MockMvc (Mockito).
- * @version 1.0
+ * Tests methods found in ActorController using WebMvcTest, and repository queries using MockMvc (Mockito).
  * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @WebMvcTest(controllers = ActorController.class)
@@ -33,162 +31,103 @@ public class ActorControllerTest extends AbstractControllerTest {
     @MockBean
     private RoleRepository roleRepository;
 
-    private Actor actor = new Actor();
+    private Role role = new Role("Administrator");
+
+    private Actor actor = new Actor("Bernard", "bernard@gmail.com", "222-222-2222", role);
+
+    private final String url = "/actor";
 
     @BeforeEach
+    @Override
     void setUp() {
         actor.setId(1L);
-        actor.setName("Bernard");
-        actor.setEmail("bernard@gmail.com");
-        actor.setContactInformation("Phone: 222-222-2222");
-
-        // Mock behavior for actorRepository.save().
         when(actorRepository.save(actor)).thenReturn(actor);
     }
 
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/actors", actor);
+        performCreateRequest(url, actor);
     }
 
     @Test
     @Override
     void testUpdate() throws Exception {
-        System.out.println(actor);
-        // Create the Actor.
-        Actor actorToUpdate = new Actor();
-        actorToUpdate.setId(actor.getId());
-        actorToUpdate.setName("Bernard 2");
-        actorToUpdate.setEmail("bernard@gmail.com");
-        actorToUpdate.setContactInformation("Phone: 333-333-3333");
+        Actor actorUpdated = new Actor("Bernard 2", actor.getEmail(), actor.getContactInformation(), actor.getRole());
+        actorUpdated.setId(actor.getId());
+        when(actorRepository.save(actorUpdated)).thenReturn(actorUpdated);
+        when(actorRepository.findById(actorUpdated.getId())).thenReturn(Optional.of(actorUpdated));
 
-        // Mock behavior for actorRepository.save().
-        when(actorRepository.save(actorToUpdate)).thenReturn(actorToUpdate);
-
-        // Mock behavior for actorRepository.findById().
-        when(actorRepository.findById(actorToUpdate.getId())).thenReturn(Optional.of(actorToUpdate));
-
-        // Perform a PUT request to test the controller.
-        performUpdateRequest("/actors", actorToUpdate,"$.name",actorToUpdate.getName());
+        performUpdateRequest(url, actorUpdated,"$.name",actorUpdated.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/actors/" + actor.getId(), actor);
-    }
-
-    @Test
-    @Override
-    void testFindById() throws Exception {
-        // Create the Actor.
-        actor.setId(3L);
-        actor.setName("Bernard 2");
-        actor.setEmail("bernard2@gmail.com");
-        actor.setContactInformation("Phone: 333-333-3333");
-
-        // Save the actor.
-        when(actorRepository.save(actor)).thenReturn(actor);
-
-        // Mock behavior for actorRepository.findById().
-        when(actorRepository.findById(actor.getId())).thenReturn(Optional.of(actor));
-
-        // Perform a GET request to test the controller.
-        performGetRequest("/actors/find/" + actor.getId(),
-                "$.name", actor.getName());
-    }
-
-    @Test
-    void testFindByName() throws Exception {
-        // Create the Actor.
-        actor.setId(4L);
-        actor.setName("Bernardo");
-        actor.setEmail("bernardo@gmail.com");
-        actor.setContactInformation("Phone: 444-444-4444");
-
-        // Save the actor.
-        when(actorRepository.save(actor)).thenReturn(actor);
-
-        // Mock behavior for actorRepository.findByName().
-        when(actorRepository.findByName(actor.getName())).thenReturn(Collections.singletonList(actor));
-
-        // Perform a GET request to test the controller.
-        performGetRequest("/actors/find/name/" + actor.getName(),
-                "$[0].name", actor.getName());
-    }
-
-    @Test
-    void findByEmail() throws Exception {
-        // Create the Actor.
-        actor.setId(4L);
-        actor.setName("Bernardo");
-        actor.setEmail("bernardo@gmail.com");
-        actor.setContactInformation("Phone: 444-444-4444");
-
-        // Save the actor.
-        when(actorRepository.save(actor)).thenReturn(actor);
-
-        // Mock behavior for actorRepository.findByEmail().
-        when(actorRepository.findByEmail(actor.getEmail())).thenReturn(Collections.singletonList(actor));
-
-        // Perform a GET request to test the controller.
-        performGetRequest("/actors/find/email/" + actor.getEmail(),
-                "$[0].email", actor.getEmail());
-    }
-
-    @Test
-    void findByContactInformation() throws Exception {
-        // Create the Actor.
-        actor.setId(5L);
-        actor.setName("Dali");
-        actor.setEmail("SalvadorD@gmail.com");
-        actor.setContactInformation("Phone: 514-555-5555");
-
-        // Save the actor.
-        when(actorRepository.save(actor)).thenReturn(actor);
-
-        // Mock behavior for actorRepository.findByContactInformation().
-        when(actorRepository.findByContactInformation(actor.getContactInformation())).thenReturn(Collections.singletonList(actor));
-
-        // Perform a GET request to test the controller.
-        performGetRequest("/actors/find/contactinformation/" + actor.getContactInformation(),
-                "$[0].contactInformation", actor.getContactInformation());
-    }
-
-    @Test
-    void findByRole() throws Exception {
-        // Create a Role that will be used to update the Actor.
-        Role actorRole = new Role("e-Facilitator");
-        actorRole.setId(1L);
-        // Save the actor.
-        when(roleRepository.save(actorRole)).thenReturn(actorRole);
-
-        // Create the Actor.
-        actor.setId(4L);
-        actor.setName("Bernardo");
-        actor.setEmail("bernardo@gmail.com");
-        actor.setContactInformation("Phone: 444-444-4444");
-        actor.setRole(actorRole);
-
-        // Save the actor.
-        when(actorRepository.save(actor)).thenReturn(actor);
-
-        // Mock behavior for actorRepository.findByRole().
-        when(actorRepository.findByRole(actor.getRole().getId())).thenReturn(Collections.singletonList(actor));
-
-        // Perform a GET request to test the controller.
-        performGetRequest("/actors/find/role/" + actor.getRole().getId(),
-                "$[0].role.id", actor.getRole().getId());
+        performDeleteRequest(url + "/" + actor.getId(), actor);
     }
 
     @Test
     @Override
     void testFindAll() throws Exception {
-        // Mock behavior for actorRepository.findAll().
         when(actorRepository.findAll()).thenReturn(Collections.singletonList(actor));
 
-        // Perform a GET request to test the controller.
-        performGetRequest("/actors","$[0].id",1);
+        performGetRequest(url,"$[0].id", actor.getId());
+    }
+
+    @Test
+    @Override
+    void testFindById() throws Exception {
+        when(actorRepository.findById(actor.getId())).thenReturn(Optional.of(actor));
+        performGetRequest(url + "/find/" + actor.getId(),
+                "$.name", actor.getName());
+    }
+
+    @Test
+    void testFindByName() throws Exception {
+        when(actorRepository.findByName(actor.getName())).thenReturn(Collections.singletonList(actor));
+        performGetRequest(url + "/find/name/" + actor.getName(),
+                "$[0].name", actor.getName());
+    }
+
+    @Test
+    void findByEmail() throws Exception {
+        when(actorRepository.findByEmail(actor.getEmail())).thenReturn(actor);
+        performGetRequest(url + "/find/email/" + actor.getEmail(),
+                "$.email", actor.getEmail());
+    }
+
+    @Test
+    void findByContactInformation() throws Exception {
+        when(actorRepository.findByContactInformation(actor.getContactInformation())).thenReturn(Collections.singletonList(actor));
+        performGetRequest(url + "/find/contactinformation/" + actor.getContactInformation(),
+                "$[0].contactInformation", actor.getContactInformation());
+    }
+
+    @Test
+    void findByRole() throws Exception {
+        Role role = new Role("Administrator");
+        role.setId(1L);
+        when(roleRepository.save(role)).thenReturn(role);
+
+        Actor actor2 = new Actor("Bob2", "bb@gmail.com", "444-4444", role);
+        when(actorRepository.save(actor2)).thenReturn(actor2);
+
+        when(actorRepository.findByRole(role)).thenReturn(Collections.singletonList(actor2));
+        performGetRequest(url + "/find/role", role,"$[0].id", actor2.getId());
+    }
+
+    @Test
+    void findByRoleId() throws Exception {
+        Role role = new Role("Administrator");
+        role.setId(1L);
+        when(roleRepository.save(role)).thenReturn(role);
+
+        Actor actor2 = new Actor("Bob2", "bb@gmail.com", "444-4444", role);
+        actor2.setId(2L);
+        when(actorRepository.save(actor2)).thenReturn(actor2);
+
+        when(actorRepository.findByRoleId(role.getId())).thenReturn(Collections.singletonList(actor2));
+        performGetRequest(url + "/find/role/" + role.getId(), "$[0].id", actor2.getId());
     }
 }

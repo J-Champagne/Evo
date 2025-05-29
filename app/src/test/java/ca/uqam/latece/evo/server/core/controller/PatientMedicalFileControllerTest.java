@@ -16,6 +16,10 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
+/**
+ * Tests methods found in PatientMedicalFileController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * @author Julien Champagne.
+ */
 @WebMvcTest(controllers = PatientMedicalFileController.class)
 @ContextConfiguration(classes = {PatientMedicalFile.class, PatientMedicalFileService.class, PatientMedicalFileController.class})
 public class PatientMedicalFileControllerTest extends AbstractControllerTest {
@@ -23,6 +27,8 @@ public class PatientMedicalFileControllerTest extends AbstractControllerTest {
     private PatientMedicalFileRepository patientMedicalFileRepository;
 
     private PatientMedicalFile medicalFile = new PatientMedicalFile("Healthy");
+
+    private final String url = "/patientmedicalfile";
 
     @BeforeEach
     @Override
@@ -34,66 +40,56 @@ public class PatientMedicalFileControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/patientmedicalfile", medicalFile);
+        performCreateRequest(url, medicalFile);
     }
 
     @Test
     @Override
     void testUpdate() throws Exception {
-        PatientMedicalFile medicalFileUpdated = new PatientMedicalFile("Sick");
-        medicalFileUpdated.setId(1L);
+        medicalFile.setMedicalHistory("Sick");
+        when(patientMedicalFileRepository.save(medicalFile)).thenReturn(medicalFile);
+        when(patientMedicalFileRepository.findById(medicalFile.getId())).thenReturn(Optional.of(medicalFile));
 
-        when(patientMedicalFileRepository.save(medicalFileUpdated)).thenReturn(medicalFileUpdated);
-        when(patientMedicalFileRepository.findById(medicalFileUpdated.getId())).thenReturn(Optional.of(medicalFileUpdated));
-
-        performUpdateRequest("/patientmedicalfile", medicalFileUpdated,"$.medicalHistory",
-                medicalFileUpdated.getMedicalHistory());
+        performUpdateRequest(url, medicalFile,"$.medicalHistory",
+                medicalFile.getMedicalHistory());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/patientmedicalfile/" + medicalFile.getId(), medicalFile);
-    }
-
-    @Test
-    @Override
-    void testFindById() throws Exception {
-        //Mock behavior for patientMedicalFileRepository.findById()
-        when(patientMedicalFileRepository.findById(medicalFile.getId())).thenReturn(Optional.of(medicalFile));
-
-        //Perform a GET request to test the controller
-        performGetRequest("/patientmedicalfile/find/" + medicalFile.getId(), "$.id", medicalFile.getId());
-    }
-
-    @Test
-    void testFindByDate() throws Exception {
-        //Mock behavior for patientMedicalFileRepository.findByDate()
-        String date = medicalFile.getDate().toString();
-        when(patientMedicalFileRepository.findByDate(medicalFile.getDate())).thenReturn(Collections.singletonList(medicalFile));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/patientmedicalfile/find/date/" + date,
-                "$[0].date", date);
-    }
-
-    @Test
-    void testFindByMedicalHistory() throws Exception {
-        //Mock behavior for patientMedicalFileRepository.findByMedicalHistory().
-        when(patientMedicalFileRepository.findByMedicalHistory(medicalFile.getMedicalHistory())).thenReturn(Collections.singletonList(medicalFile));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/patientmedicalfile/find/medicalhistory/" + medicalFile.getMedicalHistory(),
-                "$[0].medicalHistory", medicalFile.getMedicalHistory());
+        performDeleteRequest(url + "/" + medicalFile.getId(), medicalFile);
     }
 
     @Test
     @Override
     void testFindAll() throws Exception {
-        //Mock behavior for patientMedicalFileRepository.findAll().
         when(patientMedicalFileRepository.findAll()).thenReturn(Collections.singletonList(medicalFile));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patientmedicalfile","$[0].id", 1);
+        performGetRequest(url,"$[0].id", 1);
+    }
+
+    @Test
+    @Override
+    void testFindById() throws Exception {
+        when(patientMedicalFileRepository.findById(medicalFile.getId())).thenReturn(Optional.of(medicalFile));
+
+        performGetRequest(url + "/find/" + medicalFile.getId(), "$.id", medicalFile.getId());
+    }
+
+    @Test
+    void testFindByDate() throws Exception {
+        String date = medicalFile.getDate().toString();
+        when(patientMedicalFileRepository.findByDate(medicalFile.getDate())).thenReturn(Collections.singletonList(medicalFile));
+
+        performGetRequest(url + "/find/date/" + date,
+                "$[0].date", date);
+    }
+
+    @Test
+    void testFindByMedicalHistory() throws Exception {
+        when(patientMedicalFileRepository.findByMedicalHistory(medicalFile.getMedicalHistory())).thenReturn(Collections.singletonList(medicalFile));
+
+        performGetRequest(url + "/find/medicalhistory/" + medicalFile.getMedicalHistory(),
+                "$[0].medicalHistory", medicalFile.getMedicalHistory());
     }
 }

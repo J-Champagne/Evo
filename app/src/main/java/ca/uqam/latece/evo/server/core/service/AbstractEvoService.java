@@ -12,7 +12,6 @@ import java.util.List;
 /**
  * Abstract Evo Service.
  * @param <T> the Evo model (AbstractEvoModel).
- * @version 1.0
  * @author Edilton Lima dos Santos.
  */
 @Service
@@ -44,8 +43,12 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> {
     }
 
     protected abstract T save(@NotNull T evoModel);
+
     public abstract boolean existsById(@NotNull Long id);
+
     public abstract void deleteById(@NotNull Long id);
+
     public abstract T findById(@NotNull Long id);
+
     public abstract List<T> findAll();
 }

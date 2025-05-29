@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,6 +13,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * PatientMedicalFile instance class.
@@ -48,6 +50,10 @@ public class PatientMedicalFile extends AbstractEvoModel {
         return this.id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public LocalDate getDate() {
         return this.date;
     }
@@ -56,11 +62,17 @@ public class PatientMedicalFile extends AbstractEvoModel {
         return this.medicalHistory;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setMedicalHistory(String medicalHistory) {
         this.medicalHistory = medicalHistory;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        PatientMedicalFile pmf = (PatientMedicalFile) object;
+
+        return Objects.equals(this.getDate(), pmf.getDate()) &&
+                Objects.equals(this.getMedicalHistory(), pmf.getMedicalHistory());
     }
 }

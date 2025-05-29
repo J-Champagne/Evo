@@ -1,11 +1,13 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
 import ca.uqam.latece.evo.server.core.service.instance.PatientMedicalFileService;
 import ca.uqam.latece.evo.server.core.service.instance.PatientService;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -15,265 +17,159 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class for the {@link Patient}.
- * Contains tests for CRUD operations and other repository queries using a PostgreSQL database in a containerized setup.
+ * Tests methods found in ActorService in a containerized setup.
  * @author Julien Champagne.
  */
-@ContextConfiguration(classes = {Patient.class, PatientService.class})
+@ContextConfiguration(classes = {Patient.class, PatientService.class, RoleService.class})
 public class PatientServiceTest extends AbstractServiceTest {
     @Autowired
-    PatientService patientService;
+    private PatientService patientService;
 
     @Autowired
-    PatientMedicalFileService patientMedicalFileService;
+    private RoleService roleService;
 
-    /**
-     * Tests save() of PatientService
-     * Verifies if a new Patient entity can be persisted into the database.
-     */
+    @Autowired
+    private PatientMedicalFileService patientMedicalFileService;
+
+    private Patient patientSaved;
+
+    private Role roleSaved;
+
+    @BeforeEach
+    void setUp() {
+        roleSaved = roleService.create(new Role("Administrator"));
+        PatientMedicalFile pmf = patientMedicalFileService.create(new PatientMedicalFile("Healthy"));
+        patientSaved = patientService.create(new Patient("Bob", "bob@gmail.com", "222-2222",
+                roleSaved, "1901-01-01", "Participant", "3333 Street", pmf));
+    }
+
     @Test
     @Override
     void testSave() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
-
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-
         assert patientSaved.getId() > 0;
     }
 
-    /**
-     * Tests update() for the PatientService.
-     * Verifies that an existing Patient entity can be updated with new attributes.
-     */
     @Test
     @Override
     void testUpdate() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
-
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-
-        patientSaved.setOccupation("Squire");
+        patientSaved.setAddress("222 Other Street");
         Patient patientUpdated = patientService.update(patientSaved);
 
         assertEquals(patientSaved.getId(), patientUpdated.getId());
-        assertEquals(patientUpdated.getOccupation(), patientSaved.getOccupation());
+        assertEquals("222 Other Street", patientUpdated.getAddress());
     }
 
-    /**
-     * Tests deleteById() of Patient.
-     * This method ensures that a Patient entity can be successfully deleted
-     * from the database by its ID.
-     * <p>
-     * @Asserts EntityNotFoundException is thrown when searching for the deleted Patient.
-     */
     @Test
     @Override
     void testDeleteById() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
-
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-
-        Patient patientSaved = patientService.save(patient);
-
         patientService.deleteById(patientSaved.getId());
 
-        // EntityNotFoundException should be thrown by a failing findById()
-        Exception e = assertThrows(EntityNotFoundException.class, () -> patientService.
+        assertThrows(EntityNotFoundException.class, () -> patientService.
                 findById(patientSaved.getId()));
     }
 
-    /**
-     * Tests findAll() of Patient.
-     * Verifies that all Patient entities can be successfully retrieved.
-     */
     @Test
     @Override
     void testFindAll() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
-        PatientMedicalFile pmf2 = new PatientMedicalFile("Sick");
-        PatientMedicalFile pmfSaved2 = patientMedicalFileService.save(pmf2);
-
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patient2 = new Patient("Sir Lancelot", "guinevere@gmail.com", "438-111-1212",
-                "6 April 457", "Knight", "Camelot, Britain", pmfSaved2);
-        Patient patientSaved = patientService.save(patient);
-        Patient patientSaved2 = patientService.save(patient2);
-
+        patientService.create(new Patient("Bob2", "bob2@gmail.com", "444-4444", roleSaved,
+                        "1901-01-01", "Participant", "Brussels"));
         List<Patient> results = patientService.findAll();
+
         assertEquals(2, results.size());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
-        assertEquals(patientSaved2.getId(), results.get(1).getId());
     }
 
-    /**
-     * Tests testFindById() of the PatientService.
-     * Verifies that a Patient can be successfully retrieved by its id.
-     */
     @Test
     @Override
     void testFindById() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
-
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-        Patient patientFound = patientService.findById(patient.getId());
+        Patient patientFound = patientService.findById(patientSaved.getId());
 
         assertEquals(patientSaved.getId(), patientFound.getId());
     }
 
-    /**
-     * Tests findByName() of PatientService.
-     * Verifies that Patient entities can be successfully retrieved by their name.
-     */
     @Test
     void findByName() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
-
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-        List<Patient> results = patientService.findByName(patient.getName());
+        List<Patient> results = patientService.findByName(patientSaved.getName());
 
         assertFalse(results.isEmpty());
         assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getName(), results.get(0).getName());
     }
 
-    /**
-     * Tests findByEmail() of PatientService.
-     * Verifies that Patient entities can be successfully retrieved by their email.
-     */
     @Test
     void findByEmail() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
+        Patient patientFound = patientService.findByEmail(patientSaved.getEmail());
 
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-        List<Patient> results = patientService.findByEmail(patient.getEmail());
-
-        assertFalse(results.isEmpty());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getId(), patientFound.getId());
+        assertEquals(patientSaved.getEmail(), patientFound.getEmail());
     }
 
-    /**
-     * Tests findByContactInformation() of PatientService.
-     * Verifies that Patient entities can be successfully retrieved by their contactInformation.
-     */
     @Test
     void testFindByContactInformation() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
+        List<Patient> results = patientService.findByContactInformation(patientSaved.getContactInformation());
 
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-
-        List<Patient> results = patientService.findByContactInformation(patient.getContactInformation());
         assertFalse(results.isEmpty());
         assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getContactInformation(), results.get(0).getContactInformation());
     }
 
-    /**
-     * Tests findByBirthdate() of PatientService.
-     * Verifies that Patient entities can be successfully retrieved by their contactInformation.
-     */
+    @Test
+    void testFindByRole() {
+        List<Patient> results = patientService.findByRole(patientSaved.getRole());
+
+        assertFalse(results.isEmpty());
+        assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getRole().getId(), results.get(0).getRole().getId());
+    }
+
+    @Test
+    void testFindByRoleId() {
+        List<Patient> results = patientService.findByRoleId(patientSaved.getRole().getId());
+
+        assertFalse(results.isEmpty());
+        assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getRole().getId(), results.get(0).getRole().getId());
+    }
+
     @Test
     void testFindByBirthdate() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
+        List<Patient> results = patientService.findByBirthdate(patientSaved.getBirthdate());
 
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-
-        List<Patient> results = patientService.findByBirthdate(patient.getBirthdate());
         assertFalse(results.isEmpty());
         assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getBirthdate(), results.get(0).getBirthdate());
     }
 
-    /**
-     * Tests findByOccupation() of PatientService.
-     * Verifies that Patient entities can be successfully retrieved by their contactInformation.
-     */
     @Test
     void testFindByOccupation() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
+        List<Patient> results = patientService.findByOccupation(patientSaved.getOccupation());
 
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-
-        List<Patient> results = patientService.findByOccupation(patient.getOccupation());
         assertFalse(results.isEmpty());
         assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getOccupation(), results.get(0).getOccupation());
     }
 
-    /**
-     * Tests findByAddress() of PatientService.
-     * Verifies that Patient entities can be successfully retrieved by their contactInformation.
-     */
     @Test
     void testFindByAddress() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
+        List<Patient> results = patientService.findByAddress(patientSaved.getAddress());
 
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-
-        List<Patient> results = patientService.findByAddress(patient.getAddress());
         assertFalse(results.isEmpty());
         assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getAddress(), results.get(0).getAddress());
     }
 
     @Test
     void testFindByPatientMedicalFile() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
+        Patient patientFound = patientService.findByPatientMedicalFile(patientSaved.getMedicalFile());
 
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patientSaved = patientService.save(patient);
-
-        Patient result = patientService.findByPatientMedicalFile(pmfSaved.getId());
-        assertEquals(result.getMedicalFile().getId(), pmfSaved.getId());
+        assertEquals(patientSaved.getId(), patientFound.getId());
+        assertEquals(patientSaved.getMedicalFile().getId(), patientFound.getMedicalFile().getId());
     }
 
-    /**
-     * Tests testFindByMedicalHistory() of PatientService.
-     * Verifies that Patient entities can be successfully retrieved by the medicalHistory from their PatientMedicalFile.
-     */
     @Test
-    void testFindByMedicalHistory() {
-        PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
-        PatientMedicalFile pmfSaved = patientMedicalFileService.save(pmf);
-        PatientMedicalFile pmf2 = new PatientMedicalFile("Sick");
-        PatientMedicalFile pmfSaved2 = patientMedicalFileService.save(pmf2);
+    void testFindByPatientMedicalFileId() {
+        Patient patientFound = patientService.findByPatientMedicalFileId(patientSaved.getMedicalFile().getId());
 
-        Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
-                "3 December 455", "King", "Camelot, Britain", pmfSaved);
-        Patient patient2 = new Patient("Sir Lancelot", "camelot@gmail.com", "222-222-2222",
-                "4 April 457", "Knight", "Camelot, Britain", pmfSaved2);
-        Patient patientSaved = patientService.save(patient);
-        Patient patientSaved2 = patientService.save(patient2);
-
-        List<Patient> results = patientService.findByMedicalHistory("Healthy");
-        assertEquals(results.size(), 1);
-        assertEquals(patientSaved.getId(), results.get(0).getId());
+        assertEquals(patientSaved.getId(), patientFound.getId());
+        assertEquals(patientSaved.getMedicalFile().getId(), patientFound.getMedicalFile().getId());
     }
 }

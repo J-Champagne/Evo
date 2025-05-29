@@ -15,118 +15,102 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 /**
  * PatientMedicalFile Service.
- * @version 1.0
  * @author Julien Champagne.
  */
 @Service
 @Transactional
 public class PatientMedicalFileService extends AbstractEvoService<PatientMedicalFile> {
-    private final Logger logger = LoggerFactory.getLogger(PatientMedicalFileService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PatientMedicalFileService.class);
 
     @Autowired
     private PatientMedicalFileRepository patientMedicalFileRepository;
 
     /**
-     * Inserts a PatientMedicalFile in the database.
-     * @param medicalFile the PatientMedicalFile entity.
-     * @return The saved PatientMedicalFile.
-     * @throws IllegalArgumentException in case the given PatientMedicalFile is null.
-     * @throws OptimisticLockingFailureException when the PatientMedicalFile uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a PatientMedicalFile in the database.
+     * @param patientMedicalFile PatientMedicalFile.
+     * @return The created PatientMedicalFile.
+     * @throws IllegalArgumentException if patientMedicalFile is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
-    public PatientMedicalFile create(PatientMedicalFile medicalFile) {
-        PatientMedicalFile medicalFileCreated = null;
-        ObjectValidator.validateObject(medicalFile.getDate());
-        ObjectValidator.validateString(medicalFile.getMedicalHistory());
+    public PatientMedicalFile create(PatientMedicalFile patientMedicalFile) {
+        PatientMedicalFile patientMedicalFileCreated;
 
-        medicalFileCreated = patientMedicalFileRepository.save(medicalFile);
-        logger.info("PatientMedicalFile created: {}", medicalFileCreated);
-        return medicalFileCreated;
+        ObjectValidator.validateObject(patientMedicalFile.getDate());
+        ObjectValidator.validateString(patientMedicalFile.getMedicalHistory());
+        patientMedicalFileCreated = patientMedicalFileRepository.save(patientMedicalFile);
+
+        logger.info("PatientMedicalFile created: {}", patientMedicalFileCreated);
+        return patientMedicalFileCreated;
     }
 
     /**
      * Updates a PatientMedicalFile in the database.
-     * @param medicalFile the PatientMedicalFile entity.
-     * @return The updated PatientMedicalFile or null is the PatientMedicalFile to be updated is not found within the database.
-     * @throws IllegalArgumentException in case the given PatientMedicalFile is null.
-     * @throws OptimisticLockingFailureException when the PatientMedicalFile uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * @param patientMedicalFile PatientMedicalFile.
+     * @return The updated PatientMedicalFile.
+     * @throws IllegalArgumentException if patientMedicalFile is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
-    public PatientMedicalFile update(PatientMedicalFile medicalFile) {
+    public PatientMedicalFile update(PatientMedicalFile patientMedicalFile) {
         PatientMedicalFile medicalFileUpdated = null;
-        PatientMedicalFile PatientMedicalFileFound = findById(medicalFile.getId());
+        PatientMedicalFile PatientMedicalFileFound = findById(patientMedicalFile.getId());
 
-        ObjectValidator.validateObject(medicalFile.getDate());
-        ObjectValidator.validateString(medicalFile.getMedicalHistory());
+        ObjectValidator.validateObject(patientMedicalFile.getDate());
+        ObjectValidator.validateString(patientMedicalFile.getMedicalHistory());
         if (PatientMedicalFileFound != null) {
-            medicalFileUpdated = patientMedicalFileRepository.save(medicalFile);
+            medicalFileUpdated = patientMedicalFileRepository.save(patientMedicalFile);
         }
 
         return medicalFileUpdated;
     }
 
     /**
-     * Method used to create or update a PatientMedicalFile.
-     * @param medicalFile the PatientMedicalFile entity.
-     * @return The inserted or updated PatientMedicalFile.
-     * @throws IllegalArgumentException in case the given PatientMedicalFile is null.
-     * @throws OptimisticLockingFailureException when the PatientMedicalFile uses optimistic locking and has a version attribute with
-     *          a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *          present but does not exist in the database.
+     * Saves the given PatientMedicalFile in the database.
+     * @param patientMedicalFile PatientMedicalFile.
+     * @return The saved PatientMedicalFile.
+     * @throws IllegalArgumentException if patientMedicalFile is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     @Transactional
-    public PatientMedicalFile save(PatientMedicalFile medicalFile) {
-        return this.patientMedicalFileRepository.save(medicalFile);
+    public PatientMedicalFile save(PatientMedicalFile patientMedicalFile) {
+        return this.patientMedicalFileRepository.save(patientMedicalFile);
     }
 
     /**
-     * Checks if a PatientMedicalFile entity with the specified id exists in the repository.
-     * @param id the id of the PatientMedicalFile to check for existence, must not be null.
-     * @return true if an PatientMedicalFile with the specified id exists, false otherwise.
-     * @throws IllegalArgumentException if the id is null.
+     * Deletes a PatientMedicalFile by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
     @Override
-    public boolean existsById(Long id) {
+    public void deleteById(Long id) {
         ObjectValidator.validateId(id);
-        return this.patientMedicalFileRepository.existsById(id);
+        this.patientMedicalFileRepository.deleteById(id);
+        logger.info("PatientMedicalFile deleted {}", id);
     }
 
     /**
-     * Checks if a PatientMedicalFile entity with the specified date exists in the repository.
-     * @param date the date of the PatientMedicalFile to check for existence, must not be null.
-     * @return true if an PatientMedicalFile with the specified date exists, false otherwise.
-     * @throws IllegalArgumentException if the date is null.
+     * Finds all PatientMedicalFile entities.
+     * @return List<PatientMedicalFile>.
      */
-    public boolean existsByDate(Date date) {
-        ObjectValidator.validateObject(date);
-        return this.patientMedicalFileRepository.existsByDate(date);
+    @Override
+    public List<PatientMedicalFile> findAll() {
+        return this.patientMedicalFileRepository.findAll();
     }
 
     /**
-     * Checks if a PatientMedicalFile entity with the specified medicalHistory exists in the repository.
-     * @param medicalHistory the medicalHistory of the PatientMedicalFile to check for existence, must not be null or blank.
-     * @return true if an PatientMedicalFile with the specified medicalHistory exists, false otherwise.
-     * @throws IllegalArgumentException if the medicalHistory is null.
-     */
-    public boolean existsByMedicalHistory(String medicalHistory) {
-        ObjectValidator.validateString(medicalHistory);
-        return this.patientMedicalFileRepository.existsByMedicalHistory(medicalHistory);
-    }
-
-    /**
-     * Finds a PatientMedicalFile by its id.
-     * @param id the unique identifier of the PatientMedicalFile to be retrieved; must not be null or invalid.
-     * @return the PatientMedicalFile with the given id or Optional#empty() if none found.
+     * Finds a Patient by its id.
+     * @param id Long.
+     * @return Patient with the given id.
      * @throws IllegalArgumentException if id is null.
      */
     @Override
@@ -137,10 +121,10 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
     }
 
     /**
-     * Finds a PatientMedicalFile by its date.
-     * @param date must not be null.
-     * @return the PatientMedicalFile with the given date or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the date is null.
+     * Finds PatientMedicalFile entities by their date.
+     * @param date LocalDate.
+     * @return List<PatientMedicalFile> with the given date.
+     * @throws IllegalArgumentException if date is null.
      */
     public List<PatientMedicalFile> findByDate(LocalDate date) {
         ObjectValidator.validateObject(date);
@@ -148,10 +132,10 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
     }
 
     /**
-     * Finds a PatientMedicalFile by its medicalHistory.
-     * @param medicalHistory must not be null.
-     * @return the PatientMedicalFile with the given medicalHistory or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the medicalHistory is null.
+     * Finds PatientMedicalFile entities by their medicalHistory.
+     * @param medicalHistory String.
+     * @return List<PatientMedicalFile> with the given medicalHistory.
+     * @throws IllegalArgumentException if medicalHistory is null or blank.
      */
     public List<PatientMedicalFile> findByMedicalHistory(String medicalHistory) {
         ObjectValidator.validateString(medicalHistory);
@@ -159,24 +143,14 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
     }
 
     /**
-     * Deletes the PatientMedicalFile with the given id.
-     * If the PatientMedicalFile is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the PatientMedicalFile to be retrieved; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Checks if a PatientMedicalFile exists in the database by its id
+     * @param id Long
+     * @return boolean
+     * @throws IllegalArgumentException if id is null.
      */
     @Override
-    public void deleteById(Long id) {
+    public boolean existsById(Long id) {
         ObjectValidator.validateId(id);
-        this.patientMedicalFileRepository.deleteById(id);
-        logger.info("PatientMedicalFile deleted {}", id);
-    }
-
-    /**
-     * Gets all PatientMedicalFile entities.
-     * @return all PatientMedicalFile.
-     */
-    @Override
-    public List<PatientMedicalFile> findAll() {
-        return this.patientMedicalFileRepository.findAll().stream().toList();
+        return this.patientMedicalFileRepository.existsById(id);
     }
 }

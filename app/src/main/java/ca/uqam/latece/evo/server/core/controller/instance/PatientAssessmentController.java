@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
+import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
 import ca.uqam.latece.evo.server.core.service.instance.PatientAssessmentService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -30,21 +31,19 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
     PatientAssessmentService patientAssessmentService;
 
     /**
-     * Inserts a PatientAssessment in the database.
-     * @param pa the PatientAssessment entity.
-     * @return PatientAssessment instance that was saved.
-     * @throws IllegalArgumentException in case the given PatientAssessment is null.
-     * @throws OptimisticLockingFailureException when the PatientAssessment uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a PatientAssessment in the database.
+     * @param pa PatientAssessment.
+     * @return The created PatientAssessment in JSON format.
+     * @throws IllegalArgumentException if pa is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) // 201
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PatientAssessment> create(@RequestBody PatientAssessment pa) {
         ResponseEntity<PatientAssessment> response;
 
         try {
-            ObjectValidator.validateObject(pa);
             PatientAssessment saved = patientAssessmentService.create(pa);
 
             if (saved != null && saved.getId() > 0) {
@@ -64,20 +63,18 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
 
     /**
      * Updates a PatientAssessment in the database.
-     * @param pa the PatientAssessment entity.
-     * @return PatientAssessment instance that was updated.
-     * @throws IllegalArgumentException in case the given PatientAssessment is null.
-     * @throws OptimisticLockingFailureException when the PatientAssessment uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * @param pa PatientAssessment.
+     * @return The updated PatientAssessment in JSON format.
+     * @throws IllegalArgumentException if pa is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PatientAssessment> update(@RequestBody PatientAssessment pa) {
         ResponseEntity<PatientAssessment> response;
 
         try {
-            ObjectValidator.validateObject(pa);
             PatientAssessment updated = patientAssessmentService.update(pa);
 
             if (updated != null && updated.getId().equals(pa.getId())) {
@@ -96,10 +93,10 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
     }
 
     /**
-     * Deletes the PatientAssessment with the given id.
-     * If the PatientAssessment is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the PatientAssessment to be deleted; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Deletes a PatientAssessment by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // 204
@@ -109,11 +106,11 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
     }
 
     /**
-     * Gets all PatientAssessment entities.
-     * @return all PatientAssessment.
+     * Finds all PatientAssessment entities.
+     * @return List<PatientAssessment> in JSON format.
      */
     @GetMapping
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<PatientAssessment>> findAll() {
         ResponseEntity<List<PatientAssessment>> response;
 
@@ -135,13 +132,13 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
     }
 
     /**
-     * Finds an PatientAssessment by its id.
-     * @param id must not be null or invalid.
-     * @return the PatientAssessment with the given id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null.
+     * Finds a PatientAssessment by its id.
+     * @param id Long.
+     * @return PatientAssessment in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PatientAssessment> findById(@PathVariable Long id) {
         ResponseEntity<PatientAssessment> response;
 
@@ -164,13 +161,13 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
     }
 
     /**
-     * Finds an PatientAssessment by its date of creation.
-     * @param date must not be null.
-     * @return the PatientAssessment with the given date or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the date is null.
+     * Finds PatientAssessment entities by their date.
+     * @param date String.
+     * @return List<PatientAssessment> in JSON format.
+     * @throws IllegalArgumentException if date is null.
      */
     @GetMapping("/find/date/{date}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<PatientAssessment>> findByDate(@PathVariable String date) {
         ResponseEntity<List<PatientAssessment>> response;
 
@@ -193,13 +190,13 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
     }
 
     /**
-     * Finds an PatientAssessment by its medical assessment.
-     * @param assessment must not be null or blank.
-     * @return the PatientAssessment with the given assessment or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the assessment is null or blank.
+     * Finds PatientAssessment entities by their assessment.
+     * @param assessment String.
+     * @return List<PatientAssessment> in JSON format.
+     * @throws IllegalArgumentException if assessment is null or blank.
      */
     @GetMapping("/find/assessment/{assessment}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<PatientAssessment>> findByAssessment(@PathVariable String assessment) {
         ResponseEntity<List<PatientAssessment>> response;
 
@@ -208,42 +205,70 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
 
             if (result != null && !result.isEmpty()) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found PatientAssessment entities by medicalHistory: {}", result);
+                logger.info("Found PatientAssessment entities by assessment: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find PatientAssessment entities by medicalHistory.");
+                logger.info("Failed to find PatientAssessment entities by assessment.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find PatientAssessment entities by medicalHistory. Error: {}", e.getMessage());
+            logger.error("Failed to find PatientAssessment entities by assessment. Error: {}", e.getMessage());
         }
         return response;
     }
 
     /**
-     * Finds an PatientAssessment by the id of its patient.
-     * @param id must not be null.
-     * @return the PatientAssessment with the given patient id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the id is null.
+     * Finds PatientAssessment entities by their Patient.
+     * @param patient Patient.
+     * @return List<PatientAssessment> in JSON format.
+     * @throws IllegalArgumentException if patient is null.
+     */
+    @GetMapping("/find/patient")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<PatientAssessment>> findByPatient(@RequestBody Patient patient) {
+        ResponseEntity<List<PatientAssessment>> response;
+
+        try {
+            List<PatientAssessment> result = patientAssessmentService.findByPatient(patient);
+
+            if (result != null && !result.isEmpty()) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found PatientAssessment entities by Patient: {}", result);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find PatientAssessment entities by Patient.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find PatientAssessment entities by Patient. Error: {}", e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * Finds PatientAssessment entities by their Patient id.
+     * @param id Long.
+     * @return List<PatientAssessment> in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/patient/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<PatientAssessment>> findByPatient(@PathVariable Long id) {
         ResponseEntity<List<PatientAssessment>> response;
 
         try {
-            List<PatientAssessment> result = patientAssessmentService.findByPatient(id);
+            List<PatientAssessment> result = patientAssessmentService.findByPatientId(id);
 
             if (result != null && !result.isEmpty()) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found PatientAssessment entities by patient: {}", result);
+                logger.info("Found PatientAssessment entities by Patient id: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find PatientAssessment entities by patient.");
+                logger.info("Failed to find PatientAssessment entities by Patient id.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find PatientAssessment entities by patient. Error: {}", e.getMessage());
+            logger.error("Failed to find PatientAssessment entities by Patient id. Error: {}", e.getMessage());
         }
         return response;
     }

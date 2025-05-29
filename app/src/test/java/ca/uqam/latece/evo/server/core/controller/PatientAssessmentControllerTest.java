@@ -1,8 +1,10 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.PatientAssessmentController;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
+import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientAssessmentRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientRepository;
 import ca.uqam.latece.evo.server.core.service.instance.PatientAssessmentService;
@@ -19,10 +21,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * The PatientAssessment Controller test class for the {@link PatientAssessmentController}, responsible for testing its various
- * functionalities. This class includes integration tests for CRUD operations supported the controller class,
- * using WebMvcTes, and repository queries using MockMvc (Mockito).
- * @version 1.0
+ * Tests methods found in PatientAssessmentController using WebMvcTest, and repository queries using MockMvc (Mockito).
  * @author Julien Champagne.
  */
 @WebMvcTest(controllers = PatientAssessmentController.class)
@@ -32,18 +31,28 @@ public class PatientAssessmentControllerTest extends AbstractControllerTest {
     private PatientAssessmentRepository patientAssessmentRepository;
 
     @MockBean
+    private RoleRepository roleRepository;
+
+    @MockBean
     private PatientRepository patientRepository;
 
-    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
+    private Role role = new Role("Administrator");
+
+    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333", role,
             "3 December 455", "King", "Camelot, Britain");
 
     private PatientAssessment pa = new PatientAssessment("Ready", patient);
 
+    private final String url = "/patientassessment";
+
     @BeforeEach
     @Override
     void setUp() {
+        role.setId(1L);
         patient.setId(1L);
         pa.setId(1L);
+
+        when(roleRepository.save(role)).thenReturn(role);
         when(patientRepository.save(patient)).thenReturn(patient);
         when(patientAssessmentRepository.save(pa)).thenReturn(pa);
     }
@@ -51,75 +60,70 @@ public class PatientAssessmentControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/patientassessment", pa);
+        performCreateRequest(url, pa);
     }
 
     @Test
     @Override
     void testUpdate() throws Exception {
-        PatientAssessment paToUpdate = new PatientAssessment("Not Ready", patient);
-        paToUpdate.setId(pa.getId());
+        pa.setAssessment("Not Ready");
+        when(patientAssessmentRepository.save(pa)).thenReturn(pa);
+        when(patientAssessmentRepository.findById(pa.getId())).thenReturn(Optional.of(pa));
 
-        when(patientAssessmentRepository.save(paToUpdate)).thenReturn(paToUpdate);
-
-        // Mock behavior for findById().
-        when(patientAssessmentRepository.findById(paToUpdate.getId())).thenReturn(Optional.of(paToUpdate));
-        performUpdateRequest("/patientassessment", paToUpdate, "$.assessment", paToUpdate.getAssessment());
+        performUpdateRequest(url, pa, "$.assessment", pa.getAssessment());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/patientassessment/" + pa.getId(), pa);
-    }
-
-    @Test
-    @Override
-    void testFindById() throws Exception {
-        //Mock behavior for findById()
-        when(patientAssessmentRepository.findById(pa.getId())).thenReturn(Optional.of(pa));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/patientassessment/find/" + pa.getId(), "$.id", pa.getId());
-    }
-
-    @Test
-    void testFindByDate() throws Exception {
-        //Mock behavior for findByDate()
-        String date = pa.getDate().toString();
-        when(patientAssessmentRepository.findByDate(pa.getDate())).thenReturn(Collections.singletonList(pa));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/patientassessment/find/date/" + date, "$[0].date", date);
-    }
-
-    @Test
-    void testFindByAssessment() throws Exception {
-        //Mock behavior for findByAssessment()
-        when(patientAssessmentRepository.findByAssessment(pa.getAssessment())).thenReturn(Collections.singletonList(pa));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/patientassessment/find/assessment/" + pa.getAssessment(),
-                "$[0].assessment", pa.getAssessment());
-    }
-
-    @Test
-    void testFindByPatient() throws Exception {
-        //Mock behavior for findByPatient()
-        when(patientAssessmentRepository.findByPatient(patient.getId())).thenReturn(Collections.singletonList(pa));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/patientassessment/find/patient/" + patient.getId(),
-                "$[0].patient.id", patient.getId());
+        performDeleteRequest(url + "/" + pa.getId(), pa);
     }
 
     @Test
     @Override
     void testFindAll() throws Exception {
-        //Mock behavior for patientMedicalFileRepository.findAll().
         when(patientAssessmentRepository.findAll()).thenReturn(Collections.singletonList(pa));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patientassessment", "$[0].id", 1);
+        performGetRequest(url, "$[0].id", 1);
+    }
+
+    @Test
+    @Override
+    void testFindById() throws Exception {
+        when(patientAssessmentRepository.findById(pa.getId())).thenReturn(Optional.of(pa));
+
+        performGetRequest(url + "/find/" + pa.getId(), "$.id", pa.getId());
+    }
+
+    @Test
+    void testFindByDate() throws Exception {
+        String date = pa.getDate().toString();
+        when(patientAssessmentRepository.findByDate(pa.getDate())).thenReturn(Collections.singletonList(pa));
+
+        performGetRequest(url + "/find/date/" + date, "$[0].date", date);
+    }
+
+    @Test
+    void testFindByAssessment() throws Exception {
+        when(patientAssessmentRepository.findByAssessment(pa.getAssessment())).thenReturn(Collections.singletonList(pa));
+
+        performGetRequest(url + "/find/assessment/" + pa.getAssessment(),
+                "$[0].assessment", pa.getAssessment());
+    }
+
+    @Test
+    void testFindByPatient() throws Exception {
+        when(patientAssessmentRepository.findByPatient(pa.getPatient())).thenReturn(Collections.singletonList(pa));
+
+        performGetRequest(url + "/find/patient", pa.getPatient(),
+                "$[0].patient.id", pa.getPatient().getId());
+    }
+
+    @Test
+    void testFindByPatientId() throws Exception {
+        when(patientAssessmentRepository.findByPatientId(pa.getPatient().getId())).thenReturn(Collections.singletonList(pa));
+
+        performGetRequest(url + "/find/patient/" + pa.getPatient().getId(),
+                "$[0].patient.id", pa.getPatient().getId());
     }
 }

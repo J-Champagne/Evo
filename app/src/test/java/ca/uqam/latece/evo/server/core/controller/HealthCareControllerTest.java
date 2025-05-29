@@ -19,10 +19,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * The HealthCareProfessional Controller test class for the {@link HealthCareProfessionalController}, responsible for testing its various functionalities.
- * This class includes integration tests for CRUD operations supported the controller class, using WebMvcTes, and
- * repository queries using MockMvc (Mockito).
- * @version 1.0
+ * Tests methods found in HealthCareProfessionalController using WebMvcTest, and repository queries using MockMvc (Mockito).
  * @author Julien Champagne.
  */
 @WebMvcTest(controllers = HealthCareControllerTest.class)
@@ -34,130 +31,122 @@ public class HealthCareControllerTest extends AbstractControllerTest {
     @MockBean
     RoleRepository roleRepository;
 
-    HealthCareProfessional hcp = new HealthCareProfessional("Bob", "Bobross@gmail.com", "514-222-2222",
+    private Role role = new Role("Administrator");
+
+    HealthCareProfessional hcp = new HealthCareProfessional("Bob", "Bobross@gmail.com", "514-222-2222", role,
             "Chief Painter", "CIUSSS", "Healthcare");
+
+    private final String url = "/healthcareprofessional";
 
     @BeforeEach
     @Override
     void setUp() {
-        Role role = new Role("e-Facilitator");
         role.setId(1L);
         hcp.setId(1L);
-        hcp.setRole(role);
+        when(roleRepository.save(role)).thenReturn(role);
         when(healthCareProfessionalRepository.save(hcp)).thenReturn(hcp);
     }
 
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/healthcareprofessional", hcp);
+        performCreateRequest(url, hcp);
     }
 
     @Test
     @Override
     void testUpdate() throws Exception {
-        HealthCareProfessional hcpToUpdate = new HealthCareProfessional("Dali", "Salvadord@gmail.com", "514-222-2222",
-                "Chief Painter", "CIUSSS", "Painting");
-        hcpToUpdate.setId(1L);
+        HealthCareProfessional hcpUpdated = new HealthCareProfessional(hcp.getName(), hcp.getEmail(), hcp.getContactInformation(),
+                hcp.getRole(), hcp.getPosition(), hcp.getAffiliation(), "Everything");
+        hcpUpdated.setId(hcp.getId());
+        when(healthCareProfessionalRepository.save(hcpUpdated)).thenReturn(hcpUpdated);
+        when(healthCareProfessionalRepository.findById(hcpUpdated.getId())).thenReturn(Optional.of(hcpUpdated));
 
-        when(healthCareProfessionalRepository.save(hcpToUpdate)).thenReturn(hcpToUpdate);
-
-        when(healthCareProfessionalRepository.findById(hcpToUpdate.getId())).thenReturn(Optional.of(hcpToUpdate));
-        performUpdateRequest("/healthcareprofessional", hcpToUpdate,"$.name",hcpToUpdate.getName());
+        performUpdateRequest(url, hcpUpdated,"$.specialties", hcpUpdated.getSpecialties());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/healthcareprofessional/" + hcp.getId(), hcp);
-    }
-
-    @Test
-    @Override
-    void testFindById() throws Exception {
-        //Mock behavior for healthCareProfessionalRepository.findById()
-        when(healthCareProfessionalRepository.findById(hcp.getId())).thenReturn(Optional.of(hcp));
-
-        //Perform a GET request to test the controller
-        performGetRequest("/healthcareprofessional/find/" + hcp.getId(), "$.name", hcp.getName());
-    }
-
-    @Test
-    void testFindByname() throws Exception {
-        //Mock behavior for healthCareProfessionalRepository.findByName().
-        when(healthCareProfessionalRepository.findByName(hcp.getName())).thenReturn(Collections.singletonList(hcp));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/healthcareprofessional/find/name/" + hcp.getName(),
-                "$[0].name", hcp.getName());
-    }
-
-    @Test
-    void testFindByEmail() throws Exception {
-        //Mock behavior for healthCareProfessionalRepository.findByEmail().
-        when(healthCareProfessionalRepository.findByEmail(hcp.getEmail())).thenReturn(Collections.singletonList(hcp));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/healthcareprofessional/find/email/" + hcp.getEmail(),
-                "$[0].email", hcp.getEmail());
-    }
-
-    @Test
-    void testFindByContactInformation() throws Exception {
-        //Mock behavior for healthCareProfessionalRepository.findByContactInformation().
-        when(healthCareProfessionalRepository.findByContactInformation(hcp.getContactInformation())).thenReturn(Collections.singletonList(hcp));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/healthcareprofessional/find/contactinformation/" + hcp.getContactInformation(),
-                "$[0].contactInformation", hcp.getContactInformation());
-    }
-
-    @Test
-    void findByRole() throws Exception {
-        when(healthCareProfessionalRepository.findByRole(hcp.getRole().getId())).thenReturn(Collections.singletonList(hcp));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/healthcareprofessional/find/role/" + hcp.getRole().getId(),
-                "$[0].role.id", hcp.getRole().getId());
-    }
-
-    @Test
-    void testFindByPosition() throws Exception {
-        //Mock behavior for healthCareProfessionalRepository.findByPosition().
-        when(healthCareProfessionalRepository.findByPosition(hcp.getPosition())).thenReturn(Collections.singletonList(hcp));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/healthcareprofessional/find/position/" + hcp.getPosition(),
-                "$[0].position", hcp.getPosition());
-    }
-
-    @Test
-    void testFindByAffiliation() throws Exception {
-        //Mock behavior for healthCareProfessionalRepository.findByAffiliation().
-        when(healthCareProfessionalRepository.findByAffiliation(hcp.getAffiliation())).thenReturn(Collections.singletonList(hcp));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/healthcareprofessional/find/affiliation/" + hcp.getAffiliation(),
-                "$[0].affiliation", hcp.getAffiliation());
-    }
-
-    @Test
-    void testFindBySpecialties() throws Exception {
-        //Mock behavior for healthCareProfessionalRepository.findBySpecialties().
-        when(healthCareProfessionalRepository.findBySpecialties(hcp.getSpecialties())).thenReturn(Collections.singletonList(hcp));
-
-        //Perform a GET request to test the controller.
-        performGetRequest("/healthcareprofessional/find/specialties/" + hcp.getSpecialties(),
-                "$[0].specialties", hcp.getSpecialties());
+        performDeleteRequest(url + "/" + hcp.getId(), hcp);
     }
 
     @Test
     @Override
     void testFindAll() throws Exception {
-        //Mock behavior for healthCareProfessionalRepository.findAll().
         when(healthCareProfessionalRepository.findAll()).thenReturn(Collections.singletonList(hcp));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/healthcareprofessional","$[0].id",1);
+        performGetRequest(url,"$[0].id", hcp.getId());
+    }
+
+    @Test
+    @Override
+    void testFindById() throws Exception {
+        when(healthCareProfessionalRepository.findById(hcp.getId())).thenReturn(Optional.of(hcp));
+
+        performGetRequest(url + "/find/" + hcp.getId(), "$.id", hcp.getId());
+    }
+
+    @Test
+    void testFindByName() throws Exception {
+        when(healthCareProfessionalRepository.findByName(hcp.getName())).thenReturn(Collections.singletonList(hcp));
+
+        performGetRequest(url + "/find/name/" + hcp.getName(),
+                "$[0].name", hcp.getName());
+    }
+
+    @Test
+    void testFindByEmail() throws Exception {
+        when(healthCareProfessionalRepository.findByEmail(hcp.getEmail())).thenReturn((hcp));
+
+        performGetRequest(url + "/find/email/" + hcp.getEmail(),
+                "$.email", hcp.getEmail());
+    }
+
+    @Test
+    void testFindByContactInformation() throws Exception {
+        when(healthCareProfessionalRepository.findByContactInformation(hcp.getContactInformation())).thenReturn(Collections.singletonList(hcp));
+
+        performGetRequest(url + "/find/contactinformation/" + hcp.getContactInformation(),
+                "$[0].contactInformation", hcp.getContactInformation());
+    }
+
+    @Test
+    void findByRole() throws Exception {
+        when(healthCareProfessionalRepository.findByRole(hcp.getRole())).thenReturn(Collections.singletonList(hcp));
+
+        performGetRequest(url + "/find/role", hcp.getRole(),"$[0].role.id", hcp.getRole().getId());
+    }
+
+    @Test
+    void findByRoleId() throws Exception {
+        when(healthCareProfessionalRepository.findByRoleId(hcp.getRole().getId())).thenReturn(Collections.singletonList(hcp));
+
+        performGetRequest(url + "/find/role/" + hcp.getRole().getId(),
+                "$[0].role.id", hcp.getRole().getId());
+    }
+
+    @Test
+    void testFindByPosition() throws Exception {
+        when(healthCareProfessionalRepository.findByPosition(hcp.getPosition())).thenReturn(Collections.singletonList(hcp));
+
+        performGetRequest(url + "/find/position/" + hcp.getPosition(),
+                "$[0].position", hcp.getPosition());
+    }
+
+    @Test
+    void testFindByAffiliation() throws Exception {
+        when(healthCareProfessionalRepository.findByAffiliation(hcp.getAffiliation())).thenReturn(Collections.singletonList(hcp));
+
+        performGetRequest(url + "/find/affiliation/" + hcp.getAffiliation(),
+                "$[0].affiliation", hcp.getAffiliation());
+    }
+
+    @Test
+    void testFindBySpecialties() throws Exception {
+        when(healthCareProfessionalRepository.findBySpecialties(hcp.getSpecialties())).thenReturn(Collections.singletonList(hcp));
+
+        performGetRequest(url + "/find/specialties/" + hcp.getSpecialties(),
+                "$[0].specialties", hcp.getSpecialties());
     }
 }

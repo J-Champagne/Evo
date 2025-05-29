@@ -23,19 +23,18 @@ import java.util.List;
 @Service
 @Transactional
 public class BCIReferralService extends AbstractEvoService<BCIReferral> {
-    private final Logger logger = LoggerFactory.getLogger(BCIReferralService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BCIReferralService.class);
 
     @Autowired
     private BCIReferralRepository bciReferralRepository;
 
     /**
-     * Inserts a BCIReferral in the database.
-     * @param bcir the BCIReferral entity.
-     * @return The saved BCIReferral.
-     * @throws IllegalArgumentException in case the given BCIReferral is null.
-     * @throws OptimisticLockingFailureException when the BCIReferral uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a BCIReferral in the database.
+     * @param bcir BCIReferral.
+     * @return The created BCIReferral.
+     * @throws IllegalArgumentException if bcir is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BCIReferral create(BCIReferral bcir) {
@@ -54,12 +53,11 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
 
     /**
      * Updates a BCIReferral in the database.
-     * @param bcir the BCIReferral entity.
-     * @return The updated BCIReferral or null if not found within the database.
-     * @throws IllegalArgumentException in case the given BCIReferral is null.
-     * @throws OptimisticLockingFailureException when the BCIReferral uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * @param bcir BCIReferral.
+     * @return The updated BCIReferral.
+     * @throws IllegalArgumentException if bcir is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BCIReferral update(BCIReferral bcir) {
@@ -79,13 +77,12 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
     }
 
     /**
-     * Method used to create or update a BCIReferral.
-     * @param bcir the BCIReferral entity.
-     * @return The inserted or updated BCIReferral.
-     * @throws IllegalArgumentException in case the given BCIReferral is null.
-     * @throws OptimisticLockingFailureException when the BCIReferral uses optimistic locking and has a version attribute with
-     *          a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *          present but does not exist in the database.
+     * Saves the given BCIReferral in the database.
+     * @param bcir BCIReferral.
+     * @return The saved BCIReferral.
+     * @throws IllegalArgumentException if bcir is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BCIReferral save(BCIReferral bcir) {
@@ -93,32 +90,29 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
     }
 
     /**
-     * Checks if a BCIReferral entity with the specified id exists in the repository.
-     * @param id the id of the BCIReferral to check for existence, must not be null.
-     * @return true if an BCIReferral with the specified id exists, false otherwise.
-     * @throws IllegalArgumentException if the id is null.
+     * Deletes a BCIReferral by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
-    @Override
-    public boolean existsById(Long id) {
+    public void deleteById(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciReferralRepository.existsById(id);
+        bciReferralRepository.deleteById(id);
+        logger.info("BCIReferral deleted {}", id);
     }
 
     /**
-     * Checks if a BCIReferral entity with the specified date exists in the repository.
-     * @param date the date of the BCIReferral to check for existence, must not be null.
-     * @return true if an BCIReferral with the specified date exists, false otherwise.
-     * @throws IllegalArgumentException if the date is null.
+     * Finds all BCIReferral entities.
+     * @return List<BCIReferral>.
      */
-    public boolean existsByDate(LocalDate date) {
-        ObjectValidator.validateObject(date);
-        return this.bciReferralRepository.existsByDate(date);
+    public List<BCIReferral> findAll() {
+        return this.bciReferralRepository.findAll();
     }
 
     /**
      * Finds a BCIReferral by its id.
-     * @param id the unique identifier of the BCIReferral to be retrieved; must not be null or invalid.
-     * @return the BCIReferral with the given id or Optional#empty() if none found.
+     * @param id Long.
+     * @return List<BCIReferral> with the given id.
      * @throws IllegalArgumentException if id is null.
      */
     @Override
@@ -129,9 +123,9 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
     }
 
     /**
-     * Finds a BCIReferral by its date.
-     * @param date must not be null or invalid.
-     * @return List<BCIReferral> with the given date or Optional#empty() if none found.
+     * Finds BCIReferral entities by their Patient.
+     * @param date LocalDate.
+     * @return List<BCIReferral> with the given date.
      * @throws IllegalArgumentException if date is null.
      */
     public List<BCIReferral> findByDate(LocalDate date) {
@@ -140,10 +134,10 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
     }
 
     /**
-     * Finds a BCIReferral by its id.
-     * @param reason must not be null or invalid.
-     * @return the BCIReferral with the given reason or Optional#empty() if none found.
-     * @throws IllegalArgumentException if reason is null or blank.
+     * Finds BCIReferral entities by their reason.
+     * @param reason String.
+     * @return List<BCIReferral> with the given reason.
+     * @throws IllegalArgumentException if reason is blank or null.
      */
     public List<BCIReferral> findByReason(String reason) {
         ObjectValidator.validateString(reason);
@@ -151,66 +145,58 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
     }
 
     /**
-     * Finds all BCIReferral entities by the id of their patient.
-     * @param id must not be null or invalid.
-     * @return List<BCIReferral> with the given patient or Optional#empty() if none found.
-     * @throws IllegalArgumentException if id is null or blank.
+     * Finds BCIReferral entities by their Patient id.
+     * @param id Long.
+     * @return List<BCIReferral> with the given Patient id.
+     * @throws IllegalArgumentException if id is null.
      */
-    public List<BCIReferral> findByPatient(Long id) {
+    public List<BCIReferral> findByPatientId(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciReferralRepository.findByPatient(id);
+        return this.bciReferralRepository.findByPatientId(id);
     }
 
     /**
-     * Finds a BCIReferral by the id of its patient assessment.
-     * @param id must not be null or invalid.
-     * @return List<BCIReferral> with the given patient assessment or Optional#empty() if none found.
-     * @throws IllegalArgumentException if id is null or invalid.
+     * Finds BCIReferral entities by their PatientAssessment id.
+     * @param id Long.
+     * @return List<BCIReferral> with the given PatientAssessment id.
+     * @throws IllegalArgumentException if id is null.
      */
-    public BCIReferral findByPatientAssessment(Long id) {
+    public List<BCIReferral> findByPatientAssessmentId(Long id) {
         ObjectValidator.validateObject(id);
-        return this.bciReferralRepository.findByPatientAssessment(id);
+        return this.bciReferralRepository.findByPatientAssessmentId(id);
     }
 
     /**
-     * Finds a BCIReferral by the id of its referring health care professional.
-     * @param id must not be null or invalid.
-     * @return List<BCIReferral> with the given referring health care professional or Optional#empty() if none found.
-     * @throws IllegalArgumentException if id is null or invalid.
+     * Finds BCIReferral entities by their ReferringProfessional id.
+     * @param id Long.
+     * @return List<BCIReferral> with the given ReferringProfessional id.
+     * @throws IllegalArgumentException if id is null.
      */
-    public BCIReferral findByReferringProfessional(Long id) {
+    public List<BCIReferral> findByReferringProfessionalId(Long id) {
         ObjectValidator.validateObject(id);
-        return this.bciReferralRepository.findByReferringProfessional(id);
+        return this.bciReferralRepository.findByReferringProfessionalId(id);
     }
 
     /**
-     * Finds a BCIReferral by the id of its behavior interventionist health care professional.
-     * @param id must not be null or invalid.
-     * @return List<BCIReferral> with the given behavior interventionist or Optional#empty() if none found.
-     * @throws IllegalArgumentException if id is null or invalid.
+     * Finds BCIReferral entities by their BehaviorChangeInterventionist id.
+     * @param id Long.
+     * @return List<BCIReferral> with the given BehaviorChangeInterventionist id.
+     * @throws IllegalArgumentException if id is null.
      */
-    public BCIReferral findByBehaviorChangeInterventionist(Long id) {
+    public List<BCIReferral> findByBehaviorChangeInterventionistId(Long id) {
         ObjectValidator.validateObject(id);
-        return this.bciReferralRepository.findByBehaviorChangeInterventionist(id);
+        return this.bciReferralRepository.findByBehaviorChangeInterventionistId(id);
     }
 
     /**
-     * Deletes the BCIReferral with the given id.
-     * If the BCIReferral is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the BCIReferral to be retrieved; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Checks if a BCIReferral exists in the database by its id
+     * @param id Long
+     * @return boolean
+     * @throws IllegalArgumentException if id is null.
      */
-    public void deleteById(Long id) {
+    @Override
+    public boolean existsById(Long id) {
         ObjectValidator.validateId(id);
-        bciReferralRepository.deleteById(id);
-        logger.info("BCIReferral deleted {}", id);
-    }
-
-    /**
-     * Gets all BCIReferral entities.
-     * @return all BCIReferral.
-     */
-    public List<BCIReferral> findAll() {
-        return this.bciReferralRepository.findAll().stream().toList();
+        return this.bciReferralRepository.existsById(id);
     }
 }

@@ -1,10 +1,12 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.BCIReferralController;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIReferral;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
+import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIReferralRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.HealthCareProfessionalRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientAssessmentRepository;
@@ -23,10 +25,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * The BCIReferral Controller test class for the {@link BCIReferralController}, responsible for testing its various
- * functionalities. This class includes integration tests for CRUD operations supported the controller class,
- * using WebMvcTes, and repository queries using MockMvc (Mockito).
- * @version 1.0
+ * Tests methods found in PatientAssessmentController using WebMvcTest, and repository queries using MockMvc (Mockito).
  * @author Julien Champagne.
  */
 @WebMvcTest(controllers = BCIReferralController.class)
@@ -34,6 +33,9 @@ import static org.mockito.Mockito.when;
 public class BCIReferralControllerTest extends AbstractControllerTest {
     @MockBean
     private BCIReferralRepository bciReferralRepository;
+
+    @MockBean
+    private RoleRepository roleRepository;
 
     @MockBean
     private PatientRepository patientRepository;
@@ -44,27 +46,34 @@ public class BCIReferralControllerTest extends AbstractControllerTest {
     @MockBean
     private HealthCareProfessionalRepository healthCareProfessionalRepository;
 
-    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
+    private Role role = new Role("Administrator");
+
+    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333", role,
             "3 December 455", "King", "Camelot, Britain");
 
     private PatientAssessment pa = new PatientAssessment("Ready", patient);
 
     private HealthCareProfessional referringProfessional = new HealthCareProfessional("Bob", "Bobross@gmail.com",
-            "514-222-2222", "Chief Painter", "CIUSSS", "Healthcare");
+            "514-222-2222", role, "Chief Painter", "CIUSSS", "Healthcare");
 
     private HealthCareProfessional behaviorInterventionist = new HealthCareProfessional("Dali", "Salvadord@gmail.com",
-            "514-333-3333", "Chief Painter", "CIUSSS", "Healthcare");
+            "514-333-3333", role, "Chief Painter", "CIUSSS", "Healthcare");
 
     private BCIReferral bciReferral = new BCIReferral("In need of change", patient, pa, referringProfessional, behaviorInterventionist);
+
+    private final String url = "/bcireferral";
 
     @BeforeEach
     @Override
     void setUp() {
+        role.setId(1L);
         patient.setId(1L);
         pa.setId(1L);
         referringProfessional.setId(1L);
         behaviorInterventionist.setId(1L);
         bciReferral.setId(1L);
+
+        when(roleRepository.save(role)).thenReturn(role);
         when(patientRepository.save(patient)).thenReturn(patient);
         when(patientAssessmentRepository.save(pa)).thenReturn(pa);
         when(healthCareProfessionalRepository.save(referringProfessional)).thenReturn(referringProfessional);
@@ -75,103 +84,90 @@ public class BCIReferralControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/bcireferral", bciReferral);
+        performCreateRequest(url, bciReferral);
     }
 
     @Test
     @Override
     void testUpdate() throws Exception {
-        BCIReferral bciRefToUpdate = new BCIReferral("Another reason", patient, pa, referringProfessional, behaviorInterventionist);
-        bciRefToUpdate.setId(bciReferral.getId());
+        bciReferral.setReason("New reason");
+        BCIReferral bciReferralUpdated = new BCIReferral("New Reason", bciReferral.getPatient(), bciReferral.getPatientAssessment(),
+                bciReferral.getReferringProfessional(), bciReferral.getBehaviorChangeInterventionist());
+        bciReferralUpdated.setId(bciReferral.getId());
+        when(bciReferralRepository.save(bciReferralUpdated)).thenReturn(bciReferralUpdated);
+        when(bciReferralRepository.findById(bciReferralUpdated.getId())).thenReturn(Optional.of(bciReferralUpdated));
 
-        when(bciReferralRepository.save(bciRefToUpdate)).thenReturn(bciRefToUpdate);
-
-        // Mock behavior for findById().
-        when(bciReferralRepository.findById(bciRefToUpdate.getId())).thenReturn(Optional.of(bciRefToUpdate));
-        performUpdateRequest("/bcireferral", bciRefToUpdate, "$.reason", bciRefToUpdate.getReason());
+        performUpdateRequest(url, bciReferralUpdated, "$.reason", bciReferralUpdated.getReason());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/bcireferral/" + bciReferral.getId(), bciReferral);
+        performDeleteRequest(url + "/" + bciReferral.getId(), bciReferral);
     }
 
     @Override
     @Test
     void testFindAll() throws Exception {
-        //Mock behavior for findByPatientAssessment()
         when(bciReferralRepository.findAll()).thenReturn(Collections.singletonList(bciReferral));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/bcireferral", "$[0].id", 1);
+        performGetRequest(url, "$[0].id", bciReferral.getId());
     }
 
     @Test
     @Override
     void testFindById() throws Exception {
-        //Mock behavior for findById()
         when(bciReferralRepository.findById(bciReferral.getId())).thenReturn(Optional.of(bciReferral));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/bcireferral/find/" + bciReferral.getId(), "$.id", bciReferral.getId());
+        performGetRequest(url + "/find/" + bciReferral.getId(), "$.id", bciReferral.getId());
     }
 
     @Test
     void testFindByDate() throws Exception {
-        //Mock behavior for findByDate()
         String date = bciReferral.getDate().toString();
         when(bciReferralRepository.findByDate(bciReferral.getDate())).thenReturn(Collections.singletonList(bciReferral));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/bcireferral/find/date/" + date, "$[0].date", date);
+        performGetRequest(url + "/find/date/" + date, "$[0].date", date);
     }
 
     @Test
     void testFindByReason() throws Exception {
-        //Mock behavior for findByReason()
         when(bciReferralRepository.findByReason(bciReferral.getReason())).thenReturn(Collections.singletonList(bciReferral));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/bcireferral/find/reason/" + bciReferral.getReason(), "$[0].reason", bciReferral.getReason());
+        performGetRequest(url + "/find/reason/" + bciReferral.getReason(), "$[0].reason", bciReferral.getReason());
     }
 
     @Test
     void testFindByPatient() throws Exception {
-        //Mock behavior for findByReason()
-        when(bciReferralRepository.findByPatient(patient.getId())).thenReturn(Collections.singletonList(bciReferral));
+        when(bciReferralRepository.findByPatientId(patient.getId())).thenReturn(Collections.singletonList(bciReferral));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/bcireferral/find/patient/" + patient.getId(), "$[0].id", bciReferral.getId());
+        performGetRequest(url + "/find/patient/" + patient.getId(), "$[0].patient.id", bciReferral.getPatient().getId());
     }
 
     @Test
     void testFindByPatientAssessment() throws Exception {
-        //Mock behavior for findByPatientAssessment()
-        when(bciReferralRepository.findByPatientAssessment(bciReferral.getPatientAssessment().getId())).thenReturn(bciReferral);
+        when(bciReferralRepository.findByPatientAssessmentId(bciReferral.getPatientAssessment().getId())).
+                thenReturn(Collections.singletonList(bciReferral));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/bcireferral/find/patientassessment/" + bciReferral.getPatientAssessment().getId(),
-                "$.patientAssessment.id", bciReferral.getPatientAssessment().getId());
+        performGetRequest(url + "/find/patientassessment/" + bciReferral.getPatientAssessment().getId(),
+                "$[0].patientAssessment.id", bciReferral.getPatientAssessment().getId());
     }
 
     @Test
     void testFindByReferringProfessional() throws Exception {
-        //Mock behavior for findByReferringProfessional()
-        when(bciReferralRepository.findByReferringProfessional(bciReferral.getReferringProfessional().getId())).thenReturn(bciReferral);
+        when(bciReferralRepository.findByReferringProfessionalId(bciReferral.getReferringProfessional().getId())).
+                thenReturn(Collections.singletonList(bciReferral));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/bcireferral/find/referringprofessional/" + bciReferral.getReferringProfessional().getId(),
-                "$.referringProfessional.id", bciReferral.getReferringProfessional().getId());
+        performGetRequest(url + "/find/referringprofessional/" + bciReferral.getReferringProfessional().getId(),
+                "$[0].referringProfessional.id", bciReferral.getReferringProfessional().getId());
     }
 
     @Test
     void testFindByBehaviorChangeInterventionist() throws Exception {
-        //Mock behavior for findByBehaviorChangeInterventionist()
-        when(bciReferralRepository.findByBehaviorChangeInterventionist(bciReferral.getBehaviorChangeInterventionist().getId())).thenReturn(bciReferral);
+        when(bciReferralRepository.findByBehaviorChangeInterventionistId(bciReferral.getBehaviorChangeInterventionist().getId())).
+                thenReturn(Collections.singletonList(bciReferral));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/bcireferral/find/behaviorchangeinterventionist/" + bciReferral.getBehaviorChangeInterventionist().getId(),
-                "$.behaviorChangeInterventionist.id", bciReferral.getBehaviorChangeInterventionist().getId());
+        performGetRequest(url + "/find/behaviorchangeinterventionist/" + bciReferral.getBehaviorChangeInterventionist().getId(),
+                "$[0].behaviorChangeInterventionist.id", bciReferral.getBehaviorChangeInterventionist().getId());
     }
 }

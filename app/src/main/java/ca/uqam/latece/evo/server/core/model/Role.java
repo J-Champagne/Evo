@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A Role is associated with a unique name and may have multiple associated Actors.
@@ -31,10 +32,6 @@ public class Role extends AbstractEvoModel {
     @JsonProperty("name")
     @Column(name = "role_name", nullable = false, unique = true, length = 128)
     private String name;
-
-    @JsonProperty("actors")
-    @OneToMany(mappedBy = "actorRole", orphanRemoval = true, targetEntity = Actor.class)
-    private List<Actor> actors  = new ArrayList<>();
 
     /**
      * Represents a collection of associated BCIActivity entities linked to the Role entity
@@ -69,14 +66,6 @@ public class Role extends AbstractEvoModel {
 
     public String getName() {
         return name;
-    }
-
-    public List<Actor> getActors() {
-        return actors;
-    }
-
-    public void setActors(List<Actor> actors) {
-        this.actors = actors;
     }
 
     public List<BCIActivity> getBCIActivity() {
@@ -119,6 +108,16 @@ public class Role extends AbstractEvoModel {
             bciActivityList.add(bciActivity);
             this.removeAllBCIActivity(bciActivityList);
         }
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Role role = (Role) object;
+
+        return Objects.equals(this.getName(), role.getName()) &&
+                Objects.equals(this.getBCIActivity(), role.getBCIActivity());
     }
 
 }

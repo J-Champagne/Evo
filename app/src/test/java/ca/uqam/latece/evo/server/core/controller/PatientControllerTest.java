@@ -1,11 +1,14 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.PatientController;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
+import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientMedicalFileRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientRepository;
 import ca.uqam.latece.evo.server.core.service.instance.PatientService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,10 +21,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * The Patient Controller test class for the {@link PatientController}, responsible for testing its various functionalities.
- * This class includes integration tests for CRUD operations supported the controller class, using WebMvcTes, and
- * repository queries using MockMvc (Mockito).
- * @version 1.0
+ * Tests methods found in PatientController using WebMvcTest, and repository queries using MockMvc (Mockito).
  * @author Julien Champagne.
  */
 @WebMvcTest(controllers = PatientController.class)
@@ -31,148 +31,146 @@ public class PatientControllerTest extends AbstractControllerTest {
     private PatientRepository patientRepository;
 
     @MockBean
+    private RoleRepository roleRepository;
+
+    @MockBean
     private PatientMedicalFileRepository patientMedicalFileRepository;
 
     private PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
 
-    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
+    private Role role = new Role("Administrator");
+
+    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333", role,
             "3 December 455", "King", "Camelot, Britain", pmf);
+
+    private final String url = "/patient";
 
     @BeforeEach
     @Override
     void setUp() {
         patient.setId(1L);
+        role.setId(1L);
         pmf.setId(1L);
         when(patientMedicalFileRepository.save(pmf)).thenReturn(pmf);
+        when(roleRepository.save(role)).thenReturn(role);
         when(patientRepository.save(patient)).thenReturn(patient);
-
     }
 
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/patient", patient);
+        performCreateRequest(url, patient);
     }
 
     @Test
     @Override
     void testUpdate() throws Exception {
-        Patient patientUpdated = new Patient("Sir Lancelot", "guinevere@gmail.com", "438-111-1212",
-                "6 April 457", "Knight", "Camelot, Britain");
-        patientUpdated.setId(1L);
-
+        Patient patientUpdated = new Patient("Sir Lancelot", patient.getEmail(), patient.getContactInformation(), patient.getRole(),
+                patient.getBirthdate(), patient.getOccupation(), patient.getAddress(), patient.getMedicalFile());
+        patientUpdated.setId(patient.getId());
         when(patientRepository.save(patientUpdated)).thenReturn(patientUpdated);
         when(patientRepository.findById(patientUpdated.getId())).thenReturn(Optional.of(patientUpdated));
 
-        performUpdateRequest("/patient", patientUpdated, "$.occupation",
-                patientUpdated.getOccupation());
+        performUpdateRequest(url, patientUpdated, "$.name",
+                patientUpdated.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/patient/" + patient.getId(), patient);
+        performDeleteRequest(url + "/" + patient.getId(), patient);
     }
 
     @Test
     @Override
     void testFindAll() throws Exception {
-        //Mock behavior for patientRepository.findAll().
         when(patientRepository.findAll()).thenReturn(Collections.singletonList(patient));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient", "$[0].id", 1);
+        performGetRequest(url, "$[0].id", patient.getId());
     }
 
     @Test
     @Override
     void testFindById() throws Exception {
-        //Mock behavior for patientRepository.findById()
         when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
 
-        //Perform a GET request to test the controller
-        performGetRequest("/patient/find/" + patient.getId(), "$.id", patient.getId());
+        performGetRequest(url + "/find/" + patient.getId(), "$.id", patient.getId());
     }
 
     @Test
     void testFindByName() throws Exception {
-        //Mock behavior for patientRepository.findByName().
         when(patientRepository.findByName(patient.getName())).thenReturn(Collections.singletonList(patient));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient/find/name/" + patient.getName(),
+        performGetRequest(url + "/find/name/" + patient.getName(),
                 "$[0].name", patient.getName());
     }
 
     @Test
     void testFindByEmail() throws Exception {
-        //Mock behavior for patientRepository.findByEmail().
-        when(patientRepository.findByEmail(patient.getEmail())).thenReturn(Collections.singletonList(patient));
+        when(patientRepository.findByEmail(patient.getEmail())).thenReturn(patient);
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient/find/email/" + patient.getEmail(),
-                "$[0].email", patient.getEmail());
+        performGetRequest(url + "/find/email/" + patient.getEmail(),
+                "$.email", patient.getEmail());
     }
 
     @Test
     void testFindByContactInformation() throws Exception {
-        //Mock behavior for patientRepository.findByContactInformation().
         when(patientRepository.findByContactInformation(patient.getContactInformation())).thenReturn(Collections.singletonList(patient));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient/find/contactInformation/" + patient.getContactInformation(),
+        performGetRequest(url + "/find/contactinformation/" + patient.getContactInformation(),
                 "$[0].contactInformation", patient.getContactInformation());
     }
 
     @Test
+    void findByRole() throws Exception {
+        when(patientRepository.findByRole(patient.getRole())).thenReturn(Collections.singletonList(patient));
+
+        performGetRequest(url + "/find/role", patient.getRole(),"$[0].id", patient.getId());
+    }
+
+    @Test
+    void findByRoleId() throws Exception {
+        when(patientRepository.findByRoleId(patient.getRole().getId())).thenReturn(Collections.singletonList(patient));
+
+        performGetRequest(url + "/find/role/" + patient.getRole().getId(), "$[0].id", patient.getId());
+    }
+
+    @Test
     void testFindByBirthdate() throws Exception {
-        //Mock behavior for patientRepository.findByBirthdate().
         when(patientRepository.findByBirthdate(patient.getBirthdate())).thenReturn(Collections.singletonList(patient));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient/find/birthdate/" + patient.getBirthdate(),
+        performGetRequest(url + "/find/birthdate/" + patient.getBirthdate(),
                 "$[0].birthdate", patient.getBirthdate());
     }
 
     @Test
     void testFindByOccupation() throws Exception {
-        //Mock behavior for patientRepository.findByOccupation().
         when(patientRepository.findByOccupation(patient.getOccupation())).thenReturn(Collections.singletonList(patient));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient/find/occupation/" + patient.getOccupation(),
+        performGetRequest(url + "/find/occupation/" + patient.getOccupation(),
                 "$[0].occupation", patient.getOccupation());
     }
 
     @Test
     void testFindByAddress() throws Exception {
-        //Mock behavior for patientRepository.findByAddress().
         when(patientRepository.findByAddress(patient.getAddress())).thenReturn(Collections.singletonList(patient));
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient/find/address/" + patient.getAddress(),
+        performGetRequest(url + "/find/address/" + patient.getAddress(),
                 "$[0].address", patient.getAddress());
     }
 
     @Test
-    void testFindByPatientMedicalFile() throws Exception {
-        //Mock behavior for patientRepository.findByPatientMedicalFile().
-        when(patientRepository.findAll()).thenReturn(Collections.singletonList(patient));
-        when(patientRepository.findByPatientMedicalFile(patient.getMedicalFile().getId())).thenReturn(patient);
+    void testFindByMedicalFile() throws Exception {
+        when(patientRepository.findByMedicalFile(patient.getMedicalFile())).thenReturn(patient);
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient/find/patientmedicalfile/" + patient.getMedicalFile().getId(),
-                "$.medicalFile.id", patient.getMedicalFile().getId());
+        performGetRequest(url + "/find/patientmedicalfile", pmf, "$.id", patient.getId());
     }
 
     @Test
-    void testFindByMedicalHistory() throws Exception {
-        //Mock behavior for patientRepository.findByMedicalHistory().
-        when(patientRepository.findAll()).thenReturn(Collections.singletonList(patient));
-        when(patientRepository.findByMedicalHistory(patient.getMedicalFile().getMedicalHistory())).thenReturn(Collections.singletonList(patient));
+    void testFindByMedicalFileId() throws Exception {
+        when(patientRepository.findByMedicalFileId(patient.getMedicalFile().getId())).thenReturn(patient);
 
-        //Perform a GET request to test the controller.
-        performGetRequest("/patient/find/patientmedicalfile/medicalhistory/" + patient.getMedicalFile().getMedicalHistory(),
-                "$[0].medicalFile.medicalHistory", patient.getMedicalFile().getMedicalHistory());
+        performGetRequest(url + "/find/patientmedicalfile/" + patient.getRole().getId(),
+                "$.id", patient.getId());
     }
 }

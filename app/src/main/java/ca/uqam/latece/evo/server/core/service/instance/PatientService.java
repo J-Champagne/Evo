@@ -1,6 +1,8 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
+import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,24 +24,23 @@ import java.util.List;
 @Service
 @Transactional
 public class PatientService extends AbstractEvoService<Patient> {
-    private final Logger logger = LoggerFactory.getLogger(PatientService.class);
-    private static final String ERROR_EMAIL_ALREADY_REGISTERED = "HealthCareProfessional already registered with the same email!";
+    private static final Logger logger = LoggerFactory.getLogger(PatientService.class);
+    private static final String ERROR_EMAIL_ALREADY_REGISTERED = "Patient already registered with the same email!";
     
     @Autowired
     private PatientRepository patientRepository;
 
     /**
-     * Inserts a Patient in the database.
-     * @param patient the Patient entity.
-     * @return The saved Patient.
-     * @throws IllegalArgumentException in case the given Patient is null or is already registered with the same email.
-     * @throws OptimisticLockingFailureException when the Patient uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a Patient in the database.
+     * @param patient Patient.
+     * @return The created Patient.
+     * @throws IllegalArgumentException if patient is null or if another Patient was saved with the same email.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public Patient create(Patient patient) {
-        Patient patientCreated = null;
+        Patient patientSaved;
 
         ObjectValidator.validateObject(patient);
         ObjectValidator.validateEmail(patient.getEmail());
@@ -49,39 +49,25 @@ public class PatientService extends AbstractEvoService<Patient> {
 
         // The email should be unique.
         if (this.existsByEmail(patient.getEmail())) {
-            throw this.createDuplicateHcpException(patient);
+            throw this.createDuplicatePatientException(patient);
         } else {
-            patientCreated = this.save(patient);
-            logger.info("Patient created: {}", patientCreated);
+            patientSaved = this.save(patient);
+            logger.info("Patient created: {}", patientSaved);
         }
 
-        return patientCreated;
-    }
-
-    /**
-     * Create duplicate Patient Exception.
-     * @param patient the Patient entity.
-     * @return an exception object.
-     */
-    private IllegalArgumentException createDuplicateHcpException(Patient patient) {
-        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_EMAIL_ALREADY_REGISTERED +
-                " Patient Name: " + patient.getName() +
-                ". Patient Email: " + patient.getEmail());
-        logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
-        return illegalArgumentException;
+        return patientSaved;
     }
 
     /**
      * Updates a Patient in the database.
-     * @param patient the Patient entity.
+     * @param patient Patient.
      * @return The updated Patient.
-     * @throws IllegalArgumentException in case the given Patient is null or is already registered with the same email.
-     * @throws OptimisticLockingFailureException when the Patient uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * @throws IllegalArgumentException if patient is null or if another Patient was saved with the same email.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     public Patient update(Patient patient) {
-        Patient patientUpdated = null;
+        Patient patientUpdated;
         Patient patientFound = this.findById(patient.getId());
 
         ObjectValidator.validateObject(patient);
@@ -89,16 +75,14 @@ public class PatientService extends AbstractEvoService<Patient> {
         ObjectValidator.validateString(patient.getName());
         ObjectValidator.validateString(patient.getContactInformation());
 
+        // The email should be the same or unique
         if (patientFound.getEmail().equalsIgnoreCase(patient.getEmail())) {
             patientUpdated = this.save(patient);
         } else {
-            List<Patient> hcpEmailFound = patientRepository.findByEmail(patient.getEmail());
-
-            // The email should be unique
-            if (hcpEmailFound.isEmpty()) {
-                patientUpdated = this.save(patient);
+            if (existsByEmail(patient.getEmail())) {
+                throw this.createDuplicatePatientException(patient);
             } else {
-                throw this.createDuplicateHcpException(patient);
+                patientUpdated = this.save(patient);
             }
         }
 
@@ -107,13 +91,12 @@ public class PatientService extends AbstractEvoService<Patient> {
     }
 
     /**
-     * Method used to create or update a Patient.
-     * @param patient the Patient entity.
-     * @return The inserted or updated Patient.
-     * @throws IllegalArgumentException in case the given Patient is null or is already registered with the same email.
-     * @throws OptimisticLockingFailureException when the Patient uses optimistic locking and has a version attribute with
-     *          a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *          present but does not exist in the database.
+     * Saves the given Patient in the database.
+     * @param patient Patient.
+     * @return The saved Patient.
+     * @throws IllegalArgumentException if patient is null or if another Patient was saved with the same email.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     @Transactional
@@ -122,88 +105,10 @@ public class PatientService extends AbstractEvoService<Patient> {
     }
 
     /**
-     * Checks if a Patient entity with the specified id exists in the repository.
-     * @param id the id of the Patient to check for existence, must not be null.
-     * @return true if a Patient with the specified id exists, false otherwise.
-     * @throws IllegalArgumentException if the id is null.
-     */
-    @Override
-    public boolean existsById(Long id) {
-        ObjectValidator.validateId(id);
-        return patientRepository.existsById(id);
-    }
-
-    /**
-     * Checks if a Patient entity with the specified name exists in the repository.
-     * @param name the name of the Patient to check for existence, must not be null.
-     * @return true if a Patient with the specified name exists, false otherwise.
-     * @throws IllegalArgumentException if the name is null.
-     */
-    public boolean existsByName(String name) {
-        ObjectValidator.validateString(name);
-        return this.patientRepository.existsByName(name);
-    }
-
-    /**
-     * Checks if a Patient entity with the specified email exists in the repository.
-     * @param email the email of the Patient to check for existence, must not be null.
-     * @return true if a Patient with the specified email exists, false otherwise.
-     * @throws IllegalArgumentException if the email is null.
-     */
-    public boolean existsByEmail(String email) {
-        ObjectValidator.validateString(email);
-        return this.patientRepository.existsByEmail(email);
-    }
-
-    /**
-     * Checks if a Patient entity with the specified contact information exists in the repository.
-     * @param contactInformation the contactInformation of the Patient to check for existence, must not be null.
-     * @return true if a Patient with the specified contactInformation exists, false otherwise.
-     * @throws IllegalArgumentException if the contactInformation is null or blank.
-     */
-    public boolean existsByContactInformation(String contactInformation) {
-        ObjectValidator.validateString(contactInformation);
-        return this.patientRepository.existsByContactInformation(contactInformation);
-    }
-
-    /**
-     * Checks if a Patient entity with the specified birthdate exists in the repository.
-     * @param birthdate the birthdate of the Patient to check for existence, must not be null.
-     * @return true if a Patient with the specified birthdate exists, false otherwise.
-     * @throws IllegalArgumentException if the birthdate is null or blank.
-     */
-    public boolean existsByPosition(String birthdate) {
-        ObjectValidator.validateString(birthdate);
-        return patientRepository.existsByBirthdate(birthdate);
-    }
-
-    /**
-     * Checks if a Patient entity with the specified occupation exists in the repository.
-     * @param occupation the occupation of the Patient to check for existence, must not be null.
-     * @return true if a Patient with the specified occupation exists, false otherwise.
-     * @throws IllegalArgumentException if the occupation is null or blank.
-     */
-    public boolean existsByAffiliation(String occupation) {
-        ObjectValidator.validateString(occupation);
-        return patientRepository.existsByOccupation(occupation);
-    }
-
-    /**
-     * Checks if a Patient entity with the specified address exists in the repository.
-     * @param address the specialties of the Patient to check for existence, must not be null.
-     * @return true if a Patient with the specified address exists, false otherwise.
-     * @throws IllegalArgumentException if the address is null or blank.
-     */
-    public boolean existsBySpecialties(String address) {
-        ObjectValidator.validateString(address);
-        return patientRepository.existsByAddress(address);
-    }
-
-    /**
-     * Deletes the Patient with the given id.
-     * If the Patient is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the Patient to be retrieved; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Deletes a Patient by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
     @Override
     public void deleteById(Long id) {
@@ -213,18 +118,18 @@ public class PatientService extends AbstractEvoService<Patient> {
     }
 
     /**
-     * Gets all Patient.
-     * @return all Patient.
+     * Finds all Patient entities.
+     * @return List<Patient>.
      */
     @Override
     public List<Patient> findAll() {
-        return patientRepository.findAll().stream().toList();
+        return patientRepository.findAll();
     }
 
     /**
      * Finds a Patient by its id.
-     * @param id the unique identifier of the Patient to be retrieved; must not be null or invalid.
-     * @return the Patient with the given id or Optional#empty() if none found.
+     * @param id Long.
+     * @return Patient with the given id.
      * @throws IllegalArgumentException if id is null.
      */
     @Override
@@ -235,10 +140,10 @@ public class PatientService extends AbstractEvoService<Patient> {
     }
 
     /**
-     * Finds a Patient by its name.
-     * @param name must not be null.
-     * @return the Patient with the given id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the name is null.
+     * Finds Patient entities by their name.
+     * @param name String.
+     * @return Patient with the given name.
+     * @throws IllegalArgumentException if name is null or blank.
      */
     public List<Patient> findByName(String name) {
         ObjectValidator.validateString(name);
@@ -247,19 +152,19 @@ public class PatientService extends AbstractEvoService<Patient> {
 
     /**
      * Finds a Patient by its email.
-     * @param email must not be null.
-     * @return the Patient the given email or Optional#empty() if none found.
-     * @throws IllegalArgumentException if email is null.
+     * @param email String.
+     * @return Patient with the given email.
+     * @throws IllegalArgumentException if email is null or blank.
      */
-    public List<Patient> findByEmail(String email) {
+    public Patient findByEmail(String email) {
         ObjectValidator.validateString(email);
         return patientRepository.findByEmail(email);
     }
 
     /**
-     * Retrieves a list of Patient entities that match the specified contactInformation.
-     * @param contactInformation must not be null or blank.
-     * @return List<Patient> with the given contactInformation or Optional#empty() if none found.
+     * Finds Patient entities by their contactInformation.
+     * @param contactInformation String.
+     * @return List<Patient> with the given contactInformation.
      * @throws IllegalArgumentException if contactInformation is null or blank.
      */
     public List<Patient> findByContactInformation(String contactInformation) {
@@ -268,19 +173,31 @@ public class PatientService extends AbstractEvoService<Patient> {
     }
 
     /**
-     * Retrieves a list of Patient entities that match the specified Role Id.
-     * @param roleId The Role Id to filter Patient entities by, must not be null.
-     * @return List<Patient> that have the specified Role id, or an empty list if no matches are found.
+     * Finds Patient entities by their Role.
+     * @param role Role.
+     * @return List<Patient> with the specified Role.
+     * @throws IllegalArgumentException if role is null.
      */
-    public List<Patient> findByRole(Long roleId) {
-        ObjectValidator.validateId(roleId);
-        return patientRepository.findByRole(roleId);
+    public List<Patient> findByRole(Role role) {
+        ObjectValidator.validateObject(role);
+        return patientRepository.findByRole(role);
     }
 
     /**
-     * Retrieves a list of Patient entities that match the specified birthdate.
-     * @param birthdate must not be null or blank.
-     * @return List<Patient> with the given birthdate or Optional#empty() if none found.
+     * Finds Patient entities by their Role id.
+     * @param id Long.
+     * @return List<Patient> with the specified Role id.
+     * @throws IllegalArgumentException if id is null.
+     */
+    public List<Patient> findByRoleId(Long id) {
+        ObjectValidator.validateId(id);
+        return patientRepository.findByRoleId(id);
+    }
+
+    /**
+     * Finds Patient entities by their birthdate.
+     * @param birthdate String.
+     * @return List<Patient> with the given birthdate.
      * @throws IllegalArgumentException if birthdate is null or blank.
      */
     public List<Patient> findByBirthdate(String birthdate) {
@@ -289,9 +206,9 @@ public class PatientService extends AbstractEvoService<Patient> {
     }
 
     /**
-     * Retrieves a list of Patient entities that match the specified occupation.
-     * @param occupation must not be null or blank.
-     * @return List<Patient> with the given occupation or Optional#empty() if none found.
+     * Finds Patient entities by their occupation.
+     * @param occupation String.
+     * @return List<Patient> with the given occupation.
      * @throws IllegalArgumentException if occupation is null or blank.
      */
     public List<Patient> findByOccupation(String occupation) {
@@ -300,9 +217,9 @@ public class PatientService extends AbstractEvoService<Patient> {
     }
 
     /**
-     * Retrieves a list of Patient entities that match the specified address.
-     * @param address must not be null or blank.
-     * @return List<Patient> with the given address or Optional#empty() if none found.
+     * Finds Patient entities by their address.
+     * @param address String.
+     * @return List<Patient> with the given address.
      * @throws IllegalArgumentException if address is null or blank.
      */
     public List<Patient> findByAddress(String address) {
@@ -311,47 +228,60 @@ public class PatientService extends AbstractEvoService<Patient> {
     }
 
     /**
-     * Retrieves a list of Patient entities that match the specified PatientMedicalFile id.
-     * @param id must not be null or blank.
-     * @return List<Patient> with the given id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if id is null or blank.
+     * Finds a Patient by its PatientMedicalFile.
+     * @param pmf PatientMedicalFile.
+     * @return Patient with the given PatientMedicalFile.
+     * @throws IllegalArgumentException if pmf is null.
      */
-    public Patient findByPatientMedicalFile(Long id) {
-        Patient patientFound = null;
-        List<Patient> allPatients;
-
-        ObjectValidator.validateId(id);
-        allPatients = this.findAll();
-        for (Patient patient : allPatients) {
-            if (patient.getMedicalFile().getId().equals(id)) {
-                patientFound = patient;
-            }
-        }
-
-        if (patientFound == null) {
-            throw new EntityNotFoundException("Patient by PatientMedicalFile not found");
-        }
-        return patientFound;
+    public Patient findByPatientMedicalFile(PatientMedicalFile pmf) {
+       ObjectValidator.validateObject(pmf);
+       return patientRepository.findByMedicalFile(pmf);
     }
 
     /**
-     * Retrieves a list of Patient entities that match the specified medicalHistory.
-     * @param medicalHistory must not be null or blank.
-     * @return List<Patient> with the given medicalHistory or Optional#empty() if none found.
-     * @throws IllegalArgumentException if medicalHistory is null or blank.
+     * Finds a Patient by its PatientMedicalFile id.
+     * @param id Long.
+     * @return Patient with the given PatientMedicalFile id.
+     * @throws IllegalArgumentException if id is null.
      */
-    public List<Patient> findByMedicalHistory(String medicalHistory) {
-        List<Patient> results = new ArrayList<>();
-        List<Patient> allPatients;
+    public Patient findByPatientMedicalFileId(Long id) {
+        ObjectValidator.validateObject(id);
+        return patientRepository.findByMedicalFileId(id);
+    }
 
-        ObjectValidator.validateString(medicalHistory);
-        allPatients = this.findAll();
-        for (Patient patient : allPatients) {
-            if (patient.getMedicalFile().getMedicalHistory().equals(medicalHistory)) {
-                results.add(patient);
-            }
-        }
+    /**
+     * Checks if a Patient exists in the database by its id
+     * @param id Long
+     * @return boolean
+     * @throws IllegalArgumentException if id is null.
+     */
+    @Override
+    public boolean existsById(Long id) {
+        ObjectValidator.validateId(id);
+        return patientRepository.existsById(id);
+    }
 
-        return results;
+    /**
+     * Checks if a Patient exists in the database by its email
+     * @param email String
+     * @return boolean
+     * @throws IllegalArgumentException if email is null or blank.
+     */
+    public boolean existsByEmail(String email) {
+        ObjectValidator.validateString(email);
+        return this.patientRepository.existsByEmail(email);
+    }
+
+    /**
+     * Creates an IllegalArgumentException with a message indicating that a Patient with the same email was found.
+     * @param patient Patient.
+     * @return IllegalArgumentException.
+     */
+    private IllegalArgumentException createDuplicatePatientException(Patient patient) {
+        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_EMAIL_ALREADY_REGISTERED +
+                " Patient Name: " + patient.getName() +
+                ". Patient Email: " + patient.getEmail());
+        logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
+        return illegalArgumentException;
     }
 }

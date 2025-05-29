@@ -13,7 +13,6 @@ import java.util.Objects;
 
 /**
  * Actor instance class.
- * @version 1.0
  * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @Entity
@@ -28,28 +27,30 @@ public class Actor extends AbstractEvoModel {
 	private Long id;
 
 	@NotNull
-	@Column(name = "actor_name", nullable = false, length = 256)
+	@Column(name = "actor_name", nullable = false)
 	private String name;
 
 	@NotNull
 	@Email
-	@Column(name = "actor_email", nullable = false, unique = true, length = 256)
+	@Column(name = "actor_email", nullable = false, unique = true)
 	private String email;
 
 	@NotNull
-	@Column(name = "actor_contact_information", nullable = false, length = 256)
+	@Column(name = "actor_contact_information", nullable = false)
 	private String contactInformation;
 
+	@NotNull
 	@ManyToOne
-	@JoinColumn(name = "actor_role_id", referencedColumnName = "role_id") // Ensures foreign key setup in the database
-	private Role actorRole;
+	@JoinColumn(name = "actor_role_id", referencedColumnName = "role_id")
+	private Role role;
 
 	public Actor() {}
 
-	public Actor(@NotNull String name, @NotNull String email, @NotNull String contactInformation) {
+	public Actor(@NotNull String name, @NotNull String email, @NotNull String contactInformation, @NotNull Role role) {
 		this.name = name;
 		this.email = email;
 		this.contactInformation = contactInformation;
+		this.role = role;
 	}
 
 	@Override
@@ -63,15 +64,15 @@ public class Actor extends AbstractEvoModel {
 	}
 
 	public String getName() {
-	    return name;
+		return name;
 	}
 
 	public void setName(String name) {
-	    this.name = name;
+		this.name = name;
 	}
 
 	public String getEmail() {
-	    return email;
+		return email;
 	}
 
 	public void setEmail(String email) {
@@ -87,11 +88,11 @@ public class Actor extends AbstractEvoModel {
 	}
 
 	public Role getRole() {
-		return actorRole;
+		return role;
 	}
 
-	public void setRole(Role actorRole) {
-		this.actorRole = actorRole;
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	@Override
@@ -99,9 +100,10 @@ public class Actor extends AbstractEvoModel {
 		if (this == object) return true;
 		if (object == null || getClass() != object.getClass()) return false;
 		Actor actor = (Actor) object;
-		return Objects.equals(this.getId(), actor.getId()) &&
-			   Objects.equals(this.getName(), actor.getName()) &&
-			   Objects.equals(this.getEmail(), actor.getEmail()) &&
-		       Objects.equals(this.getContactInformation(), actor.getContactInformation());
+
+		return  Objects.equals(this.getName(), actor.getName()) &&
+				Objects.equals(this.getEmail(), actor.getEmail()) &&
+				Objects.equals(this.getContactInformation(), actor.getContactInformation()) &&
+				Objects.equals(this.getRole(), actor.getRole());
 	}
 }

@@ -1,12 +1,15 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
+import ca.uqam.latece.evo.server.core.model.Role;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 /**
- * Actor instance class.
+ * Patient instance class.
  * @author Julien Champagne.
  */
 @Entity
@@ -15,13 +18,13 @@ import jakarta.validation.constraints.NotNull;
 @Transactional
 @JsonPropertyOrder({"birthdate", "occupation", "address", "medicalFile"})
 public class Patient extends Actor {
-    @Column(name = "patient_birthdate", length = 256)
+    @Column(name = "patient_birthdate")
     private String birthdate;
 
-    @Column(name = "patient_occupation", length = 256)
+    @Column(name = "patient_occupation")
     private String occupation;
 
-    @Column(name = "patient_address", length = 256)
+    @Column(name = "patient_address")
     private String address;
 
     @OneToOne
@@ -30,21 +33,21 @@ public class Patient extends Actor {
 
     public Patient() {}
 
-    public Patient(@NotNull String name, @NotNull String email, @NotNull String contactInformation) {
-        super(name, email, contactInformation);
+    public Patient(@NotNull String name, @NotNull String email, @NotNull String contactInformation, @NotNull Role role) {
+        super(name, email, contactInformation, role);
     }
 
-    public Patient(@NotNull String name, @NotNull String email, @NotNull String contactInformation,
+    public Patient(@NotNull String name, @NotNull String email, @NotNull String contactInformation, @NotNull Role role,
                    String birthdate, String occupation, String address) {
-        super(name, email, contactInformation);
+        this(name, email, contactInformation, role);
         this.birthdate = birthdate;
         this.occupation = occupation;
         this.address = address;
     }
 
-    public Patient(@NotNull String name, @NotNull String email, @NotNull String contactInformation,
+    public Patient(@NotNull String name, @NotNull String email, @NotNull String contactInformation, @NotNull Role role,
                    String birthdate, String occupation, String address, PatientMedicalFile medicalFile) {
-        this(name, email, contactInformation, birthdate, occupation, address);
+        this(name, email, contactInformation, role, birthdate, occupation, address);
         this.medicalFile = medicalFile;
     }
 
@@ -78,5 +81,20 @@ public class Patient extends Actor {
 
     public void setMedicalFile(PatientMedicalFile medicalFile) {
         this.medicalFile = medicalFile;
+    }
+
+    @Override
+    public boolean equals (Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        if (super.equals(object)) {
+            Patient patient = (Patient) object;
+            return Objects.equals(this.getBirthdate(), patient.getBirthdate()) &&
+                    Objects.equals(this.getOccupation(), patient.getOccupation()) &&
+                    Objects.equals(this.getAddress(), patient.getAddress()) &&
+                    Objects.equals(this.getMedicalFile(), patient.getMedicalFile());
+        } else {
+            return false;
+        }
     }
 }

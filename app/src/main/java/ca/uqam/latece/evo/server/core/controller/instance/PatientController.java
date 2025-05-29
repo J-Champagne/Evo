@@ -1,9 +1,10 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
+import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
 import ca.uqam.latece.evo.server.core.service.instance.PatientService;
-import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Patient Controller.
+ * @author Julien Champagne.
+ */
 @Controller
 @RequestMapping("/patient")
 public class PatientController extends AbstractEvoController<Patient> {
@@ -25,13 +30,12 @@ public class PatientController extends AbstractEvoController<Patient> {
     private PatientService patientService;
 
     /**
-     * Inserts a Patient in the database.
-     * @param patient the Patient entity.
-     * @return Patient instance that was saved.
-     * @throws IllegalArgumentException in case the given Patient is null.
-     * @throws OptimisticLockingFailureException when the Patient uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * Creates a Patient in the database.
+     * @param patient Patient.
+     * @return The created Patient in JSON format.
+     * @throws IllegalArgumentException if patient is null or if another Patient was saved with the same email.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -39,7 +43,6 @@ public class PatientController extends AbstractEvoController<Patient> {
         ResponseEntity<Patient> response;
 
         try {
-            ObjectValidator.validateObject(patient);
             Patient saved = patientService.create(patient);
 
             if (saved != null && saved.getId() > 0) {
@@ -59,20 +62,18 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Updates a Patient in the database.
-     * @param patient the Patient entity.
-     * @return Patient instance that was updated.
-     * @throws IllegalArgumentException in case the given Patient is null.
-     * @throws OptimisticLockingFailureException when the Patient uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
+     * @param patient Patient.
+     * @return The updated Patient in JSON format.
+     * @throws IllegalArgumentException if patient is null or if another Patient was saved with the same email.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Patient> update(@RequestBody Patient patient) {
         ResponseEntity<Patient> response;
 
         try {
-            ObjectValidator.validateObject(patient);
             Patient updated = patientService.update(patient);
 
             if (updated != null && updated.getId().equals(patient.getId())) {
@@ -91,24 +92,24 @@ public class PatientController extends AbstractEvoController<Patient> {
     }
 
     /**
-     * Deletes the Patient with the given id.
-     * If the Patient is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the Patient to be retrieved; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Deletes a Patient by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT) // 204
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
         patientService.deleteById(id);
         logger.info("Patient deleted: {}", id);
     }
 
     /**
-     * Gets all instances of Patient.
-     * @return List<Patient>.
+     * Finds all Patient entities.
+     * @return List<Patient> in JSON format.
      */
     @GetMapping()
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Patient>> findAll() {
         ResponseEntity<List<Patient>> response;
 
@@ -132,17 +133,16 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds a Patient by its id.
-     * @param id the unique identifier of the Patient to be retrieved; must not be null or invalid.
-     * @return Patient instance with the given id or Optional#empty() if none found.
+     * @param id Long.
+     * @return Patient in JSON format.
      * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Patient> findById(@PathVariable Long id) {
         ResponseEntity<Patient> response;
 
         try {
-            ObjectValidator.validateId(id);
             Patient result = patientService.findById(id);
 
             if (result != null && result.getId().equals(id)) {
@@ -167,7 +167,7 @@ public class PatientController extends AbstractEvoController<Patient> {
      * @throws IllegalArgumentException if the name is null.
      */
     @GetMapping("/find/name/{name}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Patient>> findByName(@PathVariable String name) {
         ResponseEntity<List<Patient>> response;
 
@@ -191,19 +191,19 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds a Patient by its email.
-     * @param email must not be null.
-     * @return Patient instance with the given email or Optional#empty() if none found.
-     * @throws IllegalArgumentException if email is null.
+     * @param email String.
+     * @return Patient in JSON format.
+     * @throws IllegalArgumentException if email is null or blank.
      */
     @GetMapping("/find/email/{email}")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<Patient>> findByEmail(@PathVariable String email) {
-        ResponseEntity<List<Patient>> response;
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Patient> findByEmail(@PathVariable String email) {
+        ResponseEntity<Patient> response;
 
         try {
-            List<Patient> result = patientService.findByEmail(email);
+            Patient result = patientService.findByEmail(email);
 
-            if (result != null && !result.isEmpty()) {
+            if (result != null) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
                 logger.info("Found Patient entity by email: {}", result);
             } else {
@@ -220,12 +220,12 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds Patient entities by their contactInformation.
-     * @param contactInformation must not be null or blank.
-     * @return List<Patient> with the given contactInformation or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the contactInformation is null or blank.
+     * @param contactInformation String.
+     * @return List<Patient> in JSON format.
+     * @throws IllegalArgumentException if contactInformation is null or blank.
      */
-    @GetMapping("/find/contactInformation/{contactInformation}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @GetMapping("/find/contactinformation/{contactInformation}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Patient>> findByContactInformation(@PathVariable String contactInformation) {
         ResponseEntity<List<Patient>> response;
 
@@ -248,29 +248,58 @@ public class PatientController extends AbstractEvoController<Patient> {
     }
 
     /**
-     * Finds Patient entities by their role id.
-     * @param roleId must not be null.
-     * @return List<Patient> with the given roleId or Optional#empty() if none found.
-     * @throws IllegalArgumentException if roleId is null.
+     * Finds Patient entities by their role.
+     * @param role Role.
+     * @return List<Patient> in JSON format.
+     * @throws IllegalArgumentException if role is null.
      */
-    @GetMapping("/find/role/{roleId}")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<Patient>> findByRole(@PathVariable Long roleId) {
+    @GetMapping("/find/role")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Patient>> findByRole(@RequestBody Role role) {
         ResponseEntity<List<Patient>> response;
 
         try {
-            List<Patient> result = patientService.findByRole(roleId);
+            List<Patient> result = patientService.findByRole(role);
 
             if (result != null && !result.isEmpty()) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found Patient entities by roleId: {}", result);
+                logger.info("Found Patient entities by Role: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find Patient entities by roleId.");
+                logger.info("Failed to find Patient entities by Role.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find Patient entities by roleId. Error: {}", e.getMessage());
+            logger.error("Failed to find Patient entities by Role. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds Patient entities by their role id.
+     * @param id Long.
+     * @return List<Patient> in JSON format.
+     * @throws IllegalArgumentException if id is null.
+     */
+    @GetMapping("/find/role/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Patient>> findByRoleId(@PathVariable Long id) {
+        ResponseEntity<List<Patient>> response;
+
+        try {
+            List<Patient> result = patientService.findByRoleId(id);
+
+            if (result != null && !result.isEmpty()) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found Patient entities by Role id: {}", result);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Patient entities by Role id.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Patient entities by Role id. Error: {}", e.getMessage());
         }
 
         return response;
@@ -278,12 +307,12 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds Patient entities by their birthdate.
-     * @param birthdate must not be null or blank.
-     * @return List<Patient> with the given birthdate or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the birthdate is null or blank.
+     * @param birthdate String.
+     * @return List<Patient> in JSON format.
+     * @throws IllegalArgumentException if birthdate is null or blank.
      */
     @GetMapping("/find/birthdate/{birthdate}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Patient>> findByBirthdate(@PathVariable String birthdate) {
         ResponseEntity<List<Patient>> response;
 
@@ -307,12 +336,12 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds Patient entities by their occupation.
-     * @param occupation must not be null or blank.
-     * @return List<Patient> with the given occupation or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the occupation is null or blank.
+     * @param occupation String.
+     * @return List<Patient> in JSON format.
+     * @throws IllegalArgumentException if occupation is null or blank.
      */
     @GetMapping("/find/occupation/{occupation}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Patient>> findByOccupation(@PathVariable String occupation) {
         ResponseEntity<List<Patient>> response;
 
@@ -336,12 +365,12 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds Patient entities by their address.
-     * @param address must not be null or blank.
-     * @return List<Patient> with the given address or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the address is null or blank.
+     * @param address String.
+     * @return List<Patient> in JSON format.
+     * @throws IllegalArgumentException if address is null or blank.
      */
     @GetMapping("/find/address/{address}")
-    @ResponseStatus(HttpStatus.OK) // 200
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Patient>> findByAddress(@PathVariable String address) {
         ResponseEntity<List<Patient>> response;
 
@@ -364,26 +393,25 @@ public class PatientController extends AbstractEvoController<Patient> {
     }
 
     /**
-     * Finds a Patient by the id of its medical file.
-     * @param id the unique identifier of the medical file of the patient to be retrieved; must not be null or invalid.
-     * @return Patient instance with the given patient medical file id or Optional#empty() if none found.
-     * @throws IllegalArgumentException if id is null.
+     * Finds a Patient by its PatientMedicalFile.
+     * @param pmf PatientMedicalFile.
+     * @return Patient in JSON format.
+     * @throws IllegalArgumentException if pmf is null.
      */
-    @GetMapping("/find/patientmedicalfile/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<Patient> findByPatientMedicalFile(@PathVariable Long id) {
+    @GetMapping("/find/patientmedicalfile")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Patient> findByPatientMedicalFile(@RequestBody PatientMedicalFile pmf) {
         ResponseEntity<Patient> response;
 
         try {
-            ObjectValidator.validateId(id);
-            Patient result = patientService.findByPatientMedicalFile(id);
+            Patient result = patientService.findByPatientMedicalFile(pmf);
 
-            if (result != null && result.getMedicalFile().getId().equals(id)) {
+            if (result != null) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
                 logger.info("Found Patient entity by PatientMedicalFile: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find Patient entity by PatientMedicalFile: {}", id);
+                logger.info("Failed to find Patient entity by PatientMedicalFile.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -394,29 +422,29 @@ public class PatientController extends AbstractEvoController<Patient> {
     }
 
     /**
-     * Finds Patient entities by the medicalHistory of their PatientMedicalFile.
-     * @param medicalHistory must not be null or blank.
-     * @return List<Patient> with the given medicalHistory or Optional#empty() if none found.
-     * @throws IllegalArgumentException if the medicalHistory is null or blank.
+     * Finds a Patient by its PatientMedicalFile id.
+     * @param id Long.
+     * @return Patient in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
-    @GetMapping("/find/patientmedicalfile/medicalhistory/{medicalHistory}")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<Patient>> findByMedicalHistory(@PathVariable String medicalHistory) {
-        ResponseEntity<List<Patient>> response;
+    @GetMapping("/find/patientmedicalfile/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Patient> findByPatientMedicalFileId(@PathVariable Long id) {
+        ResponseEntity<Patient> response;
 
         try {
-            List<Patient> result = patientService.findByMedicalHistory(medicalHistory);
+            Patient result = patientService.findByPatientMedicalFileId(id);
 
-            if (result != null && !result.isEmpty()) {
+            if (result != null) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found Patient entities by medicalHistory: {}", result);
+                logger.info("Found Patient entity by PatientMedicalFile id: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find Patient entities by medicalHistory.");
+                logger.info("Failed to find Patient entity by PatientMedicalFile id.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find Patient entities by medicalHistory. Error: {}", e.getMessage());
+            logger.error("Failed to find Patient entity by PatientMedicalFile id. Error: {}", e.getMessage());
         }
 
         return response;

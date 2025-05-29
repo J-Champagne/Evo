@@ -34,11 +34,11 @@ public class BCIReferral extends AbstractEvoModel {
     private LocalDate date;
 
     @NotNull
-    @Column(name = "bci_referral_reason", length = 256)
+    @Column(name = "bci_referral_reason")
     private String reason;
 
     @NotNull
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "bci_referral_patient", referencedColumnName = "patient_id")
     private Patient patient;
 

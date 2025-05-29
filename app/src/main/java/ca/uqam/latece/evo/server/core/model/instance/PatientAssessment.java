@@ -34,11 +34,11 @@ public class PatientAssessment extends AbstractEvoModel {
     private LocalDate date;
 
     @NotNull
-    @Column(name = "patient_assessment_assessment", length = 256)
+    @Column(name = "patient_assessment_assessment")
     private String assessment;
 
     @NotNull
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "patient_assessment_patient", referencedColumnName = "patient_id")
     private Patient patient;
 
