@@ -680,15 +680,28 @@ CREATE TABLE bci_module_skill (
         REFERENCES skill (skill_id)
 );
 
-
+/***********************************************************************************************************************
+module_composed_activity table: This is a junction table that represents a many-to-many relationship between bci_module and skill.
+- Columns:
+  - module_composed_activity_bci_module_id: A foreign key referencing a bci_module_id in the bci_module table.
+  - module_composed_activity_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table.
+  - module_composed_activity_order: Define the activity order.
+- Constraints:
+  - module_composed_activity_pk: Primary key for this table is composed of module_composed_activity_bci_module_id and
+  module_composed_activity_bci_activity_id.
+  - module_composed_activity_bci_module_fkey: Ensures that module_composed_activity_bci_module_id references a valid
+  record in the bci_module table.
+  - module_composed_activity_bci_activity_fkey: Ensures that module_composed_activity_bci_activity_id references a valid
+  record in the bci_activity table.
+ **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS module_composed_activity (
     module_composed_activity_bci_module_id BIGINT NOT NULL,
     module_composed_activity_bci_activity_id BIGINT NOT NULL,
     module_composed_activity_order INT NOT NULL,
     CONSTRAINT module_composed_activity_pk PRIMARY KEY (module_composed_activity_bci_module_id, module_composed_activity_bci_activity_id),
-    CONSTRAINT module_composed_activity_bci_activity_fkey FOREIGN KEY (module_composed_activity_bci_module_id)
+    CONSTRAINT module_composed_activity_bci_module_fkey FOREIGN KEY (module_composed_activity_bci_module_id)
         REFERENCES bci_module (bci_module_id),
-    CONSTRAINT bci_module_skill_skill_fkey FOREIGN KEY (module_composed_activity_bci_activity_id)
+    CONSTRAINT module_composed_activity_bci_activity_fkey FOREIGN KEY (module_composed_activity_bci_activity_id)
         REFERENCES bci_activity (bci_activity_id)
 );
 
