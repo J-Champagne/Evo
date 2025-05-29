@@ -50,7 +50,7 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
                 response = new ResponseEntity<>(saved, HttpStatus.CREATED);
                 logger.info("Created PatientMedicalFile: {}", saved);
             } else {
-                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                 logger.info("Failed to create new PatientMedicalFile");
             }
         } catch (Exception e){

@@ -48,11 +48,11 @@ public class BCIReferral extends AbstractEvoModel {
     private PatientAssessment patientAssessment;
 
     @NotNull
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "bci_referral_professional", referencedColumnName = "healthcare_professional_id")
     private HealthCareProfessional referringProfessional;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "bci_referral_interventionist", referencedColumnName = "healthcare_professional_id")
     private HealthCareProfessional behaviorChangeInterventionist;
 

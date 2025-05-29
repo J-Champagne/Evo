@@ -67,6 +67,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         // Create a Role.
         roleService.create(role);
         roleService.create(role2);
+
         // Create a Skill.
         skillService.create(skill);
 
@@ -85,10 +86,11 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         behaviorPerformance2.setPreconditions("Testing Preconditions 2");
         behaviorPerformance2.setPostconditions("Testing Post-conditions 2");
         behaviorPerformance2.addRole(role2);
-        // Create a behavior performance.
+
+        // Create BehaviorPerformance.
         behaviorPerformanceService.create(behaviorPerformance2);
 
-        // Create a Requires.
+        // Create Requires.
         requires.setLevel(SkillLevel.ADVANCED);
         requires.setRole(role);
         requires.setSkill(skill);
@@ -99,7 +101,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         requires1.setSkill(skill);
         requires1.setBciActivity(behaviorPerformance2);
 
-        // Save the requires.
+        // Save Requires.
         requiresService.create(requires);
         requiresService.create(requires1);
 
@@ -120,7 +122,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         content2.setType("Content Test");
         content2.addBCIActivity(behaviorPerformance2);
 
-        // Save the Content.
+        // Save ontent.
         contentService.create(content);
         contentService.create(content2);
     }

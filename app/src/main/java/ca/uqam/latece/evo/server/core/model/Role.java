@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.model;
 
-import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
@@ -19,7 +18,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "role")
-@JsonPropertyOrder({"id", "name", "actors"})
+@JsonPropertyOrder({"id", "name"})
 public class Role extends AbstractEvoModel {
 
     @JsonProperty("id")

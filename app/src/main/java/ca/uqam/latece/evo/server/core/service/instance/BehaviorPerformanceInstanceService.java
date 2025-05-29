@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
+import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorPerformanceInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -139,5 +140,15 @@ public class BehaviorPerformanceInstanceService extends AbstractEvoService<Behav
     @Override
     public List<BehaviorPerformanceInstance> findAll() {
         return this.behaviorPerformanceInstanceRepository.findAll();
+    }
+
+    /**
+     * Finds a BehaviorPerformanceInstance by its Participant id.
+     * @param id Long.
+     * @return BehaviorPerformanceInstance with the given Participant id.
+     * @throws IllegalArgumentException if id is null.
+     */
+    public BehaviorPerformanceInstance findByParticipantsId(Long id) {
+        return this.behaviorPerformanceInstanceRepository.findByParticipantsId(id);
     }
 }

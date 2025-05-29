@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.model.Role;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;

@@ -87,10 +87,10 @@ CREATE TABLE IF NOT EXISTS patient_medicalfile (
 /***********************************************************************************************************************
 patient table: This table stores information about patients (a subtype of Actors).
 - Columns:
-  - patient_id: A unique identifier for each patients, auto-incremented.
-  - patient_birthdate: The birthdate of the patient
-  - patient_occupation: The occupation of the patient
-  - patient_address: The address of the patient
+  - patient_id: A unique identifier for each patient, auto-incremented.
+  - patient_birthdate: The birthdate of the patient.
+  - patient_occupation: The occupation of the patient.
+  - patient_address: The address of the patient.
   - patient_actor_id: A foreign key referencing the actor_id in the actor table.
 - Constraints:
   - patient_pkey: Establishes patient_id as the primary key.
@@ -106,6 +106,27 @@ CREATE TABLE IF NOT EXISTS patient (
     CONSTRAINT patient_pkey PRIMARY KEY (patient_id),
     CONSTRAINT patient_fkey FOREIGN KEY (patient_actor_id) REFERENCES actor (actor_id),
     CONSTRAINT patient_patient_medicalfile_fkey FOREIGN KEY (patient_patient_medical_file_id) REFERENCES patient_medicalfile (patient_medicalfile_id)
+);
+
+/***********************************************************************************************************************
+participant table: This table stores information about participants.
+- Columns:
+  - participant_id: A unique identifier for each participant, auto-incremented.
+  - participant_actor_id: The actor of the participant, can be any subclass of Actor.
+  - participant_role_id: The role of the participant.
+- Constraints:
+  - participant_pkey: Establishes participant_id as the primary key.
+  - participant_actor_id_fkey: Ensures that participant_actor references a valid actor in the actor table.
+  - participant_role_fkey: Ensures that participant_role references a valid role in the role table.
+  ***********************************************************************************************************************/
+
+CREATE TABLE IF NOT EXISTS participant (
+    participant_id BIGSERIAL NOT NULL,
+    participant_role_id BIGINT NOT NULL,
+    participant_actor_id BIGINT NOT NULL,
+    CONSTRAINT participant_pkey PRIMARY KEY (participant_id),
+    CONSTRAINT participant_role_id_fkey FOREIGN KEY (participant_role_id) REFERENCES role (role_id),
+    CONSTRAINT participant_actor_id_fkey FOREIGN KEY (participant_actor_id) REFERENCES actor (actor_id)
 );
 
 /***********************************************************************************************************************
@@ -293,8 +314,10 @@ CREATE TABLE IF NOT EXISTS bci_activity_instance (
     bci_activity_instance_entry_date DATE NOT NULL,
     bci_activity_instance_exit_date DATE NOT NULL,
     bci_activity_instance_bci_id BIGINT NULL,
+    bci_activity_instance_participant_id BIGINT NULL,
     CONSTRAINT bci_activity_instance_pkey PRIMARY KEY (bci_activity_instance_id),
-    CONSTRAINT bci_activity_instance_bci_fkey FOREIGN KEY (bci_activity_instance_bci_id) REFERENCES bci_activity (bci_activity_id)
+    CONSTRAINT bci_activity_instance_bci_fkey FOREIGN KEY (bci_activity_instance_bci_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT bci_activity_instance_participant_id_fkey FOREIGN KEY (bci_activity_instance_participant_id) REFERENCES participant (participant_id)
 );
 
 /***********************************************************************************************************************

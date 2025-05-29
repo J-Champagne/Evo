@@ -13,16 +13,17 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BCIActivityInstance model class.
- * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @Entity
 @Table(name = "bci_activity_instance")
 @Inheritance(strategy = InheritanceType.JOINED)
-@JsonPropertyOrder({"id", "status", "entryDate", "exitDate", "BCIActivity"})
+@JsonPropertyOrder({"id", "status", "entryDate", "exitDate", "BCIActivity", "participants"})
 public class BCIActivityInstance extends ActivityInstance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,6 +54,10 @@ public class BCIActivityInstance extends ActivityInstance {
     @JoinColumn(name = "bci_activity_instance_bci_id", referencedColumnName = "bci_activity_id", nullable = false)
     private BCIActivity bciActivity;
 
+    @NotNull
+    @ManyToMany
+    @JoinColumn(name = "bci_activity_instance_participant", referencedColumnName = "participant_id", nullable = false)
+    private List<Participant> participants = new ArrayList<>(3);
 
     @Override
     public void setId(Long id) {
@@ -105,5 +110,29 @@ public class BCIActivityInstance extends ActivityInstance {
     @Override
     public void setActivity(Activity activity) {
         this.bciActivity = (BCIActivity) activity;
+    }
+
+    public List<Participant> getParticipants() {
+        return new ArrayList<>(participants);
+    }
+
+    public Participant getParticipants(int index) {
+        return participants.get(index);
+    }
+
+    public void addParticipant(Participant participant) {
+        if (participants.size() < 3) {
+            participants.add(participant);
+        } else {
+            throw new IndexOutOfBoundsException("Can only contain a maximum of 3 participants");
+        }
+    }
+
+    public void removeParticipant(Participant participant) {
+        participants.remove(participant);
+    }
+
+    public void removeParticipant(int index) {
+        participants.remove(index);
     }
 }

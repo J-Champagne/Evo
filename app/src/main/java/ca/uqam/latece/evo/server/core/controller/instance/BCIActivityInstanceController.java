@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * BCIActivityInstance Controller.
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @RestController
 @RequestMapping("/bciactivityinstance")
@@ -186,6 +186,35 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find all BCIActivityInstance list. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds a BCIActivityInstance by its Participant id.
+     * @param id Long.
+     * @return BCIActivityInstance in JSON format.
+     * @throws IllegalArgumentException if id is null.
+     */
+    @GetMapping("/find/participants/{id}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<BCIActivityInstance> findByParticipantsId(@PathVariable Long id) {
+        ResponseEntity<BCIActivityInstance> response;
+
+        try {
+            BCIActivityInstance bciActivityList = bciActivityInstanceService.findByParticipantsId(id);
+
+            if (bciActivityList != null) {
+                response = new ResponseEntity<>(bciActivityList, HttpStatus.OK);
+                logger.info("Found BCIActivityInstance by participant id : {}", bciActivityList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BCIActivityInstance by participant id.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BCIActivityInstance by participant id. Error: {}", e.getMessage());
         }
 
         return response;

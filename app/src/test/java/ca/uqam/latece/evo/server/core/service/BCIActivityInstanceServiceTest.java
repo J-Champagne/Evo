@@ -5,7 +5,11 @@ import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
+import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
+import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
+import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * This class includes integration tests for CRUD operations and other repository queries using a
  * PostgreSQL database in a containerized setup.
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @ContextConfiguration(classes = {BCIActivityInstanceService.class, BCIActivity.class})
 public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
@@ -63,35 +67,52 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     private Content content = new Content();
     private Content content2 = new Content();
     private Develops develops = new Develops();
+    private HealthCareProfessional hcp = new HealthCareProfessional();
+    private Participant participant = new Participant();
 
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
+    @Autowired
+    private ParticipantService participantService;
+    @Autowired
+    private HealthCareProfessionalService healthCareProfessionalService;
 
     @BeforeEach
-    void beforeEach(){
-        // Create a Role.
+    void beforeEach() {
+        // Create and save a Role
         role.setName("Admin - BCIActivity Test");
         role2.setName("Participant - BCIActivity Test");
+        roleService.create(role);
+        roleService.create(role2);
 
-        // Create a Skill.
+        // Create and save a Skill
         skill.setName("Java - BCIActivity Test");
         skill.setDescription("Programming language - BCIActivity Test");
         skill.setType(SkillType.BCT);
-
-        // Create a Role.
-        roleService.create(role);
-        roleService.create(role2);
-        // Create a Skill.
         skillService.create(skill);
 
-        // Create a BCI Activity.
+        // Create and save an Actor
+        hcp.setName("Bob");
+        hcp.setEmail("bob@gmail.com");
+        hcp.setContactInformation("222-2222");
+        hcp.setRole(role);
+        hcp.setAffiliation("CIUSSS");
+        hcp.setPosition("Chief");
+        hcp.setSpecialties("None");
+        healthCareProfessionalService.create(hcp);
+
+        // Create and save a Participant
+        participant.setRole(role);
+        participant.setActor(hcp);
+        participantService.create(participant);
+
+        // Creates and saves BCI Activity
         bciActivity.setName("Programming 2 - BCIActivity Test");
         bciActivity.setDescription("Programming language training 2 - BCIActivity Test");
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2 - BCIActivity Test");
         bciActivity.setPostconditions("Post-conditions 2 - BCIActivity Test");
         bciActivity.addRole(role);
-        // Create a BCI Activity.
         bciActivityService.create(bciActivity);
 
         bciActivity2.setName("Testing 2 - BCIActivity Test");
@@ -100,50 +121,47 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivity2.setPreconditions("Testing Preconditions 2 - BCIActivity Test");
         bciActivity2.setPostconditions("Testing Post-conditions 2 - BCIActivity Test");
         bciActivity2.addRole(role2);
-        // Create a BCI Activity.
         bciActivityService.create(bciActivity2);
 
-        // Create a Requires.
+        // Creates and saves Requires
         requires.setLevel(SkillLevel.ADVANCED);
         requires.setRole(role);
         requires.setSkill(skill);
         requires.setBciActivity(bciActivity);
+        requiresService.create(requires);
 
         requires1.setLevel(SkillLevel.INTERMEDIATE);
         requires1.setRole(role2);
         requires1.setSkill(skill);
         requires1.setBciActivity(bciActivity2);
-
-        // Save the requires.
-        requiresService.create(requires);
         requiresService.create(requires1);
 
+        // Create and save Develops
         develops.setLevel(SkillLevel.INTERMEDIATE);
         develops.setRole(role2);
         develops.setSkill(skill);
         develops.setBciActivity(bciActivity);
         developsService.create(develops);
 
-        // Create Content.
+        // Create and save Content
         content.setName("Content Name - BCIActivity Test");
         content.setDescription("Content Description - BCIActivity Test");
         content.setType("Content Video - BCIActivity Test");
         content.addBCIActivity(bciActivity);
+        contentService.create(content);
 
         content2.setName("Content2 - BCIActivity Test");
         content2.setDescription("Content 2 Description - BCIActivity Test");
         content2.setType("Content Test - BCIActivity Test");
         content2.addBCIActivity(bciActivity2);
-
-        // Save the Content.
-        contentService.create(content);
         contentService.create(content2);
 
-        // Create BCIActivityInstance.
+        // Create and save a BCIActivityInstance
         bciActivityInstance.setStatus("BCIActivity Instance Java");
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
         bciActivityInstance.setBciActivity(bciActivity);
+        bciActivityInstance.addParticipant(participant);
         bciActivityInstanceService.create(bciActivityInstance);
     }
 
@@ -152,9 +170,9 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         // Delete a BCI Activity.
         bciActivityService.deleteById(bciActivity.getId());
         bciActivityService.deleteById(bciActivity2.getId());
-        // Create a Role.
+        // Delete a Role.
         roleService.deleteById(role.getId());
-        // Create a Skill.
+        // Delete a Skill.
         skillService.deleteById(skill.getId());
         // Delete the Requires.
         requiresService.deleteById(requires.getId());
@@ -265,5 +283,31 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         // Tests.
         assertEquals(2, bciActivities.size());
         assertTrue(bciActivities.contains(bciActivityInstance));
+    }
+
+    @Test
+    void testFindByParticipantsId() {
+        BCIActivityInstance instance = new BCIActivityInstance();
+        instance.setStatus("BCIActivity Instance Java 99");
+        instance.setEntryDate(localEntryDate);
+        instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
+        BCIActivityInstance saved = bciActivityInstanceService.create(instance);
+
+        // Find by ParticipantId
+        BCIActivityInstance bciActivities = bciActivityInstanceService.findByParticipantsId(participant.getId());
+        assertEquals(1, bciActivities.getParticipants().size());
+        assertEquals(participant.getId(), bciActivities.getParticipants().get(0).getId());
+    }
+
+    @Test
+    void testAddParticipantMoreThan3Fail() {
+        Participant participant2 = new Participant(role2, hcp);
+        Participant participant3 = new Participant(role2, hcp);
+        Participant participant4 = new Participant(role, hcp);
+
+        bciActivityInstance.addParticipant(participant2);
+        bciActivityInstance.addParticipant(participant3);
+        assertThrows(IndexOutOfBoundsException.class, () -> bciActivityInstance.addParticipant(participant4));
     }
 }

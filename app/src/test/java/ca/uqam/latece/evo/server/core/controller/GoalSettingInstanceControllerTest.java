@@ -4,6 +4,8 @@ import ca.uqam.latece.evo.server.core.controller.instance.GoalSettingInstanceCon
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
+import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
+import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.repository.instance.GoalSettingInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.instance.GoalSettingInstanceService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -26,7 +28,7 @@ import static org.mockito.Mockito.when;
  * its various functionalities. This class includes integration tests for CRUD operations supported the controller class,
  * using WebMvcTes, and repository queries using MockMvc (Mockito).
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @WebMvcTest(controllers = GoalSettingInstanceController.class)
 @ContextConfiguration(classes = {GoalSettingInstanceController.class, GoalSettingInstanceService.class, GoalSettingInstance.class})
@@ -34,12 +36,13 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
 
     @MockBean
     private GoalSettingInstanceRepository goalSettingInstanceRepository;
+
     private GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
     private GoalSetting goalSetting = new GoalSetting();
     private BCIActivity bciActivity  = new BCIActivity();
     private Role role = new Role();
-
-
+    private HealthCareProfessional hcp = new HealthCareProfessional();
+    private Participant participant = new Participant();
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
 
@@ -66,7 +69,21 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
         bciActivity.setPostconditions("Post-conditions 2 - BCIActivity Test");
         bciActivity.addRole(role);
 
-        // Create a BGoal Setting.
+        // Create Actor and Participant
+        hcp.setId(1L);
+        hcp.setName("Bob");
+        hcp.setEmail("bob@gmail.com");
+        hcp.setContactInformation("222-2222");
+        hcp.setRole(role);
+        hcp.setAffiliation("CIUSSS");
+        hcp.setPosition("Chief");
+        hcp.setSpecialties("None");
+
+        participant.setId(1L);
+        participant.setRole(role);
+        participant.setActor(hcp);
+
+        // Create a Goal Setting.
         goalSetting.setId(2L);
         goalSetting.setName("Goal Setting");
         goalSetting.setDescription("Programming language training - Goal Setting");
@@ -83,6 +100,7 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
         goalSettingInstance.setBciActivity(bciActivity);
+        goalSettingInstance.addParticipant(participant);
 
         // Save in the database.
         when(goalSettingInstanceRepository.save(goalSettingInstance)).thenReturn(goalSettingInstance);
@@ -177,5 +195,16 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
 
         // Perform a GET request to test the controller.
         performGetRequest("/goalsettinginstance", "$[0].id", goalSettingInstance.getId());
+    }
+
+    @Test
+    void testFindParticipantsId() throws Exception {
+        // Mock behavior for goalSettingInstanceRepository.save
+        when(goalSettingInstanceRepository.save(goalSettingInstance)).thenReturn(goalSettingInstance);
+        // Mock behavior for goalSettingInstanceRepository.findByParticipantsId().
+        when(goalSettingInstanceRepository.findByParticipantsId(participant.getId())).thenReturn((goalSettingInstance));
+        // Perform a GET request to test the controller.
+        performGetRequest("/goalsettinginstance/find/participants/" + participant.getId(),
+                "$.participants.[0].id", participant.getId());
     }
 }

@@ -64,13 +64,14 @@ public class PatientAssessmentService extends AbstractEvoService<PatientAssessme
         PatientAssessment paUpdated = null;
         PatientAssessment paFound = findById(patientAssessment.getId());
 
-        ObjectValidator.validateObject(patientAssessment);
-        ObjectValidator.validateObject(patientAssessment.getDate());
-        ObjectValidator.validateString(patientAssessment.getAssessment());
-        ObjectValidator.validateObject(patientAssessment.getPatient());
-
         if (paFound != null) {
-            paUpdated = this.patientAssessmentRepository.save(paFound);
+            ObjectValidator.validateObject(patientAssessment);
+            ObjectValidator.validateObject(patientAssessment.getDate());
+            ObjectValidator.validateString(patientAssessment.getAssessment());
+            ObjectValidator.validateObject(patientAssessment.getPatient());
+
+            paUpdated = patientAssessmentRepository.save(paFound);
+            logger.info("PatientAssessment updated: {}", paUpdated);
         }
         return paUpdated;
     }

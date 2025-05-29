@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
 import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.GoalSettingInstanceRepository;
@@ -125,5 +126,15 @@ public class GoalSettingInstanceService extends AbstractEvoService<GoalSettingIn
     @Override
     public List<GoalSettingInstance> findAll() {
         return this.goalSettingInstanceRepository.findAll();
+    }
+
+    /**
+     * Finds a GoalSettingInstance by its Participant id.
+     * @param id Long.
+     * @return GoalSettingInstance with the given Participant id.
+     * @throws IllegalArgumentException if id is null.
+     */
+    public GoalSettingInstance findByParticipantsId(Long id) {
+        return this.goalSettingInstanceRepository.findByParticipantsId(id);
     }
 }

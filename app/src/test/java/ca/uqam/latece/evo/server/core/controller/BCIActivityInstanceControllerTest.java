@@ -4,6 +4,8 @@ import ca.uqam.latece.evo.server.core.controller.instance.BCIActivityInstanceCon
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
+import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -24,7 +26,7 @@ import static org.mockito.Mockito.when;
  * its various functionalities. This class includes integration tests for CRUD operations supported the controller class,
  * using WebMvcTes, and repository queries using MockMvc (Mockito).
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @WebMvcTest(controllers = BCIActivityInstanceController.class)
 @ContextConfiguration(classes = {BCIActivityInstanceController.class, BCIActivityInstanceService.class, BCIActivityInstance.class})
@@ -35,6 +37,8 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
     private BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
     private BCIActivity bciActivity  = new BCIActivity();
     private Role role = new Role();
+    private HealthCareProfessional hcp = new HealthCareProfessional();
+    private Participant participant = new Participant();
 
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
@@ -46,6 +50,21 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Create a Role.
         role.setId(1L);
         role.setName("Admin - BCIActivity Test");
+
+        // Create an Actor
+        hcp.setId(1L);
+        hcp.setName("Bob");
+        hcp.setEmail("bob@gmail.com");
+        hcp.setContactInformation("222-2222");
+        hcp.setRole(role);
+        hcp.setAffiliation("CIUSSS");
+        hcp.setPosition("Chief");
+        hcp.setSpecialties("None");
+
+        // Create a participant
+        participant.setId(1L);
+        participant.setRole(role);
+        participant.setActor(hcp);
 
         // Create a BCI Activity.
         bciActivity.setId(4L);
@@ -62,6 +81,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
         bciActivityInstance.setBciActivity(bciActivity);
+        bciActivityInstance.addParticipant(participant);
 
         // Save in the database.
         when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
@@ -76,6 +96,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
         bciActivityInstance.setBciActivity(bciActivity);
+
         // Save in the database.
         when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
 
@@ -140,5 +161,16 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         when(bciActivityInstanceRepository.findAll()).thenReturn(Collections.singletonList(bciActivityInstance));
         // Perform a GET request to test the controller.
         performGetRequest("/bciactivityinstance", "$[0].id", bciActivityInstance.getId());
+    }
+
+    @Test
+    void testFindParticipantsId() throws Exception {
+        // Mock behavior for bciActivityInstanceRepository.save
+        when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
+        // Mock behavior for bciActivityInstanceRepository.findAll().
+        when(bciActivityInstanceRepository.findByParticipantsId(participant.getId())).thenReturn((bciActivityInstance));
+        // Perform a GET request to test the controller.
+        performGetRequest("/bciactivityinstance/find/participants/" + participant.getId(),
+                "$.participants.[0].id", participant.getId());
     }
 }

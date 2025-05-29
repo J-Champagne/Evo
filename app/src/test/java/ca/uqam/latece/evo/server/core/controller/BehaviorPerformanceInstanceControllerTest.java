@@ -4,6 +4,8 @@ import ca.uqam.latece.evo.server.core.controller.instance.BehaviorPerformanceIns
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
+import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
+import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorPerformanceInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorPerformanceInstanceService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -27,7 +29,7 @@ import static org.mockito.Mockito.when;
  * controller class, using WebMvcTes, and repository queries using MockMvc (Mockito).
  *
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @WebMvcTest(controllers = BehaviorPerformanceInstanceController.class)
 @ContextConfiguration(classes = {BehaviorPerformanceInstanceController.class, BehaviorPerformanceInstanceService.class, BehaviorPerformanceInstance.class})
@@ -35,11 +37,13 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
 
     @MockBean
     private BehaviorPerformanceInstanceRepository behaviorPerformanceInstanceRepository;
+
     private BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
     private BehaviorPerformance behaviorPerformance = new BehaviorPerformance();
     private BCIActivity bciActivity  = new BCIActivity();
     private Role role = new Role();
-
+    private HealthCareProfessional hcp = new HealthCareProfessional();
+    private Participant participant = new Participant();
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
 
@@ -56,6 +60,20 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
 
         roles.add(role);
         roles.add(role2);
+
+        // Create Actor and Participant
+        hcp.setId(1L);
+        hcp.setName("Bob");
+        hcp.setEmail("bob@gmail.com");
+        hcp.setContactInformation("222-2222");
+        hcp.setRole(role);
+        hcp.setAffiliation("CIUSSS");
+        hcp.setPosition("Chief");
+        hcp.setSpecialties("None");
+
+        participant.setId(1L);
+        participant.setRole(role);
+        participant.setActor(hcp);
 
         // Create a BCI Activity.
         bciActivity.setId(6L);
@@ -82,6 +100,7 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBciActivity(bciActivity);
+        behaviorPerformanceInstance.addParticipant(participant);
 
         // Save in the database.
         when(behaviorPerformanceInstanceRepository.save(behaviorPerformanceInstance)).thenReturn(behaviorPerformanceInstance);
@@ -178,5 +197,16 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
 
         // Perform a GET request to test the controller.
         performGetRequest("/behaviorperformanceinstance", "$[0].id", behaviorPerformanceInstance.getId());
+    }
+
+    @Test
+    void testFindParticipantsId() throws Exception {
+        // Mock behavior for goalSettingInstanceRepository.save
+        when(behaviorPerformanceInstanceRepository.save(behaviorPerformanceInstance)).thenReturn(behaviorPerformanceInstance);
+        // Mock behavior for goalSettingInstanceRepository.findByParticipantsId().
+        when(behaviorPerformanceInstanceRepository.findByParticipantsId(participant.getId())).thenReturn((behaviorPerformanceInstance));
+        // Perform a GET request to test the controller.
+        performGetRequest("/behaviorperformanceinstance/find/participants/" + participant.getId(),
+                "$.participants.[0].id", participant.getId());
     }
 }

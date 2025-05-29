@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * BCIActivityInstance repository creates CRUD implementation at runtime automatically.
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @Repository
 public interface BCIActivityInstanceRepository extends EvoRepository<BCIActivityInstance> {
@@ -20,4 +20,12 @@ public interface BCIActivityInstanceRepository extends EvoRepository<BCIActivity
      * @throws IllegalArgumentException if the status is null.
      */
     List<BCIActivityInstance> findByStatus(String status);
+
+    /**
+     * Finds a BCIActivityInstance by its Participant id.
+     * @param id Long.
+     * @return BCIActivityInstance with the given Participant id.
+     * @throws IllegalArgumentException if id is null.
+     */
+    BCIActivityInstance findByParticipantsId(Long id);
 }

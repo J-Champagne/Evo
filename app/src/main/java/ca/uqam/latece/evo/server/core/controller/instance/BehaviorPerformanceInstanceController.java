@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
+import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorPerformanceInstanceService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ import java.util.List;
 /**
  * BehaviorPerformanceInstance Controller.
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @RestController
 @RequestMapping("/behaviorperformanceinstance")
@@ -185,6 +186,35 @@ public class BehaviorPerformanceInstanceController extends AbstractEvoController
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find all BehaviorPerformanceInstance list. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds a BehaviorPerformanceInstance by its Participant id.
+     * @param id Long.
+     * @return BehaviorPerformanceInstance in JSON format.
+     * @throws IllegalArgumentException if id is null.
+     */
+    @GetMapping("/find/participants/{id}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<BehaviorPerformanceInstance> findByParticipantsId(@PathVariable Long id) {
+        ResponseEntity<BehaviorPerformanceInstance> response;
+
+        try {
+            BehaviorPerformanceInstance result = behaviorPerformanceInstanceService.findByParticipantsId(id);
+
+            if (result != null) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found BehaviorPerformanceInstance by participant id : {}", result);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BehaviorPerformanceInstance by participant id.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BehaviorPerformanceInstance by participant id. Error: {}", e.getMessage());
         }
 
         return response;

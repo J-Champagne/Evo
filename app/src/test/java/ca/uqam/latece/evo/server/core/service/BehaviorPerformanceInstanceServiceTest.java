@@ -3,11 +3,12 @@ package ca.uqam.latece.evo.server.core.service;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
-import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
-import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
+import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorPerformanceInstanceService;
 import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
+import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * This class includes integration tests for CRUD operations and other repository queries using a
  * PostgreSQL database in a containerized setup.
  * @version 1.0
- * @author Edilton Lima dos Santos.
+ * @author Edilton Lima dos Santos && Julien Champagne.
  */
 @ContextConfiguration(classes = {BehaviorPerformanceInstanceService.class, BehaviorPerformanceInstance.class})
 public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest {
@@ -53,6 +54,15 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
     @Autowired
     private DevelopsService developsService;
 
+    @Autowired
+    private BehaviorPerformanceService behaviorPerformanceService;
+
+    @Autowired
+    private HealthCareProfessionalService healthCareProfessionalService;
+
+    @Autowired
+    private ParticipantService participantService;
+
     private BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
     private BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
     private BehaviorPerformance behaviorPerformance = new BehaviorPerformance();
@@ -68,8 +78,8 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
     private Develops develops = new Develops();
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
-    @Autowired
-    private BehaviorPerformanceService behaviorPerformanceService;
+    private HealthCareProfessional hcp = new HealthCareProfessional();
+    private Participant participant = new Participant();
 
     @BeforeEach
     void beforeEach(){
@@ -144,6 +154,21 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         contentService.create(content);
         contentService.create(content2);
 
+        // Create and save an Actor
+        hcp.setName("Bob");
+        hcp.setEmail("bob@gmail.com");
+        hcp.setContactInformation("222-2222");
+        hcp.setRole(role);
+        hcp.setAffiliation("CIUSSS");
+        hcp.setPosition("Chief");
+        hcp.setSpecialties("None");
+        healthCareProfessionalService.create(hcp);
+
+        // Create and save a Participant
+        participant.setRole(role);
+        participant.setActor(hcp);
+        participantService.create(participant);
+
         // Create BCIActivityInstance.
         bciActivityInstance.setStatus("BCIActivity Instance Java");
         bciActivityInstance.setEntryDate(localEntryDate);
@@ -166,6 +191,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBciActivity(bciActivity);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
+        behaviorPerformanceInstance.addParticipant(participant);
         behaviorPerformanceInstanceService.create(behaviorPerformanceInstance);
     }
 
@@ -304,5 +330,13 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         assertEquals(2, found.size());
         assertTrue(found.contains(behaviorPerformanceInstance));
         assertTrue(found.contains(saved));
+    }
+
+    @Test
+    void testFindByParticipantsId() {
+        // Find by ParticipantId
+        BehaviorPerformanceInstance BehaviorPerformanceFound = behaviorPerformanceInstanceService.findByParticipantsId(participant.getId());
+        assertEquals(1, BehaviorPerformanceFound.getParticipants().size());
+        assertEquals(participant.getId(), BehaviorPerformanceFound.getParticipants().get(0).getId());
     }
 }
