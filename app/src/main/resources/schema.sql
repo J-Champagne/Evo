@@ -680,6 +680,19 @@ CREATE TABLE bci_module_skill (
         REFERENCES skill (skill_id)
 );
 
+
+CREATE TABLE IF NOT EXISTS module_composed_activity (
+    module_composed_activity_bci_module_id BIGINT NOT NULL,
+    module_composed_activity_bci_activity_id BIGINT NOT NULL,
+    module_composed_activity_order INT NOT NULL,
+    CONSTRAINT module_composed_activity_pk PRIMARY KEY (module_composed_activity_bci_module_id, module_composed_activity_bci_activity_id),
+    CONSTRAINT module_composed_activity_bci_activity_fkey FOREIGN KEY (module_composed_activity_bci_module_id)
+        REFERENCES bci_module (bci_module_id),
+    CONSTRAINT bci_module_skill_skill_fkey FOREIGN KEY (module_composed_activity_bci_activity_id)
+        REFERENCES bci_activity (bci_activity_id)
+);
+
+
 /***********************************************************************************************************************
 bci_phase_contains_module table: This is a junction table that represents a many-to-many relationship between bci_module
   and behavior_change_intervention_phase.
