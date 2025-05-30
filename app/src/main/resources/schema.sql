@@ -671,7 +671,7 @@ bci_module_skill table: This is a junction table that represents a many-to-many 
   - bci_module_skill_skill_fkey: Ensures that bci_module_skill_skill_id references a valid record in the skill_id table.
  **********************************************************************************************************************/
 CREATE TABLE bci_module_skill (
-    bci_module_skill_bci_module_id BIGINT NOT NULL,
+    bci_module_skill_bci_module_id BIGSERIAL NOT NULL,
     bci_module_skill_skill_id BIGINT NOT NULL,
     CONSTRAINT bci_module_skill_pk PRIMARY KEY (bci_module_skill_bci_module_id, bci_module_skill_skill_id),
     CONSTRAINT bci_module_skill_bci_module_fkey FOREIGN KEY (bci_module_skill_bci_module_id)
@@ -681,24 +681,26 @@ CREATE TABLE bci_module_skill (
 );
 
 /***********************************************************************************************************************
-module_composed_activity table: This is a junction table that represents a many-to-many relationship between bci_module and skill.
+module_composed_activity table: This is a junction table that represents a many-to-many relationship between bci_module
+  and bci_activity.
 - Columns:
+  - module_composed_activity_id: A unique identifier for each Module. It's type BIGSERIAL, meaning it's an auto-incrementing integer.
   - module_composed_activity_bci_module_id: A foreign key referencing a bci_module_id in the bci_module table.
   - module_composed_activity_bci_activity_id: A foreign key referencing a bci_activity_id in the bci_activity table.
   - module_composed_activity_order: Define the activity order.
 - Constraints:
-  - module_composed_activity_pk: Primary key for this table is composed of module_composed_activity_bci_module_id and
-  module_composed_activity_bci_activity_id.
+  - module_composed_activity_pk: Declares module_composed_activity_id as the primary key — ensuring each row has a unique identifier.
   - module_composed_activity_bci_module_fkey: Ensures that module_composed_activity_bci_module_id references a valid
   record in the bci_module table.
   - module_composed_activity_bci_activity_fkey: Ensures that module_composed_activity_bci_activity_id references a valid
   record in the bci_activity table.
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS module_composed_activity (
+    module_composed_activity_id BIGINT NOT NULL,
     module_composed_activity_bci_module_id BIGINT NOT NULL,
     module_composed_activity_bci_activity_id BIGINT NOT NULL,
     module_composed_activity_order INT NOT NULL,
-    CONSTRAINT module_composed_activity_pk PRIMARY KEY (module_composed_activity_bci_module_id, module_composed_activity_bci_activity_id),
+    CONSTRAINT module_composed_activity_pk PRIMARY KEY (module_composed_activity_id),
     CONSTRAINT module_composed_activity_bci_module_fkey FOREIGN KEY (module_composed_activity_bci_module_id)
         REFERENCES bci_module (bci_module_id),
     CONSTRAINT module_composed_activity_bci_activity_fkey FOREIGN KEY (module_composed_activity_bci_activity_id)
