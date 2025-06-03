@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.BCIModule;
 import ca.uqam.latece.evo.server.core.model.ModuleComposedActivity;
 import ca.uqam.latece.evo.server.core.service.ModuleComposedActivityService;
-import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
