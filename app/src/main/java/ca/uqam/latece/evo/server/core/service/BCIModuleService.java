@@ -50,7 +50,7 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
             throw this.createDuplicatedNameException(bciModule, bciModule.getName());
         } else {
             saved = this.save(bciModule);
-            logger.info("BCIModule created: {}", saved);
+                logger.info("BCIModule created: {}", saved);
         }
 
         return saved;
@@ -138,7 +138,7 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
      * @param id The BCIModule Id to filter BCIModule entities by, must not be null.
      * @return the BCIModule with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws RuntimeException if the BCIModule not found.
+     * @throws EntityNotFoundException if the BCIModule not found.
      */
     @Override
     public BCIModule findById(Long id) {

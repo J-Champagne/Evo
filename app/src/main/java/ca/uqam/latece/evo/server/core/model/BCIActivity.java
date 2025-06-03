@@ -2,9 +2,7 @@ package ca.uqam.latece.evo.server.core.model;
 
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -20,6 +18,7 @@ import java.util.List;
 @Table(name = "bci_activity")
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonPropertyOrder({"id", "name", "description", "type", "preconditions", "postconditions"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class BCIActivity extends Activity {
 
     @JsonProperty("id")
@@ -76,6 +75,22 @@ public class BCIActivity extends Activity {
     @JsonIgnore
     @OneToMany(mappedBy = "bciActivityComposedOf", orphanRemoval = true, targetEntity = ComposedOf.class)
     private List<ComposedOf> composedOfList = new ArrayList<>();
+
+
+    public BCIActivity() {}
+
+    public BCIActivity(@NotNull String name, @NotNull ActivityType type, @NotNull String preconditions,
+                       @NotNull String postconditions, @NotNull Develops develop, @NotNull Role... role) {
+        this.name = name;
+        this.type = type;
+        this.preconditions = preconditions;
+        this.postconditions = postconditions;
+
+        if(role.length > 0) {
+            this.roleBCIActivities.addAll(List.of(role));
+        }
+    }
+
 
     @Override
     public void setId(Long id) {
@@ -244,7 +259,9 @@ public class BCIActivity extends Activity {
     }
 
     public void setComposedOf(ComposedOf... composedOf) {
-        this.composedOfList.addAll(List.of(composedOf));
+        if(composedOf != null && composedOf.length > 0) {
+            this.composedOfList.addAll(List.of(composedOf));
+        }
     }
 
 }

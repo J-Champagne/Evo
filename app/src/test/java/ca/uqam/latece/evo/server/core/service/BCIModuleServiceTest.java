@@ -2,7 +2,6 @@ package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.model.*;
-import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
