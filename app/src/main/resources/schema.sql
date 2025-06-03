@@ -650,7 +650,7 @@ bci_module table: This table stores information about Module.
   - bci_module_pk: Declares bci_module_id as the primary key — ensuring each row has a unique identifier.
   - bci_module_name_unique: Ensures that bci_module_name is unique, meaning no duplicate module names can exist.
 ***********************************************************************************************************************/
-CREATE TABLE bci_module (
+CREATE TABLE IF NOT EXISTS bci_module (
     bci_module_id bigserial NOT NULL,
     bci_module_name varchar NOT NULL,
     bci_module_description varchar NULL,
@@ -670,7 +670,7 @@ bci_module_skill table: This is a junction table that represents a many-to-many 
   - bci_module_skill_bci_module_fkey: Ensures that bci_module_skill_bci_module_id references a valid record in the bci_module table.
   - bci_module_skill_skill_fkey: Ensures that bci_module_skill_skill_id references a valid record in the skill_id table.
  **********************************************************************************************************************/
-CREATE TABLE bci_module_skill (
+CREATE TABLE IF NOT EXISTS bci_module_skill (
     bci_module_skill_bci_module_id BIGSERIAL NOT NULL,
     bci_module_skill_skill_id BIGINT NOT NULL,
     CONSTRAINT bci_module_skill_pk PRIMARY KEY (bci_module_skill_bci_module_id, bci_module_skill_skill_id),
@@ -696,7 +696,7 @@ module_composed_activity table: This is a junction table that represents a many-
   record in the bci_activity table.
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS module_composed_activity (
-    module_composed_activity_id BIGINT NOT NULL,
+    module_composed_activity_id BIGSERIAL NOT NULL,
     module_composed_activity_bci_module_id BIGINT NOT NULL,
     module_composed_activity_bci_activity_id BIGINT NOT NULL,
     module_composed_activity_order INT NOT NULL,
@@ -723,7 +723,7 @@ bci_phase_contains_module table: This is a junction table that represents a many
   - behavior_change_intervention_phase: Ensures that behavior_change_intervention_phase_id references a valid record in
   the behavior_change_intervention_phase table.
  **********************************************************************************************************************/
-CREATE TABLE bci_phase_contains_module (
+CREATE TABLE IF NOT EXISTS bci_phase_contains_module (
     bci_phase_contains_module_phase_id BIGINT NOT NULL,
     bci_phase_contains_module_module_id BIGINT NOT NULL,
     CONSTRAINT bci_phase_contains_module_pk PRIMARY KEY (bci_phase_contains_module_phase_id, bci_phase_contains_module_module_id),
