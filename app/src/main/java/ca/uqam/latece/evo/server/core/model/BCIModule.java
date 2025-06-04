@@ -60,9 +60,33 @@ public class BCIModule extends AbstractEvoModel {
 
     public BCIModule() {}
 
-    public BCIModule(@NotNull Set<Skill> skills, @NotNull ModuleComposedActivity... moduleComposedActivity) {
-        this.skills.addAll(skills);
+    public BCIModule(@NotNull String name, @NotNull String preconditions, @NotNull String postconditions, @NotNull Set<Skill> skills, @NotNull ModuleComposedActivity... moduleComposedActivity) {
+        this.name = name;
+        this.preconditions = preconditions;
+        this.postconditions = postconditions;
+        this.addSkills(skills);
         this.setModuleComposedActivities(moduleComposedActivity);
+    }
+
+    private void addSkills(Set<Skill> skills) {
+        if (skills.isEmpty()) {
+            throw new IllegalArgumentException("The Module '" + name +
+                    "' needs to be associated with one or more Skills!");
+        } else {
+            for (Skill skill : skills) {
+                if (skill == null) {
+                    throw new IllegalArgumentException("The Module '" + name +
+                            "' has been associated with a Skill null!");
+                } else {
+                    if (skill.getId() == null) {
+                        throw new IllegalArgumentException("The Module '" + name +
+                                "' has been associated with a Skill that has a null ID");
+                    } else {
+                        this.skills.add(skill);
+                    }
+                }
+            }
+        }
     }
 
 
