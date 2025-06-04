@@ -36,8 +36,9 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> {
      * @return an exception object.
      */
     protected IllegalArgumentException createDuplicatedNameException(AbstractEvoModel evoModel, String duplicatedNameText) {
+        final String EMPTY_SPACE = " ";
         IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_NAME_ALREADY_REGISTERED +
-                this.getClass().getSimpleName() + " Name: " + duplicatedNameText);
+                EMPTY_SPACE + this.getClass().getSimpleName() + " Name: " + duplicatedNameText);
         logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
         return illegalArgumentException;
     }

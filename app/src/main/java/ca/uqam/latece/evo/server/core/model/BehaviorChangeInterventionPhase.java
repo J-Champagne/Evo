@@ -8,7 +8,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A Behavior Change Intervention Phase stores information about behavior change intervention phase
@@ -46,18 +48,29 @@ public class BehaviorChangeInterventionPhase extends AbstractEvoModel {
     private BehaviorChangeIntervention behaviorChangeInterventionPhaseBci;
 
     /**
-     * Represents a collection of associated BehaviorChangeInterventionBlock entities linked to the BehaviorChangeInterventionPhase entity
-     * via a many-to-many relationship.
-     * The relationship is managed on the "blockBehaviorChangeInterventionPhases" side defined in the BehaviorChangeInterventionBlock entity.
-     * Cascade operations include PERSIST and MERGE, ensuring changes in BehaviorChangeInterventionPhase
-     * propagate to associated BehaviorChangeInterventionBlock accordingly. The fetch type is LAZY, meaning
-     * the associated BehaviorChangeInterventionBlock are fetched only when explicitly accessed.
+     * Represents a collection of associated BehaviorChangeInterventionBlock entities linked to the
+     * BehaviorChangeInterventionPhase entity via a many-to-many relationship.
+     * The relationship is managed on the "blockBehaviorChangeInterventionPhases" side defined in the
+     * BehaviorChangeInterventionBlock entity. Cascade operations include PERSIST and MERGE, ensuring changes in
+     * BehaviorChangeInterventionPhase propagate to associated BehaviorChangeInterventionBlock accordingly. The fetch
+     * type is LAZY, meaning the associated BehaviorChangeInterventionBlock are fetched only when explicitly accessed.
      */
     @ManyToMany(mappedBy = "blockBehaviorChangeInterventionPhases",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<BehaviorChangeInterventionBlock> behaviorChangeInterventionBlocks = new ArrayList<>();;
+    private List<BehaviorChangeInterventionBlock> behaviorChangeInterventionBlocks = new ArrayList<>();
+
+    /**
+     * Represents a collection of associated BCIModule entities linked to the BehaviorChangeInterventionPhase entity
+     * via a many-to-many relationship. The relationship is managed on the "behaviorChangeInterventionPhases" side
+     * defined in the BCIModule entity.
+     */
+    @ManyToMany(mappedBy = "behaviorChangeInterventionPhases",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<BCIModule> bciModules = new LinkedHashSet<>();
 
 
     @Override
@@ -115,6 +128,16 @@ public class BehaviorChangeInterventionPhase extends AbstractEvoModel {
             if (!this.behaviorChangeInterventionBlocks.isEmpty()) {
                 this.behaviorChangeInterventionBlocks.remove(behaviorChangeInterventionBlock);
             }
+        }
+    }
+
+    public Set<BCIModule> getBciModules() {
+        return bciModules;
+    }
+
+    public void setBciModules(BCIModule... bciModules) {
+        if (bciModules != null && bciModules.length > 0) {
+            this.bciModules.addAll(List.of(bciModules));
         }
     }
 }

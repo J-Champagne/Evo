@@ -44,6 +44,7 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
         ObjectValidator.validateString(bciModule.getName());
         ObjectValidator.validateString(bciModule.getPreconditions());
         ObjectValidator.validateString(bciModule.getPostconditions());
+        this.validateSkills(bciModule);
 
         // The name should be unique.
         if (this.existsByName(bciModule.getName())) {
@@ -73,16 +74,47 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
         ObjectValidator.validateString(bciModule.getName());
         ObjectValidator.validateString(bciModule.getPreconditions());
         ObjectValidator.validateString(bciModule.getPostconditions());
+        this.validateSkills(bciModule);
 
-        // The name should be unique.
-        if (this.existsByName(bciModule.getName())) {
-            throw this.createDuplicatedNameException(bciModule, bciModule.getName());
+        // Checks if the BCIModule exist in the database.
+        BCIModule found = this.findById(bciModule.getId());
+
+        if (found == null) {
+            throw new IllegalArgumentException("Module "+ bciModule.getName() + " not found!");
         } else {
-            saved = this.save(bciModule);
+            if (bciModule.getName().equals(found.getName())) {
+                saved = this.save(bciModule);
+            } else {
+                if (this.existsByName(bciModule.getName())) {
+                    throw this.createDuplicatedNameException(bciModule, bciModule.getName());
+                } else {
+                    saved = this.save(bciModule);
+                }
+            }
+
             logger.info("BCIModule updated: {}", saved);
         }
 
         return saved;
+    }
+
+    private void validateSkills(BCIModule bciModule) {
+        if (bciModule.getSkills().isEmpty()) {
+            throw new IllegalArgumentException("The Module '" + bciModule.getName() +
+                    "' needs to be associated with one or more Skills!");
+        } else {
+            for (Skill skill : bciModule.getSkills()) {
+                if (skill == null) {
+                    throw new IllegalArgumentException("The Module '" + bciModule.getName() +
+                            "' has been associated with a Skill null!");
+                } else {
+                    if (skill.getId() == null) {
+                        throw new IllegalArgumentException("The Module '" + bciModule.getName() +
+                                "' has been associated with a Skill that has a null ID");
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -104,7 +136,7 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
      */
     @Override
     public boolean existsById(Long id) {
-        ObjectValidator.validateObject(id);
+        ObjectValidator.validateId(id);
         return this.moduleRepository.existsById(id);
     }
 
@@ -115,6 +147,7 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
      * @throws IllegalArgumentException if the name is null.
      */
     public boolean existsByName(String name) {
+        ObjectValidator.validateString(name);
         return this.moduleRepository.existsByName(name);
     }
 
@@ -128,7 +161,7 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        ObjectValidator.validateObject(id);
+        ObjectValidator.validateId(id);
         this.moduleRepository.deleteById(id);
         logger.info("BCIModule deleted: {}", id);
     }
@@ -142,7 +175,7 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
      */
     @Override
     public BCIModule findById(Long id) {
-        ObjectValidator.validateObject(id);
+        ObjectValidator.validateId(id);
         return moduleRepository.findById(id).
                 orElseThrow(() -> new EntityNotFoundException("BCI Module not found!"));
     }
@@ -158,27 +191,52 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
     }
 
     /**
-     * Finds a list of BCIModule entities by their Skill.
+     * Finds a BCIModule list by Skill Id.
+     * @param id the skill id used to search for BCIModule.
+     * @return the BCIModule with the given name or null if none found.
+     */
+    public List<BCIModule> findBySkillId(Long id) {
+        ObjectValidator.validateId(id);
+        return moduleRepository.findBySkillsId(id);
+    }
+
+    /**
+     * Finds a list of BCIModule entities by Skill.
      * @param skill the skill of the BCIModule to search for.
-     * @return the BCIModule with the given name or Optional#empty() if none found.
+     * @return the BCIModule with the given name or null if none found.
      * @throws IllegalArgumentException if skill is null.
      */
-    public List<BCIModule> findBySkill(Skill skill) {
+    public List<BCIModule> findBySkills(Skill skill) {
         List<BCIModule> foundModules = new ArrayList<>();
 
         if (skill == null) {
             throw new IllegalArgumentException("Skill cannot be null!");
         } else {
-            foundModules = moduleRepository.findBySkills(skill);
+            if ((skill.getId() == null) && (skill.getName() == null)) {
+                throw new IllegalArgumentException("Skill id and name cannot be null!");
+            } else {
+                foundModules = moduleRepository.findBySkills(skill);
+            }
         }
 
         return foundModules;
     }
 
     /**
+     * Finds a list of BCIModule entities by their BehaviorChangeInterventionPhase Id.
+     * @param id the BehaviorChangeInterventionPhase id used to search for BCIModule.
+     * @return the BCIModule with the given name or null if none found.
+     * @throws IllegalArgumentException if id is null.
+     */
+    public List<BCIModule> findByBehaviorChangeInterventionPhasesId(Long id) {
+        ObjectValidator.validateId(id);
+        return moduleRepository.findByBehaviorChangeInterventionPhasesId(id);
+    }
+
+    /**
      * Finds a list of BCIModule entities by their BehaviorChangeInterventionPhase.
      * @param behaviorChangeInterventionPhases the BehaviorChangeInterventionPhase of the BCIModule to search for.
-     * @return the BCIModule with the given name or Optional#empty() if none found.
+     * @return the BCIModule with the given name or null if none found.
      * @throws IllegalArgumentException if BehaviorChangeInterventionPhase is null.
      */
     public List<BCIModule> findByBehaviorChangeInterventionPhases(BehaviorChangeInterventionPhase behaviorChangeInterventionPhases){
@@ -187,7 +245,11 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
         if (behaviorChangeInterventionPhases == null) {
             throw new IllegalArgumentException("BehaviorChangeInterventionPhases cannot be null!");
         } else {
-            foundModules = moduleRepository.findByBehaviorChangeInterventionPhases(behaviorChangeInterventionPhases);
+            if (behaviorChangeInterventionPhases.getId() == null) {
+                throw new IllegalArgumentException("BehaviorChangeInterventionPhases id cannot be null!");
+            } else {
+                foundModules = moduleRepository.findByBehaviorChangeInterventionPhases(behaviorChangeInterventionPhases);
+            }
         }
 
         return foundModules;

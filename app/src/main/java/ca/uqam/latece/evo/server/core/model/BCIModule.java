@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -23,18 +24,18 @@ public class BCIModule extends AbstractEvoModel {
     private Long id;
 
     @NotNull
-    @Column(name = "bci_module_name", nullable = false, length = 128)
+    @Column(name = "bci_module_name", nullable = false, length = 60)
     private String name;
 
-    @Column(name = "bci_module_description", length = 256)
+    @Column(name = "bci_module_description", length = 250)
     private String description;
 
     @NotNull
-    @Column(name = "bci_module_preconditions", nullable = false, length = 256)
+    @Column(name = "bci_module_preconditions", nullable = false, length = 250)
     private String preconditions;
 
     @NotNull
-    @Column(name = "bci_module_postconditions", nullable = false, length = 256)
+    @Column(name = "bci_module_postconditions", nullable = false, length = 250)
     private String postconditions;
 
     @ManyToMany
@@ -43,6 +44,7 @@ public class BCIModule extends AbstractEvoModel {
             inverseJoinColumns = @JoinColumn(name = "bci_module_skill_skill_id"))
     private Set<Skill> skills = new LinkedHashSet<>();
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(name = "bci_phase_contains_module",
             joinColumns = @JoinColumn(name = "bci_phase_contains_module_module_id"),

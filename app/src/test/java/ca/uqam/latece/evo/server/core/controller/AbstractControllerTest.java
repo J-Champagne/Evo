@@ -169,4 +169,25 @@ public abstract class AbstractControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.delete(urlTemplate, evoModel.getId())) // Build the delete command.
                 .andExpect(status().isNoContent()); // HttpStatus NO_CONTENT (204).
     }
+
+    /**
+     * Perform a GET request with an object in the request to test the controller.
+     * @param urlTemplate URL template. The resulting URL will be encoded.
+     * @param evoModel The model that will be searched for in the database.
+     * @param expression the JSON path expression. For example:
+     *                   - $.name to retrieve the nome value in the entity;
+     *                   - $.id to retrieve the id value in the entity;
+     *                   - $.email to retrieve the email value in the entity;
+     *                   - $[0].type to retrieve the type properties inside the JSON array. Uses it if your
+     *                   get method return a collection like List.
+     * @param expectedValue the expected result.
+     * @throws Exception An exception will be throws if the test fail.
+     */
+    protected void performGetRequestWithObject(@NotNull String urlTemplate, @NotNull AbstractEvoModel evoModel, @NotNull String expression, @Nullable Object expectedValue) throws Exception {
+        // Perform a GET request with the evoModel to test the controller.
+        mockMvc.perform(get(urlTemplate).contentType(MediaType.APPLICATION_JSON).content(evoModel.toString()))
+                .andExpect(status().isOk()) // HttpStatus OK (200).
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath(expression).value(expectedValue)); // Used to check the data in the JSON.
+    }
 }

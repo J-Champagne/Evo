@@ -161,18 +161,52 @@ public class BCIModuleController extends AbstractEvoController <BCIModule> {
         return response;
     }
 
-    @PostMapping("/find/skill")
+    /**
+     * Finds a list of BCIModule entities by Skill.
+     * @param id the skill id of the BCIModule to search for.
+     * @return a list of BCIModule entities matching the specified Skill id.
+     */
+    @GetMapping("/find/skill/{id}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<BCIModule>>findBySkillId(@PathVariable Long id) {
+        ResponseEntity<List<BCIModule>> response;
+
+        try {
+            ObjectValidator.validateId(id);
+            List<BCIModule> moduleList = moduleService.findBySkillId(id);
+
+            if (moduleList != null && !moduleList.isEmpty()) {
+                response = new ResponseEntity<>(moduleList, HttpStatus.OK);
+                logger.info("Found BCIModule by Skill Id: {}", moduleList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BCIModule by Skill Id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BCIModule by Skill Id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds a list of BCIModule entities by Skill.
+     * @param skill the skill of the BCIModule to search for.
+     * @return a list of BCIModule entities matching the specified Skill.
+     */
+    @GetMapping("/find/skill")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<BCIModule>> findBySkill(@RequestBody Skill skill) {
         ResponseEntity<List<BCIModule>> response;
 
         try {
             ObjectValidator.validateObject(skill);
-            List<BCIModule> moduleList = moduleService.findBySkill(skill);
+            List<BCIModule> moduleList = moduleService.findBySkills(skill);
 
             if (moduleList != null && !moduleList.isEmpty()) {
                 response = new ResponseEntity<>(moduleList, HttpStatus.OK);
-                logger.info("Found BCIModule: {}", moduleList);
+                logger.info("Found BCIModule by Skill: {}", moduleList);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
                 logger.info("Failed to find BCIModule by skill: {}", skill);
@@ -185,7 +219,41 @@ public class BCIModuleController extends AbstractEvoController <BCIModule> {
         return response;
     }
 
-    @PostMapping("/find/behaviorchangeinterventionphase")
+    /**
+     * Finds a list of BCIModule entities by BehaviorChangeInterventionPhase id.
+     * @param id the BehaviorChangeInterventionPhase id of the BCIModule to search for.
+     * @return a list of BCIModule entities matching the specified BehaviorChangeInterventionPhase id.
+     */
+    @GetMapping("/find/behaviorchangeinterventionphase/{id}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<BCIModule>> findByBehaviorChangeInterventionPhasesId(@PathVariable Long id) {
+        ResponseEntity<List<BCIModule>> response;
+
+        try{
+            ObjectValidator.validateId(id);
+            List<BCIModule> moduleList = moduleService.findByBehaviorChangeInterventionPhasesId(id);
+
+            if (moduleList != null && !moduleList.isEmpty()) {
+                response = new ResponseEntity<>(moduleList, HttpStatus.OK);
+                logger.info("Found BCIModule by Behavior ChangeIntervention Phase Id: {}", moduleList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BCIModule by Behavior ChangeIntervention Phase Id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BCIModule by Behavior ChangeIntervention Phase ID. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds a list of BCIModule entities by BehaviorChangeInterventionPhase.
+     * @param behaviorChangeInterventionPhases the BehaviorChangeInterventionPhase of the BCIModule to search for.
+     * @return a list of BCIModule entities matching the specified BehaviorChangeInterventionPhase.
+     */
+    @GetMapping("/find/behaviorchangeinterventionphase")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<List<BCIModule>> findByBehaviorChangeInterventionPhases(@RequestBody BehaviorChangeInterventionPhase behaviorChangeInterventionPhases) {
         ResponseEntity<List<BCIModule>> response;

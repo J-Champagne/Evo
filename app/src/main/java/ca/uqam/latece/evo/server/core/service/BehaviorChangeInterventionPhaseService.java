@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.model.BCIModule;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionPhaseRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -158,6 +159,41 @@ public class BehaviorChangeInterventionPhaseService extends AbstractEvoService<B
     public List<BehaviorChangeInterventionPhase> findByBehaviorChangeInterventionBlockId(Long id) {
         ObjectValidator.validateId(id);
         return behaviorChangeInterventionPhaseRepository.findByBehaviorChangeInterventionBlockId(id);
+    }
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule object.
+     * @param bciModule The BCIModule.
+     * @return the behavior change intervention phase associated with BCIModule specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    public List<BehaviorChangeInterventionPhase> findByBciModules(BCIModule bciModule) {
+        ObjectValidator.validateObject(bciModule);
+        ObjectValidator.validateId(bciModule.getId());
+        ObjectValidator.validateString(bciModule.getName());
+        return behaviorChangeInterventionPhaseRepository.findByBciModules(bciModule);
+    }
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule id.
+     * @param id The BCIModule id.
+     * @return the behavior change intervention phase associated with BCIModule id specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    public List<BehaviorChangeInterventionPhase> findByBCIModulesId(Long id) {
+        ObjectValidator.validateObject(id);
+        return behaviorChangeInterventionPhaseRepository.findByBciModulesId(id);
+    }
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule name.
+     * @param name The BCIModule name.
+     * @return the behavior change intervention phase associated with BCIModule name specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    public List<BehaviorChangeInterventionPhase> findByBCIModulesName(String name) {
+        ObjectValidator.validateString(name);
+        return behaviorChangeInterventionPhaseRepository.findByBciModulesName(name);
     }
 
     /**

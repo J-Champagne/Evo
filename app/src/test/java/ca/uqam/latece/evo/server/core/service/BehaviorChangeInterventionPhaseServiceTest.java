@@ -1,8 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
+import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import ca.uqam.latece.evo.server.core.model.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,12 +44,22 @@ public class BehaviorChangeInterventionPhaseServiceTest extends AbstractServiceT
     @Autowired
     private BehaviorChangeInterventionService interventionService;
 
+    @Autowired
+    private BCIModuleService bciModuleService;
+
+    @Autowired
+    private SkillService skillService;
+
     private BehaviorChangeInterventionPhase interventionPhase;
     private BehaviorChangeInterventionBlock interventionBlock;
+    private BCIModule bciModule;
+    private Skill skill;
     private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
     private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
     private static final String BLOCK_ENTRY_CONDITION = "Intervention Block ENTRY";
     private static final String BLOCK_EXIT_CONDITION = "Intervention Block EXIT";
+    private static final String PRECONDITIONS = "Preconditions Module";
+    private static final String POSTCONDITION = "Postcondition Module";
 
 
     @BeforeEach
@@ -61,18 +70,39 @@ public class BehaviorChangeInterventionPhaseServiceTest extends AbstractServiceT
         interventionBlock.setExitConditions(BLOCK_EXIT_CONDITION);
         BehaviorChangeInterventionBlock block = interventionBlockService.create(interventionBlock);
 
+        skill = new Skill();
+        skill.setType(SkillType.BCT);
+        skill.setName("Skill BCIModule");
+        skill.setDescription("Description Test");
+        Skill skillModule = skillService.create(skill);
+
+        // Creates BCIModule.
+        bciModule = new BCIModule();
+        bciModule.setName("Module BCI");
+        bciModule.setPreconditions(PRECONDITIONS);
+        bciModule.setPostconditions(POSTCONDITION);
+        bciModule.setDescription("Module BCI Description");
+        bciModule.setSkills(skillModule);
+        BCIModule module = bciModuleService.create(bciModule);
+
         // Creates intervention Phase.
         interventionPhase = new BehaviorChangeInterventionPhase();
         interventionPhase.setEntryConditions(PHASE_ENTRY_CONDITION);
         interventionPhase.setExitConditions(PHASE_EXIT_CONDITION);
         interventionPhase.addBehaviorChangeInterventionBlock(block);
-        BehaviorChangeInterventionPhase phase = interventionPhaseService.create(interventionPhase);
+        interventionPhase.setBciModules(module);
+        interventionPhaseService.create(interventionPhase);
+
+        bciModule.setBehaviorChangeInterventionPhases(interventionPhase);
+        bciModuleService.update(bciModule);
     }
 
     @AfterEach
     void afterEach(){
         interventionBlockService.deleteById(interventionBlock.getId());
         interventionPhaseService.deleteById(interventionPhase.getId());
+        skillService.deleteById(skill.getId());
+        bciModuleService.deleteById(bciModule.getId());
     }
 
     @Test
@@ -232,6 +262,55 @@ public class BehaviorChangeInterventionPhaseServiceTest extends AbstractServiceT
         assertEquals(bciPhase.getEntryConditions(), result.get(0).getEntryConditions());
         assertEquals(bciPhase.getExitConditions(), result.get(0).getExitConditions());
         assertEquals(bciResult.getId(), result.get(0).getBehaviorChangeIntervention().getId());
+    }
+
+    @Test
+    void findByBciModules() {
+        BehaviorChangeInterventionPhase intervention = new BehaviorChangeInterventionPhase();
+        intervention.setEntryConditions("Block ENTRY");
+        intervention.setExitConditions("Block EXIT");
+        intervention.setBciModules(bciModule);
+        intervention.addBehaviorChangeInterventionBlock(interventionBlock);
+
+        // Save in the database.
+        BehaviorChangeInterventionPhase saved = interventionPhaseService.create(intervention);
+
+        // Executes the query.
+        List<BehaviorChangeInterventionPhase> result = interventionPhaseService.findByBciModules(bciModule);
+
+        // Tests.
+        assertFalse(result.isEmpty(), "Behavior Change Intervention Phase list should not be empty!");
+        assertEquals(1, result.size());
+        assertEquals(interventionPhase.getId(), result.get(0).getId());
+        assertEquals(interventionPhase.getEntryConditions(), result.get(0).getEntryConditions());
+        assertEquals(interventionPhase.getExitConditions(), result.get(0).getExitConditions());
+
+    }
+
+    @Test
+    void findByBCIModulesId() {
+        // Executes the query.
+        List<BehaviorChangeInterventionPhase> result = interventionPhaseService.findByBCIModulesId(bciModule.getId());
+
+        // Tests.
+        assertFalse(result.isEmpty(), "Behavior Change Intervention Phase list should not be empty!");
+        assertEquals(1, result.size());
+        assertEquals(interventionPhase.getId(), result.get(0).getId());
+        assertTrue(interventionPhase.getBciModules().contains(bciModule));
+    }
+
+    @Test
+    void findByBCIModulesName() {
+        // Executes the query.
+        List<BehaviorChangeInterventionPhase> result = interventionPhaseService.findByBCIModulesName(bciModule.getName());
+
+        // Tests.
+        assertFalse(result.isEmpty(), "Behavior Change Intervention Phase list should not be empty!");
+        assertEquals(1, result.size());
+        assertEquals(interventionPhase.getId(), result.get(0).getId());
+        assertEquals(interventionPhase.getEntryConditions(), result.get(0).getEntryConditions());
+        assertEquals(interventionPhase.getExitConditions(), result.get(0).getExitConditions());
+        assertEquals(interventionPhase.getBciModules().stream().toList().get(0).getName(), bciModule.getName());
     }
 
     @Test

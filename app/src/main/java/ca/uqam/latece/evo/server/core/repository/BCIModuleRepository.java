@@ -33,12 +33,27 @@ public interface BCIModuleRepository extends EvoRepository<BCIModule> {
     boolean existsByName(@NotNull String name);
 
     /**
+     * Finds a BCIModule list by Skill Id.
+     * @param skillsId the skill id used to search for BCIModule.
+     * @return the BCIModule with the given name or null if none found.
+     */
+    List<BCIModule> findBySkillsId(@NotNull Long skillsId);
+
+    /**
      * Finds a list of BCIModule entities by their Skill.
      * @param skill the skill of the BCIModule to search for.
-     * @return the BCIModule with the given name or Optional#empty() if none found.
+     * @return the BCIModule with the given name or null if none found.
      * @throws IllegalArgumentException if skill is null.
      */
     List<BCIModule> findBySkills(@NotNull Skill skill);
+
+    /**
+     * Finds a list of BCIModule entities by their BehaviorChangeInterventionPhase Id.
+     * @param id the BehaviorChangeInterventionPhase Id of the BCIModule to search for.
+     * @return the BCIModule with the given name or null if none found.
+     * @throws IllegalArgumentException if id is null.
+     */
+    List<BCIModule> findByBehaviorChangeInterventionPhasesId(@NotNull Long id);
 
     /**
      * Finds a list of BCIModule entities by their BehaviorChangeInterventionPhase.
@@ -46,5 +61,5 @@ public interface BCIModuleRepository extends EvoRepository<BCIModule> {
      * @return the BCIModule with the given name or Optional#empty() if none found.
      * @throws IllegalArgumentException if BehaviorChangeInterventionPhase is null.
      */
-    List<BCIModule> findByBehaviorChangeInterventionPhases(BehaviorChangeInterventionPhase behaviorChangeInterventionPhases);
+    List<BCIModule> findByBehaviorChangeInterventionPhases(@NotNull BehaviorChangeInterventionPhase behaviorChangeInterventionPhases);
 }

@@ -10,9 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -81,11 +79,22 @@ public class BCIModuleControllerTest extends AbstractControllerTest {
     @Override
     void testUpdate() throws Exception {
         // Update a BCIModule.
-        bciModule.setName("Module 44");
+        BCIModule module = new BCIModule();
+        module.setId(bciModule.getId());
+        module.setName("My Module");
+        module.setDescription("My Module Description");
+        module.setPreconditions("My Preconditions");
+        module.setPostconditions("My Post conditions");
+        module.setSkills(skill);
+        module.setBehaviorChangeInterventionPhases(behaviorChangePhase);
+
         // Save in the database.
-        when(bciModuleRepository.save(bciModule)).thenReturn(bciModule);
+        when(bciModuleRepository.save(module)).thenReturn(module);
+
+        // Mock behavior for findById().
+        when(bciModuleRepository.findById(module.getId())).thenReturn(Optional.of(module));
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/bcimodule", bciModule,"$.name", bciModule.getName());
+        performUpdateRequest("/bcimodule", module,"$.name", module.getName());
     }
 
     @Test
@@ -119,7 +128,15 @@ public class BCIModuleControllerTest extends AbstractControllerTest {
         // Mock behavior for bciModuleRepository.findBySkills().
         when(bciModuleRepository.findBySkills(skill)).thenReturn(Collections.singletonList(bciModule));
         // Perform a GET request to test the controller.
-        performCreateRequest_Status_Ok("/bcimodule/find/skill", skill);
+        performGetRequestWithObject("/bcimodule/find/skill", skill, "$[0].name", bciModule.getName());
+    }
+
+    @Test
+    void findBySkillId() throws Exception {
+        // Mock behavior for bciModuleRepository.findBySkillsId().
+        when(bciModuleRepository.findBySkillsId(skill.getId())).thenReturn(Collections.singletonList(bciModule));
+        // Perform a GET request to test the controller.
+        performGetRequest("/bcimodule/find/skill/" + skill.getId(),"$[0].name", bciModule.getName());
     }
 
     @Test
@@ -127,7 +144,15 @@ public class BCIModuleControllerTest extends AbstractControllerTest {
         // Mock behavior for bciModuleRepository.findByBehaviorChangeInterventionPhases().
         when(bciModuleRepository.findByBehaviorChangeInterventionPhases(behaviorChangePhase)).thenReturn(Collections.singletonList(bciModule));
         // Perform a GET request to test the controller.
-        performCreateRequest_Status_Ok("/bcimodule/find/behaviorchangeinterventionphase", behaviorChangePhase);
+        performGetRequestWithObject("/bcimodule/find/behaviorchangeinterventionphase", behaviorChangePhase, "$[0].name", bciModule.getName());
+    }
+
+    @Test
+    void findByBehaviorChangeInterventionPhasesId() throws Exception {
+        // Mock behavior for bciModuleRepository.findByBehaviorChangeInterventionPhases().
+        when(bciModuleRepository.findByBehaviorChangeInterventionPhasesId(behaviorChangePhase.getId())).thenReturn(Collections.singletonList(bciModule));
+        // Perform a GET request to test the controller.
+        performGetRequest("/bcimodule/find/behaviorchangeinterventionphase/" + behaviorChangePhase.getId(), "$[0].name", bciModule.getName());
     }
 
     @Test
