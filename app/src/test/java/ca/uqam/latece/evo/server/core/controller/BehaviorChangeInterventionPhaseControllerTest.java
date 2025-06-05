@@ -1,8 +1,7 @@
 package ca.uqam.latece.evo.server.core.controller;
 
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
+import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionBlockRepository;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionPhaseRepository;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionRepository;
@@ -42,7 +41,11 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
     private BehaviorChangeInterventionPhase interventionPhase;
     private BehaviorChangeIntervention intervention;
     private BehaviorChangeInterventionBlock interventionBlock;
+    private BCIModule module;
+    private Skill skill;
 
+    private static final String PRECONDITIONS = "Preconditions Module";
+    private static final String POSTCONDITION = "Postcondition Module";
 
     @BeforeEach
     @Override
@@ -56,12 +59,28 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
         when(behaviorChangeInterventionRepository.save(intervention)).
                 thenReturn(intervention);
 
+        skill = new Skill();
+        skill.setId(35L);
+        skill.setType(SkillType.BCT);
+        skill.setName("Skill BCIModule - Phase");
+        skill.setDescription("Description Test - Phase");
+
+        // Creates BCIModule.
+        module = new BCIModule();
+        module.setId(99L);
+        module.setName("Module BCI - Phase");
+        module.setPreconditions(PRECONDITIONS);
+        module.setPostconditions(POSTCONDITION);
+        module.setDescription("Module BCI Description - Phase");
+        module.setSkills(skill);
+
         // Creates the BehaviorChangeInterventionPhase.
         interventionPhase = new BehaviorChangeInterventionPhase();
         interventionPhase.setId(1L);
         interventionPhase.setEntryConditions("EntryConditions");
         interventionPhase.setExitConditions("ExitConditions");
         interventionPhase.setBehaviorChangeIntervention(intervention);
+        interventionPhase.setBciModules(module);
 
         // Mock behavior for interventionPhaseRepository.save().
         when(interventionPhaseRepository.save(interventionPhase)).
@@ -205,6 +224,39 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
         performGetRequest("/bahaviorchangeinterventionphase/find/behaviorchangeinterventionblock/" +
                         interventionBlock.getId(), "$[0].exitConditions",
                 interventionPhaseResult.getExitConditions());
+    }
+
+    @Test
+    void findByBciModules() throws Exception {
+        // Phase result object.
+        BehaviorChangeInterventionPhase interventionPhaseResult = new BehaviorChangeInterventionPhase();
+
+        // Mock behavior for findByBciModules().
+        when(interventionPhaseRepository.findByBciModules(module)).thenReturn(Collections.singletonList(interventionPhaseResult));
+        // Perform a GET request to test the controller.
+        performGetRequestWithObject("/bahaviorchangeinterventionphase/find/bcimodules", module, "$[0].id", interventionPhaseResult.getId());
+    }
+
+    @Test
+    void findByBciModulesId() throws Exception {
+        // Phase result object.
+        BehaviorChangeInterventionPhase interventionPhaseResult = new BehaviorChangeInterventionPhase();
+
+        // Mock behavior for findByBciModulesId().
+        when(interventionPhaseRepository.findByBciModulesId(module.getId())).thenReturn(Collections.singletonList(interventionPhaseResult));
+        // Perform a GET request to test the controller.
+        performGetRequest("/bahaviorchangeinterventionphase/find/bcimodules/" + module.getId(), "$[0].id", interventionPhaseResult.getId());
+    }
+
+    @Test
+    void findByBCIModulesName() throws Exception {
+        // Phase result object.
+        BehaviorChangeInterventionPhase interventionPhaseResult = new BehaviorChangeInterventionPhase();
+
+        // Mock behavior for findByBciModulesName().
+        when(interventionPhaseRepository.findByBciModulesName(module.getName())).thenReturn(Collections.singletonList(interventionPhaseResult));
+        // Perform a GET request to test the controller.
+        performGetRequest("/bahaviorchangeinterventionphase/find/bcimodules/name/" + module.getName(), "$[0].id", interventionPhaseResult.getId());
     }
 
     @Test

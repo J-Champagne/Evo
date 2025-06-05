@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.controller;
 
 import java.util.List;
 
+import ca.uqam.latece.evo.server.core.model.BCIModule;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.service.BehaviorChangeInterventionPhaseService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -255,6 +256,93 @@ public class BehaviorChangeInterventionPhaseController extends AbstractEvoContro
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find Behavior Change Intervention Phase with Behavior Change Intervention Block association. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule object.
+     * @param bciModule The BCIModule.
+     * @return the behavior change intervention phase associated with BCIModule specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    @GetMapping("/find/bcimodules")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<BehaviorChangeInterventionPhase>> findByBciModules(@RequestBody BCIModule bciModule) {
+        ResponseEntity<List<BehaviorChangeInterventionPhase>> response;
+
+        try {
+            List<BehaviorChangeInterventionPhase> list = behaviorChangeInterventionPhaseService.findByBciModules(bciModule);
+
+            if (list != null && !list.isEmpty()) {
+                response = new ResponseEntity<>(list, HttpStatus.OK);
+                logger.info("Found Behavior ChangeIntervention Phase by BC IModule: {}", list);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Behavior ChangeIntervention Phase by BCI Module: {}", list);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Behavior ChangeIntervention Phase by BCI Module. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule id.
+     * @param id The BCIModule id.
+     * @return the behavior change intervention phase associated with BCIModule id specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    @GetMapping("/find/bcimodules/{id}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<BehaviorChangeInterventionPhase>> findByBciModulesId(@PathVariable Long id) {
+        ResponseEntity<List<BehaviorChangeInterventionPhase>> response;
+
+        try {
+            List<BehaviorChangeInterventionPhase> phase = behaviorChangeInterventionPhaseService.findByBCIModulesId(id);
+
+            if (phase != null && !phase.isEmpty()) {
+                response = new ResponseEntity<>(phase, HttpStatus.OK);
+                logger.info("Found Behavior ChangeIntervention Phase by BCI Module Id: {}", phase);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Behavior ChangeIntervention Phase by BCI Module Id: {}", phase);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Behavior ChangeIntervention Phase by BCI Module Id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule name.
+     * @param name The BCIModule name.
+     * @return the behavior change intervention phase associated with BCIModule name specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    @GetMapping("/find/bcimodules/name/{name}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<BehaviorChangeInterventionPhase>> findByBCIModulesName(@PathVariable String name) {
+        ResponseEntity<List<BehaviorChangeInterventionPhase>> response;
+
+        try {
+            List<BehaviorChangeInterventionPhase> list = behaviorChangeInterventionPhaseService.findByBCIModulesName(name);
+
+            if (list != null && !list.isEmpty()) {
+                response = new ResponseEntity<>(list, HttpStatus.OK);
+                logger.info("Found Behavior ChangeIntervention Phase by BCIModule Name: {}", list);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find Behavior ChangeIntervention Phase by BCIModule Name: {}", list);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find Behavior ChangeIntervention Phase by BCIModule Name. Error: {}", e.getMessage());
         }
 
         return response;

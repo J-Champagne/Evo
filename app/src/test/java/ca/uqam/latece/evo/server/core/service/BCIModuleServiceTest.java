@@ -28,8 +28,12 @@ public class BCIModuleServiceTest extends AbstractServiceTest {
     @Autowired
     private SkillService skillService;
 
+    @Autowired
+    private BehaviorChangeInterventionPhaseService behaviorChangeInterventionPhaseService;
+
     private BCIModule bciModule = new BCIModule();
     private Skill skill = new Skill();
+    private BehaviorChangeInterventionPhase behaviorChangePhase = new BehaviorChangeInterventionPhase();
 
     @BeforeEach
     void beforeEach(){
@@ -37,19 +41,21 @@ public class BCIModuleServiceTest extends AbstractServiceTest {
         skill.setName("Skill 1");
         skill.setDescription("Skill Description");
         skill.setType(SkillType.BCT);
+        skillService.create(skill);
 
-        // Save in the database.
-        skillService.save(skill);
+        // Creates a Behavior Change Phase.
+        behaviorChangePhase.setEntryConditions("Entry Conditions");
+        behaviorChangePhase.setExitConditions("Exit Conditions");
+        behaviorChangeInterventionPhaseService.create(behaviorChangePhase);
 
         //  Creates a BCIModule.
         bciModule.setName("Test Module");
         bciModule.setDescription("Test Module Description");
         bciModule.setPreconditions("Test Preconditions");
         bciModule.setPostconditions("Test Post conditions");
+        bciModule.setBehaviorChangeInterventionPhases(behaviorChangePhase);
         bciModule.setSkills(skill);
-
-        // Save in the database.
-        bciModuleService.save(bciModule);
+        bciModuleService.create(bciModule);
     }
 
     @AfterEach
@@ -60,18 +66,8 @@ public class BCIModuleServiceTest extends AbstractServiceTest {
     @Test
     @Override
     void testSave() {
-        BCIModule module = new BCIModule();
-        module.setName("Test Module 1");
-        module.setDescription("Test Module Description 1");
-        module.setPreconditions("Test Module Preconditions 1");
-        module.setPostconditions("Post conditions 1");
-        module.setSkills(skill);
-
-        // Save in the database.
-        bciModuleService.save(module);
-
-        // Checks if the role was saved.
-        assert module.getId() > 0;
+        // Checks if the BCIModule was saved.
+        assert bciModule.getId() > 0;
     }
 
     @Test
@@ -111,6 +107,7 @@ public class BCIModuleServiceTest extends AbstractServiceTest {
 
         // Look for BCIModule by ID.
         BCIModule found = bciModuleService.findById(saved.getId());
+        BCIModule found2 = bciModuleService.findById(bciModule.getId());
 
         // Tests.
         assertEquals(module.getId(), found.getId());
@@ -118,6 +115,11 @@ public class BCIModuleServiceTest extends AbstractServiceTest {
         assertEquals(module.getDescription(), found.getDescription());
         assertEquals(module.getPreconditions(), found.getPreconditions());
         assertEquals(module.getPostconditions(), found.getPostconditions());
+        assertEquals(bciModule.getId(), found2.getId());
+        assertEquals(bciModule.getName(), found2.getName());
+        assertEquals(bciModule.getDescription(), found2.getDescription());
+        assertEquals(bciModule.getPreconditions(), found2.getPreconditions());
+        assertEquals(bciModule.getPostconditions(), found2.getPostconditions());
     }
 
     @Test
@@ -150,7 +152,7 @@ public class BCIModuleServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void findBySkill() {
+    void findBySkills() {
         BCIModule module = new BCIModule();
         module.setName("Module 3");
         module.setDescription("Description Module 3");
@@ -160,27 +162,99 @@ public class BCIModuleServiceTest extends AbstractServiceTest {
 
         // Creates the BCIModule.
         BCIModule saved = bciModuleService.create(module);
-        List<BCIModule> modules = bciModuleService.findBySkill(skill);
+        List<BCIModule> modules = bciModuleService.findBySkills(skill);
 
         assertEquals(2, modules.size());
     }
 
-   /* @Test
-    void findBySkills () {
-        BCIModule module = new BCIModule();
-        module.setName("Module 4");
-        module.setDescription("Description Module 4");
-        module.setPreconditions("Preconditions Module 4");
-        module.setPostconditions("Post conditions Module 4");
-        module.setSkills(skill);
+    @Test
+    void findBySkillsIdAndNameNull() {
+        // Test the IllegalArgumentException using a Skill with Id and Name null.
+        assertThrows(IllegalArgumentException.class, () -> bciModuleService.findBySkills(new Skill()));
+    }
 
-        // Creates the BCIModule.
-        BCIModule saved = bciModuleService.create(module);
+    @Test
+    void findBySkillsId() {
+        Skill newSkill = new Skill();
+        newSkill.setName("New Skill 1");
+        newSkill.setDescription("New Skill Description 1");
+        newSkill.setType(SkillType.BCT);
+        skillService.create(newSkill);
 
-        List<BCIModule> modules = bciModuleService.findBySkills(skill);
+        // This query will return only one BCIModule.
+        List<BCIModule> modules = bciModuleService.findBySkillId(skill.getId());
 
-        assertEquals(2, modules.size());
-    }*/
+        // This query not return BCIModule.
+        List<BCIModule> noModule = bciModuleService.findBySkillId(newSkill.getId());
+
+        // Test the first query.
+        assertEquals(1, modules.size());
+        assertEquals(modules.get(0).getName(), bciModule.getName());
+        assertEquals(modules.get(0).getDescription(), bciModule.getDescription());
+        assertEquals(modules.get(0).getPreconditions(), bciModule.getPreconditions());
+        assertEquals(modules.get(0).getPostconditions(), bciModule.getPostconditions());
+
+        // Test the second query.
+        assertEquals(0, noModule.size());
+    }
+
+    @Test
+    void findByBehaviorChangeInterventionPhasesId() {
+        // Creates a Skill.
+        Skill newSkill = new Skill();
+        newSkill.setName("PHYSICAL Skill");
+        newSkill.setDescription("PHYSICAL Skill Description");
+        newSkill.setType(SkillType.PHYSICAL);
+        skillService.create(newSkill);
+
+        // Creates a Behavior Change Phase.
+        BehaviorChangeInterventionPhase newBehaviorChangePhase = new BehaviorChangeInterventionPhase();
+        newBehaviorChangePhase.setEntryConditions("Entry Conditions");
+        newBehaviorChangePhase.setExitConditions("Exit Conditions");
+        behaviorChangeInterventionPhaseService.create(newBehaviorChangePhase);
+
+        //  Creates a BCIModule.
+        BCIModule newModule = new BCIModule();
+        newModule.setName("New Module");
+        newModule.setDescription("New Module Description");
+        newModule.setPreconditions("New Preconditions");
+        newModule.setPostconditions("New Post conditions");
+        newModule.setBehaviorChangeInterventionPhases(newBehaviorChangePhase);
+        newModule.setSkills(newSkill);
+        bciModuleService.create(newModule);
+
+        // This query will return only one BCIModule.
+        List<BCIModule> modules = bciModuleService.findByBehaviorChangeInterventionPhasesId(newBehaviorChangePhase.getId());
+        assertEquals(1, modules.size());
+        assertTrue(modules.get(0).getBehaviorChangeInterventionPhases().contains(newBehaviorChangePhase));
+        assertEquals(modules.get(0).getPreconditions(), newModule.getPreconditions());
+        assertEquals(modules.get(0).getPostconditions(), newModule.getPostconditions());
+    }
+
+    @Test
+    void findByBehaviorChangeInterventionPhasesFieldsNull() {
+        // Test the IllegalArgumentException using a BehaviorChangeInterventionPhase with EntryConditions and ExitConditions null.
+        assertThrows(IllegalArgumentException.class, () -> bciModuleService.findByBehaviorChangeInterventionPhases(new BehaviorChangeInterventionPhase()));
+    }
+
+    @Test
+    void findByBehaviorChangeInterventionPhases() {
+        BehaviorChangeInterventionPhase phase = new BehaviorChangeInterventionPhase();
+        phase.setEntryConditions("Phase - Entry Conditions - Phase");
+        phase.setExitConditions("Phase - Exit Conditions - Phase");
+        behaviorChangeInterventionPhaseService.create(phase);
+
+        // This query will return only one BCIModule.
+        List<BCIModule> modules = bciModuleService.findByBehaviorChangeInterventionPhases(behaviorChangePhase);
+        assertEquals(1, modules.size());
+        assertTrue(modules.get(0).getBehaviorChangeInterventionPhases().contains(behaviorChangePhase));
+        assertEquals(modules.get(0).getPreconditions(), bciModule.getPreconditions());
+        assertEquals(modules.get(0).getPostconditions(), bciModule.getPostconditions());
+
+        // This query will return only one BCIModule.
+        List<BCIModule> noModules = bciModuleService.findByBehaviorChangeInterventionPhases(phase);
+        assertEquals(0, noModules.size());
+    }
 
     @Test
     @Override

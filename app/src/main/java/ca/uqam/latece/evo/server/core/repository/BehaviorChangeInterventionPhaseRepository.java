@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.repository;
 
+import ca.uqam.latece.evo.server.core.model.BCIModule;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.Query;
@@ -57,4 +58,28 @@ public interface BehaviorChangeInterventionPhaseRepository extends EvoRepository
             "WHERE bcib.behavior_change_intervention_block_id = :bci_block_id",
             nativeQuery = true)
     List<BehaviorChangeInterventionPhase> findByBehaviorChangeInterventionBlockId(@NotNull @Param("bci_block_id") Long id);
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule object.
+     * @param bciModule The BCIModule.
+     * @return the behavior change intervention phase associated with BCIModule specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    List<BehaviorChangeInterventionPhase> findByBciModules(@NotNull BCIModule bciModule);
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule id.
+     * @param id The BCIModule id.
+     * @return the behavior change intervention phase associated with BCIModule id specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    List<BehaviorChangeInterventionPhase> findByBciModulesId(@NotNull Long id);
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhase by BCIModule name.
+     * @param name The BCIModule name.
+     * @return the behavior change intervention phase associated with BCIModule name specified.
+     * @throws IllegalArgumentException if the provided id is null or invalid.
+     */
+    List<BehaviorChangeInterventionPhase> findByBciModulesName(@NotNull String name);
 }

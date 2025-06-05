@@ -671,7 +671,7 @@ bci_module_skill table: This is a junction table that represents a many-to-many 
   - bci_module_skill_skill_fkey: Ensures that bci_module_skill_skill_id references a valid record in the skill_id table.
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_module_skill (
-    bci_module_skill_bci_module_id BIGSERIAL NOT NULL,
+    bci_module_skill_bci_module_id BIGINT NOT NULL,
     bci_module_skill_skill_id BIGINT NOT NULL,
     CONSTRAINT bci_module_skill_pk PRIMARY KEY (bci_module_skill_bci_module_id, bci_module_skill_skill_id),
     CONSTRAINT bci_module_skill_bci_module_fkey FOREIGN KEY (bci_module_skill_bci_module_id)
