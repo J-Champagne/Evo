@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "role")
-@JsonPropertyOrder({"id", "name"})
+@JsonPropertyOrder({"id", "name","description"})
 public class Role extends AbstractEvoModel {
 
     @JsonProperty("id")
@@ -31,6 +31,10 @@ public class Role extends AbstractEvoModel {
     @JsonProperty("name")
     @Column(name = "role_name", nullable = false, unique = true, length = 128)
     private String name;
+
+    @JsonProperty("description")
+    @Column(name = "role_description", nullable = true, length = 250)
+    private String description;
 
     /**
      * Represents a collection of associated BCIActivity entities linked to the Role entity
@@ -65,6 +69,14 @@ public class Role extends AbstractEvoModel {
 
     public String getName() {
         return name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public List<BCIActivity> getBCIActivity() {
@@ -111,12 +123,19 @@ public class Role extends AbstractEvoModel {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Role role = (Role) object;
+        if (super.equals(object)) {
+            Role role = (Role) object;
+            return Objects.equals(this.getName(), role.getName()) &&
+                    Objects.equals(this.getDescription(), role.getDescription()) &&
+                    Objects.equals(this.getBCIActivity(), role.getBCIActivity());
+        } else {
+            return false;
+        }
+    }
 
-        return Objects.equals(this.getName(), role.getName()) &&
-                Objects.equals(this.getBCIActivity(), role.getBCIActivity());
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId(), this.getName(), this.getDescription(), this.getBCIActivity());
     }
 
 }

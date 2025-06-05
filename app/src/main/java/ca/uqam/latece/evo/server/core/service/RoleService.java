@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -68,12 +69,25 @@ public class RoleService extends AbstractEvoService<Role> {
 
         // Validate the object.
         ObjectValidator.validateObject(role);
+        ObjectValidator.validateId(role.getId());
         ObjectValidator.validateObject(role.getName());
 
-        if (this.existsByName(role.getName())) {
-            throw createDuplicateRoleException(role);
+        // Checks if the Role exists in the database.
+        Role found = this.findById(role.getId());
+
+        if (found == null) {
+            throw new IllegalArgumentException("Role "+ role.getName() + " not found!");
         } else {
-            roleSeved = this.save(role);
+            if (role.getName().equals(found.getName())) {
+                roleSeved = this.save(role);
+            } else {
+                if (this.existsByName(role.getName())) {
+                    throw createDuplicateRoleException(role);
+                } else {
+                    roleSeved = this.save(role);
+                }
+            }
+
             logger.info("Role update: {}", roleSeved);
         }
 
@@ -179,8 +193,15 @@ public class RoleService extends AbstractEvoService<Role> {
      * @param bciActivityId The BCI Activity Id to filter Role entities by, must not be null.
      * @return a list of Role entities that have the specified BCI Activity Id, or an empty list if no matches are found.
      */
-    public List<Role> findByBCIActivity(Long bciActivityId) {
+    public List<Role> findByBCIActivityId(Long bciActivityId) {
         ObjectValidator.validateId(bciActivityId);
-        return roleRepository.findByBCIActivity(bciActivityId);
+        return roleRepository.findByBciActivitiesRoleId(bciActivityId);
+    }
+
+    public List<Role> findByBCIActivity(BCIActivity bciActivitiesRole) {
+        ObjectValidator.validateObject(bciActivitiesRole);
+        ObjectValidator.validateId(bciActivitiesRole.getId());
+        return roleRepository.findByBciActivitiesRole(bciActivitiesRole);
     }
 }
+

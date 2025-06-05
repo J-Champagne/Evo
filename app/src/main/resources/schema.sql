@@ -11,13 +11,15 @@ role table: This table stores information about roles in the system (e.g., admin
 - Columns:
   - role_id: A unique identifier for each role. It's type BIGSERIAL, meaning it's an auto-incrementing integer.
   - role_name: The name of the role (e.g., "Admin", "e-Facilitor").
+  - role_description: A description of the Role.
 - Constraints:
   - role_pkey: Declares role_id as the primary key — ensuring each row has a unique identifier.
   - role_role_name_ukey: Ensures that role_name is unique, meaning no duplicate role names can exist.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS role (
     role_id BIGSERIAL NOT NULL,
-    role_name VARCHAR(128),
+    role_name VARCHAR(128) NOT NULL,
+    role_description VARCHAR(250),
     CONSTRAINT role_pkey PRIMARY KEY (role_id),
     CONSTRAINT role_role_name_ukey UNIQUE (role_name)
 );

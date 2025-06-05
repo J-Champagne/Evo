@@ -1,7 +1,6 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
-import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Role;
 
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,6 +62,7 @@ public class RoleServiceTest extends AbstractServiceTest {
         // Create a Role.
         Role role = new Role("Admin");
         role.addBCIActivity(bciActivity);
+        role.setDescription("Description Role Admin");
         Role roleSaved = roleService.create(role);
 
         // Checks if the role was saved.
@@ -128,11 +127,36 @@ public class RoleServiceTest extends AbstractServiceTest {
         bciActivityRole.addRole(roleSaved);
         // Save a BCI Activity.
         BCIActivity bciActivityCreated = bciActivityService.create(bciActivityRole);
-        List<Role> result = roleService.findByBCIActivity(bciActivityCreated.getId());
+        List<Role> result = roleService.findByBCIActivity(bciActivityCreated);
         // Assert that the result
         assertEquals(1, result.size());
         // Checks if the role name is equals.
        assertEquals(roleSaved.getName(), result.get(0).getName());
+    }
+
+    @Test
+    public void findByBCIActivityId(){
+        // Create a role.
+        Role role = new Role("Participant 1");
+        role.setDescription("Participant description");
+        // Save the role.
+        Role roleSaved = roleService.create(role);
+
+        // Create a BCI Activity.
+        BCIActivity bciActivityRole = new BCIActivity();
+        bciActivityRole.setName("Research Activity");
+        bciActivityRole.setDescription("Research Activity training");
+        bciActivityRole.setType(ActivityType.LEARNING);
+        bciActivityRole.addRole(roleSaved);
+        // Save a BCI Activity.
+        BCIActivity bciActivityCreated = bciActivityService.create(bciActivityRole);
+
+        // Run the findByBCIActivityId method.
+        List<Role> roles = roleService.findByBCIActivityId(bciActivityCreated.getId());
+        // Assert that the result
+        assertEquals(1, roles.size());
+        // Checks if the role name is equals.
+        assertEquals(roleSaved.getName(), roles.get(0).getName());
     }
 
     /**

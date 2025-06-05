@@ -40,6 +40,7 @@ public class RoleControllerTest extends AbstractControllerTest {
     void setUp() {
         role.setId(1L);
         role.setName("Admin");
+        role.setDescription("Admin Description");
 
         when(roleRepository.save(role)).thenReturn(role);
     }
@@ -53,9 +54,15 @@ public class RoleControllerTest extends AbstractControllerTest {
     @Override
     void testUpdate() throws Exception {
         // Update Requires
+        role.setId(1L);
         role.setName("Participant");
+        role.setDescription("Participant Description 2");
         // Save in the database.
         when(roleRepository.save(role)).thenReturn(role);
+
+        // Mock behavior for findById().
+        when(roleRepository.findById(role.getId())).thenReturn(Optional.of(role));
+
         // Perform a PUT request to test the controller.
         performUpdateRequest("/roles", role, "$.name", role.getName());
     }
@@ -73,6 +80,7 @@ public class RoleControllerTest extends AbstractControllerTest {
         Role role = new Role();
         role.setId(2L);
         role.setName("e-Facilitator");
+        role.setDescription("e-Facilitator Description");
 
         // Save the role.
         when(roleRepository.save(role)).thenReturn(role);
@@ -90,6 +98,7 @@ public class RoleControllerTest extends AbstractControllerTest {
         Role role = new Role();
         role.setId(3L);
         role.setName("e-Facilitator2");
+        role.setDescription("e-Facilitator 2 Description");
 
         // Save the role.
         when(roleRepository.save(role)).thenReturn(role);
@@ -107,6 +116,7 @@ public class RoleControllerTest extends AbstractControllerTest {
         Role role = new Role();
         role.setId(2L);
         role.setName("e-Facilitator");
+        role.setDescription("e-Facilitator Description");
 
         // Save the role.
         when(roleRepository.save(role)).thenReturn(role);
@@ -121,12 +131,42 @@ public class RoleControllerTest extends AbstractControllerTest {
         // Save the BCIActivity.
         when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
 
-        // Mock behavior for roleRepository.findAll().
-        when(roleRepository.findByBCIActivity(bciActivity.getId())).thenReturn(Collections.singletonList(role));
+        // Mock behavior for findByBciActivitiesRole.
+        when(roleRepository.findByBciActivitiesRole(bciActivity)).thenReturn(Collections.singletonList(role));
+
+        // Perform a GET request to test the controller.
+        performGetRequest("/roles/find/bciactivity", bciActivity,"$[0].name",
+                role.getName());
+    }
+
+    @Test
+    void testFindByBCIActivityId() throws Exception {
+        // Create the Role.
+        Role role = new Role();
+        role.setId(29L);
+        role.setName("e-Facilitator 333");
+        role.setDescription("e-Facilitator Description 33");
+
+        // Save the role.
+        when(roleRepository.save(role)).thenReturn(role);
+
+        // Create the BCIActivity.
+        BCIActivity bciActivity = new BCIActivity();
+        bciActivity.setId(69L);
+        bciActivity.setDescription("Programming language training 3");
+        bciActivity.setType(ActivityType.LEARNING);
+        bciActivity.addRole(role);
+
+        // Save the BCIActivity.
+        when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
+
+        // Mock behavior for findByBciActivitiesRoleId.
+        when(roleRepository.findByBciActivitiesRoleId(bciActivity.getId())).thenReturn(Collections.singletonList(role));
 
         // Perform a GET request to test the controller.
         performGetRequest("/roles/find/bciactivity/" + bciActivity.getId(),"$[0].name",
-                "e-Facilitator");
+                role.getName());
+
     }
 
     @Test
@@ -136,6 +176,7 @@ public class RoleControllerTest extends AbstractControllerTest {
         Role role2 = new Role();
         role2.setId(2L);
         role2.setName("Admin 2");
+        role2.setDescription("e-Facilitator Description");
 
         // Save the role.
         when(roleRepository.save(role2)).thenReturn(role2);

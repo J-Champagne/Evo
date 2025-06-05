@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.controller;
 
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.service.RoleService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -167,18 +168,47 @@ public class RoleController extends AbstractEvoController <Role> {
     }
 
     /**
+     * Retrieves a list of Role entities that match the specified BCI Activity.
+     * @param bciActivity The BCI Activity to filter Role entities by, must not be null.
+     * @return a list of Role entities that have the specified BCI Activity, or an empty list if no matches are found.
+     */
+    @GetMapping("/find/bciactivity")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<Role>> findByBCIActivity(@RequestBody BCIActivity bciActivity) {
+        ResponseEntity<List<Role>> response;
+
+        try {
+            ObjectValidator.validateObject(bciActivity);
+            List<Role> roleList = roleService.findByBCIActivity(bciActivity);
+
+            if (roleList != null && !roleList.isEmpty()) {
+                response = new ResponseEntity<>(roleList, HttpStatus.OK);
+                logger.info("Found role list by BCIActivity: {}", roleList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find role list by BCIActivity: {}", bciActivity);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find role list by BCIActivity. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
      * Retrieves a list of Role entities that match the specified BCI Activity Id.
      * @param id The BCI Activity Id to filter Role entities by, must not be null.
      * @return a list of Role entities that have the specified BCI Activity Id, or an empty list if no matches are found.
      */
     @GetMapping("/find/bciactivity/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<Role>> findByBCIActivity(@PathVariable Long id) {
+    public ResponseEntity<List<Role>> findByBCIActivityId(@PathVariable Long id) {
         ResponseEntity<List<Role>> response;
 
         try {
             ObjectValidator.validateId(id);
-            List<Role> roleList = roleService.findByBCIActivity(id);
+            List<Role> roleList = roleService.findByBCIActivityId(id);
 
             if (roleList != null && !roleList.isEmpty()) {
                 response = new ResponseEntity<>(roleList, HttpStatus.OK);

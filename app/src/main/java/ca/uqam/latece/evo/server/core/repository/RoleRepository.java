@@ -1,14 +1,15 @@
 package ca.uqam.latece.evo.server.core.repository;
 
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Role;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * Role repository creates CRUD implementation at runtime automatically.
+ * @since 22.01.2025
+ * @version 1.0
  * @author Edilton Lima dos Santos.
  */
 @Repository
@@ -32,12 +33,16 @@ public interface RoleRepository extends EvoRepository<Role> {
 
     /**
      * Retrieves a list of Role entities that match the specified BCI Activity Id.
-     * @param bciActivityId The BCI Activity Id to filter Role entities by, must not be null.
+     * @param bciActivitiesRoleId The BCI Activity Id to filter Role entities by, must not be null.
      * @return a list of Role entities that have the specified BCI Activity Id, or an empty list if no matches are found.
      */
-    @Query(value = "SELECT ro.* FROM role AS ro " +
-            "JOIN bci_activity_role bro ON (ro.role_id = bro.bci_activity_role_role_id) " +
-            "WHERE bro.bci_activity_role_bci_activity_id = :bci_activity_id",
-            nativeQuery = true)
-    List<Role> findByBCIActivity(@Param("bci_activity_id") Long bciActivityId);
+    List<Role> findByBciActivitiesRoleId(Long bciActivitiesRoleId);
+
+    /**
+     * Retrieves a list of Role entities that match the specified BCI Activity.
+     * @param bciActivitiesRole The BCI Activity to filter Role entities by, must not be null.
+     * @return a list of Role entities that have the specified BCI Activity, or an empty list if no matches are found.
+     */
+    List<Role> findByBciActivitiesRole(BCIActivity bciActivitiesRole);
+
 }
