@@ -64,7 +64,7 @@ public class GoalSettingControllerTest extends AbstractControllerTest {
         bciActivity.addRole(role);
 
         // Create a Goal Setting.
-        goalSetting.setId(1L);
+        goalSetting.setId(5L);
         goalSetting.setName("Programming - Goal Setting");
         goalSetting.setDescription("Programming language training - Goal Setting");
         goalSetting.setType(ActivityType.LEARNING);

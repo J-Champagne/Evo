@@ -40,7 +40,7 @@ public abstract class AbstractServiceTest {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
-            "postgres:15-alpine"
+            "postgres:17.2"
     );
 
     /**

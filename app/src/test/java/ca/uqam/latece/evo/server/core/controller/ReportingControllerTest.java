@@ -100,7 +100,7 @@ public class ReportingControllerTest extends AbstractControllerTest {
         content.setDescription("Content description - reporting");
 
         // Create a reporting.
-        reporting.setId(1L);
+        reporting.setId(3L);
         reporting.setName("Programming Reporting");
         reporting.setDescription("Programming language Reporting");
         reporting.setType(ActivityType.DIAGNOSING);

@@ -1,7 +1,9 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -17,6 +19,7 @@ import java.util.Set;
 @Entity
 @Table(name = "bci_module")
 @JsonPropertyOrder({"id", "name", "description", "preconditions", "postconditions", "skills"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class BCIModule extends AbstractEvoModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +53,42 @@ public class BCIModule extends AbstractEvoModel {
             joinColumns = @JoinColumn(name = "bci_phase_contains_module_module_id"),
             inverseJoinColumns = @JoinColumn(name = "bci_phase_contains_module_phase_id"))
     private Set<BehaviorChangeInterventionPhase> behaviorChangeInterventionPhases = new LinkedHashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "composedActivityBciModule", cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = ModuleComposedActivity.class)
+    private Set<ModuleComposedActivity> moduleComposedActivities = new LinkedHashSet<>();
+
+
+    public BCIModule() {}
+
+    public BCIModule(@NotNull String name, @NotNull String preconditions, @NotNull String postconditions, @NotNull Set<Skill> skills, @NotNull ModuleComposedActivity... moduleComposedActivity) {
+        this.name = name;
+        this.preconditions = preconditions;
+        this.postconditions = postconditions;
+        this.addSkills(skills);
+        this.setModuleComposedActivities(moduleComposedActivity);
+    }
+
+    private void addSkills(Set<Skill> skills) {
+        if (skills.isEmpty()) {
+            throw new IllegalArgumentException("The Module '" + name +
+                    "' needs to be associated with one or more Skills!");
+        } else {
+            for (Skill skill : skills) {
+                if (skill == null) {
+                    throw new IllegalArgumentException("The Module '" + name +
+                            "' has been associated with a Skill null!");
+                } else {
+                    if (skill.getId() == null) {
+                        throw new IllegalArgumentException("The Module '" + name +
+                                "' has been associated with a Skill that has a null ID");
+                    } else {
+                        this.skills.add(skill);
+                    }
+                }
+            }
+        }
+    }
 
 
     public void setId(Long id) {
@@ -110,5 +149,15 @@ public class BCIModule extends AbstractEvoModel {
 
     public Set<BehaviorChangeInterventionPhase> getBehaviorChangeInterventionPhases() {
         return behaviorChangeInterventionPhases;
+    }
+
+    public Set<ModuleComposedActivity> getModuleComposedActivities() {
+        return moduleComposedActivities;
+    }
+
+    public void setModuleComposedActivities(ModuleComposedActivity... moduleComposedActivities) {
+        if (moduleComposedActivities != null && moduleComposedActivities.length > 0) {
+            this.moduleComposedActivities.addAll(List.of(moduleComposedActivities));
+        }
     }
 }
