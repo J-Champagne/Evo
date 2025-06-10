@@ -3,7 +3,6 @@ package ca.uqam.latece.evo.server.core.controller.instance;
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
-import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ public class ParticipantController extends AbstractEvoController<Participant> {
 
     /**
      * Creates a Participant in the database.
-     * @param pa Participant.
+     * @param participant Participant.
      * @return The created Participant in JSON format.
      * @throws IllegalArgumentException if pa is null.
      * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
@@ -42,7 +41,6 @@ public class ParticipantController extends AbstractEvoController<Participant> {
         ResponseEntity<Participant> response;
 
         try {
-            ObjectValidator.validateObject(participant);
             Participant saved = participantService.create(participant);
 
             if (saved != null && saved.getId() > 0) {
@@ -62,7 +60,7 @@ public class ParticipantController extends AbstractEvoController<Participant> {
 
     /**
      * Updates a Participant in the database.
-     * @param pa Participant.
+     * @param participant Participant.
      * @return The updated Participant in JSON format.
      * @throws IllegalArgumentException if pa is null.
      * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
@@ -74,7 +72,6 @@ public class ParticipantController extends AbstractEvoController<Participant> {
         ResponseEntity<Participant> response;
 
         try {
-            ObjectValidator.validateObject(participant);
             Participant updated = participantService.update(participant);
 
             if (updated != null && updated.getId().equals(participant.getId())) {
@@ -144,7 +141,6 @@ public class ParticipantController extends AbstractEvoController<Participant> {
         ResponseEntity<Participant> response;
 
         try {
-            ObjectValidator.validateObject(id);
             Participant result = participantService.findById(id);
 
             if (result != null && result.getId().equals(id)) {
@@ -174,19 +170,18 @@ public class ParticipantController extends AbstractEvoController<Participant> {
         ResponseEntity<List<Participant>> response;
 
         try {
-            ObjectValidator.validateObject(id);
             List<Participant> result = participantService.findByRoleId(id);
 
             if (result != null && !result.isEmpty()) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found Participant by Role Id: {}", result);
+                logger.info("Found Participant entities by Role Id: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find Participant by Role Id");
+                logger.info("Failed to find Participant entities by Role Id");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find Participant by Role Id. Error: {}", e.getMessage());
+            logger.error("Failed to find Participant entities by Role Id. Error: {}", e.getMessage());
         }
 
         return response;
@@ -204,19 +199,18 @@ public class ParticipantController extends AbstractEvoController<Participant> {
         ResponseEntity<List<Participant>> response;
 
         try {
-            ObjectValidator.validateObject(id);
             List<Participant> result = participantService.findByActorId(id);
 
             if (result != null && !result.isEmpty()) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found Participant by Actor Id: {}", result);
+                logger.info("Found Participant entities by Actor Id: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find Participant by Actor Id");
+                logger.info("Failed to find Participant entities by Actor Id");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find Participant by Actor Id. Error: {}", e.getMessage());
+            logger.error("Failed to find Participant entities by Actor Id. Error: {}", e.getMessage());
         }
 
         return response;

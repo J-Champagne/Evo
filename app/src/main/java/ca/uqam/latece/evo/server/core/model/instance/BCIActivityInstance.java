@@ -49,7 +49,7 @@ public class BCIActivityInstance extends ActivityInstance {
     @Column(name="bci_activity_instance_exit_date", nullable = false)
     private LocalDate exitDate;
 
-    @NotNull
+    //@NotNull
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bci_activity_instance_bci_id", referencedColumnName = "bci_activity_id", nullable = false)
     private BCIActivity bciActivity;
@@ -58,6 +58,21 @@ public class BCIActivityInstance extends ActivityInstance {
     @ManyToMany
     @JoinColumn(name = "bci_activity_instance_participant", referencedColumnName = "participant_id", nullable = false)
     private List<Participant> participants = new ArrayList<>(3);
+
+    public BCIActivityInstance() {}
+
+    public BCIActivityInstance(String status, LocalDate entryDate, LocalDate exitDate) {
+        this.status = status;
+        this.entryDate = entryDate;
+        this.exitDate = exitDate;
+    }
+
+    public BCIActivityInstance(String status, LocalDate entryDate, LocalDate exitDate, List<Participant> participants) {
+        this(status, entryDate, exitDate);
+        for (Participant participant : participants) {
+            this.addParticipant(participant);
+        }
+    }
 
     @Override
     public void setId(Long id) {

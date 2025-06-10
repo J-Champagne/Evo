@@ -734,3 +734,47 @@ CREATE TABLE IF NOT EXISTS bci_phase_contains_module (
      CONSTRAINT bci_phase_contains_module_phase_fkey FOREIGN KEY (bci_phase_contains_module_phase_id)
          REFERENCES behavior_change_intervention_phase (behavior_change_intervention_phase_id)
 );
+
+/***********************************************************************************************************************
+    bci_block_instance table: Holds data for the instances of bci_block (BehaviorChangeInterventionBlockInstance class).
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_block_instance (
+    bci_block_instance_id BIGSERIAL NOT NULL,
+    bci_block_instance_stage VARCHAR(128) NOT NULL,
+    CONSTRAINT bci_block_instance_pk PRIMARY KEY (bci_block_instance_id)
+);
+
+/***********************************************************************************************************************
+    bci_block_instance_activities table: Junction table for the many-to-many relationship
+        between bci_block_instance and bci_activity_instance.
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_block_instance_activities (
+    bci_block_instance_activities_id BIGSERIAL NOT NULL,
+    bci_block_instance_activities_block_id BIGINT NOT NULL,
+    bci_block_instance_activities_activity_id BIGINT NOT NULL,
+    CONSTRAINT bci_block_instance_activities_pk PRIMARY KEY (bci_block_instance_activities_id),
+    CONSTRAINT bci_block_instance_activities_block_fkey FOREIGN KEY (bci_block_instance_activities_block_id) REFERENCES bci_block_instance (bci_block_instance_id),
+    CONSTRAINT bci_block_instance_activities_activity_fkey FOREIGN KEY (bci_block_instance_activities_activity_id) REFERENCES bci_activity_instance (bci_activity_instance_id)
+);
+
+/***********************************************************************************************************************
+    bci_module_instance table: Holds data for the instances of bci_module(BCIModuleInstance class).
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_module_instance (
+    bci_module_instance_id BIGSERIAL NOT NULL,
+    bci_module_instance_outcome VARCHAR(128) NULL,
+    CONSTRAINT bci_module_instance_pk PRIMARY KEY (bci_module_instance_id)
+);
+
+/***********************************************************************************************************************
+    bci_module_instance_activities table: Junction table for the many-to-many relationship
+        between bci_module_instance and bci_activity_instance.
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_module_instance_activities (
+    bci_module_instance_activities_id BIGSERIAL NOT NULL,
+    bci_module_instance_activities_module_id BIGINT NOT NULL,
+    bci_module_instance_activities_activity_id BIGINT NOT NULL,
+    CONSTRAINT bci_module_instance_activities_pk PRIMARY KEY (bci_module_instance_activities_id),
+    CONSTRAINT bci_module_instance_activities_module_fkey FOREIGN KEY (bci_module_instance_activities_module_id) REFERENCES bci_module_instance (bci_module_instance_id),
+    CONSTRAINT bci_module_instance_activities_activity_fkey FOREIGN KEY (bci_module_instance_activities_activity_id) REFERENCES bci_activity_instance (bci_activity_instance_id)
+);

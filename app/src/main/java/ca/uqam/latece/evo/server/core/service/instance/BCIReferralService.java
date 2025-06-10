@@ -112,7 +112,7 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
     /**
      * Finds a BCIReferral by its id.
      * @param id Long.
-     * @return List<BCIReferral> with the given id.
+     * @return BCIReferral with the given id.
      * @throws IllegalArgumentException if id is null.
      */
     @Override

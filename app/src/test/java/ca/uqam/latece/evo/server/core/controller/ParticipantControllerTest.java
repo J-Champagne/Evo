@@ -36,12 +36,12 @@ public class ParticipantControllerTest extends AbstractControllerTest {
     @MockBean
     private RoleRepository roleRepository;
 
-    Role role = new Role("Administrator");
+    private Role role = new Role("Administrator");
 
-    HealthCareProfessional hcp = new HealthCareProfessional("Bob", "bob@gmail.com", "222-2222", role,
+    private HealthCareProfessional hcp = new HealthCareProfessional("Bob", "bob@gmail.com", "222-2222", role,
             "Student", "New-York", "Health");
 
-    Participant participant = new Participant(role, hcp);
+    private Participant participant = new Participant(role, hcp);
 
     private static final String url = "/participant";
 
