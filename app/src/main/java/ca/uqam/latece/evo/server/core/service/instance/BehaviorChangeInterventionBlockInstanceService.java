@@ -17,7 +17,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
+<<<<<<< HEAD
  * BehaviorChangeInterventionBlockInstance Service.
+=======
+ * BCIReferral Service.
+>>>>>>> 338f438 (Im plementation of BehaviorChangeInterventionBlockInstanceService)
  * @author Julien Champagne.
  */
 @Service
