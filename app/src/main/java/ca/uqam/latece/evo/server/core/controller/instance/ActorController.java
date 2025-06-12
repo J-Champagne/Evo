@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.service.instance.ActorService;
 import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
@@ -8,7 +7,6 @@ import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +23,10 @@ import java.util.List;
 
 /**
  * Actor Controller.
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @since 22.01.2025.
+ * @version 1.0
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @RestController
 @RequestMapping("/actor")
@@ -39,9 +40,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 * Creates an Actor in the database.
 	 * @param actor Actor.
 	 * @return The created Actor in JSON format.
-	 * @throws IllegalArgumentException if actor is null or if another Actor was saved with the same email.
-	 * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-	 *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
+	 * @throws IllegalArgumentException if an actor is null or if another Actor was saved with the same email.
 	 */
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
@@ -56,7 +55,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 				logger.info("Created Actor: {}", saved);
 			} else {
 				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to create new Actor");
+				logger.info("Failed to create new Actor.");
 			}
 
 		} catch (Exception e) {
@@ -71,9 +70,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 * Updates an Actor in the database.
 	 * @param actor Actor.
 	 * @return The updated Actor in JSON format.
-	 * @throws IllegalArgumentException if actor is null or if another Actor was saved with the same email.
-	 * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-	 *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
+	 * @throws IllegalArgumentException if an actor is null or if another Actor was saved with the same email.
 	 */
 	@PutMapping
 	@ResponseStatus(HttpStatus.OK)
@@ -88,7 +85,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 				logger.info("Updated Actor: {}", updated);
 			} else {
 				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to update new Actor");
+				logger.info("Failed to update new Actor.");
 			}
 
 		} catch (Exception e) {
@@ -102,7 +99,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	/**
 	 * Deletes an Actor by its id.
 	 * Silently ignored if not found.
-	 * @param id Long.
+	 * @param id the actor id.
 	 * @throws IllegalArgumentException if id is null.
 	 */
     @DeleteMapping("/{id}")
@@ -114,7 +111,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 
 	/**
 	 * Finds all Actor entities.
-	 * @return List<Actor> in JSON format.
+	 * @return List of Actors in JSON format.
 	 */
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
@@ -129,7 +126,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 				logger.info("Found all Actor entities: {}", result);
 			} else {
 				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to find all Actor entities");
+				logger.info("Failed to find all Actor entities.");
 			}
 
 		} catch (Exception e) {
@@ -142,7 +139,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 
 	/**
 	 * Finds an Actor by its id.
-	 * @param id Long.
+	 * @param id the actor id.
 	 * @return Actor in JSON format.
 	 * @throws IllegalArgumentException if id is null.
 	 */
@@ -159,7 +156,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 				logger.info("Found Actor entity: {}", result);
 			} else {
 				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to find Actor entity");
+				logger.info("Failed to find Actor entity.");
 			}
 
 		} catch (Exception e) {
@@ -171,10 +168,10 @@ public class ActorController extends AbstractEvoController<Actor> {
 	}
 
 	/**
-	 * Finds Patient entities by their name.
-	 * @param name String.
-	 * @return List<Actor> in JSON format.
-	 * @throws IllegalArgumentException if contactInformation is null or blank.
+	 * Finds actor entities by their name.
+	 * @param name the actor name.
+	 * @return List of Actors in JSON format.
+	 * @throws IllegalArgumentException if name is null or blank.
 	 */
 	@GetMapping("/find/name/{name}")
 	@ResponseStatus(HttpStatus.OK)
@@ -189,7 +186,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 				logger.info("Found Actor entities by name: {}", result);
 			} else {
 				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to find Actor entities by name");
+				logger.info("Failed to find Actor entities by name.");
 			}
 
 		} catch (Exception e) {
@@ -202,7 +199,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	
 	/**
 	 * Finds an Actor by its email.
-	 * @param email String.
+	 * @param email the actor email.
 	 * @return Actor in JSON format.
 	 * @throws IllegalArgumentException if email is null or blank.
 	 */
@@ -219,7 +216,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 				logger.info("Found Actor entity by email: {}", result);
 			} else {
 				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to find Actor entity by email");
+				logger.info("Failed to find Actor entity by email.");
 			}
 
 		} catch (Exception e) {
@@ -232,8 +229,8 @@ public class ActorController extends AbstractEvoController<Actor> {
 
 	/**
 	 * Finds Actor entities by their contact information.
-	 * @param contactInformation String.
-	 * @return List<Actor> in JSON format.
+	 * @param contactInformation the actor contact information.
+	 * @return List of Actors in JSON format.
 	 * @throws IllegalArgumentException if contactInformation is null or blank.
 	 */
 	@GetMapping("/find/contactinformation/{contactInformation}")
@@ -249,7 +246,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 				logger.info("Found Actor entities by contact information: {}", result);
 			} else {
 				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to find Actor entities by contact information");
+				logger.info("Failed to find Actor entities by contact information.");
 			}
 
 		} catch (Exception e) {
@@ -260,61 +257,4 @@ public class ActorController extends AbstractEvoController<Actor> {
 		return response;
 	}
 
-	/**
-	 * Finds Actor entities by their role.
-	 * @param role Role.
-	 * @return List<Actor> in JSON format.
-	 * @throws IllegalArgumentException if role is null.
-	 */
-	@GetMapping("/find/role")
-	@ResponseStatus(HttpStatus.OK)
-	public ResponseEntity<List<Actor>> findByRole(@RequestBody Role role) {
-		ResponseEntity<List<Actor>> response;
-
-		try {
-			List<Actor> result = actorService.findByRole(role);
-
-			if (result != null && !result.isEmpty()) {
-				response = new ResponseEntity<>(result, HttpStatus.OK);
-				logger.info("Found Actor entities by Role: {}", result);
-			} else {
-				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to find Actor entities by Role.");
-			}
-		} catch (Exception e) {
-			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-			logger.error("Failed to find Actor entities by Role. Error: {}", e.getMessage());
-		}
-
-		return response;
-	}
-
-	/**
-	 * Finds Actor entities by their role id.
-	 * @param id Long.
-	 * @return List<Actor> in JSON format.
-	 * @throws IllegalArgumentException if id is null.
-	 */
-	@GetMapping("/find/role/{id}")
-	@ResponseStatus(HttpStatus.OK)
-	public ResponseEntity<List<Actor>> findByRole(@PathVariable Long id) {
-		ResponseEntity<List<Actor>> response;
-
-		try {
-			List<Actor> result = actorService.findByRoleId(id);
-
-			if (result != null && !result.isEmpty()) {
-				response = new ResponseEntity<>(result, HttpStatus.OK);
-				logger.info("Found Actor entities by Role id: {}", result);
-			} else {
-				response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				logger.info("Failed to find Actor entities by Role id.");
-			}
-		} catch (Exception e) {
-			response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-			logger.error("Failed to find Actor entities by Role id. Error: {}", e.getMessage());
-		}
-
-		return response;
-	}
 }

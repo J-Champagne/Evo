@@ -18,7 +18,8 @@ import java.util.List;
 /**
  * BCIActivityInstance Controller.
  * @version 1.0
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @RestController
 @RequestMapping("/bciactivityinstance")
@@ -193,7 +194,7 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
 
     /**
      * Finds a BCIActivityInstance by its Participant id.
-     * @param id Long.
+     * @param id the Participant id.
      * @return BCIActivityInstance in JSON format.
      * @throws IllegalArgumentException if id is null.
      */

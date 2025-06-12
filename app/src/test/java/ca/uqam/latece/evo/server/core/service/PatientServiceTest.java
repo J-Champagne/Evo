@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
 import ca.uqam.latece.evo.server.core.service.instance.PatientMedicalFileService;
@@ -17,8 +16,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests methods found in ActorService in a containerized setup.
+ * The test class for the {@link PatientService}, responsible for testing its various functionalities. This class
+ * includes integration tests for CRUD operations and other repository queries using a PostgreSQL database in a containerized setup.
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos
  */
 @ContextConfiguration(classes = {Patient.class, PatientService.class, RoleService.class})
 public class PatientServiceTest extends AbstractServiceTest {
@@ -26,21 +29,16 @@ public class PatientServiceTest extends AbstractServiceTest {
     private PatientService patientService;
 
     @Autowired
-    private RoleService roleService;
-
-    @Autowired
     private PatientMedicalFileService patientMedicalFileService;
 
     private Patient patientSaved;
 
-    private Role roleSaved;
 
     @BeforeEach
     void setUp() {
-        roleSaved = roleService.create(new Role("Administrator"));
         PatientMedicalFile pmf = patientMedicalFileService.create(new PatientMedicalFile("Healthy"));
         patientSaved = patientService.create(new Patient("Bob", "bob@gmail.com", "222-2222",
-                roleSaved, "1901-01-01", "Participant", "3333 Street", pmf));
+                "1901-01-01", "Participant", "3333 Street", pmf));
     }
 
     @Test
@@ -71,8 +69,8 @@ public class PatientServiceTest extends AbstractServiceTest {
     @Test
     @Override
     void testFindAll() {
-        patientService.create(new Patient("Bob2", "bob2@gmail.com", "444-4444", roleSaved,
-                        "1901-01-01", "Participant", "Brussels"));
+        patientService.create(new Patient("Bob2", "bob2@gmail.com", "444-4444",
+                "1901-01-01", "Participant", "Brussels"));
         List<Patient> results = patientService.findAll();
 
         assertEquals(2, results.size());
@@ -91,8 +89,8 @@ public class PatientServiceTest extends AbstractServiceTest {
         List<Patient> results = patientService.findByName(patientSaved.getName());
 
         assertFalse(results.isEmpty());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
-        assertEquals(patientSaved.getName(), results.get(0).getName());
+        assertEquals(patientSaved.getId(), results.getFirst().getId());
+        assertEquals(patientSaved.getName(), results.getFirst().getName());
     }
 
     @Test
@@ -108,26 +106,8 @@ public class PatientServiceTest extends AbstractServiceTest {
         List<Patient> results = patientService.findByContactInformation(patientSaved.getContactInformation());
 
         assertFalse(results.isEmpty());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
-        assertEquals(patientSaved.getContactInformation(), results.get(0).getContactInformation());
-    }
-
-    @Test
-    void testFindByRole() {
-        List<Patient> results = patientService.findByRole(patientSaved.getRole());
-
-        assertFalse(results.isEmpty());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
-        assertEquals(patientSaved.getRole().getId(), results.get(0).getRole().getId());
-    }
-
-    @Test
-    void testFindByRoleId() {
-        List<Patient> results = patientService.findByRoleId(patientSaved.getRole().getId());
-
-        assertFalse(results.isEmpty());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
-        assertEquals(patientSaved.getRole().getId(), results.get(0).getRole().getId());
+        assertEquals(patientSaved.getId(), results.getFirst().getId());
+        assertEquals(patientSaved.getContactInformation(), results.getFirst().getContactInformation());
     }
 
     @Test
@@ -135,8 +115,8 @@ public class PatientServiceTest extends AbstractServiceTest {
         List<Patient> results = patientService.findByBirthdate(patientSaved.getBirthdate());
 
         assertFalse(results.isEmpty());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
-        assertEquals(patientSaved.getBirthdate(), results.get(0).getBirthdate());
+        assertEquals(patientSaved.getId(), results.getFirst().getId());
+        assertEquals(patientSaved.getBirthdate(), results.getFirst().getBirthdate());
     }
 
     @Test
@@ -144,8 +124,8 @@ public class PatientServiceTest extends AbstractServiceTest {
         List<Patient> results = patientService.findByOccupation(patientSaved.getOccupation());
 
         assertFalse(results.isEmpty());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
-        assertEquals(patientSaved.getOccupation(), results.get(0).getOccupation());
+        assertEquals(patientSaved.getId(), results.getFirst().getId());
+        assertEquals(patientSaved.getOccupation(), results.getFirst().getOccupation());
     }
 
     @Test
@@ -153,8 +133,8 @@ public class PatientServiceTest extends AbstractServiceTest {
         List<Patient> results = patientService.findByAddress(patientSaved.getAddress());
 
         assertFalse(results.isEmpty());
-        assertEquals(patientSaved.getId(), results.get(0).getId());
-        assertEquals(patientSaved.getAddress(), results.get(0).getAddress());
+        assertEquals(patientSaved.getId(), results.getFirst().getId());
+        assertEquals(patientSaved.getAddress(), results.getFirst().getAddress());
     }
 
     @Test

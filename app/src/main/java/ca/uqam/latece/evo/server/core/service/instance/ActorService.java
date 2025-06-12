@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.repository.instance.ActorRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -10,7 +9,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +16,10 @@ import java.util.List;
 
 /**
  * Actor Service.
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @since 22.01.2025.
+ * @version 1.0
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @Service
 @Transactional
@@ -33,9 +34,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	 * Creates an Actor in the database.
 	 * @param actor Actor.
 	 * @return The created Actor.
-	 * @throws IllegalArgumentException if actor is null or if another Actor was saved with the same email.
-	 * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-	 *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
+	 * @throws IllegalArgumentException if an actor is null or if another Actor was saved with the same email.
 	 */
 	@Override
 	public Actor create(Actor actor) {
@@ -61,9 +60,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	 * Updates an Actor in the database.
 	 * @param actor Actor.
 	 * @return The updated Actor.
-	 * @throws IllegalArgumentException if actor is null or if another Actor was saved with the same email.
-	 * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-	 *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
+	 * @throws IllegalArgumentException if an actor is null or if another Actor was saved with the same email.
 	 */
 	@Override
 	public Actor update(Actor actor) {
@@ -94,9 +91,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	 * Saves the given Actor in the database.
 	 * @param actor Actor.
 	 * @return The saved Actor.
-	 * @throws IllegalArgumentException if actor is null or if another Actor was saved with the same email.
-	 * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-	 *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
+	 * @throws IllegalArgumentException if an actor is null or if another Actor was saved with the same email.
 	 */
 	@Override
 	@Transactional
@@ -119,7 +114,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	
 	/**
 	 * Finds all Actor entities.
-	 * @return List<Actor>.
+	 * @return List of Actor.
 	 */
 	@Override
 	public List<Actor> findAll() {
@@ -128,7 +123,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	
 	/**
 	 * Finds an Actor by its id.
-	 * @param id Long.
+	 * @param id The Actor id.
 	 * @return Actor with the given id.
 	 * @throws IllegalArgumentException if id is null.
 	 */
@@ -141,7 +136,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 
 	/**
 	 * Finds Actor entities by their name.
-	 * @param name String.
+	 * @param name The Actor name.
 	 * @return Actor with the given name.
 	 * @throws IllegalArgumentException if name is null or blank.
 	 */
@@ -152,7 +147,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 
 	/**
 	 * Finds an Actor by its email.
-	 * @param email String.
+	 * @param email The Actor email.
 	 * @return Actor with the given email.
 	 * @throws IllegalArgumentException if email is null or blank.
 	 */
@@ -163,8 +158,8 @@ public class ActorService extends AbstractEvoService<Actor> {
 
 	/**
 	 * Finds Actor entities by their contactInformation.
-	 * @param contactInformation String.
-	 * @return List<Actor> with the given contactInformation.
+	 * @param contactInformation The Actor contact information.
+	 * @return List of Actor with the given contactInformation.
 	 * @throws IllegalArgumentException if contactInformation is null or blank.
 	 */
 	public List<Actor> findByContactInformation(String contactInformation) {
@@ -173,31 +168,9 @@ public class ActorService extends AbstractEvoService<Actor> {
 	}
 
 	/**
-	 * Finds Actor entities by their Role.
-	 * @param role Role.
-	 * @return List<Actor> with the specified Role.
-	 * @throws IllegalArgumentException if role is null.
-	 */
-	public List<Actor> findByRole(Role role) {
-		ObjectValidator.validateObject(role);
-		return actorRepository.findByRole(role);
-	}
-
-	/**
-	 * Finds Actor entities by their Role id.
-	 * @param id Long.
-	 * @return List<Actor> with the specified Role id.
-	 * @throws IllegalArgumentException if id is null.
-	 */
-	public List<Actor> findByRoleId(Long id) {
-		ObjectValidator.validateId(id);
-		return actorRepository.findByRoleId(id);
-	}
-
-	/**
 	 * Checks if an Actor exists in the database by its id
-	 * @param id Long
-	 * @return boolean
+	 * @param id the Actor id.
+	 * @return true if exists, otherwise false.
 	 * @throws IllegalArgumentException if id is null.
 	 */
 	@Override
@@ -208,19 +181,19 @@ public class ActorService extends AbstractEvoService<Actor> {
 
 	/**
 	 * Checks if an Actor exists in the database by its email
-	 * @param email String
-	 * @return boolean
+	 * @param email The Actor email.
+	 * @return true if exists, otherwise false.
 	 * @throws IllegalArgumentException if email is null or blank.
 	 */
 	public boolean existsByEmail(String email) {
-		ObjectValidator.validateString(email);
+		ObjectValidator.validateEmail(email);
 		return actorRepository.existsByEmail(email);
 	}
 
 	/**
 	 * Creates an IllegalArgumentException with a message indicating that an Actor with the same email was found.
 	 * @param actor Actor.
-	 * @return IllegalArgumentException.
+	 * @return IllegalArgumentException indicating that an Actor with the same email was found.
 	 */
 	private IllegalArgumentException createDuplicateActorException(Actor actor) {
 		IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_EMAIL_ALREADY_REGISTERED +

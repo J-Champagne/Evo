@@ -21,8 +21,13 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests methods found in ParticipantController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * The Participant Controller test class for the {@link ParticipantController}, responsible for testing its various
+ * functionalities. This class includes integration tests for CRUD operations supported the controller class, using
+ * WebMvcTes, and repository queries using MockMvc (Mockito).
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = ParticipantController.class)
 @ContextConfiguration(classes = {Participant.class, ParticipantService.class, ParticipantController.class})
@@ -38,7 +43,7 @@ public class ParticipantControllerTest extends AbstractControllerTest {
 
     private Role role = new Role("Administrator");
 
-    private HealthCareProfessional hcp = new HealthCareProfessional("Bob", "bob@gmail.com", "222-2222", role,
+    private HealthCareProfessional hcp = new HealthCareProfessional("Bob", "bob@gmail.com", "222-2222",
             "Student", "New-York", "Health");
 
     private Participant participant = new Participant(role, hcp);
@@ -66,7 +71,7 @@ public class ParticipantControllerTest extends AbstractControllerTest {
     @Override
     void testUpdate() throws Exception {
         HealthCareProfessional hcpUpdated = new HealthCareProfessional("Bob2", "bob2@gmail.com", "222-2222",
-                role, "Student", "New-York", "Health");
+                "Student", "New-York", "Health");
         Participant updated = new Participant(role, hcpUpdated);
         hcpUpdated.setId(2L);
         updated.setId(1L);

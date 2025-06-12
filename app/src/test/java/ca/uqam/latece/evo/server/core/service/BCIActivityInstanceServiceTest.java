@@ -27,8 +27,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * The test class for the {@link BCIActivityInstanceService}, responsible for testing its various functionalities.
  * This class includes integration tests for CRUD operations and other repository queries using a
  * PostgreSQL database in a containerized setup.
+ *
  * @version 1.0
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @ContextConfiguration(classes = {BCIActivityInstanceService.class, BCIActivity.class})
 public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
@@ -95,7 +97,6 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         hcp.setName("Bob");
         hcp.setEmail("bob@gmail.com");
         hcp.setContactInformation("222-2222");
-        hcp.setRole(role);
         hcp.setAffiliation("CIUSSS");
         hcp.setPosition("Chief");
         hcp.setSpecialties("None");

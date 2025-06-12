@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
 import ca.uqam.latece.evo.server.core.service.instance.PatientAssessmentService;
@@ -17,8 +16,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests methods found in PatientAssessmentService in a containerized setup.
+ * The test class for the {@link PatientAssessmentService}, responsible for testing its various functionalities. This
+ * class includes integration tests for CRUD operations and other repository queries using a PostgreSQL database in a
+ * containerized setup.
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @ContextConfiguration(classes = {PatientAssessment.class, PatientAssessmentService.class})
 public class PatientAssessmentServiceTest extends AbstractServiceTest {
@@ -26,12 +30,7 @@ public class PatientAssessmentServiceTest extends AbstractServiceTest {
     private PatientAssessmentService patientAssessmentService;
 
     @Autowired
-    private RoleService roleService;
-
-    @Autowired
     private PatientService patientService;
-
-    private Role roleSaved;
 
     private Patient patientSaved;
 
@@ -39,9 +38,8 @@ public class PatientAssessmentServiceTest extends AbstractServiceTest {
 
     @BeforeEach
     void setUp() {
-        roleSaved = roleService.create(new Role("Administrator"));
-        patientSaved = patientService.create(new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333", roleSaved,
-                "3 December 455", "King", "Camelot, Britain"));
+        patientSaved = patientService.create(new Patient("Arthur Pendragon", "kingarthur@gmail.com",
+                "438-333-3333","3 December 455", "King", "Camelot, Britain"));
         paSaved = patientAssessmentService.create(new PatientAssessment("Good to go", patientSaved));
     }
 
@@ -66,8 +64,7 @@ public class PatientAssessmentServiceTest extends AbstractServiceTest {
     void testDeleteById() {
         patientAssessmentService.deleteById(paSaved.getId());
 
-        assertThrows(EntityNotFoundException.class, () -> patientAssessmentService.
-                findById(paSaved.getId()));
+        assertThrows(EntityNotFoundException.class, () -> patientAssessmentService.findById(paSaved.getId()));
     }
 
     @Test
@@ -91,8 +88,8 @@ public class PatientAssessmentServiceTest extends AbstractServiceTest {
         List<PatientAssessment> result = patientAssessmentService.findByDate(paSaved.getDate());
 
         assertFalse(result.isEmpty());
-        assertEquals(paSaved.getId(), result.get(0).getId());
-        assertEquals(paSaved.getDate(), result.get(0).getDate());
+        assertEquals(paSaved.getId(), result.getFirst().getId());
+        assertEquals(paSaved.getDate(), result.getFirst().getDate());
     }
 
     @Test
@@ -100,8 +97,8 @@ public class PatientAssessmentServiceTest extends AbstractServiceTest {
         List<PatientAssessment> result = patientAssessmentService.findByPatient(paSaved.getPatient());
 
         assertFalse(result.isEmpty());
-        assertEquals(paSaved.getId(), result.get(0).getId());
-        assertEquals(paSaved.getPatient().getId(), result.get(0).getPatient().getId());
+        assertEquals(paSaved.getId(), result.getFirst().getId());
+        assertEquals(paSaved.getPatient().getId(), result.getFirst().getPatient().getId());
     }
 
     @Test
@@ -109,7 +106,7 @@ public class PatientAssessmentServiceTest extends AbstractServiceTest {
         List<PatientAssessment> result = patientAssessmentService.findByPatientId(paSaved.getPatient().getId());
 
         assertFalse(result.isEmpty());
-        assertEquals(paSaved.getId(), result.get(0).getId());
-        assertEquals(paSaved.getPatient().getId(), result.get(0).getPatient().getId());
+        assertEquals(paSaved.getId(), result.getFirst().getId());
+        assertEquals(paSaved.getPatient().getId(), result.getFirst().getPatient().getId());
     }
 }

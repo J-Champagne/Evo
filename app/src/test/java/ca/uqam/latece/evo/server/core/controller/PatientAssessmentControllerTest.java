@@ -1,10 +1,8 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.PatientAssessmentController;
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
-import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientAssessmentRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientRepository;
 import ca.uqam.latece.evo.server.core.service.instance.PatientAssessmentService;
@@ -21,8 +19,13 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests methods found in PatientAssessmentController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * The Patient Assessment controller test class for the {@link PatientAssessmentController}, responsible for testing its
+ * various functionalities. This class includes integration tests for CRUD operations supported the controller class, using
+ * WebMvcTes, and repository queries using MockMvc (Mockito).
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = PatientAssessmentController.class)
 @ContextConfiguration(classes = {PatientAssessment.class, PatientAssessmentService.class, PatientAssessmentController.class})
@@ -31,14 +34,9 @@ public class PatientAssessmentControllerTest extends AbstractControllerTest {
     private PatientAssessmentRepository patientAssessmentRepository;
 
     @MockBean
-    private RoleRepository roleRepository;
-
-    @MockBean
     private PatientRepository patientRepository;
 
-    private Role role = new Role("Administrator");
-
-    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333", role,
+    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
             "3 December 455", "King", "Camelot, Britain");
 
     private PatientAssessment pa = new PatientAssessment("Ready", patient);
@@ -48,11 +46,9 @@ public class PatientAssessmentControllerTest extends AbstractControllerTest {
     @BeforeEach
     @Override
     void setUp() {
-        role.setId(1L);
         patient.setId(1L);
         pa.setId(1L);
 
-        when(roleRepository.save(role)).thenReturn(role);
         when(patientRepository.save(patient)).thenReturn(patient);
         when(patientAssessmentRepository.save(pa)).thenReturn(pa);
     }
@@ -107,23 +103,23 @@ public class PatientAssessmentControllerTest extends AbstractControllerTest {
     void testFindByAssessment() throws Exception {
         when(patientAssessmentRepository.findByAssessment(pa.getAssessment())).thenReturn(Collections.singletonList(pa));
 
-        performGetRequest(url + "/find/assessment/" + pa.getAssessment(),
-                "$[0].assessment", pa.getAssessment());
+        performGetRequest(url + "/find/assessment/" + pa.getAssessment(), "$[0].assessment",
+                pa.getAssessment());
     }
 
     @Test
     void testFindByPatient() throws Exception {
         when(patientAssessmentRepository.findByPatient(pa.getPatient())).thenReturn(Collections.singletonList(pa));
 
-        performGetRequest(url + "/find/patient", pa.getPatient(),
-                "$[0].patient.id", pa.getPatient().getId());
+        performGetRequest(url + "/find/patient", pa.getPatient(),"$[0].patient.id",
+                pa.getPatient().getId());
     }
 
     @Test
     void testFindByPatientId() throws Exception {
         when(patientAssessmentRepository.findByPatientId(pa.getPatient().getId())).thenReturn(Collections.singletonList(pa));
 
-        performGetRequest(url + "/find/patient/" + pa.getPatient().getId(),
-                "$[0].patient.id", pa.getPatient().getId());
+        performGetRequest(url + "/find/patient/" + pa.getPatient().getId(), "$[0].patient.id",
+                pa.getPatient().getId());
     }
 }

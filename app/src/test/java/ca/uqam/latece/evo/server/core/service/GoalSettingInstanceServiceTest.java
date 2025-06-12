@@ -28,8 +28,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * The test class for the {@link GoalSettingInstanceService}, responsible for testing its various functionalities.
  * This class includes integration tests for CRUD operations and other repository queries using a
  * PostgreSQL database in a containerized setup.
- * @version 1.0s
- * @author Edilton Lima dos Santos && Julien Champagne.
+ *
+ * @version 1.0
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @ContextConfiguration(classes = {GoalSettingInstanceService.class, GoalSettingInstance.class})
 public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
@@ -183,7 +185,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         hcp.setName("Bob");
         hcp.setEmail("bob@gmail.com");
         hcp.setContactInformation("222-2222");
-        hcp.setRole(role);
         hcp.setAffiliation("CIUSSS");
         hcp.setPosition("Chief");
         hcp.setSpecialties("None");
@@ -322,7 +323,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
 
         // Tests.
         assertEquals(1, found.size());
-        assertEquals(goalSettingInstance.getStatus(), found.get(0).getStatus());
+        assertEquals(goalSettingInstance.getStatus(), found.getFirst().getStatus());
     }
 
     @Test
@@ -366,6 +367,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         // Find by ParticipantId
         GoalSettingInstance goalSettingInstanceFound = goalSettingInstanceService.findByParticipantsId(participant.getId());
         assertEquals(1, goalSettingInstanceFound.getParticipants().size());
-        assertEquals(participant.getId(), goalSettingInstanceFound.getParticipants().get(0).getId());
+        assertEquals(participant.getId(), goalSettingInstanceFound.getParticipants().getFirst().getId());
     }
 }

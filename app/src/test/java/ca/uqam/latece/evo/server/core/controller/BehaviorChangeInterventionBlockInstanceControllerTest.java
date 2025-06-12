@@ -26,8 +26,13 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests methods found in ParticipantController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * The Behavior Change Intervention Block Instance Controller test class for the {@link BehaviorChangeInterventionBlockInstanceController},
+ * responsible for testing its various functionalities. This class includes integration tests for CRUD operations supported
+ * the controller class, using WebMvcTes, and repository queries using MockMvc (Mockito).
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = BehaviorChangeInterventionBlockInstanceController.class)
 @ContextConfiguration(classes = {BehaviorChangeInterventionBlockInstance.class, BehaviorChangeInterventionBlockInstanceService.class,
@@ -42,7 +47,7 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
     private Role role = new Role("Administrator");
 
     private Participant participant = new Participant(role, new HealthCareProfessional("Bob", "bob@gmail.com",
-            "222-2222", role, "Student", "New-York", "Health"));
+            "222-2222", "Student", "New-York", "Health"));
 
     private List<Participant> participants = List.of(participant);
 
@@ -109,8 +114,8 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
 
     @Test
     void testFindByActivitiesId() throws Exception {
-        when(bciBlockInstanceRepository.findByActivitiesId(blockInstance.getActivities().get(0).getId())).thenReturn(Collections.singletonList(blockInstance));
-        performGetRequest(url + "/find/activities/" + blockInstance.getActivities().get(0).getId(),
+        when(bciBlockInstanceRepository.findByActivitiesId(blockInstance.getActivities().getFirst().getId())).thenReturn(Collections.singletonList(blockInstance));
+        performGetRequest(url + "/find/activities/" + blockInstance.getActivities().getFirst().getId(),
                 "$[0].id", blockInstance.getId());
     }
 }

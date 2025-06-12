@@ -1,7 +1,6 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.model.instance.Actor;
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.service.instance.ActorService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -15,25 +14,23 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests methods found in ActorService in a containerized setup.
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * The test class for the {@link ActorService}, responsible for testing its various functionalities. This class includes
+ * integration tests for CRUD operations and other repository queries using a PostgreSQL database in a containerized setup.
+ *
+ * @version 1.0
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
-@ContextConfiguration(classes = {Actor.class, ActorService.class, RoleService.class})
+@ContextConfiguration(classes = {Actor.class, ActorService.class})
 public class ActorServiceTest extends AbstractServiceTest {
     @Autowired
     private ActorService actorService;
-
-    @Autowired
-    private RoleService roleService;
-
-    private Role roleSaved;
 
     private Actor actorSaved;
 
     @BeforeEach
     void setup() {
-        roleSaved = roleService.create(new Role("Administrator"));
-        actorSaved = actorService.create(new Actor("Bob", "bob@gmail.com", "222-2222", roleSaved));
+        actorSaved = actorService.create(new Actor("Bob", "bob@gmail.com", "222-2222"));
     }
 
     @Test
@@ -64,7 +61,7 @@ public class ActorServiceTest extends AbstractServiceTest {
     @Test
     @Override
     public void testFindAll() {
-        actorService.create(new Actor("Bob2", "bob2@gmail.com", "222-2222", roleSaved));
+        actorService.create(new Actor("Bob2", "bob2@gmail.com", "222-2222"));
         List<Actor> result = actorService.findAll();
 
         assertEquals(2, result.size());
@@ -83,8 +80,8 @@ public class ActorServiceTest extends AbstractServiceTest {
         List<Actor> result = actorService.findByName(actorSaved.getName());
 
         assertFalse(result.isEmpty());
-        assertEquals(actorSaved.getId(), result.get(0).getId());
-        assertEquals(actorSaved.getName(), result.get(0).getName());
+        assertEquals(actorSaved.getId(), result.getFirst().getId());
+        assertEquals(actorSaved.getName(), result.getFirst().getName());
     }
 
     @Test
@@ -100,25 +97,7 @@ public class ActorServiceTest extends AbstractServiceTest {
         List<Actor> result = actorService.findByContactInformation(actorSaved.getContactInformation());
 
         assertFalse(result.isEmpty());
-        assertEquals(actorSaved.getId(), result.get(0).getId());
-        assertEquals(actorSaved.getContactInformation(), result.get(0).getContactInformation());
-    }
-
-    @Test
-    public void testFindByRole() {
-        List<Actor> result = actorService.findByRole(roleSaved);
-
-        assertFalse(result.isEmpty());
-        assertEquals(actorSaved.getId(), result.get(0).getId());
-        assertEquals(actorSaved.getRole().getId(), result.get(0).getRole().getId());
-    }
-
-    @Test
-    public void testFindByRoleId() {
-        List<Actor> result = actorService.findByRoleId(roleSaved.getId());
-
-        assertFalse(result.isEmpty());
-        assertEquals(actorSaved.getId(), result.get(0).getId());
-        assertEquals(actorSaved.getRole().getId(), result.get(0).getRole().getId());
+        assertEquals(actorSaved.getId(), result.getFirst().getId());
+        assertEquals(actorSaved.getContactInformation(), result.getFirst().getContactInformation());
     }
 }

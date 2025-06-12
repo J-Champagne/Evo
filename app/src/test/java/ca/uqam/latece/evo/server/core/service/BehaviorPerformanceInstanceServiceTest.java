@@ -25,8 +25,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * The test class for the {@link BehaviorPerformanceInstanceService}, responsible for testing its various functionalities.
  * This class includes integration tests for CRUD operations and other repository queries using a
  * PostgreSQL database in a containerized setup.
+ *
  * @version 1.0
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @ContextConfiguration(classes = {BehaviorPerformanceInstanceService.class, BehaviorPerformanceInstance.class})
 public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest {
@@ -158,7 +160,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         hcp.setName("Bob");
         hcp.setEmail("bob@gmail.com");
         hcp.setContactInformation("222-2222");
-        hcp.setRole(role);
         hcp.setAffiliation("CIUSSS");
         hcp.setPosition("Chief");
         hcp.setSpecialties("None");
@@ -306,7 +307,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         List<BehaviorPerformanceInstance> found = behaviorPerformanceInstanceService.findByStatus(saved.getStatus());
         // Tests.
         assertEquals(1, found.size());
-        assertEquals(behaviorPerformanceInstance.getStatus(), found.get(0).getStatus());
+        assertEquals(behaviorPerformanceInstance.getStatus(), found.getFirst().getStatus());
     }
 
     @Test
@@ -337,6 +338,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         // Find by ParticipantId
         BehaviorPerformanceInstance BehaviorPerformanceFound = behaviorPerformanceInstanceService.findByParticipantsId(participant.getId());
         assertEquals(1, BehaviorPerformanceFound.getParticipants().size());
-        assertEquals(participant.getId(), BehaviorPerformanceFound.getParticipants().get(0).getId());
+        assertEquals(participant.getId(), BehaviorPerformanceFound.getParticipants().getFirst().getId());
     }
 }

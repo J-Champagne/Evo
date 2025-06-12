@@ -1,13 +1,9 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
-import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
-import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
-import ca.uqam.latece.evo.server.core.service.instance.BCIModuleInstanceService;
-import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
-import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
+import ca.uqam.latece.evo.server.core.service.instance.*;
 
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,8 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Tests methods found in BCIModuleInstanceService in a containerized setup.
+ * The test class for the {@link BCIModuleInstanceService}, responsible for testing its various functionalities. This
+ * class includes integration tests for CRUD operations and other repository queries using a PostgreSQL database in a
+ * containerized setup.
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @ContextConfiguration(classes = {BCIModuleInstanceService.class, BCIModuleInstanceService.class})
 public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
@@ -50,7 +51,7 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     public void setUp() {
         Role role = roleService.create(new Role("Administrator"));
         HealthCareProfessional hcp = healthCareProfessionalService.create(new HealthCareProfessional("Bob", "bob@gmail.com",
-                "222-2222", role, "Student", "New-York", "Health"));
+                "222-2222", "Student", "New-York", "Health"));
         Participant participant = participantService.create(new Participant(role, hcp));
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
@@ -60,8 +61,7 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
-        moduleInstance = bciModuleInstanceService.
-                create(new BCIModuleInstance(OutcomeType.SUCCESSFUL, activities));
+        moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance(OutcomeType.SUCCESSFUL, activities));
     }
 
     @Test
@@ -89,8 +89,7 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     @Override
     void testDeleteById() {
         bciModuleInstanceService.deleteById(moduleInstance.getId());
-        assertThrows(EntityNotFoundException.class, () -> bciModuleInstanceService.
-                findById(moduleInstance.getId()));
+        assertThrows(EntityNotFoundException.class, () -> bciModuleInstanceService.findById(moduleInstance.getId()));
     }
 
     @Test
@@ -107,15 +106,15 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
         List<BCIModuleInstance> found = bciModuleInstanceService.findByOutcome(OutcomeType.SUCCESSFUL);
 
         assertEquals(1, found.size());
-        assertEquals(moduleInstance.getId(), found.get(0).getId());
+        assertEquals(moduleInstance.getId(), found.getFirst().getId());
     }
 
     @Test
     void testFindByActivitiesId() {
         List<BCIModuleInstance> found = bciModuleInstanceService.
-                findByActivitiesId(moduleInstance.getActivities().get(0).getId());
+                findByActivitiesId(moduleInstance.getActivities().getFirst().getId());
 
         assertEquals(1, found.size());
-        assertEquals(moduleInstance.getId(), found.get(0).getId());
+        assertEquals(moduleInstance.getId(), found.getFirst().getId());
     }
 }

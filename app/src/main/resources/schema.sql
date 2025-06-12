@@ -31,21 +31,17 @@ actor table: This table stores information about actors (users or individuals) i
   - actor_name: The name of the actor. It's required (NOT NULL).
   - actor_email: The email of the actor, which is also required and must be unique.
   - actor_contactInformation: The contact information of the actor. It's required (NOT NULL).
-  - actor_role: A foreign key referencing the role_id in the role table. It links an actor to a role.
 - Constraints:
   - actor_pkey: Establishes actor_id as the primary key.
   - actor_actor_email_ukey: Ensures that actor_email is unique.
-  - actor_role_fkey: Ensures that actor_role_id references a valid role in the role table.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS actor (
     actor_id BIGSERIAL NOT NULL,
     actor_name VARCHAR NOT NULL,
     actor_email VARCHAR NOT NULL,
     actor_contact_information VARCHAR NOT NULL,
-    actor_role_id BIGINT NOT NULL,
     CONSTRAINT actor_pkey PRIMARY KEY (actor_id),
-    CONSTRAINT actor_actor_email_ukey UNIQUE (actor_email),
-    CONSTRAINT actor_role_fkey FOREIGN KEY (actor_role_id) REFERENCES role (role_id)
+    CONSTRAINT actor_actor_email_ukey UNIQUE (actor_email)
 );
 
 /***********************************************************************************************************************

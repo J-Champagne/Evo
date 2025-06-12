@@ -5,10 +5,7 @@ import ca.uqam.latece.evo.server.core.model.instance.BCIReferral;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
-import ca.uqam.latece.evo.server.core.service.instance.BCIReferralService;
-import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
-import ca.uqam.latece.evo.server.core.service.instance.PatientAssessmentService;
-import ca.uqam.latece.evo.server.core.service.instance.PatientService;
+import ca.uqam.latece.evo.server.core.service.instance.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +17,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests methods found in BCIReferralService in a containerized setup.
+ * The test class for the {@link BCIReferralService}, responsible for testing its various functionalities. This
+ * class includes integration tests for CRUD operations and other repository queries using a PostgreSQL database in a
+ * containerized setup.
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @ContextConfiguration(classes = {BCIReferral.class, BCIReferralService.class})
 public class BCIReferralServiceTest extends AbstractServiceTest {
@@ -57,15 +59,15 @@ public class BCIReferralServiceTest extends AbstractServiceTest {
         roleSaved = roleService.create(new Role("Administrator"));
 
         patientSaved = patientService.create(new Patient("Arthur Pendragon", "kingarthur@gmail.com",
-                "438-333-3333", roleSaved, "3 December 455", "King", "Camelot, Britain"));
+                "438-333-3333", "3 December 455", "King", "Camelot, Britain"));
 
         paSaved = patientAssessmentService.create(new PatientAssessment("Good to go", patientSaved));
 
         referringProfessionalSaved = healthCareProfessionalService.create(new HealthCareProfessional("Bob",
-                "Bobross@gmail.com", "514-222-2222", roleSaved,"Chief Painter", "CIUSSS", "Healthcare"));
+                "Bobross@gmail.com", "514-222-2222", "Chief Painter", "CIUSSS", "Healthcare"));
 
         behaviorInterventionistSaved = healthCareProfessionalService.create(new HealthCareProfessional("Dali", "Salvadord@gmail.com",
-                "514-333-3333", roleSaved, "Chief Painter", "CIUSSS", "Healthcare"));
+                "514-333-3333", "Chief Painter", "CIUSSS", "Healthcare"));
 
         bcirSaved = bciReferralService.create(new BCIReferral("Good to go", patientSaved, paSaved,
                 referringProfessionalSaved, behaviorInterventionistSaved));
@@ -118,8 +120,8 @@ public class BCIReferralServiceTest extends AbstractServiceTest {
         List<BCIReferral> result = bciReferralService.findByDate(bcirSaved.getDate());
 
         assertFalse(result.isEmpty());
-        assertEquals(result.get(0).getId(), bcirSaved.getId());
-        assertEquals(result.get(0).getDate(), bcirSaved.getDate());
+        assertEquals(result.getFirst().getId(), bcirSaved.getId());
+        assertEquals(result.getFirst().getDate(), bcirSaved.getDate());
     }
 
     @Test
@@ -127,8 +129,8 @@ public class BCIReferralServiceTest extends AbstractServiceTest {
         List<BCIReferral> result = bciReferralService.findByReason(bcirSaved.getReason());
 
         assertFalse(result.isEmpty());
-        assertEquals(result.get(0).getId(), bcirSaved.getId());
-        assertEquals(result.get(0).getReason(), bcirSaved.getReason());
+        assertEquals(result.getFirst().getId(), bcirSaved.getId());
+        assertEquals(result.getFirst().getReason(), bcirSaved.getReason());
     }
 
     @Test
@@ -136,8 +138,8 @@ public class BCIReferralServiceTest extends AbstractServiceTest {
         List<BCIReferral> result = bciReferralService.findByPatientId(bcirSaved.getPatient().getId());
 
         assertFalse(result.isEmpty());
-        assertEquals(result.get(0).getId(), bcirSaved.getId());
-        assertEquals(result.get(0).getPatient().getId(), bcirSaved.getPatient().getId());
+        assertEquals(result.getFirst().getId(), bcirSaved.getId());
+        assertEquals(result.getFirst().getPatient().getId(), bcirSaved.getPatient().getId());
     }
 
     @Test
@@ -145,8 +147,8 @@ public class BCIReferralServiceTest extends AbstractServiceTest {
         List<BCIReferral> result = bciReferralService.findByPatientAssessmentId(bcirSaved.getPatientAssessment().getId());
 
         assertFalse(result.isEmpty());
-        assertEquals(result.get(0).getId(), bcirSaved.getId());
-        assertEquals(result.get(0).getPatientAssessment().getId(), bcirSaved.getPatientAssessment().getId());
+        assertEquals(result.getFirst().getId(), bcirSaved.getId());
+        assertEquals(result.getFirst().getPatientAssessment().getId(), bcirSaved.getPatientAssessment().getId());
     }
 
     @Test
@@ -154,8 +156,8 @@ public class BCIReferralServiceTest extends AbstractServiceTest {
         List<BCIReferral> result = bciReferralService.findByReferringProfessionalId(bcirSaved.getReferringProfessional().getId());
 
         assertFalse(result.isEmpty());
-        assertEquals(result.get(0).getId(), bcirSaved.getId());
-        assertEquals(result.get(0).getReferringProfessional().getId(), bcirSaved.getReferringProfessional().getId());
+        assertEquals(result.getFirst().getId(), bcirSaved.getId());
+        assertEquals(result.getFirst().getReferringProfessional().getId(), bcirSaved.getReferringProfessional().getId());
     }
 
     @Test
@@ -163,7 +165,7 @@ public class BCIReferralServiceTest extends AbstractServiceTest {
         List<BCIReferral> result = bciReferralService.findByBehaviorChangeInterventionistId(bcirSaved.getBehaviorChangeInterventionist().getId());
 
         assertFalse(result.isEmpty());
-        assertEquals(result.get(0).getId(), bcirSaved.getId());
-        assertEquals(result.get(0).getBehaviorChangeInterventionist().getId(), bcirSaved.getBehaviorChangeInterventionist().getId());
+        assertEquals(result.getFirst().getId(), bcirSaved.getId());
+        assertEquals(result.getFirst().getBehaviorChangeInterventionist().getId(), bcirSaved.getBehaviorChangeInterventionist().getId());
     }
 }

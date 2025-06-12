@@ -1,9 +1,7 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.HealthCareProfessionalController;
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
-import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.HealthCareProfessionalRepository;
 import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
 
@@ -19,8 +17,13 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests methods found in HealthCareProfessionalController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * The HealthCare Professional Controller test class for the {@link HealthCareProfessionalController}, responsible for
+ * testing its various functionalities. This class includes integration tests for CRUD operations supported the controller
+ * class, using WebMvcTes, and repository queries using MockMvc (Mockito).
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = HealthCareControllerTest.class)
 @ContextConfiguration(classes = {HealthCareProfessionalController.class, HealthCareProfessionalService.class, HealthCareProfessional.class})
@@ -28,12 +31,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
     @MockBean
     HealthCareProfessionalRepository healthCareProfessionalRepository;
 
-    @MockBean
-    RoleRepository roleRepository;
-
-    private Role role = new Role("Administrator");
-
-    HealthCareProfessional hcp = new HealthCareProfessional("Bob", "Bobross@gmail.com", "514-222-2222", role,
+    HealthCareProfessional hcp = new HealthCareProfessional("Bob", "Bobross@gmail.com", "514-222-2222",
             "Chief Painter", "CIUSSS", "Healthcare");
 
     private final String url = "/healthcareprofessional";
@@ -41,9 +39,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
     @BeforeEach
     @Override
     void setUp() {
-        role.setId(1L);
         hcp.setId(1L);
-        when(roleRepository.save(role)).thenReturn(role);
         when(healthCareProfessionalRepository.save(hcp)).thenReturn(hcp);
     }
 
@@ -57,7 +53,7 @@ public class HealthCareControllerTest extends AbstractControllerTest {
     @Override
     void testUpdate() throws Exception {
         HealthCareProfessional hcpUpdated = new HealthCareProfessional(hcp.getName(), hcp.getEmail(), hcp.getContactInformation(),
-                hcp.getRole(), hcp.getPosition(), hcp.getAffiliation(), "Everything");
+                hcp.getPosition(), hcp.getAffiliation(), "Everything");
         hcpUpdated.setId(hcp.getId());
         when(healthCareProfessionalRepository.save(hcpUpdated)).thenReturn(hcpUpdated);
         when(healthCareProfessionalRepository.findById(hcpUpdated.getId())).thenReturn(Optional.of(hcpUpdated));
@@ -109,21 +105,6 @@ public class HealthCareControllerTest extends AbstractControllerTest {
 
         performGetRequest(url + "/find/contactinformation/" + hcp.getContactInformation(),
                 "$[0].contactInformation", hcp.getContactInformation());
-    }
-
-    @Test
-    void findByRole() throws Exception {
-        when(healthCareProfessionalRepository.findByRole(hcp.getRole())).thenReturn(Collections.singletonList(hcp));
-
-        performGetRequest(url + "/find/role", hcp.getRole(),"$[0].role.id", hcp.getRole().getId());
-    }
-
-    @Test
-    void findByRoleId() throws Exception {
-        when(healthCareProfessionalRepository.findByRoleId(hcp.getRole().getId())).thenReturn(Collections.singletonList(hcp));
-
-        performGetRequest(url + "/find/role/" + hcp.getRole().getId(),
-                "$[0].role.id", hcp.getRole().getId());
     }
 
     @Test

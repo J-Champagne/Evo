@@ -1,10 +1,8 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.PatientController;
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
-import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientMedicalFileRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientRepository;
 import ca.uqam.latece.evo.server.core.service.instance.PatientService;
@@ -21,8 +19,13 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests methods found in PatientController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * The Patient Controller test class for the {@link PatientController}, responsible for testing its various functionalities.
+ * This class includes integration tests for CRUD operations supported the controller class, using WebMvcTes, and repository
+ * queries using MockMvc (Mockito).
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = PatientController.class)
 @ContextConfiguration(classes = {PatientController.class, PatientService.class, Patient.class})
@@ -31,16 +34,11 @@ public class PatientControllerTest extends AbstractControllerTest {
     private PatientRepository patientRepository;
 
     @MockBean
-    private RoleRepository roleRepository;
-
-    @MockBean
     private PatientMedicalFileRepository patientMedicalFileRepository;
 
     private PatientMedicalFile pmf = new PatientMedicalFile("Healthy");
 
-    private Role role = new Role("Administrator");
-
-    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333", role,
+    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
             "3 December 455", "King", "Camelot, Britain", pmf);
 
     private final String url = "/patient";
@@ -49,10 +47,8 @@ public class PatientControllerTest extends AbstractControllerTest {
     @Override
     void setUp() {
         patient.setId(1L);
-        role.setId(1L);
         pmf.setId(1L);
         when(patientMedicalFileRepository.save(pmf)).thenReturn(pmf);
-        when(roleRepository.save(role)).thenReturn(role);
         when(patientRepository.save(patient)).thenReturn(patient);
     }
 
@@ -65,14 +61,13 @@ public class PatientControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testUpdate() throws Exception {
-        Patient patientUpdated = new Patient("Sir Lancelot", patient.getEmail(), patient.getContactInformation(), patient.getRole(),
+        Patient patientUpdated = new Patient("Sir Lancelot", patient.getEmail(), patient.getContactInformation(),
                 patient.getBirthdate(), patient.getOccupation(), patient.getAddress(), patient.getMedicalFile());
         patientUpdated.setId(patient.getId());
         when(patientRepository.save(patientUpdated)).thenReturn(patientUpdated);
         when(patientRepository.findById(patientUpdated.getId())).thenReturn(Optional.of(patientUpdated));
 
-        performUpdateRequest(url, patientUpdated, "$.name",
-                patientUpdated.getName());
+        performUpdateRequest(url, patientUpdated, "$.name", patientUpdated.getName());
     }
 
     @Test
@@ -101,16 +96,14 @@ public class PatientControllerTest extends AbstractControllerTest {
     void testFindByName() throws Exception {
         when(patientRepository.findByName(patient.getName())).thenReturn(Collections.singletonList(patient));
 
-        performGetRequest(url + "/find/name/" + patient.getName(),
-                "$[0].name", patient.getName());
+        performGetRequest(url + "/find/name/" + patient.getName(),"$[0].name", patient.getName());
     }
 
     @Test
     void testFindByEmail() throws Exception {
         when(patientRepository.findByEmail(patient.getEmail())).thenReturn(patient);
 
-        performGetRequest(url + "/find/email/" + patient.getEmail(),
-                "$.email", patient.getEmail());
+        performGetRequest(url + "/find/email/" + patient.getEmail(),"$.email", patient.getEmail());
     }
 
     @Test
@@ -122,41 +115,24 @@ public class PatientControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void findByRole() throws Exception {
-        when(patientRepository.findByRole(patient.getRole())).thenReturn(Collections.singletonList(patient));
-
-        performGetRequest(url + "/find/role", patient.getRole(),"$[0].id", patient.getId());
-    }
-
-    @Test
-    void findByRoleId() throws Exception {
-        when(patientRepository.findByRoleId(patient.getRole().getId())).thenReturn(Collections.singletonList(patient));
-
-        performGetRequest(url + "/find/role/" + patient.getRole().getId(), "$[0].id", patient.getId());
-    }
-
-    @Test
     void testFindByBirthdate() throws Exception {
         when(patientRepository.findByBirthdate(patient.getBirthdate())).thenReturn(Collections.singletonList(patient));
 
-        performGetRequest(url + "/find/birthdate/" + patient.getBirthdate(),
-                "$[0].birthdate", patient.getBirthdate());
+        performGetRequest(url + "/find/birthdate/" + patient.getBirthdate(), "$[0].birthdate", patient.getBirthdate());
     }
 
     @Test
     void testFindByOccupation() throws Exception {
         when(patientRepository.findByOccupation(patient.getOccupation())).thenReturn(Collections.singletonList(patient));
 
-        performGetRequest(url + "/find/occupation/" + patient.getOccupation(),
-                "$[0].occupation", patient.getOccupation());
+        performGetRequest(url + "/find/occupation/" + patient.getOccupation(),"$[0].occupation", patient.getOccupation());
     }
 
     @Test
     void testFindByAddress() throws Exception {
         when(patientRepository.findByAddress(patient.getAddress())).thenReturn(Collections.singletonList(patient));
 
-        performGetRequest(url + "/find/address/" + patient.getAddress(),
-                "$[0].address", patient.getAddress());
+        performGetRequest(url + "/find/address/" + patient.getAddress(), "$[0].address", patient.getAddress());
     }
 
     @Test
@@ -170,7 +146,7 @@ public class PatientControllerTest extends AbstractControllerTest {
     void testFindByMedicalFileId() throws Exception {
         when(patientRepository.findByMedicalFileId(patient.getMedicalFile().getId())).thenReturn(patient);
 
-        performGetRequest(url + "/find/patientmedicalfile/" + patient.getRole().getId(),
-                "$.id", patient.getId());
+        performGetRequest(url + "/find/patientmedicalfile/" + patient.getMedicalFile().getId(),"$.id",
+                patient.getId());
     }
 }

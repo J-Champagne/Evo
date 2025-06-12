@@ -1,12 +1,10 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.BCIReferralController;
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIReferral;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
-import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIReferralRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.HealthCareProfessionalRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.PatientAssessmentRepository;
@@ -25,17 +23,19 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests methods found in PatientAssessmentController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * The BCIReferral Controller test class for the {@link BCIReferralController}, responsible for testing
+ * its various functionalities. This class includes integration tests for CRUD operations supported the controller class,
+ * using WebMvcTes, and repository queries using MockMvc (Mockito).
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = BCIReferralController.class)
 @ContextConfiguration(classes = {BCIReferral.class, BCIReferralService.class, BCIReferralController.class})
 public class BCIReferralControllerTest extends AbstractControllerTest {
     @MockBean
     private BCIReferralRepository bciReferralRepository;
-
-    @MockBean
-    private RoleRepository roleRepository;
 
     @MockBean
     private PatientRepository patientRepository;
@@ -46,18 +46,16 @@ public class BCIReferralControllerTest extends AbstractControllerTest {
     @MockBean
     private HealthCareProfessionalRepository healthCareProfessionalRepository;
 
-    private Role role = new Role("Administrator");
-
-    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333", role,
+    private Patient patient = new Patient("Arthur Pendragon", "kingarthur@gmail.com", "438-333-3333",
             "3 December 455", "King", "Camelot, Britain");
 
     private PatientAssessment pa = new PatientAssessment("Ready", patient);
 
     private HealthCareProfessional referringProfessional = new HealthCareProfessional("Bob", "Bobross@gmail.com",
-            "514-222-2222", role, "Chief Painter", "CIUSSS", "Healthcare");
+            "514-222-2222", "Chief Painter", "CIUSSS", "Healthcare");
 
     private HealthCareProfessional behaviorInterventionist = new HealthCareProfessional("Dali", "Salvadord@gmail.com",
-            "514-333-3333", role, "Chief Painter", "CIUSSS", "Healthcare");
+            "514-333-3333", "Chief Painter", "CIUSSS", "Healthcare");
 
     private BCIReferral bciReferral = new BCIReferral("In need of change", patient, pa, referringProfessional, behaviorInterventionist);
 
@@ -66,14 +64,12 @@ public class BCIReferralControllerTest extends AbstractControllerTest {
     @BeforeEach
     @Override
     void setUp() {
-        role.setId(1L);
         patient.setId(1L);
-        pa.setId(1L);
-        referringProfessional.setId(1L);
-        behaviorInterventionist.setId(1L);
-        bciReferral.setId(1L);
+        pa.setId(2L);
+        referringProfessional.setId(2L);
+        behaviorInterventionist.setId(3L);
+        bciReferral.setId(4L);
 
-        when(roleRepository.save(role)).thenReturn(role);
         when(patientRepository.save(patient)).thenReturn(patient);
         when(patientAssessmentRepository.save(pa)).thenReturn(pa);
         when(healthCareProfessionalRepository.save(referringProfessional)).thenReturn(referringProfessional);

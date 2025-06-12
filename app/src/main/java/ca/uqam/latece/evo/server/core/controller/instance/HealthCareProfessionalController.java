@@ -1,13 +1,11 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,7 +15,9 @@ import java.util.List;
 
 /**
  * HealthCareProfessional Controller.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Controller
 @RequestMapping("/healthcareprofessional")
@@ -32,8 +32,6 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
      * @param hcp HealthCareProfessional.
      * @return The created HealthCareProfessional in JSON format.
      * @throws IllegalArgumentException if hcp is null or if another HealthCareProfessional was saved with the same email.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -48,7 +46,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
                 logger.info("Created HealthCareProfessional: {}", saved);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to create new HealthCareProfessional");
+                logger.info("Failed to create new HealthCareProfessional.");
             }
 
         } catch (Exception e) {
@@ -64,8 +62,6 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
      * @param hcp HealthCareProfessional.
      * @return The updated HealthCareProfessional in JSON format.
      * @throws IllegalArgumentException if hcp is null or if another HealthCareProfessional was saved with the same email.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
@@ -80,7 +76,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
                 logger.info("Updated HealthCareProfessional: {}", updated);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to update HealthCareProfessional");
+                logger.info("Failed to update HealthCareProfessional.");
             }
 
         } catch (Exception e) {
@@ -94,7 +90,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
     /**
      * Deletes a HealthCareProfessional by its id.
      * Silently ignored if not found.
-     * @param id Long.
+     * @param id the HealthCareProfessional id.
      * @throws IllegalArgumentException if id is null.
      */
     @DeleteMapping("/{id}")
@@ -106,7 +102,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
 
     /**
      * Finds all HealthCareProfessional entities.
-     * @return List<HealthCareProfessional> in JSON format.
+     * @return List of HealthCareProfessionals in JSON format.
      */
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
@@ -121,7 +117,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
                 logger.info("Found all HealthCareProfessional entities: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to Found all HealthCareProfessional entities");
+                logger.info("Failed to Found all HealthCareProfessional entities.");
             }
 
         } catch (Exception e) {
@@ -134,7 +130,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
 
     /**
      * Finds a HealthCareProfessional by its id.
-     * @param id Long.
+     * @param id the HealthCareProfessional id.
      * @return HealthCareProfessional in JSON format.
      * @throws IllegalArgumentException if id is null.
      */
@@ -164,8 +160,8 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
 
     /**
      * Finds HealthCareProfessional entities by their name.
-     * @param name must not be null.
-     * @return List<HealthCareProfessional> with the given name or Optional#empty() if none found.
+     * @param name the HealthCareProfessional name.
+     * @return List of HealthCareProfessionals with the given name or Optional#empty() if none found.
      * @throws IllegalArgumentException if the name is null.
      */
     @GetMapping("/find/name/{name}")
@@ -181,7 +177,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
                 logger.info("Found all HealthCareProfessional entities by name: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to Found all HealthCareProfessional entities by name");
+                logger.info("Failed to Found all HealthCareProfessional entities by name.");
             }
 
         } catch (Exception e) {
@@ -194,7 +190,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
 
     /**
      * Finds a HealthCareProfessional by its email.
-     * @param email String.
+     * @param email the HealthCareProfessional email.
      * @return HealthCareProfessional in JSON format.
      * @throws IllegalArgumentException if email is null or blank.
      */
@@ -224,8 +220,8 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
 
     /**
      * Finds HealthCareProfessional entities by their contactInformation.
-     * @param contactInformation String.
-     * @return List<HealthCareProfessional> in JSON format.
+     * @param contactInformation the HealthCareProfessional contact information.
+     * @return List of HealthCareProfessionals in JSON format.
      * @throws IllegalArgumentException if contactInformation is null or blank.
      */
     @GetMapping("/find/contactinformation/{contactInformation}")
@@ -252,67 +248,9 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
     }
 
     /**
-     * Finds HealthCareProfessional entities by their role.
-     * @param role Role.
-     * @return List<HealthCareProfessional> in JSON format.
-     * @throws IllegalArgumentException if role is null.
-     */
-    @GetMapping("/find/role")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<HealthCareProfessional>> findByRole(@RequestBody Role role) {
-        ResponseEntity<List<HealthCareProfessional>> response;
-
-        try {
-            List<HealthCareProfessional> result = hcpService.findByRole(role);
-
-            if (result != null && !result.isEmpty()) {
-                response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found HealthCareProfessional entities by Role: {}", result);
-            } else {
-                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find HealthCareProfessional entities by Role.");
-            }
-        } catch (Exception e) {
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find HealthCareProfessional entities by Role. Error: {}", e.getMessage());
-        }
-
-        return response;
-    }
-
-    /**
-     * Finds HealthCareProfessional entities by their role id.
-     * @param id Long.
-     * @return List<HealthCareProfessional> in JSON format.
-     * @throws IllegalArgumentException if id is null.
-     */
-    @GetMapping("/find/role/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<HealthCareProfessional>> findByRoleId(@PathVariable Long id) {
-        ResponseEntity<List<HealthCareProfessional>> response;
-
-        try {
-            List<HealthCareProfessional> result = hcpService.findByRoleId(id);
-
-            if (result != null && !result.isEmpty()) {
-                response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found HealthCareProfessional entities by role: {}", result);
-            } else {
-                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find HealthCareProfessional entities by role.");
-            }
-        } catch (Exception e) {
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find HealthCareProfessional entities by role. Error: {}", e.getMessage());
-        }
-
-        return response;
-    }
-
-    /**
      * Finds HealthCareProfessional entities by their position.
-     * @param position String.
-     * @return List<HealthCareProfessional> in JSON format.
+     * @param position the HealthCareProfessional position.
+     * @return List of HealthCareProfessionals in JSON format.
      * @throws IllegalArgumentException if position is null or blank.
      */
     @GetMapping("/find/position/{position}")
@@ -340,8 +278,8 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
 
     /**
      * Finds HealthCareProfessional entities by their affiliation.
-     * @param affiliation String.
-     * @return List<HealthCareProfessional> in JSON format.
+     * @param affiliation the HealthCareProfessional affiliation.
+     * @return List of HealthCareProfessionals in JSON format.
      * @throws IllegalArgumentException if affiliation is null or blank.
      */
     @GetMapping("/find/affiliation/{affiliation}")
@@ -369,9 +307,9 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
 
     /**
      * Finds HealthCareProfessional entities by their specialties.
-     * @param specialties String.
-     * @return List<HealthCareProfessional> in JSON format.
-     * @throws IllegalArgumentException if specialties is null or blank.
+     * @param specialties the HealthCareProfessional specialties.
+     * @return List of HealthCareProfessionals in JSON format.
+     * @throws IllegalArgumentException if specialties are null or blank.
      */
     @GetMapping("/find/specialties/{specialties}")
     @ResponseStatus(HttpStatus.OK)

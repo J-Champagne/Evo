@@ -25,8 +25,10 @@ import static org.mockito.Mockito.when;
  * The BCIActivityInstance Controller test class for the {@link BCIActivityInstanceController}, responsible for testing
  * its various functionalities. This class includes integration tests for CRUD operations supported the controller class,
  * using WebMvcTes, and repository queries using MockMvc (Mockito).
+ *
  * @version 1.0
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @WebMvcTest(controllers = BCIActivityInstanceController.class)
 @ContextConfiguration(classes = {BCIActivityInstanceController.class, BCIActivityInstanceService.class, BCIActivityInstance.class})
@@ -56,7 +58,6 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         hcp.setName("Bob");
         hcp.setEmail("bob@gmail.com");
         hcp.setContactInformation("222-2222");
-        hcp.setRole(role);
         hcp.setAffiliation("CIUSSS");
         hcp.setPosition("Chief");
         hcp.setSpecialties("None");

@@ -16,8 +16,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests methods found in ParticipantService in a containerized setup.
+ * The test class for the {@link ParticipantService}, responsible for testing its various functionalities. This
+ * class includes integration tests for CRUD operations and other repository queries using a PostgreSQL database in a
+ * containerized setup.
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @ContextConfiguration(classes = {Participant.class, ParticipantService.class})
 public class ParticipantServiceTest extends AbstractServiceTest {
@@ -39,9 +44,8 @@ public class ParticipantServiceTest extends AbstractServiceTest {
     @BeforeEach
     void setUp() {
         roleSaved = roleService.create(new Role("Administrator"));
-        hcpSaved = healthcareProfessionalService.create(new HealthCareProfessional(
-                "Bob", "bob@gmail.com", "222-2222", roleSaved, "Student",
-                "CIUSSS", "Health"));
+        hcpSaved = healthcareProfessionalService.create(new HealthCareProfessional("Bob", "bob@gmail.com",
+                "222-2222", "Student","CIUSSS", "Health"));
         participantSaved = participantService.create(new Participant(roleSaved, hcpSaved));
     }
 
@@ -90,7 +94,7 @@ public class ParticipantServiceTest extends AbstractServiceTest {
         List<Participant> results = participantService.findByRoleId(participantSaved.getRole().getId());
 
         assertFalse(results.isEmpty());
-        assertEquals(participantSaved.getId(), results.get(0).getId());
+        assertEquals(participantSaved.getId(), results.getFirst().getId());
     }
 
     @Test
@@ -98,6 +102,6 @@ public class ParticipantServiceTest extends AbstractServiceTest {
         List<Participant> results = participantService.findByActorId(participantSaved.getActor().getId());
 
         assertFalse(results.isEmpty());
-        assertEquals(participantSaved.getId(), results.get(0).getId());
+        assertEquals(participantSaved.getId(), results.getFirst().getId());
     }
 }

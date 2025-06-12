@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 import org.springframework.stereotype.Repository;
@@ -9,7 +8,9 @@ import java.util.List;
 
 /**
  * HealthCareProfessional repository creates CRUD implementation at runtime automatically.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Repository
 public interface HealthCareProfessionalRepository extends EvoRepository<HealthCareProfessional> {
@@ -38,22 +39,6 @@ public interface HealthCareProfessionalRepository extends EvoRepository<HealthCa
         List<HealthCareProfessional> findByContactInformation(String contactInformation);
 
         /**
-         * Finds HealthCareProfessional entities by their Role.
-         * @param role Role.
-         * @return List<HealthCareProfessional> with the specified Role.
-         * @throws IllegalArgumentException if role is null.
-         */
-        List<HealthCareProfessional> findByRole (Role role);
-
-        /**
-         * Finds HealthCareProfessional entities by their Role id.
-         * @param id Long.
-         * @return List<HealthCareProfessional> with the specified Role id.
-         * @throws IllegalArgumentException if id is null.
-         */
-        List<HealthCareProfessional> findByRoleId (Long id);
-
-        /**
          * Finds HealthCareProfessional entities by their position.
          * @param position String.
          * @return List<HealthCareProfessional> with the given position.
@@ -73,7 +58,7 @@ public interface HealthCareProfessionalRepository extends EvoRepository<HealthCa
          * Finds HealthCareProfessional entities by their specialties.
          * @param specialties String.
          * @return List<HealthCareProfessional> with the given specialties.
-         * @throws IllegalArgumentException if specialties is null or blank.
+         * @throws IllegalArgumentException if specialties are null or blank.
          */
         List <HealthCareProfessional> findBySpecialties(String specialties);
 

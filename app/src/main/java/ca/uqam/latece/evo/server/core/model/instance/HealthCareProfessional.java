@@ -1,8 +1,8 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
-import ca.uqam.latece.evo.server.core.model.Role;
-
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
@@ -11,13 +11,16 @@ import java.util.Objects;
 
 /**
  * HealthCareProfessional instance class.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Entity
 @Table(name = "healthcare_professional")
 @PrimaryKeyJoinColumn(name="healthcare_professional_id", referencedColumnName = "actor_id")
 @Transactional
 @JsonPropertyOrder({"position", "affiliation", "specialties"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class HealthCareProfessional extends Actor {
     @Column(name = "healthcare_professional_position")
     private String position;
@@ -30,14 +33,13 @@ public class HealthCareProfessional extends Actor {
 
     public HealthCareProfessional() {}
 
-    public HealthCareProfessional(@NotNull String name, @NotNull String email, @NotNull String contactInformation,
-                                  @NotNull Role role) {
-        super(name, email, contactInformation, role);
+    public HealthCareProfessional(@NotNull String name, @NotNull String email, @NotNull String contactInformation) {
+        super(name, email, contactInformation);
     }
 
     public HealthCareProfessional(@NotNull String name, @NotNull String email, @NotNull String contactInformation,
-                                  @NotNull Role role, String position, String affiliation, String specialties) {
-        this(name, email, contactInformation, role);
+                                  String position, String affiliation, String specialties) {
+        this(name, email, contactInformation);
         this.position = position;
         this.affiliation = affiliation;
         this.specialties = specialties;
@@ -69,8 +71,6 @@ public class HealthCareProfessional extends Actor {
 
     @Override
     public boolean equals (Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
         if (super.equals(object)) {
             HealthCareProfessional hcp = (HealthCareProfessional) object;
             return Objects.equals(this.getPosition(), hcp.getPosition()) &&
@@ -79,5 +79,11 @@ public class HealthCareProfessional extends Actor {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId(), this.getName(), this.getEmail(), this.getContactInformation(),
+                this.getPosition(), this.getAffiliation(), this.getSpecialties());
     }
 }

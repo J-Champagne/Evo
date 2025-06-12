@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
 
@@ -15,27 +14,25 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests methods found in ActorService in a containerized setup.
+ * The test class for the {@link HealthCareProfessionalService}, responsible for testing its various functionalities.
+ * This class includes integration tests for CRUD operations and other repository queries using a PostgreSQL database in
+ * a containerized setup.
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos
  */
 @ContextConfiguration(classes = {HealthCareProfessionalService.class, HealthCareProfessional.class})
 public class HealthCareProfessionalServiceTest extends AbstractServiceTest {
     @Autowired
     private HealthCareProfessionalService healthCareProfessionalService;
 
-    @Autowired
-    private RoleService roleService;
-
     private HealthCareProfessional hcpSaved;
-
-    private Role roleSaved;
 
     @BeforeEach
     void setup() {
-        roleSaved = roleService.create(new Role("Administrator"));
         hcpSaved = healthCareProfessionalService.save(new HealthCareProfessional("Bob", "Bobross@gmail.com",
-                "514-222-2222", roleSaved, "Chief Painter", "CIUSSS",
-                "Healthcare"));
+                "514-222-2222", "Chief Painter", "CIUSSS","Healthcare"));
     }
 
     @Test
@@ -67,8 +64,7 @@ public class HealthCareProfessionalServiceTest extends AbstractServiceTest {
     @Override
     void testFindAll() {
        healthCareProfessionalService.save(new HealthCareProfessional("Bob2", "Bobross2@gmail.com",
-               "514-222-2222", roleSaved, "Student", "CIUSSS",
-               "Healthcare"));
+               "514-222-2222", "Student", "CIUSSS","Healthcare"));
         List<HealthCareProfessional> result = healthCareProfessionalService.findAll();
 
         assertEquals(2, result.size());
@@ -87,8 +83,8 @@ public class HealthCareProfessionalServiceTest extends AbstractServiceTest {
         List<HealthCareProfessional> results = healthCareProfessionalService.findByName(hcpSaved.getName());
 
         assertFalse(results.isEmpty());
-        assertEquals(hcpSaved.getId(), results.get(0).getId());
-        assertEquals(hcpSaved.getName(), results.get(0).getName());
+        assertEquals(hcpSaved.getId(), results.getFirst().getId());
+        assertEquals(hcpSaved.getName(), results.getFirst().getName());
     }
 
     @Test
@@ -104,26 +100,8 @@ public class HealthCareProfessionalServiceTest extends AbstractServiceTest {
         List<HealthCareProfessional> results = healthCareProfessionalService.findByContactInformation(hcpSaved.getContactInformation());
 
         assertFalse(results.isEmpty());
-        assertEquals(hcpSaved.getId(), results.get(0).getId());
-        assertEquals(hcpSaved.getContactInformation(), results.get(0).getContactInformation());
-    }
-
-    @Test
-    void testFindByRole() {
-        List<HealthCareProfessional> results = healthCareProfessionalService.findByRole(roleSaved);
-
-        assertFalse(results.isEmpty());
-        assertEquals(hcpSaved.getId(), results.get(0).getId());
-        assertEquals(hcpSaved.getRole().getId(), results.get(0).getRole().getId());
-    }
-
-    @Test
-    void testFindByRoleId() {
-        List<HealthCareProfessional> results = healthCareProfessionalService.findByRoleId(roleSaved.getId());
-
-        assertFalse(results.isEmpty());
-        assertEquals(hcpSaved.getId(), results.get(0).getId());
-        assertEquals(hcpSaved.getRole().getId(), results.get(0).getRole().getId());
+        assertEquals(hcpSaved.getId(), results.getFirst().getId());
+        assertEquals(hcpSaved.getContactInformation(), results.getFirst().getContactInformation());
     }
 
     @Test
@@ -131,8 +109,8 @@ public class HealthCareProfessionalServiceTest extends AbstractServiceTest {
         List<HealthCareProfessional> results = healthCareProfessionalService.findByPosition(hcpSaved.getPosition());
 
         assertFalse(results.isEmpty());
-        assertEquals(hcpSaved.getId(), results.get(0).getId());
-        assertEquals(hcpSaved.getPosition(), results.get(0).getPosition());
+        assertEquals(hcpSaved.getId(), results.getFirst().getId());
+        assertEquals(hcpSaved.getPosition(), results.getFirst().getPosition());
     }
 
     @Test
@@ -140,8 +118,8 @@ public class HealthCareProfessionalServiceTest extends AbstractServiceTest {
         List<HealthCareProfessional> results = healthCareProfessionalService.findByAffiliation(hcpSaved.getAffiliation());
 
         assertFalse(results.isEmpty());
-        assertEquals(hcpSaved.getId(), results.get(0).getId());
-        assertEquals(hcpSaved.getAffiliation(), results.get(0).getAffiliation());
+        assertEquals(hcpSaved.getId(), results.getFirst().getId());
+        assertEquals(hcpSaved.getAffiliation(), results.getFirst().getAffiliation());
     }
 
     @Test
@@ -149,7 +127,7 @@ public class HealthCareProfessionalServiceTest extends AbstractServiceTest {
         List<HealthCareProfessional> results = healthCareProfessionalService.findBySpecialties(hcpSaved.getSpecialties());
 
         assertFalse(results.isEmpty());
-        assertEquals(hcpSaved.getId(), results.get(0).getId());
-        assertEquals(hcpSaved.getSpecialties(), results.get(0).getSpecialties());
+        assertEquals(hcpSaved.getId(), results.getFirst().getId());
+        assertEquals(hcpSaved.getSpecialties(), results.getFirst().getSpecialties());
     }
 }

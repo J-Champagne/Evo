@@ -6,11 +6,8 @@ import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
-import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
-import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionBlockInstanceService;
+import ca.uqam.latece.evo.server.core.service.instance.*;
 
-import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
-import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,8 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Tests methods found in BehaviorChangeInterventionBlockInstanceService in a containerized setup.
+ * The test class for the {@link BehaviorChangeInterventionBlockInstanceService}, responsible for testing its various
+ * functionalities. This class includes integration tests for CRUD operations and other repository queries using a
+ * PostgreSQL database in a containerized setup.
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @ContextConfiguration(classes = {BehaviorChangeInterventionBlockInstance.class, BehaviorChangeInterventionBlockInstanceService.class})
 public class BehaviorChangeInterventionBlockInstanceServiceTest extends AbstractServiceTest{
@@ -52,7 +54,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     public void setUp() {
         Role role = roleService.create(new Role("Administrator"));
         HealthCareProfessional hcp = healthCareProfessionalService.create(new HealthCareProfessional("Bob", "bob@gmail.com",
-                "222-2222", role, "Student", "New-York", "Health"));
+                "222-2222", "Student", "New-York", "Health"));
         Participant participant = participantService.create(new Participant(role, hcp));
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
@@ -109,15 +111,15 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         List<BehaviorChangeInterventionBlockInstance> found = behaviorChangeInterventionBlockInstanceService.findByStage(TimeCycle.MIDDLE);
 
         assertEquals(1, found.size());
-        assertEquals(blockInstance.getId(), found.get(0).getId());
+        assertEquals(blockInstance.getId(), found.getFirst().getId());
     }
 
     @Test
     void testFindByActivitiesId() {
         List<BehaviorChangeInterventionBlockInstance> found = behaviorChangeInterventionBlockInstanceService.
-                findByActivitiesId(blockInstance.getActivities().get(0).getId());
+                findByActivitiesId(blockInstance.getActivities().getFirst().getId());
 
         assertEquals(1, found.size());
-        assertEquals(blockInstance.getId(), found.get(0).getId());
+        assertEquals(blockInstance.getId(), found.getFirst().getId());
     }
 }

@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 
@@ -10,7 +9,9 @@ import java.util.List;
 
 /**
  * Actor repository creates CRUD implementation at runtime automatically.
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @version 1.0
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @Repository
 public interface ActorRepository extends EvoRepository<Actor> {
@@ -37,22 +38,6 @@ public interface ActorRepository extends EvoRepository<Actor> {
 	 * @throws IllegalArgumentException if contactInformation is null or blank.
 	 */
 	List<Actor> findByContactInformation(String contactInformation);
-
-	/**
-	 * Finds Actor entities by their Role.
-	 * @param role Role.
-	 * @return List<Actor> with the specified Role.
-	 * @throws IllegalArgumentException if role is null.
-	 */
-	List<Actor> findByRole (Role role);
-
-	/**
-	 * Finds Actor entities by their Role id.
-	 * @param id Long.
-	 * @return List<Actor> with the specified Role id.
-	 * @throws IllegalArgumentException if id is null.
-	 */
-	List<Actor> findByRoleId (Long id);
 
 	/**
 	 * Checks if an Actor exists in the database by its email

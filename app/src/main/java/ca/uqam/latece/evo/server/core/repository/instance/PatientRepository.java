@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
@@ -11,7 +10,9 @@ import java.util.List;
 
 /**
  * Patient repository creates CRUD implementation at runtime automatically.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Repository
 public interface PatientRepository extends EvoRepository<Patient> {
@@ -40,22 +41,6 @@ public interface PatientRepository extends EvoRepository<Patient> {
     List<Patient> findByContactInformation(String contactInformation);
 
     /**
-     * Finds Patient entities by their Role.
-     * @param role Role.
-     * @return List<Patient> with the specified Role.
-     * @throws IllegalArgumentException if role is null.
-     */
-    List<Patient> findByRole (Role role);
-
-    /**
-     * Finds Patient entities by their Role id.
-     * @param id Long.
-     * @return List<Patient> with the specified Role id.
-     * @throws IllegalArgumentException if id is null.
-     */
-    List<Patient> findByRoleId (Long id);
-
-    /**
      * Finds Patient entities by their birthdate.
      * @param birthdate String.
      * @return List<Patient> with the given birthdate.
@@ -75,7 +60,7 @@ public interface PatientRepository extends EvoRepository<Patient> {
      * Finds Patient entities by their address.
      * @param address String.
      * @return List<Patient> with the given address.
-     * @throws IllegalArgumentException if address is null or blank.
+     * @throws IllegalArgumentException if the address is null or blank.
      */
     List<Patient> findByAddress(String address);
 

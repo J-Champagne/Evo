@@ -29,7 +29,8 @@ import static org.mockito.Mockito.when;
  * controller class, using WebMvcTes, and repository queries using MockMvc (Mockito).
  *
  * @version 1.0
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @WebMvcTest(controllers = BehaviorPerformanceInstanceController.class)
 @ContextConfiguration(classes = {BehaviorPerformanceInstanceController.class, BehaviorPerformanceInstanceService.class, BehaviorPerformanceInstance.class})
@@ -62,21 +63,20 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
         roles.add(role2);
 
         // Create Actor and Participant
-        hcp.setId(1L);
+        hcp.setId(3L);
         hcp.setName("Bob");
         hcp.setEmail("bob@gmail.com");
         hcp.setContactInformation("222-2222");
-        hcp.setRole(role);
         hcp.setAffiliation("CIUSSS");
         hcp.setPosition("Chief");
         hcp.setSpecialties("None");
 
-        participant.setId(1L);
+        participant.setId(4L);
         participant.setRole(role);
         participant.setActor(hcp);
 
         // Create a BCI Activity.
-        bciActivity.setId(6L);
+        bciActivity.setId(5L);
         bciActivity.setName("Programming 2 - BCIActivity Test");
         bciActivity.setDescription("Programming language training 2 - BCIActivity Test");
         bciActivity.setType(ActivityType.LEARNING);
@@ -85,7 +85,7 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
         bciActivity.addRole(role);
 
         // Create a Behavior Performance.
-        behaviorPerformance.setId(1L);
+        behaviorPerformance.setId(6L);
         behaviorPerformance.setName("Programming - Behavior Performance");
         behaviorPerformance.setDescription("Programming language training - Behavior Performance");
         behaviorPerformance.setType(ActivityType.LEARNING);
@@ -94,7 +94,7 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
         behaviorPerformance.setRole(roles);
 
         // Create a Behavior Performance Instance.
-        behaviorPerformanceInstance.setId(2L);
+        behaviorPerformanceInstance.setId(7L);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
         behaviorPerformanceInstance.setStatus("Behavior Performance Instance Java");
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
@@ -111,7 +111,7 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
     void testCreate() throws Exception {
         // Create a Behavior Performance Instance.
         BehaviorPerformanceInstance performanceInstance = new BehaviorPerformanceInstance();
-        performanceInstance.setId(6L);
+        performanceInstance.setId(8L);
         performanceInstance.setBehaviorPerformance(behaviorPerformance);
         performanceInstance.setStatus("Behavior Performance Instance Java");
         performanceInstance.setEntryDate(localEntryDate);

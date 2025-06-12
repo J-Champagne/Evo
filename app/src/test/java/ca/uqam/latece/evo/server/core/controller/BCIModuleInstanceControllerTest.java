@@ -26,8 +26,13 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests methods found in BCIModuleInstanceController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * The BCIModuleInstance Controller test class for the {@link BCIModuleInstanceController}, responsible for testing its
+ * various functionalities. This class includes integration tests for CRUD operations supported the controller class,
+ * using WebMvcTes, and repository queries using MockMvc (Mockito).
+ *
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = BCIModuleInstanceController.class)
 @ContextConfiguration(classes = {BCIModuleInstance.class, BCIModuleInstanceService.class, BCIModuleInstanceController.class})
@@ -41,7 +46,7 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
     private Role role = new Role("Administrator");
 
     private Participant participant = new Participant(role, new HealthCareProfessional("Bob", "bob@gmail.com",
-            "222-2222", role, "Student", "New-York", "Health"));
+            "222-2222", "Student", "New-York", "Health"));
 
     private List<Participant> participants = List.of(participant);
 

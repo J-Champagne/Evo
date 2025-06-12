@@ -8,7 +8,6 @@ import ca.uqam.latece.evo.server.core.service.instance.BCIModuleInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -33,8 +32,6 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
      * @param moduleInstance BCIModuleInstance.
      * @return The created BCIModuleInstance in JSON format.
      * @throws IllegalArgumentException if pa is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -64,8 +61,6 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
      * @param moduleInstance BCIModuleInstance.
      * @return The updated BCIModuleInstance in JSON format.
      * @throws IllegalArgumentException if pa is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
@@ -190,7 +185,7 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
 
     /**
      * Finds BCIModuleInstance entities by a BCIActivityInstance id.
-     * @param id Long.
+     * @param id the BCIActivityInstance id.
      * @return List<BCIModuleInstance> in JSON format.
      * @throws IllegalArgumentException if id is null.
      */
@@ -207,7 +202,7 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
                 logger.info("Found BCIModuleInstance entities by Activities Id: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find BCIModuleInstance entities by Activities Id");
+                logger.info("Failed to find BCIModuleInstance entities by Activities Id.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);

@@ -1,7 +1,6 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
-import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientMedicalFile;
 import ca.uqam.latece.evo.server.core.service.instance.PatientService;
@@ -9,7 +8,6 @@ import ca.uqam.latece.evo.server.core.service.instance.PatientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,7 +17,9 @@ import java.util.List;
 
 /**
  * Patient Controller.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Controller
 @RequestMapping("/patient")
@@ -33,9 +33,7 @@ public class PatientController extends AbstractEvoController<Patient> {
      * Creates a Patient in the database.
      * @param patient Patient.
      * @return The created Patient in JSON format.
-     * @throws IllegalArgumentException if patient is null or if another Patient was saved with the same email.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
+     * @throws IllegalArgumentException if a patient is null or if another Patient was saved with the same email.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -50,7 +48,7 @@ public class PatientController extends AbstractEvoController<Patient> {
                 logger.info("Created Patient: {}", saved);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to create new Patient");
+                logger.info("Failed to create new Patient.");
             }
         } catch (Exception e){
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -64,9 +62,7 @@ public class PatientController extends AbstractEvoController<Patient> {
      * Updates a Patient in the database.
      * @param patient Patient.
      * @return The updated Patient in JSON format.
-     * @throws IllegalArgumentException if patient is null or if another Patient was saved with the same email.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
+     * @throws IllegalArgumentException if a patient is null or if another Patient was saved with the same email.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
@@ -81,7 +77,7 @@ public class PatientController extends AbstractEvoController<Patient> {
                 logger.info("Updated Patient: {}", updated);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to update Patient");
+                logger.info("Failed to update Patient.");
             }
         } catch (Exception e){
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -94,7 +90,7 @@ public class PatientController extends AbstractEvoController<Patient> {
     /**
      * Deletes a Patient by its id.
      * Silently ignored if not found.
-     * @param id Long.
+     * @param id the patient id.
      * @throws IllegalArgumentException if id is null.
      */
     @DeleteMapping("/{id}")
@@ -106,7 +102,7 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds all Patient entities.
-     * @return List<Patient> in JSON format.
+     * @return List of Patients in JSON format.
      */
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
@@ -133,7 +129,7 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds a Patient by its id.
-     * @param id Long.
+     * @param id the patient id.
      * @return Patient in JSON format.
      * @throws IllegalArgumentException if id is null.
      */
@@ -162,8 +158,8 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds Patient entities by their name.
-     * @param name must not be null.
-     * @return List<Patient> with the given name or Optional#empty() if none found.
+     * @param name the patient name.
+     * @return List of Patients with the given name or Optional#empty() if none found.
      * @throws IllegalArgumentException if the name is null.
      */
     @GetMapping("/find/name/{name}")
@@ -191,7 +187,7 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds a Patient by its email.
-     * @param email String.
+     * @param email the patient email.
      * @return Patient in JSON format.
      * @throws IllegalArgumentException if email is null or blank.
      */
@@ -220,8 +216,8 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds Patient entities by their contactInformation.
-     * @param contactInformation String.
-     * @return List<Patient> in JSON format.
+     * @param contactInformation the patient contact information.
+     * @return List of Patients in JSON format.
      * @throws IllegalArgumentException if contactInformation is null or blank.
      */
     @GetMapping("/find/contactinformation/{contactInformation}")
@@ -248,67 +244,9 @@ public class PatientController extends AbstractEvoController<Patient> {
     }
 
     /**
-     * Finds Patient entities by their role.
-     * @param role Role.
-     * @return List<Patient> in JSON format.
-     * @throws IllegalArgumentException if role is null.
-     */
-    @GetMapping("/find/role")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<Patient>> findByRole(@RequestBody Role role) {
-        ResponseEntity<List<Patient>> response;
-
-        try {
-            List<Patient> result = patientService.findByRole(role);
-
-            if (result != null && !result.isEmpty()) {
-                response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found Patient entities by Role: {}", result);
-            } else {
-                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find Patient entities by Role.");
-            }
-        } catch (Exception e) {
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find Patient entities by Role. Error: {}", e.getMessage());
-        }
-
-        return response;
-    }
-
-    /**
-     * Finds Patient entities by their role id.
-     * @param id Long.
-     * @return List<Patient> in JSON format.
-     * @throws IllegalArgumentException if id is null.
-     */
-    @GetMapping("/find/role/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<Patient>> findByRoleId(@PathVariable Long id) {
-        ResponseEntity<List<Patient>> response;
-
-        try {
-            List<Patient> result = patientService.findByRoleId(id);
-
-            if (result != null && !result.isEmpty()) {
-                response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found Patient entities by Role id: {}", result);
-            } else {
-                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find Patient entities by Role id.");
-            }
-        } catch (Exception e) {
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find Patient entities by Role id. Error: {}", e.getMessage());
-        }
-
-        return response;
-    }
-
-    /**
      * Finds Patient entities by their birthdate.
-     * @param birthdate String.
-     * @return List<Patient> in JSON format.
+     * @param birthdate the patient birthdate.
+     * @return List of Patients in JSON format.
      * @throws IllegalArgumentException if birthdate is null or blank.
      */
     @GetMapping("/find/birthdate/{birthdate}")
@@ -336,8 +274,8 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds Patient entities by their occupation.
-     * @param occupation String.
-     * @return List<Patient> in JSON format.
+     * @param occupation the patient occupation.
+     * @return List of Patients in JSON format.
      * @throws IllegalArgumentException if occupation is null or blank.
      */
     @GetMapping("/find/occupation/{occupation}")
@@ -365,9 +303,9 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds Patient entities by their address.
-     * @param address String.
-     * @return List<Patient> in JSON format.
-     * @throws IllegalArgumentException if address is null or blank.
+     * @param address the patient address.
+     * @return List of Patients in JSON format.
+     * @throws IllegalArgumentException if an address is null or blank.
      */
     @GetMapping("/find/address/{address}")
     @ResponseStatus(HttpStatus.OK)
@@ -394,7 +332,7 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds a Patient by its PatientMedicalFile.
-     * @param pmf PatientMedicalFile.
+     * @param pmf the Patient Medical File.
      * @return Patient in JSON format.
      * @throws IllegalArgumentException if pmf is null.
      */
@@ -423,7 +361,7 @@ public class PatientController extends AbstractEvoController<Patient> {
 
     /**
      * Finds a Patient by its PatientMedicalFile id.
-     * @param id Long.
+     * @param id the Patient Medical File id.
      * @return Patient in JSON format.
      * @throws IllegalArgumentException if id is null.
      */
