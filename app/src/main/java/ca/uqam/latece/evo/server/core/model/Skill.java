@@ -7,7 +7,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -102,6 +104,8 @@ public class Skill extends AbstractEvoModel {
     @OneToOne(mappedBy = "skill")
     private Requires requires;
 
+    @ManyToMany(mappedBy = "skills", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+    private Set<Assessment> assessments = new LinkedHashSet<>();
 
 
     public Requires getRequires() {
@@ -200,5 +204,16 @@ public class Skill extends AbstractEvoModel {
 
     public List<Skill> getRequiredSkill() {
         return this.requiredSkill;
+    }
+
+
+    public Set<Assessment> getAssessments() {
+        return assessments;
+    }
+
+    public void setAssessments(Assessment... assessment) {
+        if (assessment != null && assessment.length > 0) {
+            this.assessments.addAll(List.of(assessment));
+        }
     }
 }

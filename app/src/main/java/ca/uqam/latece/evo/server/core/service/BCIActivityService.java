@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,20 +32,17 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      * @param evoModel The BCIActivity entity.
      * @return The saved BCIActivity.
      * @throws IllegalArgumentException in case the given BCIActivity is null.
-     * @throws OptimisticLockingFailureException when the BCIActivity uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
      */
     @Override
     public BCIActivity create(BCIActivity evoModel) {
         BCIActivity bciActivity = null;
 
         ObjectValidator.validateObject(evoModel);
-        ObjectValidator.validateObject(evoModel.getName());
+        ObjectValidator.validateString(evoModel.getName());
 
         // The name should be unique.
         if(this.existsByName(evoModel.getName())) {
-            throw this.createDuplicateBCIActivityException(evoModel);
+            throw this.createDuplicatedNameException(evoModel, evoModel.getName());
         } else {
             bciActivity = this.save(evoModel);
             logger.info("BCIActivity created: {}", bciActivity);
@@ -60,38 +56,35 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      * @param evoModel The BCIActivity entity.
      * @return The saved BCIActivity.
      * @throws IllegalArgumentException in case the given BCIActivity is null.
-     * @throws OptimisticLockingFailureException when the BCIActivity uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
      */
     @Override
     public BCIActivity update(BCIActivity evoModel) {
         BCIActivity bciActivity = null;
 
         ObjectValidator.validateObject(evoModel);
-        ObjectValidator.validateObject(evoModel.getName());
+        ObjectValidator.validateId(evoModel.getId());
+        ObjectValidator.validateString(evoModel.getName());
 
-        // The name should be unique.
-        if(this.existsByName(evoModel.getName())) {
-            throw this.createDuplicateBCIActivityException(evoModel);
+        // Checks if the BCIActivity exists in the database.
+        BCIActivity found = this.findById(evoModel.getId());
+
+        if (found == null) {
+            throw new IllegalArgumentException("BCIActivity " + evoModel.getName() + " not found!");
         } else {
-            bciActivity = this.save(evoModel);
+            if (evoModel.getName().equals(found.getName())) {
+                bciActivity = this.save(evoModel);
+            } else {
+                if (this.existsByName(evoModel.getName())) {
+                    throw this.createDuplicatedNameException(evoModel, evoModel.getName());
+                } else {
+                    bciActivity = this.save(evoModel);
+                }
+            }
+
             logger.info("BCIActivity updated: {}", bciActivity);
         }
 
         return bciActivity;
-    }
-
-    /**
-     * Create duplicate BCIActivity Exception.
-     * @param bciActivity the BCIActivity entity.
-     * @return an exception object.
-     */
-    private IllegalArgumentException createDuplicateBCIActivityException(BCIActivity bciActivity) {
-        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_NAME_ALREADY_REGISTERED +
-                " BCIActivity Name: " + bciActivity.getName());
-        logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
-        return illegalArgumentException;
     }
 
     /**
@@ -112,7 +105,7 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      */
     @Override
     public boolean existsById(Long id) {
-        ObjectValidator.validateObject(id);
+        ObjectValidator.validateId(id);
         return bciActivityRepository.existsById(id);
     }
 
@@ -126,7 +119,7 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        ObjectValidator.validateObject(id);
+        ObjectValidator.validateId(id);
         bciActivityRepository.deleteById(id);
         logger.info("BCIActivity deleted: {}", id);
     }
@@ -140,7 +133,7 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      */
     @Override
     public BCIActivity findById(Long id) {
-        ObjectValidator.validateObject(id);
+        ObjectValidator.validateId(id);
         return bciActivityRepository.findById(id).
                 orElseThrow(() -> new EntityNotFoundException("BCI Activity not found!"));
     }
@@ -171,8 +164,8 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      * @return a list of BCIActivity entities that have the specified Develops id, or an empty list if no matches are found.
      */
     public List<BCIActivity> findByDevelops(Long developsId) {
-        ObjectValidator.validateObject(developsId);
-        return bciActivityRepository.findByDevelops(developsId);
+        ObjectValidator.validateId(developsId);
+        return bciActivityRepository.findByDevelopsBCIActivity_Id(developsId);
     }
 
     /**
@@ -181,8 +174,8 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      * @return a list of BCIActivity entities that have the specified Requires id, or an empty list if no matches are found.
      */
     public List<BCIActivity> findByRequires(Long requiresId) {
-        ObjectValidator.validateObject(requiresId);
-        return bciActivityRepository.findByRequires(requiresId);
+        ObjectValidator.validateId(requiresId);
+        return bciActivityRepository.findByRequiresBCIActivities_Id(requiresId);
     }
 
     /**
@@ -191,8 +184,8 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      * @return a list of BCIActivity entities that have the specified Role id, or an empty list if no matches are found.
      */
     public List<BCIActivity> findByRole(Long roleId) {
-        ObjectValidator.validateObject(roleId);
-        return bciActivityRepository.findByRole(roleId);
+        ObjectValidator.validateId(roleId);
+        return bciActivityRepository.findByRoleBCIActivities_Id(roleId);
     }
 
     /**
@@ -201,8 +194,8 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      * @return a list of BCIActivity entities that have the specified Content id, or an empty list if no matches are found.
      */
     public List<BCIActivity> findByContent(Long contentId) {
-        ObjectValidator.validateObject(contentId);
-        return bciActivityRepository.findByContent(contentId);
+        ObjectValidator.validateId(contentId);
+        return bciActivityRepository.findByContentBCIActivities_Id(contentId);
     }
 
     /**

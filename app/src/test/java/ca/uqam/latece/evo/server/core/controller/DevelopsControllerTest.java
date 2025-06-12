@@ -3,10 +3,7 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
-import ca.uqam.latece.evo.server.core.model.BCIActivity;
-import ca.uqam.latece.evo.server.core.model.Develops;
-import ca.uqam.latece.evo.server.core.model.Role;
-import ca.uqam.latece.evo.server.core.model.Skill;
+import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.repository.DevelopsRepository;
 import ca.uqam.latece.evo.server.core.service.DevelopsService;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,19 +47,19 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         role.setName("Admin");
 
         // Creates Skill.
-        skill.setId(1L);
+        skill.setId(2L);
         skill.setName("Skill name");
         skill.setDescription("Skill Description");
         skill.setType(SkillType.BCT);
 
         // Create a BCI Activity.
-        activity.setId(1L);
+        activity.setId(3L);
         activity.setName("Programming");
         activity.setDescription("Programming language training");
         activity.setType(ActivityType.LEARNING);
 
         // Creates Develops.
-        develops.setId(1L);
+        develops.setId(4L);
         develops.setLevel(SkillLevel.BEGINNER);
         develops.setSkill(skill);
         develops.setRole(role);
@@ -79,15 +76,32 @@ public class DevelopsControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void testCreateBadRequest() throws Exception {
+        Develops develops1 = new Develops();
+        develops1.setId(99L);
+        // Perform a POST request with Bad request to test the controller.
+        performCreateRequestBadRequest("/develops", develops1);
+    }
+
+    @Test
     @Override
     void testUpdate() throws Exception {
         // Update develops
-        develops.setLevel(SkillLevel.INTERMEDIATE);
+        Develops updated = new Develops();
+        updated.setId(develops.getId());
+        updated.setSkill(skill);
+        updated.setRole(role);
+        updated.setBciActivity(activity);
+        updated.setLevel(SkillLevel.INTERMEDIATE);
 
         // Save in the database.
-        when(developsRepository.save(develops)).thenReturn(develops);
+        when(developsRepository.save(updated)).thenReturn(updated);
+
+        // Mock behavior for findById().
+        when(developsRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
+
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/develops", develops, "$.level", develops.getLevel().toString());
+        performUpdateRequest("/develops", updated, "$.level", updated.getLevel().toString());
     }
 
     @Test
@@ -116,11 +130,11 @@ public class DevelopsControllerTest extends AbstractControllerTest {
 
     private Develops dataToPerformTheFindTest() {
         // Creates Role.
-        role.setId(1L);
+        role.setId(5L);
         role.setName("Participant");
 
         // Creates BCIActivity.
-        activity.setId(1L);
+        activity.setId(6L);
         activity.setName("Programming");
         activity.setDescription("Programming language training");
         activity.setType(ActivityType.LEARNING);
@@ -136,24 +150,24 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         BCIActivity activity1 = new BCIActivity();
 
         // Creates Skill.
-        skill.setId(2L);
+        skill.setId(7L);
         skill.setName("Skill 1");
         skill.setDescription("Skill Description 1");
         skill.setType(SkillType.PHYSICAL);
 
         // Creates Role.
-        role1.setId(2L);
+        role1.setId(8L);
         role1.setName("e-Facitalitor");
 
         // Creates BCIActivity.
-        activity1.setId(2L);
+        activity1.setId(9L);
         activity1.setName("Database");
         activity1.setDescription("Database training");
         activity1.setType(ActivityType.LEARNING);
         activity1.addRole(role1);
 
         // Creates Develops.
-        develops.setId(2L);
+        develops.setId(10L);
         develops.setLevel(SkillLevel.ADVANCED);
         develops.setSkill(skill);
         develops.setRole(role1);

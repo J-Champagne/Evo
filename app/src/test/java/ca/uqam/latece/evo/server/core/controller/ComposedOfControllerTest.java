@@ -57,25 +57,25 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         roles.add(role2);
 
         // Creates Skill.
-        skill.setId(1L);
+        skill.setId(3L);
         skill.setName("Skill name");
         skill.setDescription("Skill Description");
         skill.setType(SkillType.BCT);
 
         // Create the Content.
-        content.setId(1L);
+        content.setId(4L);
         content.setName("Content");
         content.setType("Content type");
         content.setDescription("Content description");
         content.setSkills(Collections.singletonList(skill));
 
         // Create the BehaviorChangeInterventionBlock
-        behaviorChangeInterventionBlock.setId(1L);
+        behaviorChangeInterventionBlock.setId(5L);
         behaviorChangeInterventionBlock.setEntryConditions("entryConditions - ComposedOf");
         behaviorChangeInterventionBlock.setExitConditions("exitConditions - ComposedOf");
 
         // Create the BCIActivity
-        bciActivity.setId(1L);
+        bciActivity.setId(6L);
         bciActivity.setPreconditions("preconditions");
         bciActivity.setPostconditions("postconditions");
         bciActivity.setName("BCIActivity Name");
@@ -85,14 +85,14 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         bciActivity.addContent(content);
 
         // Creates Develops.
-        develops.setId(1L);
+        develops.setId(7L);
         develops.setLevel(SkillLevel.BEGINNER);
         develops.setSkill(skill);
         develops.setRole(role);
         develops.setBciActivity(bciActivity);
 
         // Creates ComposedOf.
-        composedOf.setId(1L);
+        composedOf.setId(8L);
         composedOf.setOrder(1);
         composedOf.setTiming(TimeCycle.BEGINNING);
         composedOf.setBciActivity(bciActivity);
@@ -122,7 +122,7 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
     @Test
     void testCreateBadRequest() throws Exception {
         ComposedOf composedOf = new ComposedOf();
-        composedOf.setId(5L);
+        composedOf.setId(99L);
         // Perform a POST request with Bad request to test the controller.
         performCreateRequestBadRequest("/composedof", composedOf);
     }

@@ -1,9 +1,7 @@
 package ca.uqam.latece.evo.server.core.model;
 
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "composed_of")
 @JsonPropertyOrder({"id", "timing", "order"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ComposedOf extends AbstractEvoModel {
 
     @JsonProperty("id")
@@ -33,13 +32,13 @@ public class ComposedOf extends AbstractEvoModel {
     @Column(name="composed_of_order", nullable = true)
     private int order;
 
-    @JsonIgnore
+    @JsonProperty("BCIActivity")
     @NotNull
     @ManyToOne
     @JoinColumn(name = "composed_of_bci_activity_id", referencedColumnName = "bci_activity_id", nullable = false) // Ensures foreign key setup in the database
     private BCIActivity bciActivityComposedOf;
 
-    @JsonIgnore
+    @JsonProperty("BehaviorChangeInterventionBlock")
     @NotNull
     @ManyToOne
     @JoinColumn(name = "composed_of_bci_block_id", referencedColumnName = "behavior_change_intervention_block_id", nullable = false)

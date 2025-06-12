@@ -125,6 +125,21 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         // Save the Content.
         contentService.create(content);
         contentService.create(content2);
+
+        // Update BCIActivity.
+        bciActivity.addDevelops(develops);
+        bciActivity.addContent(content);
+        bciActivity.addContent(content2);
+        bciActivity.addRequires(requires);
+        bciActivity.addRequires(requires1);
+        bciActivityService.update(bciActivity);
+
+        bciActivity2.addDevelops(develops);
+        bciActivity2.addContent(content);
+        bciActivity2.addContent(content2);
+        bciActivity2.addRequires(requires);
+        bciActivity2.addRequires(requires1);
+        bciActivityService.update(bciActivity2);
     }
 
     @AfterEach
@@ -160,7 +175,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         // Create a BCI Activity.
         BCIActivity bciActivitySaved = bciActivityService.create(bciActivity);
 
-        // Checks if the role was saved.
+        // Checks if the BCIActivity was saved.
         assert bciActivitySaved.getId() > 0;
     }
 
@@ -241,7 +256,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
 
     @Test
     void existsByName() {
-        assertEquals(bciActivity.getName(), bciActivityService.findByName(bciActivity.getName()).get(0).getName());
+        assertEquals(bciActivity.getName(), bciActivityService.findByName(bciActivity.getName()).getFirst().getName());
     }
 
     @Test
@@ -264,10 +279,10 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
 
     @Test
     void findByContent() {
-        List<BCIActivity> result = bciActivityService.findByRequires(requires1.getId());
+        List<BCIActivity> result = bciActivityService.findByContent(content.getId());
         // Assert that the result
-        assertEquals(1, result.size());
-        assertEquals("Testing 2 - BCIActivity Test", result.get(0).getName());
+        assertEquals(2, result.size());
+        assertEquals("Programming 2 - BCIActivity Test", result.get(0).getName());
         System.out.println("BCIActivity name: " + result.get(0).getName());
     }
 

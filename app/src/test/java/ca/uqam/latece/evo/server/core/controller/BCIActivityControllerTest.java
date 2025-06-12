@@ -39,6 +39,9 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
     private Skill skill = new Skill();
     private Content content = new Content();
 
+    private static final String URL = "/bciactivity";
+    private static final String URL_SPLITTER = "/bciactivity/";
+    private static final String URL_FIND = "/bciactivity/find/";
 
     @BeforeEach
     void setUp() {
@@ -101,17 +104,19 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
     @Override
     void testUpdate() throws Exception {
         // Update a new BCIActivity
-        bciActivity.setName("Programming 2");
+        bciActivity.setName("Update Activity");
         // Save in the database.
         when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
+        // Mock behavior for findById().
+        when(bciActivityRepository.findById(bciActivity.getId())).thenReturn(Optional.of(bciActivity));
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/bciactivity", bciActivity,"$.name", bciActivity.getName());
+        performUpdateRequest(URL, bciActivity,"$.name", bciActivity.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/bciactivity/" + bciActivity.getId(), bciActivity);
+        performDeleteRequest(URL_SPLITTER + bciActivity.getId(), bciActivity);
     }
 
     @Test
@@ -119,17 +124,15 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
     void testFindById() throws Exception {
         // Create a BCI Activity.
         BCIActivity bciActivity2 = dataToPerformTheFindTest();
-
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
-
         // Mock behavior for bciActivityRepository.findById().
         when(bciActivityRepository.findById(bciActivity2.getId())).thenReturn(Optional.of(bciActivity2));
         when(bciActivityRepository.findById(bciActivity.getId())).thenReturn(Optional.of(bciActivity));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/" + bciActivity2.getId(), "$.name", bciActivity2.getName());
-        performGetRequest("/bciactivity/find/" + bciActivity.getId(), "$.name", bciActivity.getName());
+        performGetRequest(URL_FIND + bciActivity2.getId(), "$.name", bciActivity2.getName());
+        performGetRequest(URL_FIND + bciActivity.getId(), "$.name", bciActivity.getName());
     }
 
     @Test
@@ -139,99 +142,80 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
-
         // Mock behavior for bciActivityRepository.findByName().
         when(bciActivityRepository.findByName(bciActivity.getName())).thenReturn(Collections.singletonList(bciActivity));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/name/" + bciActivity.getName(),
-                "$[0].name", bciActivity.getName());
-
+        performGetRequest(URL_FIND + "name/" + bciActivity.getName(),"$[0].name", bciActivity.getName());
         // Mock behavior for bciActivityRepository.findByName().
         when(bciActivityRepository.findByName(bciActivity2.getName())).thenReturn(Collections.singletonList(bciActivity2));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/name/" + bciActivity2.getName(),
-                "$[0].name", bciActivity2.getName());
+        performGetRequest(URL_FIND + "name/" + bciActivity2.getName(),"$[0].name", bciActivity2.getName());
     }
 
     @Test
     void testFindByType() throws Exception {
         BCIActivity bciActivity2 = dataToPerformTheFindTest();
-
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
-
         // Mock behavior for bciActivityRepository.findByType().
         when(bciActivityRepository.findByType(bciActivity.getType())).thenReturn(Collections.singletonList(bciActivity));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/type/" + bciActivity.getType(),
-                "$[0].type", bciActivity.getType().toString());
-
+        performGetRequest(URL_FIND + "type/" + bciActivity.getType(),"$[0].type", bciActivity.getType().toString());
         // Mock behavior for bciActivityRepository.findByType().
         when(bciActivityRepository.findByType(bciActivity2.getType())).thenReturn(Collections.singletonList(bciActivity2));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/type/" + bciActivity2.getType(),
-                "$[0].type", bciActivity2.getType().toString());
+        performGetRequest(URL_FIND + "type/" + bciActivity2.getType(), "$[0].type", bciActivity2.getType().toString());
     }
 
     @Test
     void testFindByDevelops() throws Exception {
         BCIActivity bciActivity2 = dataToPerformTheFindTest();
-
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
 
         Develops develops = bciActivity2.getDevelops().get(0);
 
-        // Mock behavior for bciActivityRepository.findByDevelops().
-        when(bciActivityRepository.findByDevelops(develops.getId())).thenReturn(Collections.singletonList(bciActivity2));
+        // Mock behavior for findByDevelopsBCIActivity_Id.
+        when(bciActivityRepository.findByDevelopsBCIActivity_Id(develops.getId())).thenReturn(Collections.singletonList(bciActivity2));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/develops/" + develops.getId(),
-                "$[0].name", bciActivity2.getName());
+        performGetRequest(URL_FIND + "develops/" + develops.getId(), "$[0].name", bciActivity2.getName());
     }
 
     @Test
     void testFindByRequires() throws Exception {
         BCIActivity bciActivity2 = dataToPerformTheFindTest();
-
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
-
-        // Mock behavior for bciActivityRepository.findByRequires().
-        when(bciActivityRepository.findByRequires(requires.getId())).thenReturn(Collections.singletonList(bciActivity2));
+        // Mock behavior for findByRequiresBCIActivities_Id.
+        when(bciActivityRepository.findByRequiresBCIActivities_Id(requires.getId())).thenReturn(Collections.singletonList(bciActivity2));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/requires/" + requires.getId(),
-                "$[0].name", bciActivity2.getName());
+        performGetRequest(URL_FIND + "requires/" + requires.getId(), "$[0].name", bciActivity2.getName());
     }
 
     @Test
     void testFindByRole() throws Exception {
         BCIActivity bciActivity2 = dataToPerformTheFindTest();
-
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
-
-        // Mock behavior for bciActivityRepository.findByRole().
-        when(bciActivityRepository.findByRole(role.getId())).thenReturn(Collections.singletonList(bciActivity2));
+        // Mock behavior for findByRoleBCIActivities_Id().
+        when(bciActivityRepository.findByRoleBCIActivities_Id(role.getId())).thenReturn(Collections.singletonList(bciActivity2));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/role/" + role.getId(),
-                "$[0].name", bciActivity2.getName());
+        performGetRequest(URL_FIND + "role/" + role.getId(),"$[0].name", bciActivity2.getName());
     }
 
     @Test
     void testFindByContent() throws Exception {
         BCIActivity bciActivity2 = dataToPerformTheFindTest();
-
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
 
-        Content content = bciActivity2.getContent().get(0);
+        Content content = bciActivity2.getContent().getFirst();
 
-        // Mock behavior for bciActivityRepository.findByContent().
-        when(bciActivityRepository.findByContent(content.getId())).thenReturn(Collections.singletonList(bciActivity2));
+        // Mock behavior for findByContentBCIActivities_Id().
+        when(bciActivityRepository.findByContentBCIActivities_Id(content.getId())).thenReturn(Collections.singletonList(bciActivity2));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity/find/content/" + content.getId(),
-                "$[0].name", bciActivity2.getName());
+        performGetRequest(URL_FIND + "content/" + content.getId(), "$[0].name", bciActivity2.getName());
     }
 
     private BCIActivity dataToPerformTheFindTest() throws Exception {
@@ -279,13 +263,11 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
     void testFindAll() throws Exception {
         // Create a BCI Activity.
         BCIActivity bciActivity2 = dataToPerformTheFindTest();
-
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
-
         // Mock behavior for bciActivityRepository.findAll().
         when(bciActivityRepository.findAll()).thenReturn(Collections.singletonList(bciActivity2));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivity", "$[0].id", bciActivity2.getId());
+        performGetRequest(URL, "$[0].id", bciActivity2.getId());
     }
 }

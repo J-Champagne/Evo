@@ -112,19 +112,6 @@ public abstract class AbstractControllerTest {
     }
 
     /**
-     * Perform a request with the status OK to test the controller method received as parameter an object in the request.
-     * @param urlTemplate URL template; the resulting URL will be encoded.
-     * @param evoModel The model that will be look for the entity.
-     * @throws Exception An exception will be throws if the test fail.
-     */
-    protected void performCreateRequest_Status_Ok(@NotNull String urlTemplate, @NotNull AbstractEvoModel evoModel) throws Exception {
-        mockMvc.perform(post(urlTemplate)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(evoModel.toString()))
-                .andExpect(status().isOk()); // Check if the insert was performed via the HttpStatus OK (200).
-    }
-
-    /**
      * Perform a POST request with bad request to test the controller.
      * @param urlTemplate URL template; the resulting URL will be encoded.
      * @param evoModel The model that will be inserted in the database.

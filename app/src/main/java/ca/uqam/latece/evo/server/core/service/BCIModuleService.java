@@ -98,6 +98,10 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
         return saved;
     }
 
+    /**
+     * Method used to validate the relationship between BCIModule and Skill.
+     * @param bciModule The BCIModule entity.
+     */
     private void validateSkills(BCIModule bciModule) {
         if (bciModule.getSkills().isEmpty()) {
             throw new IllegalArgumentException("The Module '" + bciModule.getName() +

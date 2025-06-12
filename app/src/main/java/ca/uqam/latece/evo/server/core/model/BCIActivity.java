@@ -85,6 +85,7 @@ public class BCIActivity extends Activity {
         this.type = type;
         this.preconditions = preconditions;
         this.postconditions = postconditions;
+        this.developsBCIActivity.add(develop);
 
         if(role.length > 0) {
             this.roleBCIActivities.addAll(List.of(role));

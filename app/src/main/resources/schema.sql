@@ -778,3 +778,52 @@ CREATE TABLE IF NOT EXISTS bci_module_instance_activities (
     CONSTRAINT bci_module_instance_activities_module_fkey FOREIGN KEY (bci_module_instance_activities_module_id) REFERENCES bci_module_instance (bci_module_instance_id),
     CONSTRAINT bci_module_instance_activities_activity_fkey FOREIGN KEY (bci_module_instance_activities_activity_id) REFERENCES bci_activity_instance (bci_activity_instance_id)
 );
+
+/***********************************************************************************************************************
+assessment table: This table stores information about Assessment.
+- Columns:
+  - assessment_id: A unique identifier for each Assessment. Also works as a foreign key referencing a bci_activity_id
+  in the bci_activity table used by the Hibernate to map the subclass of BCIActivity.
+  - assessment_assessee_role_id: The assessee role id.
+  - assessment_assessor_role_id: The assessor role id.
+  - assessment_scale: The assessment scale.
+  - assessment_scoring_function: The assessment scoring function.
+  - assessment_self_relationship_id: Used to indicate that an assessment has a relationship with another assessment.
+- Constraints:
+  - assessment_pk: Declares assessment_id as the primary key — ensuring each row has a unique identifier.
+  - assessment_fkey: This constraint is used by the Hibernate to map the subclass of BCIActivity.
+  - assessment_assessee_role_fkey: Ensures that assessment_assessee_role_id references a valid record in the role table.
+  - assessment_assessor_role_fkey: Ensures that assessment_assessor_role_id references a valid record in the role table.
+  - assessment_self_relationship_fkey: Ensures that assessment_self_relationship_id references a valid record in the assessment table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS assessment (
+    assessment_id BIGINT NOT NULL,
+    assessment_assessee_role_id BIGINT NOT NULL,
+    assessment_assessor_role_id BIGINT NOT NULL,
+    assessment_scale VARCHAR(6),
+    assessment_scoring_function VARCHAR(250),
+    assessment_self_relationship_id BIGINT,
+    CONSTRAINT assessment_pk PRIMARY KEY (assessment_id),
+    CONSTRAINT assessment_fkey FOREIGN KEY (assessment_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT assessment_assessee_role_fkey FOREIGN KEY (assessment_assessee_role_id) REFERENCES role (role_id),
+    CONSTRAINT assessment_assessor_role_fkey FOREIGN KEY (assessment_assessor_role_id) REFERENCES role (role_id),
+    CONSTRAINT assessment_self_relationship_fkey FOREIGN KEY (assessment_self_relationship_id) REFERENCES assessment (assessment_id)
+);
+
+/***********************************************************************************************************************
+assessment_skill table: This is a junction table that represents a many-to-many relationship between assessment and skill.
+- Columns:
+  - assessment_skill_assessment_id: A foreign key referencing an assessment_id in the assessment table.
+  - assessment_skill_skill_id: A foreign key referencing a skill_id in the skill table.
+- Constraints:
+  - assessment_skill_pk: Primary key for this table is composed of assessment_id and assessment_skill_skill_id.
+  - assessment_skill_assessment_fkey: Ensures that assessment_skill_assessment_id references a valid record in the assessment table.
+  - assessment_skill_skill_fkey: Ensures that assessment_skill_skill_id references a valid record in the skill_id table.
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS assessment_skill (
+    assessment_skill_assessment_id BIGINT NOT NULL,
+    assessment_skill_skill_id BIGINT NOT NULL,
+    CONSTRAINT assessment_skill_pk PRIMARY KEY (assessment_skill_assessment_id, assessment_skill_skill_id),
+    CONSTRAINT assessment_skill_assessment_fkey FOREIGN KEY (assessment_skill_assessment_id) REFERENCES assessment (assessment_id),
+    CONSTRAINT assessment_skill_skill_fkey FOREIGN KEY (assessment_skill_skill_id) REFERENCES skill (skill_id)
+);

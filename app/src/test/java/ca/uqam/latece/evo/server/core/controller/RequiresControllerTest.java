@@ -48,19 +48,19 @@ public class RequiresControllerTest extends AbstractControllerTest {
         role.setName("Admin");
 
         // Creates Skill.
-        skill.setId(1L);
+        skill.setId(2L);
         skill.setName("Skill name");
         skill.setDescription("Skill Description");
         skill.setType(SkillType.BCT);
 
         // Create a BCI Activity.
-        activity.setId(1L);
+        activity.setId(3L);
         activity.setName("Programming");
         activity.setDescription("Programming language training");
         activity.setType(ActivityType.LEARNING);
 
         // Creates Develops.
-        requires.setId(1L);
+        requires.setId(4L);
         requires.setLevel(SkillLevel.BEGINNER);
         requires.setSkill(skill);
         requires.setRole(role);
@@ -94,11 +94,11 @@ public class RequiresControllerTest extends AbstractControllerTest {
 
     private Requires dataToPerformTheFindTest() {
         // Creates Role.
-        role.setId(1L);
+        role.setId(19L);
         role.setName("Participant");
 
         // Creates BCIActivity.
-        activity.setId(1L);
+        activity.setId(91L);
         activity.setName("Programming");
         activity.setDescription("Programming language training");
         activity.setType(ActivityType.LEARNING);
@@ -112,24 +112,24 @@ public class RequiresControllerTest extends AbstractControllerTest {
         BCIActivity activity1 = new BCIActivity();
 
         // Creates Skill.
-        skill1.setId(2L);
+        skill1.setId(92L);
         skill1.setName("Skill 1");
         skill1.setDescription("Skill Description 1");
         skill1.setType(SkillType.PHYSICAL);
 
         // Creates Role.
-        role1.setId(2L);
+        role1.setId(29L);
         role1.setName("e-Facitalitor");
 
         // Creates BCIActivity.
-        activity1.setId(2L);
+        activity1.setId(32L);
         activity1.setName("Database");
         activity1.setDescription("Database training");
         activity1.setType(ActivityType.LEARNING);
         activity1.addRole(role1);
 
         // Creates Requires.
-        requires1.setId(2L);
+        requires1.setId(62L);
         requires1.setLevel(SkillLevel.ADVANCED);
         requires1.setSkill(skill1);
         requires1.setRole(role1);
