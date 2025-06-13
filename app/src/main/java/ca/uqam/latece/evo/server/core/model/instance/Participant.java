@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "particiant")
+@Table(name = "participant")
 @Transactional
 public class Participant extends AbstractEvoModel {
     @Id

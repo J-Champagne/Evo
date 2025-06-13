@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Edilton Lima dos Santos.
  */
 @ContextConfiguration(classes = {BehaviorChangeInterventionBlockInstance.class, BehaviorChangeInterventionBlockInstanceService.class})
-public class BehaviorChangeInterventionBlockInstanceServiceTest extends AbstractServiceTest{
+public class BehaviorChangeInterventionBlockInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
 

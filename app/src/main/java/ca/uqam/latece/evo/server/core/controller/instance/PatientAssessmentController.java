@@ -40,6 +40,7 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<PatientAssessment> create(@RequestBody PatientAssessment pa) {
         ResponseEntity<PatientAssessment> response;
 
@@ -71,6 +72,7 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<PatientAssessment> update(@RequestBody PatientAssessment pa) {
         ResponseEntity<PatientAssessment> response;
 
@@ -99,7 +101,8 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
      * @throws IllegalArgumentException if id is null.
      */
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT) // 204
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void deleteById(@PathVariable Long id) {
         patientAssessmentService.deleteById(id);
         logger.info("PatientAssessment deleted: {}", id);
@@ -111,6 +114,7 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<List<PatientAssessment>> findAll() {
         ResponseEntity<List<PatientAssessment>> response;
 
@@ -139,6 +143,7 @@ public class PatientAssessmentController extends AbstractEvoController<PatientAs
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<PatientAssessment> findById(@PathVariable Long id) {
         ResponseEntity<PatientAssessment> response;
 

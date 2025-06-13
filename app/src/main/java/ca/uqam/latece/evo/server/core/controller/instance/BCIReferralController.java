@@ -39,6 +39,7 @@ public class BCIReferralController extends AbstractEvoController<BCIReferral> {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<BCIReferral> create(@RequestBody BCIReferral bcir) {
         ResponseEntity<BCIReferral> response;
 
@@ -71,6 +72,7 @@ public class BCIReferralController extends AbstractEvoController<BCIReferral> {
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<BCIReferral> update(@RequestBody BCIReferral bcir) {
         ResponseEntity<BCIReferral> response;
 
@@ -101,6 +103,7 @@ public class BCIReferralController extends AbstractEvoController<BCIReferral> {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void deleteById(@PathVariable Long id) {
         bciReferralService.deleteById(id);
         logger.info("BCIReferral deleted: {}", id);
@@ -112,6 +115,7 @@ public class BCIReferralController extends AbstractEvoController<BCIReferral> {
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<List<BCIReferral>> findAll() {
         ResponseEntity<List<BCIReferral>> response;
 
@@ -140,6 +144,7 @@ public class BCIReferralController extends AbstractEvoController<BCIReferral> {
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<BCIReferral> findById(@PathVariable Long id) {
         ResponseEntity<BCIReferral> response;
 

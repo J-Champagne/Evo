@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * BCIModuleInstanceService Service.
+ * BCIModuleInstance Service.
  * @author Julien Champagne.
  */
 @Service

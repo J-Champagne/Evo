@@ -10,6 +10,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * BehaviorChangeInterventionBlock instance class.
+ * @author Julien Champagne.
+ */
 @Entity
 @Table(name = "bci_block_instance")
 @JsonPropertyOrder({"id", "stage"})

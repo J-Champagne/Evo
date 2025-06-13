@@ -37,6 +37,7 @@ public class PatientController extends AbstractEvoController<Patient> {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<Patient> create(@RequestBody Patient patient) {
         ResponseEntity<Patient> response;
 
@@ -66,6 +67,7 @@ public class PatientController extends AbstractEvoController<Patient> {
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<Patient> update(@RequestBody Patient patient) {
         ResponseEntity<Patient> response;
 
@@ -95,6 +97,7 @@ public class PatientController extends AbstractEvoController<Patient> {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void deleteById(@PathVariable Long id) {
         patientService.deleteById(id);
         logger.info("Patient deleted: {}", id);
@@ -106,6 +109,7 @@ public class PatientController extends AbstractEvoController<Patient> {
      */
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<List<Patient>> findAll() {
         ResponseEntity<List<Patient>> response;
 
@@ -135,6 +139,7 @@ public class PatientController extends AbstractEvoController<Patient> {
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<Patient> findById(@PathVariable Long id) {
         ResponseEntity<Patient> response;
 

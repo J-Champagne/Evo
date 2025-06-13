@@ -44,6 +44,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 */
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
+	@Override
 	public ResponseEntity<Actor> create(@RequestBody Actor actor) {
 		ResponseEntity<Actor> response;
 
@@ -74,6 +75,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 */
 	@PutMapping
 	@ResponseStatus(HttpStatus.OK)
+	@Override
     public ResponseEntity<Actor> update(@RequestBody Actor actor) {
 		ResponseEntity<Actor> response;
 
@@ -104,6 +106,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 */
     @DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Override
     public void deleteById(@PathVariable Long id) {
 		actorService.deleteById(id);
 		logger.info("Actor deleted: {}", id);
@@ -115,6 +118,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 */
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
+	@Override
 	public ResponseEntity<List<Actor>> findAll() {
 		ResponseEntity<List<Actor>> response;
 
@@ -145,6 +149,7 @@ public class ActorController extends AbstractEvoController<Actor> {
 	 */
 	@GetMapping("/find/{id}")
 	@ResponseStatus(HttpStatus.OK)
+	@Override
 	public ResponseEntity<Actor> findById(@PathVariable Long id) {
 		ResponseEntity<Actor> response;
 

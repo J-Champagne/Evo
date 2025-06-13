@@ -26,11 +26,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * The Behavior Change Intervention Block Instance Controller test class for the {@link BehaviorChangeInterventionBlockInstanceController},
- * responsible for testing its various functionalities. This class includes integration tests for CRUD operations supported
- * the controller class, using WebMvcTes, and repository queries using MockMvc (Mockito).
- *
- * @version 1.0
+ * Tests methods found in BehaviorChangeInterventionBlockInstanceController using WebMvcTest, and repository queries using MockMvc (Mockito).
  * @author Julien Champagne.
  * @author Edilton Lima dos Santos.
  */

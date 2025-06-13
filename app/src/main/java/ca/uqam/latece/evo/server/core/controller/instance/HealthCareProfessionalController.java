@@ -35,6 +35,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<HealthCareProfessional> create(@RequestBody HealthCareProfessional hcp) {
         ResponseEntity<HealthCareProfessional> response;
 
@@ -65,6 +66,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<HealthCareProfessional> update(@RequestBody HealthCareProfessional hcp) {
         ResponseEntity<HealthCareProfessional> response;
 
@@ -106,6 +108,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
      */
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<List<HealthCareProfessional>> findAll() {
         ResponseEntity<List<HealthCareProfessional>> response;
 
@@ -136,6 +139,7 @@ public class HealthCareProfessionalController extends AbstractEvoController<Heal
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<HealthCareProfessional> findById(@PathVariable Long id) {
         ResponseEntity<HealthCareProfessional> response;
 

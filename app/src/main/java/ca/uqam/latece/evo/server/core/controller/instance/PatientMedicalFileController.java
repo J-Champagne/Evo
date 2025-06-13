@@ -39,6 +39,7 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<PatientMedicalFile> create(@RequestBody PatientMedicalFile medicalFile) {
         ResponseEntity<PatientMedicalFile> response;
 
@@ -71,6 +72,7 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<PatientMedicalFile> update(@RequestBody PatientMedicalFile medicalFile) {
         ResponseEntity<PatientMedicalFile> response;
 
@@ -101,6 +103,7 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void deleteById(@PathVariable Long id) {
         patientMedicalFileService.deleteById(id);
         logger.info("PatientMedicalFile deleted: {}", id);
@@ -112,6 +115,7 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<List<PatientMedicalFile>> findAll() {
         ResponseEntity<List<PatientMedicalFile>> response;
 
@@ -140,6 +144,7 @@ public class PatientMedicalFileController extends AbstractEvoController<PatientM
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<PatientMedicalFile> findById(@PathVariable Long id) {
         ResponseEntity<PatientMedicalFile> response;
 

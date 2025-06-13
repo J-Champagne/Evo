@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * BCIModuleInstanceRepository repository creates CRUD implementation at runtime automatically.
+ * BCIModuleInstance repository creates CRUD implementation at runtime automatically.
  * @author Julien Champagne.
  */
 @Repository

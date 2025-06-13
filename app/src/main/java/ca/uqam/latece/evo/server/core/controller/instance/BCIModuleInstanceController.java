@@ -31,10 +31,11 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
      * Creates a BCIModuleInstance in the database.
      * @param moduleInstance BCIModuleInstance.
      * @return The created BCIModuleInstance in JSON format.
-     * @throws IllegalArgumentException if pa is null.
+     * @throws IllegalArgumentException if moduleInstance is null.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<BCIModuleInstance> create(@RequestBody BCIModuleInstance moduleInstance) {
         ResponseEntity<BCIModuleInstance> response;
 
@@ -60,10 +61,11 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
      * Updates a BCIModuleInstance in the database.
      * @param moduleInstance BCIModuleInstance.
      * @return The updated BCIModuleInstance in JSON format.
-     * @throws IllegalArgumentException if pa is null.
+     * @throws IllegalArgumentException if moduleInstance is null.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<BCIModuleInstance> update(@RequestBody BCIModuleInstance moduleInstance) {
         ResponseEntity<BCIModuleInstance> response;
 
@@ -93,6 +95,7 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void deleteById(@PathVariable Long id) {
         bciModuleInstanceService.deleteById(id);
         logger.info("Deleted BCIModuleInstance: {}", id);
@@ -104,6 +107,7 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<List<BCIModuleInstance>> findAll() {
         ResponseEntity<List<BCIModuleInstance>> response;
 
@@ -133,6 +137,7 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<BCIModuleInstance> findById(@PathVariable Long id) {
         ResponseEntity<BCIModuleInstance> response;
 

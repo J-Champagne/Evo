@@ -31,12 +31,13 @@ public class ParticipantController extends AbstractEvoController<Participant> {
      * Creates a Participant in the database.
      * @param participant Participant.
      * @return The created Participant in JSON format.
-     * @throws IllegalArgumentException if pa is null.
+     * @throws IllegalArgumentException if participant is null.
      * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
      *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<Participant> create(@RequestBody Participant participant) {
         ResponseEntity<Participant> response;
 
@@ -62,12 +63,13 @@ public class ParticipantController extends AbstractEvoController<Participant> {
      * Updates a Participant in the database.
      * @param participant Participant.
      * @return The updated Participant in JSON format.
-     * @throws IllegalArgumentException if pa is null.
+     * @throws IllegalArgumentException if participant is null.
      * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
      *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<Participant> update(@RequestBody Participant participant) {
         ResponseEntity<Participant> response;
 
@@ -97,6 +99,7 @@ public class ParticipantController extends AbstractEvoController<Participant> {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void deleteById(@PathVariable Long id) {
         participantService.deleteById(id);
         logger.info("Deleted Participant: {}", id);
@@ -108,6 +111,7 @@ public class ParticipantController extends AbstractEvoController<Participant> {
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<List<Participant>> findAll() {
         ResponseEntity<List<Participant>> response;
 
@@ -137,6 +141,7 @@ public class ParticipantController extends AbstractEvoController<Participant> {
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<Participant> findById(@PathVariable Long id) {
         ResponseEntity<Participant> response;
 

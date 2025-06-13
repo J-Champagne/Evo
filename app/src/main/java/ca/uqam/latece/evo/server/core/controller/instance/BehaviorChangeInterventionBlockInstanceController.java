@@ -32,12 +32,13 @@ public class BehaviorChangeInterventionBlockInstanceController extends AbstractE
      * Creates a BehaviorChangeInterventionBlockInstance in the database.
      * @param blockInstance BehaviorChangeInterventionBlockInstance.
      * @return The created BehaviorChangeInterventionBlockInstance in JSON format.
-     * @throws IllegalArgumentException if pa is null.
+     * @throws IllegalArgumentException if blockInstance is null.
      * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
      *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<BehaviorChangeInterventionBlockInstance> create(@RequestBody BehaviorChangeInterventionBlockInstance blockInstance) {
         ResponseEntity<BehaviorChangeInterventionBlockInstance> response;
 
@@ -63,12 +64,13 @@ public class BehaviorChangeInterventionBlockInstanceController extends AbstractE
      * Updates a BehaviorChangeInterventionBlockInstance in the database.
      * @param blockInstance BehaviorChangeInterventionBlockInstance.
      * @return The updated BehaviorChangeInterventionBlockInstance in JSON format.
-     * @throws IllegalArgumentException if pa is null.
+     * @throws IllegalArgumentException if blockInstance is null.
      * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
      *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<BehaviorChangeInterventionBlockInstance> update(@RequestBody BehaviorChangeInterventionBlockInstance blockInstance) {
         ResponseEntity<BehaviorChangeInterventionBlockInstance> response;
 
@@ -98,6 +100,7 @@ public class BehaviorChangeInterventionBlockInstanceController extends AbstractE
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void deleteById(@PathVariable Long id) {
         bciBlockInstanceService.deleteById(id);
         logger.info("Deleted BehaviorChangeInterventionBlockInstance: {}", id);
@@ -109,6 +112,7 @@ public class BehaviorChangeInterventionBlockInstanceController extends AbstractE
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<List<BehaviorChangeInterventionBlockInstance>> findAll() {
         ResponseEntity<List<BehaviorChangeInterventionBlockInstance>> response;
 
@@ -138,6 +142,7 @@ public class BehaviorChangeInterventionBlockInstanceController extends AbstractE
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Override
     public ResponseEntity<BehaviorChangeInterventionBlockInstance> findById(@PathVariable Long id) {
         ResponseEntity<BehaviorChangeInterventionBlockInstance> response;
 
