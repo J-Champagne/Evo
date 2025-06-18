@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * BehaviorChangeInterventionBlock instance class.
@@ -36,7 +37,9 @@ public class BehaviorChangeInterventionBlockInstance extends AbstractEvoModel {
             inverseJoinColumns = @JoinColumn(name = "bci_block_instance_activities_activity_id", referencedColumnName="bci_activity_instance_id"))
     private List<BCIActivityInstance> activities;
 
-    public BehaviorChangeInterventionBlockInstance() {}
+    public BehaviorChangeInterventionBlockInstance() {
+        activities = new ArrayList<>();
+    }
 
     public BehaviorChangeInterventionBlockInstance(TimeCycle stage) {
         this.stage = stage;
@@ -72,5 +75,21 @@ public class BehaviorChangeInterventionBlockInstance extends AbstractEvoModel {
 
     public void setActivities(List<BCIActivityInstance> activities) {
         this.activities = activities;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (super.equals(object)) {
+            BehaviorChangeInterventionBlockInstance bciBlockInstance = (BehaviorChangeInterventionBlockInstance) object;
+            return Objects.equals(this.getStage(), bciBlockInstance.getStage()) &&
+                    Objects.equals(this.getActivities(), bciBlockInstance.getActivities());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId(), this.getStage(), this.getActivities());
     }
 }

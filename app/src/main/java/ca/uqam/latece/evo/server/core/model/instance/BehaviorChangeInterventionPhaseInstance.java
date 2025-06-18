@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * BehaviorChangeInterventionPhase instance class.
@@ -42,7 +43,10 @@ public class BehaviorChangeInterventionPhaseInstance extends AbstractEvoModel {
             inverseJoinColumns = @JoinColumn(name = "bci_phase_instance_modules_module_id", referencedColumnName="bci_module_instance_id"))
     private List<BCIModuleInstance> modules;
 
-    public BehaviorChangeInterventionPhaseInstance() {}
+    public BehaviorChangeInterventionPhaseInstance() {
+        blocks = new ArrayList<>();
+        modules = new ArrayList<>();
+    }
 
     public BehaviorChangeInterventionPhaseInstance(@NotNull BehaviorChangeInterventionBlockInstance currentBlock,
                                                    @NotNull List<BehaviorChangeInterventionBlockInstance> blocks,
@@ -84,5 +88,22 @@ public class BehaviorChangeInterventionPhaseInstance extends AbstractEvoModel {
 
     public void setCurrentBlock(BehaviorChangeInterventionBlockInstance currentBlock) {
         this.currentBlock = currentBlock;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (super.equals(object)) {
+            BehaviorChangeInterventionPhaseInstance bciPhaseInstance = (BehaviorChangeInterventionPhaseInstance) object;
+            return Objects.equals(this.getCurrentBlock(), bciPhaseInstance.getCurrentBlock()) &&
+                    Objects.equals(this.getBlocks(), bciPhaseInstance.getBlocks()) &&
+                    Objects.equals(this.getModules(), bciPhaseInstance.getModules());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId(), this.getCurrentBlock(), this.getBlocks(), this.getModules());
     }
 }

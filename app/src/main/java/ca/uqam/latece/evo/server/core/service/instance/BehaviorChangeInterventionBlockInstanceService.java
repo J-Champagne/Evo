@@ -7,21 +7,18 @@ import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterven
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
-<<<<<<< HEAD
  * BehaviorChangeInterventionBlockInstance Service.
-=======
- * BCIReferral Service.
->>>>>>> 338f438 (Im plementation of BehaviorChangeInterventionBlockInstanceService)
  * @author Julien Champagne.
  */
 @Service
@@ -30,7 +27,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     private static final Logger logger = LoggerFactory.getLogger(BehaviorChangeInterventionBlockInstanceService.class);
 
     @Autowired
-    BehaviorChangeInterventionBlockInstanceRepository BCIBlockInstanceRepository;
+    BehaviorChangeInterventionBlockInstanceRepository bciBlockInstanceRepository;
 
     /**
      * Creates a BehaviorChangeInterventionBlockInstance in the database.
@@ -48,7 +45,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
         ObjectValidator.validateObject(blockInstance.getStage());
         ObjectValidator.validateObject(blockInstance.getActivities());
 
-        saved = this.BCIBlockInstanceRepository.save(blockInstance);
+        saved = this.bciBlockInstanceRepository.save(blockInstance);
         logger.info("BehaviorChangeInterventionBlockInstance created: {}", saved);
         return saved;
     }
@@ -71,7 +68,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
         ObjectValidator.validateObject(blockInstance.getActivities());
 
         if (found != null) {
-            updated = this.BCIBlockInstanceRepository.save(blockInstance);
+            updated = this.bciBlockInstanceRepository.save(blockInstance);
         }
         return updated;
     }
@@ -86,7 +83,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      */
     @Override
     public BehaviorChangeInterventionBlockInstance save(BehaviorChangeInterventionBlockInstance blockInstance) {
-        return this.BCIBlockInstanceRepository.save(blockInstance);
+        return this.bciBlockInstanceRepository.save(blockInstance);
     }
 
     /**
@@ -97,7 +94,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      */
     public void deleteById(Long id) {
         ObjectValidator.validateId(id);
-        BCIBlockInstanceRepository.deleteById(id);
+        bciBlockInstanceRepository.deleteById(id);
         logger.info("BehaviorChangeInterventionBlockInstance deleted {}", id);
     }
 
@@ -106,7 +103,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      * @return List<BehaviorChangeInterventionBlockInstance>.
      */
     public List<BehaviorChangeInterventionBlockInstance> findAll() {
-        return this.BCIBlockInstanceRepository.findAll();
+        return this.bciBlockInstanceRepository.findAll();
     }
 
     /**
@@ -118,7 +115,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     @Override
     public BehaviorChangeInterventionBlockInstance findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.BCIBlockInstanceRepository.findById(id).
+        return this.bciBlockInstanceRepository.findById(id).
                 orElseThrow(() -> new EntityNotFoundException("BehaviorChangeInterventionBlockInstance not found"));
     }
 
@@ -130,7 +127,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      */
     public List<BehaviorChangeInterventionBlockInstance> findByStage(TimeCycle stage) {
         ObjectValidator.validateObject(stage);
-        return this.BCIBlockInstanceRepository.findByStage(stage);
+        return this.bciBlockInstanceRepository.findByStage(stage);
     }
 
     /**
@@ -141,7 +138,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      */
     public List<BehaviorChangeInterventionBlockInstance> findByActivitiesId(Long id) {
         ObjectValidator.validateId(id);
-        return this.BCIBlockInstanceRepository.findByActivitiesId(id);
+        return this.bciBlockInstanceRepository.findByActivitiesId(id);
     }
 
     /**
@@ -153,6 +150,6 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     @Override
     public boolean existsById(Long id) {
         ObjectValidator.validateId(id);
-        return this.BCIBlockInstanceRepository.existsById(id);
+        return this.bciBlockInstanceRepository.existsById(id);
     }
 }

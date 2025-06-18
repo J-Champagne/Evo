@@ -95,7 +95,8 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     @Test
     @Override
     void testFindAll() {
-        bciModuleInstanceService.create(new BCIModuleInstance(OutcomeType.PARTIALLYSUCCESSFUL));
+        List<BCIActivityInstance> activities = new ArrayList<>(moduleInstance.getActivities());
+        bciModuleInstanceService.create(new BCIModuleInstance(OutcomeType.PARTIALLYSUCCESSFUL, activities));
         List<BCIModuleInstance> results = bciModuleInstanceService.findAll();
 
         assertEquals(2, results.size());

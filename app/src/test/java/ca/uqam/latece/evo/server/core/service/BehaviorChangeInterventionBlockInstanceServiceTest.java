@@ -23,10 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * The test class for the {@link BehaviorChangeInterventionBlockInstanceService}, responsible for testing its various
- * functionalities. This class includes integration tests for CRUD operations and other repository queries using a
- * PostgreSQL database in a containerized setup.
- *
+ * Tests methods found in BehaviorChangeInterventionBlockInstanceService in a containerized setup.
  * @version 1.0
  * @author Julien Champagne.
  * @author Edilton Lima dos Santos.

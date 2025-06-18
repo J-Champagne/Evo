@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * BCIModule instance class.
@@ -34,11 +35,12 @@ public class BCIModuleInstance extends AbstractEvoModel {
             inverseJoinColumns = @JoinColumn(name = "bci_module_instance_activities_activity_id", referencedColumnName="bci_activity_instance_id"))
     private List<BCIActivityInstance> activities;
 
-    public BCIModuleInstance() {}
+    public BCIModuleInstance() {
+        this.activities = new ArrayList<>();
+    }
 
     public BCIModuleInstance(OutcomeType outcome) {
         this.outcome = outcome;
-        this.activities = new ArrayList<>();
     }
 
     public BCIModuleInstance(OutcomeType outcome, List<BCIActivityInstance> activities) {
@@ -70,5 +72,21 @@ public class BCIModuleInstance extends AbstractEvoModel {
 
     public void setActivities(List<BCIActivityInstance> activities) {
         this.activities = activities;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (super.equals(object)) {
+            BCIModuleInstance moduleInstance = (BCIModuleInstance) object;
+            return Objects.equals(this.getOutcome(), moduleInstance.getOutcome()) &&
+                    Objects.equals(this.getActivities(), moduleInstance.getActivities());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId(), this.getOutcome(), this.getActivities());
     }
 }
