@@ -41,24 +41,35 @@ public interface SkillRepository extends EvoRepository<Skill> {
      */
     List<Skill> findByType(SkillType type);
 
-
     /**
      * Finds and retrieves a list of skills based on their subskills.
-     * @param id the id of the subskills to search for.
+     * @param subSkillId the id of the subskills to search for.
      * @return a list of skills matching the given subskill id.
      */
-    @Query(value = "SELECT s.* FROM skill AS s WHERE s.skill_sub_skill_id = :subskill_id",
-            nativeQuery = true)
-    List<Skill> findBySubSkill(@Param("subskill_id") Long id);
+    List<Skill> findBySubSkill_Id(Long subSkillId);
 
     /**
      * Finds and retrieves a list of skills based on their required skills.
-     * @param id the required skill id to search for.
+     * @param requiredSkillId the required skill id to search for.
      * @return a list of skills matching the given id.
      */
+    List<Skill> findByRequiredSkill_Id(Long requiredSkillId);
+
+    /**
+     * Finds and retrieves a list of skills based on their assessment.
+     * @param assessmentId the id of the assessment to search for.
+     * @return a list of skills matching the given assessment id.
+     */
+    List<Skill> findByAssessments_Id(Long assessmentId);
+
+    /**
+     * Finds and retrieves a list of skills based on composed of skill id.
+     * @param id the composed o skill id to search for.
+     * @return a list of skills matching the given composed skill id.
+     * @throws IllegalArgumentException in case the given id is null.
+     */
     @Query(value = "SELECT s.* FROM skill AS s " +
-            "JOIN required_skill rs ON (rs.required_skill_skill_id = s.skill_id) " +
-            "WHERE rs.required_skill_required_id = :skill_required_id ",
+            "WHERE s.skill_composed_of_skill_id = :composed_skill_id",
             nativeQuery = true)
-    List<Skill> findByRequiredSkill(@Param("skill_required_id") Long id);
+    List<Skill> findBySkillComposedOfSkillId(@Param("composed_skill_id") Long id);
 }

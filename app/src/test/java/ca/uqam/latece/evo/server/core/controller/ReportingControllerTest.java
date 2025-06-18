@@ -40,6 +40,10 @@ public class ReportingControllerTest extends AbstractControllerTest {
     private Skill skill = new Skill();
     private Content content = new Content();
 
+    private static final String URL = "/reporting";
+    private static final String URL_SPLITTER = "/reporting/";
+    private static final String URL_FIND = "/reporting/find/";
+
     @BeforeEach
     void setUp() {
         // Create the role associated with reporting.
@@ -54,7 +58,7 @@ public class ReportingControllerTest extends AbstractControllerTest {
         roles.add(role2);
 
         // Create a BCI Activity.
-        bciActivity.setId(1L);
+        bciActivity.setId(3L);
         bciActivity.setName("Programming 2");
         bciActivity.setDescription("Programming language training 2");
         bciActivity.setType(ActivityType.LEARNING);
@@ -63,7 +67,7 @@ public class ReportingControllerTest extends AbstractControllerTest {
         bciActivity.addRole(role);
 
         // Create a reporting.
-        reporting.setId(1L);
+        reporting.setId(4L);
         reporting.setName("Programming Reporting");
         reporting.setDescription("Programming language Reporting");
         reporting.setType(ActivityType.DIAGNOSING);
@@ -81,26 +85,26 @@ public class ReportingControllerTest extends AbstractControllerTest {
     @Override
     void testCreate() throws Exception {
         // Creates Skill.
-        skill.setId(2L);
+        skill.setId(5L);
         skill.setName("Skill name - reporting");
         skill.setDescription("Skill Description - reporting");
         skill.setType(SkillType.BCT);
 
         // Creates Develops
-        develops.setId(2L);
+        develops.setId(6L);
         develops.setLevel(SkillLevel.BEGINNER);
         develops.setSkill(skill);
         develops.setRole(role);
         develops.setBciActivity(bciActivity);
 
         // Create the Content.
-        content.setId(2L);
+        content.setId(7L);
         content.setName("Content - reporting");
         content.setType("Content type - reporting");
         content.setDescription("Content description - reporting");
 
         // Create a reporting.
-        reporting.setId(3L);
+        reporting.setId(8L);
         reporting.setName("Programming Reporting");
         reporting.setDescription("Programming language Reporting");
         reporting.setType(ActivityType.DIAGNOSING);
@@ -111,7 +115,7 @@ public class ReportingControllerTest extends AbstractControllerTest {
         reporting.setBciActivity(bciActivity);
         reporting.addDevelops(develops);
 
-        performCreateRequest("/reporting", reporting);
+        performCreateRequest(URL, reporting);
     }
 
     @Test
@@ -122,13 +126,13 @@ public class ReportingControllerTest extends AbstractControllerTest {
         // Save in the database.
         when(reportingRepository.save(reporting)).thenReturn(reporting);
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/reporting", reporting,"$.name", reporting.getName());
+        performUpdateRequest(URL, reporting,"$.name", reporting.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/reporting/" + reporting.getId(), reporting);
+        performDeleteRequest(URL_SPLITTER + reporting.getId(), reporting);
     }
 
     @Test
@@ -145,8 +149,8 @@ public class ReportingControllerTest extends AbstractControllerTest {
         when(reportingRepository.findById(saved.getId())).thenReturn(Optional.of(saved));
         when(reportingRepository.findById(reporting.getId())).thenReturn(Optional.of(reporting));
         // Perform a GET request to test the controller.
-        performGetRequest("/reporting/find/" + saved.getId(), "$.name", saved.getName());
-        performGetRequest("/reporting/find/" + reporting.getId(), "$.name", reporting.getName());
+        performGetRequest(URL_FIND + saved.getId(), "$.name", saved.getName());
+        performGetRequest(URL_FIND +  reporting.getId(), "$.name", reporting.getName());
     }
 
     @Test
@@ -160,14 +164,12 @@ public class ReportingControllerTest extends AbstractControllerTest {
         // Mock behavior for reportingRepository.findByName().
         when(reportingRepository.findByName(reporting.getName())).thenReturn(Collections.singletonList(reporting));
         // Perform a GET request to test the controller.
-        performGetRequest("/reporting/find/name/" + reporting.getName(),
-                "$[0].name", reporting.getName());
+        performGetRequest(URL_FIND + "name/" + reporting.getName(), "$[0].name", reporting.getName());
 
         // Mock behavior for reportingRepository.findByName().
         when(reportingRepository.findByName(saved.getName())).thenReturn(Collections.singletonList(saved));
         // Perform a GET request to test the controller.
-        performGetRequest("/reporting/find/name/" + saved.getName(),
-                "$[0].name", saved.getName());
+        performGetRequest(URL_FIND + "name/" + saved.getName(), "$[0].name", saved.getName());
     }
 
     @Test
@@ -182,45 +184,43 @@ public class ReportingControllerTest extends AbstractControllerTest {
         // Mock behavior for reportingRepository.findByType().
         when(reportingRepository.findByType(reporting.getType())).thenReturn(Collections.singletonList(reporting));
         // Perform a GET request to test the controller.
-        performGetRequest("/reporting/find/type/" + reporting.getType(),
-                "$[0].type", reporting.getType().toString());
+        performGetRequest(URL_FIND + "type/" + reporting.getType(), "$[0].type", reporting.getType().toString());
 
         // Mock behavior for reportingRepository.findByType().
         when(reportingRepository.findByType(saved.getType())).thenReturn(Collections.singletonList(saved));
         // Perform a GET request to test the controller.
-        performGetRequest("/reporting/find/type/" + saved.getType(),
-                "$[0].type", saved.getType().toString());
+        performGetRequest(URL_FIND + "type/" + saved.getType(), "$[0].type", saved.getType().toString());
     }
 
     private Reporting dataToPerformTheFindTest() throws Exception {
         List<Role> roles = new ArrayList<>();
         Role role2 = new Role();
-        role2.setId(3L);
+        role2.setId(9L);
         role2.setName("e-Facilitator 2");
 
         roles.add(role);
         roles.add(role2);
 
         Develops develops = new Develops();
-        develops.setId(4L);
+        develops.setId(10L);
         develops.setLevel(SkillLevel.BEGINNER);
         develops.setSkill(skill);
         develops.setRole(role);
 
-        requires.setId(6L);
+        requires.setId(11L);
         requires.setLevel(SkillLevel.BEGINNER);
         requires.setSkill(skill);
         requires.setRole(role);
 
         Content content = new Content();
-        content.setId(5L);
+        content.setId(12L);
         content.setName("Content reporting");
         content.setType("Content type reporting");
         content.setDescription("Content description reporting");
 
         // Create a reporting.
         Reporting saved = new Reporting();
-        saved.setId(2L);
+        saved.setId(13L);
         saved.setName("Database Design 2 reporting");
         saved.setDescription("Database Design training reporting");
         saved.setType(ActivityType.PERFORMING);
@@ -248,6 +248,6 @@ public class ReportingControllerTest extends AbstractControllerTest {
         // Mock behavior for reportingRepository.findAll().
         when(reportingRepository.findAll()).thenReturn(Collections.singletonList(saved));
         // Perform a GET request to test the controller.
-        performGetRequest("/reporting", "$[0].id", saved.getId());
+        performGetRequest(URL, "$[0].id", saved.getId());
     }
 }

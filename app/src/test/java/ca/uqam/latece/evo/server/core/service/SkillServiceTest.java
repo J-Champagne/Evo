@@ -1,6 +1,10 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.enumeration.Scale;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import ca.uqam.latece.evo.server.core.model.Assessment;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.Skill;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SkillServiceTest extends AbstractServiceTest {
     @Autowired
     private SkillService skillService;
+
+    @Autowired
+    private AssessmentService assessmentService;
+
+    @Autowired
+    private RoleService roleService;
 
     @Test
     @Override
@@ -100,7 +110,7 @@ public class SkillServiceTest extends AbstractServiceTest {
         skillService.create(skill2);
 
         // Get Skill by name.
-        Skill skill3 = skillService.findByName("Python 2").get(0);
+        Skill skill3 = skillService.findByName("Python 2").getFirst();
         assertEquals(skill.getName(), skill3.getName());
     }
 
@@ -132,14 +142,14 @@ public class SkillServiceTest extends AbstractServiceTest {
         assertNotNull(skills);
 
         // Get the Skill found.
-        Skill skillFound = skills.get(0);
+        Skill skillFound = skills.getFirst();
 
         // Should be only one skill with association with "Python 2".
         assertEquals(1, skills.size());
         // Should be the Skill "C++".
         assertEquals(skill3.getName(), skillFound.getName());
         // The skill required should be "Python 2".
-        assertEquals(skill.getName(), skillFound.getRequiredSkill().get(0).getName());
+        assertEquals(skill.getName(), skillFound.getRequiredSkill().getFirst().getName());
     }
 
     @Test
@@ -163,7 +173,7 @@ public class SkillServiceTest extends AbstractServiceTest {
         assertNotNull(skills);
 
         // Get the Skill found.
-        Skill skillFound = skills.get(0);
+        Skill skillFound = skills.getFirst();
 
         // Should be only one skill with association with "Python 2".
         assertEquals(1, skills.size());
@@ -171,7 +181,6 @@ public class SkillServiceTest extends AbstractServiceTest {
         assertEquals(skill2.getName(), skillFound.getName());
         // The skill required should be "Python 2".
         assertEquals(skill.getName(), skillFound.getSubSkill().getName());
-
     }
 
     @Test
@@ -198,7 +207,117 @@ public class SkillServiceTest extends AbstractServiceTest {
         // Should be empty.
         assertEquals(1, skillFound.size());
         // Should be equals.
-        assertEquals(skill.getName(), skillFound.get(0).getName());
+        assertEquals(skill.getName(), skillFound.getFirst().getName());
+    }
+
+    @Test
+    public void testFindByType(){
+        Skill skill = new Skill();
+        skill.setName("Java");
+        skill.setDescription("Oracle");
+        skill.setType(SkillType.BCT);
+        // Persist the Skill before querying.
+        skillService.create(skill);
+
+        Skill skill1 = new Skill();
+        skill1.setName("Architecture");
+        skill1.setDescription("Architecture");
+        skill1.setType(SkillType.PHYSICAL);
+        skill1.addRequiredSkill(skill);
+        // Persist the Skill before querying.
+        skillService.create(skill1);
+
+        assertEquals(1,skillService.findByType(SkillType.PHYSICAL).size());
+    }
+
+    @Test
+    public void testFindBySkillComposedOfSkillId() {
+        Skill skill1 = new Skill();
+        skill1.setName("New Skill 1");
+        skill1.setDescription("New Skill 1 - Description");
+        skill1.setType(SkillType.BCT);
+        skillService.create(skill1);
+
+        Skill composedSkill = new Skill();
+        composedSkill.setName("New Skill Composed Skill 1");
+        composedSkill.setDescription("New Skill Composed Skill 1 - Description");
+        composedSkill.setType(SkillType.BCT);
+        skillService.create(composedSkill);
+
+        Skill skill2 = new Skill();
+        skill2.setName("New Skill 2");
+        skill2.setDescription("New Skill 2 - Description");
+        skill2.setType(SkillType.PHYSICAL);
+        skill2.setSubSkill(skill1);
+        skill2.setSkillComposedOfSkill(composedSkill);
+        skillService.create(skill2);
+
+        // Get the Skill with association with skill "New Skill Composed Skill 1".
+        List<Skill> skills = skillService.findBySkillComposedOfSkillId(composedSkill.getId());
+        // Should be not null.
+        assertNotNull(skills);
+
+        // Get the Skill found.
+        Skill skillFound = skills.getFirst();
+        // Should be only one skill with association with "New Skill 2".
+        assertEquals(1, skills.size());
+        // Should be the Skill "New Skill 2".
+        assertEquals(skill2.getName(), skillFound.getName());
+        // The composed skill should be "New Skill Composed Skill 1".
+        assertEquals(composedSkill.getName(), skillFound.getSkillComposedOfSkill().getName());
+    }
+
+    @Test
+    public void testFindByAssessments_Id() {
+        // Create a Role.
+        Role role = new Role("Admin - Assessment Test");
+        Role role2 = new Role("Participant - Assessment Test");
+        roleService.create(role);
+        roleService.create(role2);
+
+        Skill skill1 = new Skill();
+        skill1.setName("New Skill 1");
+        skill1.setDescription("New Skill 1 - Description");
+        skill1.setType(SkillType.BCT);
+        skillService.create(skill1);
+
+        Skill composedSkill = new Skill();
+        composedSkill.setName("New Skill Composed Skill 1");
+        composedSkill.setDescription("New Skill Composed Skill 1 - Description");
+        composedSkill.setType(SkillType.BCT);
+        skillService.create(composedSkill);
+
+        Skill skill2 = new Skill();
+        skill2.setName("New Skill 2");
+        skill2.setDescription("New Skill 2 - Description");
+        skill2.setType(SkillType.PHYSICAL);
+        skill2.setSubSkill(skill1);
+        skill2.setSkillComposedOfSkill(composedSkill);
+        skillService.create(skill2);
+
+        Assessment assessment = new Assessment(role, role2, skill2);
+        assessment.setName("Assessment Test - New Skill 2");
+        assessment.setDescription("Assessment Test Description - New Skill 2");
+        assessment.setType(ActivityType.LEARNING);
+        assessment.setPreconditions("Preconditions 2 - Assessment Test - New Skill 2");
+        assessment.setPostconditions("Post-conditions 2 - Assessment Test - New Skill 2");
+        assessment.addRole(role);
+        assessment.addRole(role2);
+        assessment.setAssessmentScale(Scale.LETTER);
+        assessment.setAssessmentScoringFunction("Assessment Scoring Function - Assessment Test - New Skill 2");
+        assessmentService.create(assessment);
+
+        // Get the Skill with association with Assessment.
+        List<Skill> skills = skillService.findByAssessments_Id(assessment.getId());
+        // Should be not null.
+        assertNotNull(skills);
+
+        // Get the Skill found.
+        Skill skillFound = skills.getFirst();
+        // Should be only one skill with association with "New Skill 2".
+        assertEquals(1, skills.size());
+        // Should be the Skill "New Skill 2".
+        assertEquals(skill2.getName(), skillFound.getName());
     }
 
     @Test
@@ -221,25 +340,5 @@ public class SkillServiceTest extends AbstractServiceTest {
 
         // Assert that the result should be two Skill.
         assertEquals(2,skillService.findAll().size());
-    }
-
-    @Test
-    public void testFindByType(){
-        Skill skill = new Skill();
-        skill.setName("Java");
-        skill.setDescription("Oracle");
-        skill.setType(SkillType.BCT);
-        // Persist the Skill before querying.
-        skillService.create(skill);
-
-        Skill skill1 = new Skill();
-        skill1.setName("Architecture");
-        skill1.setDescription("Architecture");
-        skill1.setType(SkillType.PHYSICAL);
-        skill1.addRequiredSkill(skill);
-        // Persist the Skill before querying.
-        skillService.create(skill1);
-
-        assertEquals(1,skillService.findByType(SkillType.PHYSICAL).size());
     }
 }

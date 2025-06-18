@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.List;
 @Transactional
 public class SkillService extends AbstractEvoService<Skill> {
     private static final Logger logger = LogManager.getLogger(SkillService.class);
-    private static final String ERROR_SKILL_ALREADY_REGISTERED = "Skill already registered!";
 
     @Autowired
     private SkillRepository skillRepository;
@@ -35,14 +33,23 @@ public class SkillService extends AbstractEvoService<Skill> {
      * @param skill The Skill entity.
      * @return The saved Skill.
      * @throws IllegalArgumentException in case the given Skill is null.
-     * @throws OptimisticLockingFailureException when the Skill uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
      */
     @Override
     public Skill create(Skill skill) {
-        Skill skillSaved = this.save(skill);
-        logger.info("Skill created: {}", skillSaved.toString());
+        Skill skillSaved = null;
+
+        // Validate the object.
+        ObjectValidator.validateObject(skill);
+        ObjectValidator.validateString(skill.getName());
+        ObjectValidator.validateObject(skill.getType());
+
+        if (this.existsByName(skill.getName())) {
+            throw this.createDuplicatedNameException(skill, skill.getName());
+        } else {
+            skillSaved = this.save(skill);
+            logger.info("Skill created: {}", skillSaved);
+        }
+
         return skillSaved;
     }
 
@@ -51,14 +58,36 @@ public class SkillService extends AbstractEvoService<Skill> {
      * @param skill The Skill entity.
      * @return The saved Skill.
      * @throws IllegalArgumentException in case the given Skill is null.
-     * @throws OptimisticLockingFailureException when the Skill uses optimistic locking and has a version attribute with
-     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *           present but does not exist in the database.
      */
     @Override
     public Skill update(Skill skill) {
-        Skill skillSaved = this.save(skill);
-        logger.info("Skill updated: {}", skillSaved.toString());
+        Skill skillSaved = null;
+
+        // Validate the object.
+        ObjectValidator.validateObject(skill);
+        ObjectValidator.validateId(skill.getId());
+        ObjectValidator.validateString(skill.getName());
+        ObjectValidator.validateObject(skill.getType());
+
+        // Checks if the Skill exist in the database.
+        Skill found = this.findById(skill.getId());
+
+        if (found == null) {
+            throw new IllegalArgumentException("Skill "+ skill.getName() + " not found!");
+        } else {
+            if (skill.getName().equals(found.getName())) {
+                skillSaved = this.save(skill);
+            } else {
+                if (this.existsByName(skill.getName())) {
+                    throw this.createDuplicatedNameException(skill, skill.getName());
+                } else {
+                    skillSaved = this.save(skill);
+                }
+            }
+
+            logger.info("Skill updated: {}", skillSaved);
+        }
+
         return skillSaved;
     }
 
@@ -66,34 +95,10 @@ public class SkillService extends AbstractEvoService<Skill> {
      * Method used to create or update a Skill.
      * @param skill The Skill entity.
      * @return The saved Skill.
+     * @throws IllegalArgumentException if the skill is null.
      */
     protected Skill save (Skill skill) {
-        Skill skillSaved = null;
-
-        // Validate the object.
-        ObjectValidator.validateObject(skill);
-        ObjectValidator.validateString(skill.getName());
-        ObjectValidator.validateString(skill.getDescription());
-
-        if (this.existsByName(skill.getName())) {
-            throw this.createDuplicateSkillException(skill);
-        } else {
-            skillSaved = this.skillRepository.save(skill);
-        }
-
-        return skillSaved;
-    }
-
-    /**
-     * Create duplicate Skill Exception.
-     * @param skill the Skill entity.
-     * @return an exception object.
-     */
-    private IllegalArgumentException createDuplicateSkillException (Skill skill) {
-        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_SKILL_ALREADY_REGISTERED +
-                " Skill Name: " + skill.getName());
-        logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
-        return illegalArgumentException;
+        return this.skillRepository.save(skill);
     }
 
     /**
@@ -140,17 +145,9 @@ public class SkillService extends AbstractEvoService<Skill> {
      */
     @Override
     public Skill findById(Long id) {
+        ObjectValidator.validateId(id);
       return skillRepository.findById(id).
                 orElseThrow(() -> new EntityNotFoundException("Skill not found!"));
-    }
-
-    /**
-     * Gets all skills.
-     * @return all skills.
-     */
-    @Override
-    public List<Skill> findAll() {
-        return skillRepository.findAll();
     }
 
     /**
@@ -180,7 +177,7 @@ public class SkillService extends AbstractEvoService<Skill> {
      */
     public List<Skill> findByRequiredSkill(Long id) {
         ObjectValidator.validateId(id);
-        return skillRepository.findByRequiredSkill(id);
+        return skillRepository.findByRequiredSkill_Id(id);
     }
 
     /**
@@ -190,7 +187,36 @@ public class SkillService extends AbstractEvoService<Skill> {
      */
     public List<Skill> findBySubSkill(Long id) {
         ObjectValidator.validateId(id);
-        return skillRepository.findBySubSkill(id);
+        return skillRepository.findBySubSkill_Id(id);
     }
 
+    /**
+     * Finds and retrieves a list of skills based on composed of skills id.
+     * @param id the composed o skill id to search for.
+     * @return a list of skills matching the given composed skill.
+     * @throws IllegalArgumentException in case the given id is null.
+     */
+    public List<Skill> findBySkillComposedOfSkillId(Long id) {
+        ObjectValidator.validateId(id);
+        return skillRepository.findBySkillComposedOfSkillId(id);
+    }
+
+    /**
+     * Finds and retrieves a list of skills based on their assessment.
+     * @param id the id of the assessment to search for.
+     * @return a list of skills matching the given assessment id.
+     */
+    public List<Skill> findByAssessments_Id(Long id) {
+        ObjectValidator.validateId(id);
+        return skillRepository.findByAssessments_Id(id);
+    }
+
+    /**
+     * Gets all skills.
+     * @return all skills.
+     */
+    @Override
+    public List<Skill> findAll() {
+        return skillRepository.findAll();
+    }
 }

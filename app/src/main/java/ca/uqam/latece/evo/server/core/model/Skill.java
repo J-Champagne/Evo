@@ -1,34 +1,27 @@
 package ca.uqam.latece.evo.server.core.model;
 
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
- * Represents a Skill entity having a unique ID, name, description, type, skill_id.
- * The Skill entity is associated with a collection of Content entities through
- * a many-to-many relationship.
- * This class is mapped to the "skill" table in the database with columns for:
- * - skill_id - primary key.
- * - skill_name - name of the skill, must be unique and is mandatory.
- * - skill_description - optional description of the skill.
- * - skill_type - type of the skill.
- * - skill_skill_id - Auto relationship for skill table. Foreign key to identify a required skill.
- *
+ * Skill model class.
  * @version 1.0
  * @author Edilton Lima dos Santos.
  */
 @Entity
 @Table(name = "skill")
 @JsonPropertyOrder({"id", "name", "description", "type"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Skill extends AbstractEvoModel {
     @Id
     @JsonProperty("id")
@@ -42,7 +35,7 @@ public class Skill extends AbstractEvoModel {
     private String name;
 
     @JsonProperty("description")
-    @Column(name = "skill_description", nullable = true, length = 256)
+    @Column(name = "skill_description", nullable = true, length = 250)
     private String description;
 
     @NotNull
@@ -53,10 +46,10 @@ public class Skill extends AbstractEvoModel {
 
     /**
      * Represents the many-to-one auto relationship for skill table. Foreign key to identify a skill required.
-     * "FetchType.LAZY" ensures that the associated Content entities are loaded lazily.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skill_sub_skill_id", referencedColumnName = "skill_id", nullable = true) // Ensures foreign key setup in the database
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "skill_sub_skill_id", referencedColumnName = "skill_id", nullable = true)
     @JsonProperty("subSkill")
     private Skill subSkill;
 
@@ -104,8 +97,30 @@ public class Skill extends AbstractEvoModel {
     @OneToOne(mappedBy = "skill")
     private Requires requires;
 
+    @JsonProperty("skillComposedOfSkill")
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "skill_composed_of_skill_id", referencedColumnName = "skill_id", nullable = true)
+    private Skill skillComposedOfSkill;
+
+    @OneToMany(mappedBy = "skillComposedOfSkill", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+    private Set<Skill> composedSkills = new LinkedHashSet<>();
+
     @ManyToMany(mappedBy = "skills", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     private Set<Assessment> assessments = new LinkedHashSet<>();
+
+
+    public Skill() {}
+
+    public Skill(@NotNull String name, @NotNull SkillType type) {
+        this.name = name;
+        this.type = type;
+    }
+
+    public Skill(@NotNull Long id, @NotNull String name, @NotNull SkillType type) {
+        this(name,type);
+        this.id = id;
+    }
 
 
     public Requires getRequires() {
@@ -215,5 +230,50 @@ public class Skill extends AbstractEvoModel {
         if (assessment != null && assessment.length > 0) {
             this.assessments.addAll(List.of(assessment));
         }
+    }
+
+    public Set<Skill> getComposedSkills() {
+        return composedSkills;
+    }
+
+    public void setComposedSkills(Skill... composedSkills) {
+        if (composedSkills != null && composedSkills.length > 0) {
+            this.composedSkills.addAll(List.of(composedSkills));
+        }
+    }
+
+    public Skill getSkillComposedOfSkill() {
+        return skillComposedOfSkill;
+    }
+
+    public void setSkillComposedOfSkill(Skill skillComposedOfSkill) {
+        this.skillComposedOfSkill = skillComposedOfSkill;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (super.equals(object)) {
+            Skill skill = (Skill) object;
+            return Objects.equals(this.getName(), skill.getName()) &&
+                    Objects.equals(this.getDescription(), skill.getDescription()) &&
+                    Objects.equals(this.getType(), skill.getType()) &&
+                    Objects.equals(this.getContents(), skill.getContents()) &&
+                    Objects.equals(this.getComposedSkills(), skill.getComposedSkills()) &&
+                    Objects.equals(this.getSkillComposedOfSkill(), skill.getSkillComposedOfSkill()) &&
+                    Objects.equals(this.getRequiredSkill(), skill.getRequiredSkill()) &&
+                    Objects.equals(this.getSubSkill(), skill.getSubSkill()) &&
+                    Objects.equals(this.getRequires(), skill.getRequires()) &&
+                    Objects.equals(this.getDevelops(), skill.getDevelops()) &&
+                    Objects.equals(this.getAssessments(), skill.getAssessments());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId(), this.getName(), this.getDescription(), this.getType(), this.getSubSkill(),
+                this.getComposedSkills(), this.getSkillComposedOfSkill(), this.getContents(), this.getRequiredSkill(),
+                this.getRequires(), this.getDevelops(), this.getAssessments());
     }
 }

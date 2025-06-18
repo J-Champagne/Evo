@@ -249,6 +249,63 @@ public class SkillController extends AbstractEvoController<Skill> {
     }
 
     /**
+     * Finds and retrieves a list of skills based on composed of skills id.
+     * @param id the composed o skill id to search for.
+     * @return a list of skills matching the given composed skill.
+     * @throws IllegalArgumentException in case the given id is null.
+     */
+    @GetMapping("/find/composedofskill/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Skill>> findBySkillComposedOfSkillId(@PathVariable Long id) {
+        ResponseEntity<List<Skill>> response;
+
+        try {
+            List<Skill> skillList = skillService.findBySkillComposedOfSkillId(id);
+
+            if (skillList != null && !skillList.isEmpty()) {
+                response = new ResponseEntity<>(skillList, HttpStatus.OK);
+                logger.info("Found skill list by Composed Of Skill id: {}", skillList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find skill list by Composed Of Skill id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find skill list by Composed Of Skill id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds and retrieves a list of skills based on their assessment.
+     * @param id the id of the assessment to search for.
+     * @return a list of skills matching the given assessment id.
+     */
+    @GetMapping("/find/assessment/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Skill>> findByAssessments_Id(@PathVariable Long id) {
+        ResponseEntity<List<Skill>> response;
+
+        try {
+            List<Skill> skillList = skillService.findByAssessments_Id(id);
+
+            if (skillList != null && !skillList.isEmpty()) {
+                response = new ResponseEntity<>(skillList, HttpStatus.OK);
+                logger.info("Found skill list by Assessment id: {}", skillList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find skill list by Assessment id: {}", id);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find skill list by Assessment id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
      * Gets all skills.
      */
     @GetMapping

@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "reporting")
 @PrimaryKeyJoinColumn(name="reporting_id", referencedColumnName = "bci_activity_id") // Foreign key to bci_activity table used to represent the super class BCIActivity in the database.
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Reporting extends BCIActivity {
 
     @NotNull

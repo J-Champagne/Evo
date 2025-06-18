@@ -186,20 +186,26 @@ skill table: This table stores details about skills that actors may hold or requ
   - skill_type: An optional string to classify the skill.
   - skill_sub_skill_id: An optional foreign key used to identify the dependence between skill and subskill.
     It links a skill to another skill.
+  - skill_composed_of_skill_id: An optional foreign key used to identify the dependence between skill and
+  its composition with other Skill.
 - Constraints:
   - skill_pkey: Establishes skill_id as the primary key.
-  - skill_skill_name_ukey: Ensures that skill_name is unique.
+  - skill_name_ukey: Ensures that skill_name is unique.
   - skill_sub_skill_fkey: Ensures that skill_sub_skill_id references a valid skill (sub skill) in the skill table.
+  - skill_composed_of_skill_fkey: Ensures that skill_composed_of_skill_id references a valid skill (composed of)
+  zin the skill table.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS skill (
      skill_id BIGSERIAL NOT NULL,
      skill_name VARCHAR(128) NOT NULL,
-     skill_description VARCHAR(256) NULL,
-     skill_type VARCHAR(256) NULL,
+     skill_description VARCHAR(250) NULL,
+     skill_type VARCHAR(10) NOT NULL,
      skill_sub_skill_id BIGINT NULL,
+     skill_composed_of_skill_id BIGINT NULL,
      CONSTRAINT skill_pkey PRIMARY KEY (skill_id),
-     CONSTRAINT skill_skill_name_ukey UNIQUE (skill_name),
-     CONSTRAINT skill_sub_skill_fkey FOREIGN KEY (skill_sub_skill_id) REFERENCES skill (skill_id)
+     CONSTRAINT skill_name_ukey UNIQUE (skill_name),
+     CONSTRAINT skill_sub_skill_fkey FOREIGN KEY (skill_sub_skill_id) REFERENCES skill (skill_id),
+     CONSTRAINT skill_composed_of_skill_fkey FOREIGN KEY (skill_composed_of_skill_id) REFERENCES skill (skill_id) ON DELETE SET NULL
 );
 
 /***********************************************************************************************************************

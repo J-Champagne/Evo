@@ -35,6 +35,10 @@ public class ContentControllerTest extends AbstractControllerTest {
     private Content content = new Content();
     private Skill skill = new Skill();
 
+    private static final String URL = "/contents";
+    private static final String URL_SPLITTER = "/contents/";
+    private static final String URL_FIND = "/contents/find/";
+
     @BeforeEach
     void setUp() {
         // Create the Content.
@@ -44,7 +48,7 @@ public class ContentControllerTest extends AbstractControllerTest {
         content.setDescription("Content description");
 
         // Create the Skill.
-        skill.setId(1L);
+        skill.setId(2L);
         skill.setName("Skill Name 1");
         skill.setDescription("Skill Description 1");
         skill.setType(SkillType.PHYSICAL);
@@ -59,7 +63,16 @@ public class ContentControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/contents", content);
+        performCreateRequest(URL, content);
+    }
+
+    @Test
+    void testCreateBadRequest() throws Exception {
+        // Creates a Content invalid.
+        Content content = new Content();
+        content.setId(999L);
+        // Perform a POST with a Bad Request to test the controller.
+        performCreateRequestBadRequest(URL, content);
     }
 
     @Test
@@ -74,14 +87,13 @@ public class ContentControllerTest extends AbstractControllerTest {
         // Save in the database.
         when(contentRepository.save(content)).thenReturn(content);
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/contents", content,
-                "$.name",content.getName());
+        performUpdateRequest(URL, content, "$.name",content.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/contents/{id}", content);
+        performDeleteRequest(URL_SPLITTER + content.getId(), content);
     }
 
     @Test
@@ -100,8 +112,7 @@ public class ContentControllerTest extends AbstractControllerTest {
         when(contentRepository.findById(content.getId())).thenReturn(Optional.of(content));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/contents/find/" + content.getId(),
-                "$.name", content.getName());
+        performGetRequest(URL_FIND + content.getId(), "$.name", content.getName());
     }
 
     @Test
@@ -119,8 +130,7 @@ public class ContentControllerTest extends AbstractControllerTest {
         // Mock behavior for contentRepository.findByName().
         when(contentRepository.findByName(content.getName())).thenReturn(Collections.singletonList(content));
         // Perform a GET request to test the controller.
-        performGetRequest("/contents/find/name/" + content.getName(),
-                "$[0].name", content.getName());
+        performGetRequest(URL_FIND + "name/" + content.getName(), "$[0].name", content.getName());
     }
 
     @Test
@@ -139,8 +149,7 @@ public class ContentControllerTest extends AbstractControllerTest {
         when(contentRepository.findByType(content.getType())).thenReturn(Collections.singletonList(content));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/contents/find/type/" + content.getType(),
-                "$[0].type", content.getType());
+        performGetRequest(URL_FIND + "type/" + content.getType(), "$[0].type", content.getType());
     }
 
     @Test
@@ -161,8 +170,7 @@ public class ContentControllerTest extends AbstractControllerTest {
         when(contentRepository.findBySkill(skill.getId())).thenReturn(Collections.singletonList(content));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/contents/find/skill/" + skill.getId(),
-                "$[0].name", content.getName());
+        performGetRequest(URL_FIND + "skill/" + skill.getId(), "$[0].name", content.getName());
     }
 
     @Test
@@ -192,8 +200,7 @@ public class ContentControllerTest extends AbstractControllerTest {
         when(contentRepository.findByBCIActivity(bciActivity.getId())).thenReturn(Collections.singletonList(content));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/contents/find/bciactivityid/" + bciActivity.getId(),
-                "$[0].name", content.getName());
+        performGetRequest(URL_FIND + "bciactivityid/" + bciActivity.getId(), "$[0].name", content.getName());
     }
 
     @Test
@@ -203,7 +210,7 @@ public class ContentControllerTest extends AbstractControllerTest {
         when(contentRepository.findAll()).thenReturn(Collections.singletonList(content));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/contents","$[0].id",1);
+        performGetRequest(URL,"$[0].id",1);
     }
 
     @Test
@@ -212,6 +219,6 @@ public class ContentControllerTest extends AbstractControllerTest {
         when(contentRepository.findAll()).thenReturn(Collections.emptyList());
 
         // Perform a GET request to test the controller.
-        performGetRequestNotFound("/contents","$[0].id");
+        performGetRequestNotFound(URL,"$[0].id");
     }
 }

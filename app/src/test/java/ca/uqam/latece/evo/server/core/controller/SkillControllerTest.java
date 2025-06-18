@@ -32,6 +32,10 @@ public class SkillControllerTest extends AbstractControllerTest  {
 
     private Skill skill = new Skill();
 
+    private static final String URL = "/skills";
+    private static final String URL_SPLITTER = "/skills/";
+    private static final String URL_FIND = "/skills/find/";
+
 
     @BeforeEach
     void setUp() {
@@ -45,7 +49,16 @@ public class SkillControllerTest extends AbstractControllerTest  {
 
     @Test
     public void testCreate() throws Exception {
-        performCreateRequest("/skills", skill);
+        performCreateRequest(URL, skill);
+    }
+
+    @Test
+    void testCreateBadRequest() throws Exception {
+        // Creates a Skill invalid.
+        Skill skillBadRequest = new Skill();
+        skillBadRequest.setId(999L);
+        // Perform a POST with a Bad Request to test the controller.
+        performCreateRequestBadRequest(URL, skillBadRequest);
     }
 
     @Test
@@ -55,15 +68,17 @@ public class SkillControllerTest extends AbstractControllerTest  {
         skill.setName("Skill 2");
         // Save in the database.
         when(skillRepository.save(skill)).thenReturn(skill);
+        // Mock behavior for findById().
+        when(skillRepository.findById(skill.getId())).thenReturn(Optional.of(skill));
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/skills", skill, "$.name", skill.getName());
+        performUpdateRequest(URL, skill, "$.name", skill.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
         // Perform a DELETE request to test the controller.
-        performDeleteRequest("/skills/" + skill.getId(), skill);
+        performDeleteRequest(URL_SPLITTER + skill.getId(), skill);
     }
 
     @Test
@@ -72,7 +87,7 @@ public class SkillControllerTest extends AbstractControllerTest  {
         when(skillRepository.findAll()).thenReturn(Collections.singletonList(skill));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/skills", "$[0].id", skill.getId());
+        performGetRequest(URL, "$[0].id", skill.getId());
     }
 
     @Test
@@ -86,7 +101,7 @@ public class SkillControllerTest extends AbstractControllerTest  {
         // Mock behavior for skillRepository.findByName().
         when(skillRepository.findByName(skill.getName())).thenReturn(Collections.singletonList(skill));
         // Perform a GET request to test the controller.
-        performGetRequest("/skills/find/name/" + skill.getName(), "$[0].name", skill.getName());
+        performGetRequest(URL_FIND + "name/" + skill.getName(), "$[0].name", skill.getName());
     }
 
     @Test
@@ -108,10 +123,10 @@ public class SkillControllerTest extends AbstractControllerTest  {
         Skill requiredSkillResult = new Skill();
 
         // Mock behavior for skillRepository.findByRequiredSkill().
-        when(skillRepository.findByRequiredSkill(skill.getId())).thenReturn(Collections.singletonList(requiredSkillResult));
+        when(skillRepository.findByRequiredSkill_Id(skill.getId())).thenReturn(Collections.singletonList(requiredSkillResult));
         // Perform a GET request to test the controller.
-        performGetRequest("/skills/find/requiredskill/" + skill.getId(), "$[0].name", requiredSkillResult.getName());
-        performGetRequest("/skills/find/requiredskill/" + skill.getId(), "$[0].id", requiredSkillResult.getId());
+        performGetRequest(URL_FIND + "requiredskill/" + skill.getId(), "$[0].name", requiredSkillResult.getName());
+        performGetRequest(URL_FIND + "requiredskill/" + skill.getId(), "$[0].id", requiredSkillResult.getId());
     }
 
     @Test
@@ -132,12 +147,11 @@ public class SkillControllerTest extends AbstractControllerTest  {
 
         Skill subSkillResult = new Skill();
 
-        // Mock behavior for skillRepository.findBySubSkill().
-        when(skillRepository.findBySubSkill(skill.getId())).thenReturn(Collections.singletonList(subSkillResult));
+        // Mock behavior for skillRepository.findBySubSkill_Id().
+        when(skillRepository.findBySubSkill_Id(skill.getId())).thenReturn(Collections.singletonList(subSkillResult));
         // Perform a GET request to test the controller.
-        performGetRequest("/skills/find/subskill/" + skill.getId(), "$[0].name", subSkillResult.getName());
-        performGetRequest("/skills/find/subskill/" + skill.getId(), "$[0].id", subSkillResult.getId());
-
+        performGetRequest(URL_FIND + "subskill/" + skill.getId(), "$[0].name", subSkillResult.getName());
+        performGetRequest(URL_FIND + "subskill/" + skill.getId(), "$[0].id", subSkillResult.getId());
     }
 
     @Test
@@ -151,7 +165,7 @@ public class SkillControllerTest extends AbstractControllerTest  {
         // Mock behavior for skillRepository.findByType().
         when(skillRepository.findByType(skill.getType())).thenReturn(Collections.singletonList(skill));
         // Perform a GET request to test the controller.
-        performGetRequest("/skills/find/type/" + skill.getType(), "$[0].name", skill.getName());
+        performGetRequest(URL_FIND + "type/" + skill.getType(), "$[0].name", skill.getName());
     }
 
     @Test
@@ -165,6 +179,42 @@ public class SkillControllerTest extends AbstractControllerTest  {
         // Mock behavior for skillRepository.findAll().
         when(skillRepository.findById(skill.getId())).thenReturn(Optional.of(skill));
         // Perform a GET request to test the controller.
-        performGetRequest("/skills/find/" + skill.getId(), "$.name", skill.getName());
+        performGetRequest(URL_FIND + skill.getId(), "$.name", skill.getName());
+    }
+
+    @Test
+    public void testFindBySkillComposedOfSkillId() throws Exception {
+        Skill skill1 = new Skill();
+        skill1.setId(1L);
+        skill1.setName("New Skill 1");
+        skill1.setDescription("New Skill 1 - Description");
+        skill1.setType(SkillType.BCT);
+        when(skillRepository.save(skill1)).thenReturn(skill1);
+
+        Skill composedSkill = new Skill();
+        composedSkill.setId(2L);
+        composedSkill.setName("New Skill Composed Skill 1");
+        composedSkill.setDescription("New Skill Composed Skill 1 - Description");
+        composedSkill.setType(SkillType.MENTAL);
+        when(skillRepository.save(composedSkill)).thenReturn(composedSkill);
+
+        Skill skill2 = new Skill();
+        skill2.setId(3L);
+        skill2.setName("New Skill 2");
+        skill2.setDescription("New Skill 2 - Description");
+        skill2.setType(SkillType.PHYSICAL);
+        skill2.setSubSkill(skill1);
+        skill2.setSkillComposedOfSkill(composedSkill);
+        skill2.setComposedSkills(composedSkill);
+        when(skillRepository.save(skill2)).thenReturn(skill2);
+
+        Skill skillResult = new Skill();
+
+        // Mock behavior for findBySkillComposedOfSkillId().
+        when(skillRepository.findBySkillComposedOfSkillId(composedSkill.getId())).thenReturn(Collections.singletonList(skillResult));
+
+        // Perform a GET request to test the controller.
+        performGetRequest(URL_FIND + "composedofskill/" + composedSkill.getId(), "$[0].name", skillResult.getName());
+        performGetRequest(URL_FIND + "composedofskill/" + composedSkill.getId(), "$[0].id", skillResult.getId());
     }
 }
