@@ -61,7 +61,7 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
-        moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance(OutcomeType.SUCCESSFUL, activities));
+        moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL, activities));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     @Override
     void testFindAll() {
         List<BCIActivityInstance> activities = new ArrayList<>(moduleInstance.getActivities());
-        bciModuleInstanceService.create(new BCIModuleInstance(OutcomeType.PARTIALLYSUCCESSFUL, activities));
+        bciModuleInstanceService.create(new BCIModuleInstance("NOTSTARTED", OutcomeType.PARTIALLYSUCCESSFUL, activities));
         List<BCIModuleInstance> results = bciModuleInstanceService.findAll();
 
         assertEquals(2, results.size());

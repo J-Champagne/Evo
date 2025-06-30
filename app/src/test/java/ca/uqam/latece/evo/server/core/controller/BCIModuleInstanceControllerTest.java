@@ -55,7 +55,7 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
-    private BCIModuleInstance moduleInstance = new BCIModuleInstance(OutcomeType.SUCCESSFUL, activities);
+    private BCIModuleInstance moduleInstance = new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL, activities);
 
     private static final String url = "/bcimoduleinstance";
 
@@ -77,7 +77,7 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testUpdate() throws Exception {
-        BCIModuleInstance updated = new BCIModuleInstance(OutcomeType.UNSUCCESSFUL, moduleInstance.getActivities());
+        BCIModuleInstance updated = new BCIModuleInstance("NOTSTARTED", OutcomeType.UNSUCCESSFUL, moduleInstance.getActivities());
         updated.setId(moduleInstance.getId());
 
         when(bciModuleInstanceRepository.save(updated)).thenReturn(updated);

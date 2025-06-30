@@ -122,11 +122,6 @@ public class BCIActivityInstance extends ActivityInstance {
         this.bciActivity = bciActivity;
     }
 
-    @Override
-    public void setActivity(Activity activity) {
-        this.bciActivity = (BCIActivity) activity;
-    }
-
     public List<Participant> getParticipants() {
         return new ArrayList<>(participants);
     }

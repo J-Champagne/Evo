@@ -193,7 +193,7 @@ public class BehaviorChangeInterventionInstanceController extends AbstractEvoCon
     }
 
     /**
-     * Finds BehaviorChangeInterventionInstance entities by their currentPhase id.
+     * Finds BehaviorChangeInterventionInstance entities by a BCIActivityInstance id.
      * @param id Long.
      * @return List<BehaviorChangeInterventionInstance> in JSON format.
      * @throws IllegalArgumentException if id is null.

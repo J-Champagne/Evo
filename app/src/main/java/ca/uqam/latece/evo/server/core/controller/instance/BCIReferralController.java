@@ -338,4 +338,33 @@ public class BCIReferralController extends AbstractEvoController<BCIReferral> {
         }
         return response;
     }
+
+    /**
+     * Finds BCIReferral entities by a BehaviorChangeInterventionInstance id.
+     * @param id Long.
+     * @return List<BCIReferral> in JSON format.
+     * @throws IllegalArgumentException if id is null.
+     */
+    @GetMapping("/find/interventions/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<BCIReferral>> findByInterventions(@PathVariable Long id) {
+        ResponseEntity<List<BCIReferral>> response;
+
+        try {
+            List<BCIReferral> result = bciReferralService.findByInterventionsId(id);
+
+            if (result != null) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found BCIReferral entity by BehaviorChangeInterventionInstance id: {}", result);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BCIReferral entity by BehaviorChangeInterventionInstance id.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BCIReferral entity by BehaviorChangeInterventionInstance id " +
+                    ". Error: {}", e.getMessage());
+        }
+        return response;
+    }
 }

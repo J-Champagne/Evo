@@ -43,8 +43,11 @@ public abstract class ActivityInstance extends AbstractEvoModel {
      */
     public abstract void setExitDate(LocalDate exitDate);
 
-    /**
-     * Sets an Activity.
-     */
-    public abstract void setActivity(Activity activity);
+
+//    /**
+//     * Sets an Activity.
+//     */
+    //TBD needs evaluation
+    //public abstract void setActivity(Activity activity);
+
 }

@@ -51,6 +51,9 @@ public class ActorControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testUpdate() throws Exception {
+        System.out.println("AAAAAAAAAAAAAAA");
+        System.out.println(org.hibernate.Version.getVersionString());
+        System.out.println("AAAAAAAAAAAAAAA");
         Actor actorUpdated = new Actor("Bernard 2", actor.getEmail(), actor.getContactInformation());
         actorUpdated.setId(actor.getId());
         when(actorRepository.save(actorUpdated)).thenReturn(actorUpdated);

@@ -55,7 +55,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
-    private BCIModuleInstance moduleInstance = new BCIModuleInstance(OutcomeType.SUCCESSFUL, activities);
+    private BCIModuleInstance moduleInstance = new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL, activities);
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 

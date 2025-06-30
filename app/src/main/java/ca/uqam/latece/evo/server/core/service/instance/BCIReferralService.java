@@ -189,6 +189,17 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
     }
 
     /**
+     * Finds BCIReferral entities by a BehaviorChangeInterventionInstance id.
+     * @param id Long.
+     * @return List<BCIReferral> with the given BehaviorChangeInterventionInstance id.
+     * @throws IllegalArgumentException if id is null.
+     */
+    public List<BCIReferral> findByInterventionsId(Long id) {
+        ObjectValidator.validateObject(id);
+        return this.bciReferralRepository.findByInterventionsId(id);
+    }
+
+    /**
      * Checks if a BCIReferral exists in the database by its id
      * @param id Long
      * @return boolean

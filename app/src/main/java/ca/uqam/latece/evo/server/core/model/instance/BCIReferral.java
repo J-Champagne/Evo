@@ -12,6 +12,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BCIReferral instance class.
@@ -56,7 +58,16 @@ public class BCIReferral extends AbstractEvoModel {
     @JoinColumn(name = "bci_referral_interventionist", referencedColumnName = "healthcare_professional_id")
     private HealthCareProfessional behaviorChangeInterventionist;
 
-    public BCIReferral() {}
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "bci_referral_interventions",
+            joinColumns = @JoinColumn(name = "bci_referral_interventions_referral_id", referencedColumnName="bci_referral_id"),
+            inverseJoinColumns = @JoinColumn(name = "bci_referral_interventions_bci_id", referencedColumnName="bci_instance_id"))
+    private List<BehaviorChangeInterventionInstance> interventions;
+
+    public BCIReferral() {
+        this.interventions = new ArrayList<>();
+    }
 
     public BCIReferral(@NotNull String reason, @NotNull Patient patient, @NotNull PatientAssessment patientAssessment,
                                        @NotNull HealthCareProfessional referringProfessional) throws IllegalArgumentException {
@@ -75,6 +86,20 @@ public class BCIReferral extends AbstractEvoModel {
             throws IllegalArgumentException {
         this(reason, patient, patientAssessment, referringProfessional);
         this.behaviorChangeInterventionist = behaviorChangeInterventionist;
+    }
+
+    public BCIReferral(@NotNull String reason, @NotNull Patient patient, @NotNull PatientAssessment patientAssessment,
+                       @NotNull HealthCareProfessional referringProfessional, HealthCareProfessional behaviorChangeInterventionist,
+                       List<BehaviorChangeInterventionInstance> interventions) throws IllegalArgumentException {
+        this(reason, patient, patientAssessment, referringProfessional, behaviorChangeInterventionist);
+        this.interventions = interventions;
+    }
+
+    public BCIReferral(@NotNull String reason, @NotNull Patient patient, @NotNull PatientAssessment patientAssessment,
+                       @NotNull HealthCareProfessional referringProfessional, List<BehaviorChangeInterventionInstance> interventions)
+            throws IllegalArgumentException {
+        this(reason, patient, patientAssessment, referringProfessional);
+        this.interventions = interventions;
     }
 
     @Override
@@ -133,5 +158,15 @@ public class BCIReferral extends AbstractEvoModel {
 
     public void setBehaviorChangeInterventionist(HealthCareProfessional behaviorChangeInterventionist) {
         this.behaviorChangeInterventionist = behaviorChangeInterventionist;
+    }
+
+    public List<BehaviorChangeInterventionInstance> getInterventions() {
+        return interventions;
+    }
+
+    public void setBehaviorChangeInterventionInstances(List<BehaviorChangeInterventionInstance> interventions) {
+        if (interventions != null && !interventions.isEmpty()) {
+            this.interventions.addAll(interventions);
+        }
     }
 }

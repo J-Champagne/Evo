@@ -34,7 +34,7 @@ public class BehaviorChangeInterventionInstance extends AbstractEvoModel {
     private BehaviorChangeInterventionPhaseInstance currentPhase;
 
     @NotNull
-    @ManyToMany
+    @OneToMany
     @JoinTable(
             name = "bci_instance_phases",
             joinColumns = @JoinColumn(name = "bci_instance_phases_bci_id", referencedColumnName="bci_instance_id"),

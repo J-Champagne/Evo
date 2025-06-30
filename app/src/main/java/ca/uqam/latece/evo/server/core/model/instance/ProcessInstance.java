@@ -2,33 +2,17 @@ package ca.uqam.latece.evo.server.core.model.instance;
 
 import jakarta.persistence.MappedSuperclass;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * ProcessInstance class.
- * @version 1.0
  * @author Edilton Lima dos Santos.
+ * @author Julien Champagne
  */
 @MappedSuperclass
 public abstract class ProcessInstance extends ActivityInstance {
 
-    private List<ActivityInstance> activityInstanceList;
+    public abstract List<ActivityInstance> getActivityInstances();
 
-    public ProcessInstance(ActivityInstance... activityInstance) {
-        activityInstanceList = new ArrayList<>();
-        this.setActivityInstanceList(activityInstance);
-    }
-
-    public List<ActivityInstance> getActivityInstanceList() {
-        return activityInstanceList;
-    }
-
-    public void setActivityInstanceList(ActivityInstance... activityInstance) {
-        if (activityInstance != null) {
-            if (activityInstance.length > 0) {
-                this.activityInstanceList.addAll(List.of(activityInstance));
-            }
-        }
-    }
+    public abstract void setActivityInstances(List<ActivityInstance> activityInstance);
 }

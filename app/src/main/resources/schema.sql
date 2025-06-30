@@ -148,36 +148,6 @@ CREATE TABLE IF NOT EXISTS patient_assessment (
 );
 
 /***********************************************************************************************************************
-bci referral table: This table stores information about bci referral.
-- Columns:
-  - bci_referral_id: A unique identifier for each patient assessment, auto-incremented.
-  - bci_referral_date: The date of creation
-  - bci_referral_reason: The reason behind the referral
-  - bci_referral_patient_assessment: The assessment tied to the referral
-  - bci_referral_professional: The professional who made the referral
-  - bci_referral_interventionist: The interventionist that may be recommended by the referral
-- Constraints:
-  - bci_referral_pkey: Establishes bci_referral_id as the primary key.
-  - bci_referral_patient_assessment_fkey: Ensures that bci_referral_patient_assessment references a valid entry in the patient_assessment table.
-  - bci_referral_professional_fkey: Ensures that bci_referral_professional references a valid entry in the healthcare_professional table.
-  - bci_referral_interventionist_fkey: Ensures that bci_referral_interventionist references a valid entry in the healthcare_professional table.
-***********************************************************************************************************************/
-CREATE TABLE IF NOT EXISTS bci_referral (
-    bci_referral_id BIGSERIAL NOT NULL,
-    bci_referral_date DATE NOT NULL,
-    bci_referral_reason VARCHAR NOT NULL,
-    bci_referral_patient BIGINT NOT NULL,
-    bci_referral_patient_assessment BIGINT NOT NULL,
-    bci_referral_professional BIGINT NOT NULL,
-    bci_referral_interventionist BIGINT,
-    CONSTRAINT bci_referral_pkey PRIMARY KEY (bci_referral_id),
-    CONSTRAINT bci_referral_patient_fkey FOREIGN KEY (bci_referral_patient) REFERENCES patient (patient_id),
-    CONSTRAINT bci_referral_patient_assessment_fkey FOREIGN KEY (bci_referral_patient_assessment) REFERENCES patient_assessment (patient_assessment_id),
-    CONSTRAINT bci_referral_professional_fkey FOREIGN KEY (bci_referral_professional) REFERENCES healthcare_professional (healthcare_professional_id),
-    CONSTRAINT bci_referral_interventionist_fkey FOREIGN KEY (bci_referral_interventionist) REFERENCES healthcare_professional (healthcare_professional_id)
-);
-
-/***********************************************************************************************************************
 skill table: This table stores details about skills that actors may hold or require.
 - Columns:
   - skill_id: A unique identifier for each skill, auto-incremented.
@@ -811,6 +781,9 @@ CREATE TABLE IF NOT EXISTS bci_block_instance_activities (
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_module_instance (
     bci_module_instance_id BIGSERIAL NOT NULL,
+    bci_module_instance_status VARCHAR(128) NOT NULL,
+    bci_module_instance_entrydate DATE NULL,
+    bci_module_instance_exitdate DATE NULL,
     bci_module_instance_outcome VARCHAR(128) NULL,
     CONSTRAINT bci_module_instance_pk PRIMARY KEY (bci_module_instance_id)
 );
@@ -871,7 +844,7 @@ CREATE TABLE IF NOT EXISTS bci_instance (
     bci_instance_phases_id BIGINT,
     CONSTRAINT bci_instance_pk PRIMARY KEY (bci_instance_id),
     CONSTRAINT bci_instance_patient_fkey FOREIGN KEY (bci_instance_patient_id) REFERENCES patient (patient_id),
-    CONSTRAINT bci_instance_currentphase_fkey FOREIGN KEY (bci_instance_phases_id) REFERENCES bci_phase_instance (bci_phase_instance_id)
+    CONSTRAINT bci_instance_currentphase_fkey FOREIGN KEY (bci_instance_currentphase_id) REFERENCES bci_phase_instance (bci_phase_instance_id)
 );
 
 /***********************************************************************************************************************
@@ -884,4 +857,44 @@ CREATE TABLE IF NOT EXISTS bci_instance_phases (
     CONSTRAINT bci_instance_phases_pk PRIMARY KEY (bci_instance_phases_bci_id, bci_instance_phases_phase_id),
     CONSTRAINT bci_instance_phases_bci_fkey FOREIGN KEY (bci_instance_phases_bci_id) REFERENCES bci_instance (bci_instance_id),
     CONSTRAINT bci_instance_phases_phase_fkey FOREIGN KEY (bci_instance_phases_phase_id) REFERENCES bci_phase_instance (bci_phase_instance_id)
+);
+
+/***********************************************************************************************************************
+bci referral table: This table stores information about bci referral.
+- Columns:
+  - bci_referral_id: A unique identifier for each patient assessment, auto-incremented.
+  - bci_referral_date: The date of creation
+  - bci_referral_reason: The reason behind the referral
+  - bci_referral_patient_assessment: The assessment tied to the referral
+  - bci_referral_professional: The professional who made the referral
+  - bci_referral_interventionist: The interventionist that may be recommended by the referral
+  - bci_referral_interventions: The list of bci instances
+- Constraints:
+  - bci_referral_pkey: Establishes bci_referral_id as the primary key.
+  - bci_referral_patient_assessment_fkey: Ensures that bci_referral_patient_assessment references a valid entry in the patient_assessment table.
+  - bci_referral_professional_fkey: Ensures that bci_referral_professional references a valid entry in the healthcare_professional table.
+  - bci_referral_interventionist_fkey: Ensures that bci_referral_interventionist references a valid entry in the healthcare_professional table.
+  - bci_referral_interventions_fkey: Reference to bci_instance table for interventions
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_referral (
+    bci_referral_id BIGSERIAL NOT NULL,
+    bci_referral_date DATE NOT NULL,
+    bci_referral_reason VARCHAR NOT NULL,
+    bci_referral_patient BIGINT NOT NULL,
+    bci_referral_patient_assessment BIGINT NOT NULL,
+    bci_referral_professional BIGINT NOT NULL,
+    bci_referral_interventionist BIGINT,
+    CONSTRAINT bci_referral_pkey PRIMARY KEY (bci_referral_id),
+    CONSTRAINT bci_referral_patient_fkey FOREIGN KEY (bci_referral_patient) REFERENCES patient (patient_id),
+    CONSTRAINT bci_referral_patient_assessment_fkey FOREIGN KEY (bci_referral_patient_assessment) REFERENCES patient_assessment (patient_assessment_id),
+    CONSTRAINT bci_referral_professional_fkey FOREIGN KEY (bci_referral_professional) REFERENCES healthcare_professional (healthcare_professional_id),
+    CONSTRAINT bci_referral_interventionist_fkey FOREIGN KEY (bci_referral_interventionist) REFERENCES healthcare_professional (healthcare_professional_id)
+);
+
+CREATE TABLE IF NOT EXISTS bci_referral_interventions (
+    bci_referral_interventions_bci_id BIGINT NOT NULL,
+    bci_referral_interventions_referral_id BIGINT NOT NULL,
+    CONSTRAINT bci_referral_interventions_pk PRIMARY KEY (bci_referral_interventions_bci_id, bci_referral_interventions_referral_id),
+    CONSTRAINT bci_referral_interventions_bci_fkey FOREIGN KEY (bci_referral_interventions_bci_id) REFERENCES bci_instance (bci_instance_id),
+    CONSTRAINT bci_referral_interventions_referral_fkey FOREIGN KEY (bci_referral_interventions_referral_id) REFERENCES bci_referral (bci_referral_id)
 );

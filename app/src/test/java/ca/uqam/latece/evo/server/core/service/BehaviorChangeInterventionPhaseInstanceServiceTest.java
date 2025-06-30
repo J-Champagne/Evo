@@ -62,7 +62,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
-        BCIModuleInstance moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance(OutcomeType.SUCCESSFUL,
+        BCIModuleInstance moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL,
                 activities));
         List<BCIModuleInstance> modules = new ArrayList<>();
         modules.add(moduleInstance);

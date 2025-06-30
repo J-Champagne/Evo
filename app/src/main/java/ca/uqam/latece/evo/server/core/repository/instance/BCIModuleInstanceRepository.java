@@ -6,6 +6,7 @@ import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -14,6 +15,30 @@ import java.util.List;
  */
 @Repository
 public interface BCIModuleInstanceRepository extends EvoRepository<BCIModuleInstance> {
+    /**
+     * Finds BCIModuleInstance entities by their status.
+     * @param status String.
+     * @return List<BCIModuleInstance> with the given status.
+     * @throws IllegalArgumentException if outcome is null.
+     */
+    List<BCIModuleInstance> findByStatus(String status);
+
+    /**
+     * Finds BCIModuleInstance entities by their entryDate.
+     * @param entryDate LocalDate.
+     * @return List<BCIModuleInstance> with the given entryDate.
+     * @throws IllegalArgumentException if outcome is null.
+     */
+    List<BCIModuleInstance> findByEntryDate(LocalDate entryDate);
+
+    /**
+     * Finds BCIModuleInstance entities by their exitDate.
+     * @param exitDate LocalDate.
+     * @return List<BCIModuleInstance> with the given exitDate.
+     * @throws IllegalArgumentException if outcome is null.
+     */
+    List<BCIModuleInstance> findByExitDate(LocalDate exitDate);
+
     /**
      * Finds BCIModuleInstance entities by their outcome.
      * @param outcome OutcomeType.

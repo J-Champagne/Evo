@@ -60,4 +60,12 @@ public interface BCIReferralRepository extends EvoRepository<BCIReferral> {
      * @throws IllegalArgumentException if id is null.
      */
     List<BCIReferral> findByBehaviorChangeInterventionistId(Long id);
+
+    /**
+     * Finds BCIReferral entities by a BehaviorChangeInterventionInstance id.
+     * @param id Long.
+     * @return List<BCIReferral> with the given BehaviorChangeInterventionInstance id.
+     * @throws IllegalArgumentException if id is null.
+     */
+    List<BCIReferral> findByInterventionsId(Long id);
 }
