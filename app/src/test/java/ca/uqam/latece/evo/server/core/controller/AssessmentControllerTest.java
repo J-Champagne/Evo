@@ -91,8 +91,8 @@ public class AssessmentControllerTest extends AbstractControllerTest {
         assessment.setType(ActivityType.LEARNING);
         assessment.setPreconditions("Preconditions 2 - Assessment Test");
         assessment.setPostconditions("Post-conditions 2 - Assessment Test");
-        assessment.addRole(role);
-        assessment.addRole(role2);
+        assessment.addParty(role);
+        assessment.addParty(role2);
         assessment.setAssessmentScale(Scale.LETTER);
         assessment.setAssessmentScoringFunction("Assessment Scoring Function - Assessment Test");
         // Save in the database.
@@ -108,8 +108,8 @@ public class AssessmentControllerTest extends AbstractControllerTest {
         assessmentSelf.setType(ActivityType.BCI_ACTIVITY);
         assessmentSelf.setPreconditions("Preconditions 2 - Assessment Self - Test");
         assessmentSelf.setPostconditions("Post-conditions 2 - Assessment Self - Test");
-        assessmentSelf.addRole(role);
-        assessmentSelf.addRole(role2);
+        assessmentSelf.addParty(role);
+        assessmentSelf.addParty(role2);
         assessmentSelf.setAssessmentScale(Scale._100);
         assessmentSelf.setAssessmentScoringFunction("Assessment Scoring Function - Assessment Self - Test");
         // Save in the database.
@@ -297,7 +297,7 @@ public class AssessmentControllerTest extends AbstractControllerTest {
         // Mock behavior for assessmentRepository.save
         when(assessmentRepository.save(assessment)).thenReturn(assessment);
         // Mock behavior for findByRoleBCIActivities_Id().
-        when(assessmentRepository.findByRoleBCIActivities_Id(role.getId())).thenReturn(Collections.singletonList(assessment));
+        when(assessmentRepository.findByParties_Id(role.getId())).thenReturn(Collections.singletonList(assessment));
         // Perform a GET request to test the controller.
         performGetRequest(URL_FIND + "role/" + role.getId(),"$[0].name", assessment.getName());
     }

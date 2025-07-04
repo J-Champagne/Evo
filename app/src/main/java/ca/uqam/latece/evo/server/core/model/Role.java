@@ -1,24 +1,23 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
- * A Role is associated with a unique name and may have multiple associated Actors.
- * This class is mapped to the database entity "role". An instance of Role consists of an
- * ID, a name, and a list of Actors associated with it.
+ * A Role model class.
  * @version 1.0
  * @author Edilton Lima dos Santos.
  */
 @Entity
 @Table(name = "role")
 @JsonPropertyOrder({"id", "name","description"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Role extends AbstractEvoModel {
 
     @JsonProperty("id")
@@ -36,18 +35,14 @@ public class Role extends AbstractEvoModel {
     @Column(name = "role_description", nullable = true, length = 250)
     private String description;
 
-    /**
-     * Represents a collection of associated BCIActivity entities linked to the Role entity
-     * via a many-to-many relationship.
-     * The relationship is managed on the "roleBCIActivities" side defined in the BCIActivity entity.
-     * Cascade operations include PERSIST and MERGE, ensuring changes in Content
-     * propagate to associated BCIActivity accordingly. The fetch type is LAZY, meaning
-     * the associated BCIActivity are fetched only when explicitly accessed.
-     */
-    @ManyToMany(mappedBy = "roleBCIActivities",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.LAZY)
-    private List<BCIActivity> bciActivitiesRole = new ArrayList<>();
+    @ManyToMany(mappedBy = "parties", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    private List<BCIActivity> bciActivities = new ArrayList<>();
+
+    @JsonProperty("interactionInitiator")
+    @OneToMany(mappedBy = "interactionInitiatorRole", orphanRemoval = true, targetEntity = Interaction.class,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    private List<Interaction> interactionInitiator = new ArrayList<>();
+
 
     public Role() {}
 
@@ -80,12 +75,12 @@ public class Role extends AbstractEvoModel {
     }
 
     public List<BCIActivity> getBCIActivity() {
-        return this.bciActivitiesRole;
+        return this.bciActivities;
     }
 
     public void setBCIActivity(List<BCIActivity> bciActivities) {
         if (bciActivities != null && !bciActivities.isEmpty()) {
-            this.bciActivitiesRole = bciActivities;
+            this.bciActivities = bciActivities;
         }
     }
 
@@ -121,13 +116,22 @@ public class Role extends AbstractEvoModel {
         }
     }
 
+    public List<Interaction> getInteractionInitiator() {
+        return interactionInitiator;
+    }
+
+    public void setInteractionInitiator(List<Interaction> interactionInitiator) {
+        this.interactionInitiator = interactionInitiator;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (super.equals(object)) {
             Role role = (Role) object;
             return Objects.equals(this.getName(), role.getName()) &&
                     Objects.equals(this.getDescription(), role.getDescription()) &&
-                    Objects.equals(this.getBCIActivity(), role.getBCIActivity());
+                    Objects.equals(this.getBCIActivity(), role.getBCIActivity()) &&
+                    Objects.equals(this.getInteractionInitiator(), role.getInteractionInitiator());
         } else {
             return false;
         }
@@ -135,7 +139,8 @@ public class Role extends AbstractEvoModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getId(), this.getName(), this.getDescription(), this.getBCIActivity());
+        return Objects.hash(this.getId(), this.getName(), this.getDescription(), this.getBCIActivity(),
+                this.getInteractionInitiator());
     }
 
 }

@@ -20,7 +20,6 @@ public enum ActivityType {
     PERFORMING,
     BCI_ACTIVITY;
 
-
     /**
      * Convert the ActivityType to String.
      * @param activityType The selected type.
@@ -28,12 +27,12 @@ public enum ActivityType {
      */
     public static String toString(ActivityType activityType) {
         return switch (activityType) {
-            case GOAL_SETTING -> "GOAL_SETTING";
-            case GOAL_MONITORING -> "GOAL_MONITORING";
-            case DIAGNOSING -> "DIAGNOSING";
-            case LEARNING -> "LEARNING";
-            case PERFORMING -> "PERFORMING";
-            case BCI_ACTIVITY -> "BCI_ACTIVITY";
+            case GOAL_SETTING -> "Goal Setting";
+            case GOAL_MONITORING -> "Goal Monitoring";
+            case DIAGNOSING -> "Diagnosing";
+            case LEARNING -> "Learning";
+            case PERFORMING -> "Performing";
+            case BCI_ACTIVITY -> "Behavior Change Intervention Activity";
         };
     }
 }

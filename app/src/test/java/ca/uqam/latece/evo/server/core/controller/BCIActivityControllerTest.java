@@ -89,7 +89,7 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
         content.setType("Content type");
         content.setDescription("Content description");
 
-        performCreateRequest("/bciactivity", bciActivity);
+        performCreateRequest(URL, bciActivity);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
         BCIActivity bciActivity  = new BCIActivity();
         bciActivity.setId(1L);
 
-        performCreateRequestBadRequest("/bciactivity", bciActivity);
+        performCreateRequestBadRequest(URL, bciActivity);
     }
 
     @Test
@@ -199,7 +199,7 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityRepository.save
         when(bciActivityRepository.save(bciActivity2)).thenReturn(bciActivity2);
         // Mock behavior for findByRoleBCIActivities_Id().
-        when(bciActivityRepository.findByRoleBCIActivities_Id(role.getId())).thenReturn(Collections.singletonList(bciActivity2));
+        when(bciActivityRepository.findByParties_Id(role.getId())).thenReturn(Collections.singletonList(bciActivity2));
         // Perform a GET request to test the controller.
         performGetRequest(URL_FIND + "role/" + role.getId(),"$[0].name", bciActivity2.getName());
     }
@@ -250,7 +250,7 @@ public class BCIActivityControllerTest extends AbstractControllerTest {
         bciActivity2.setName("Database Design 2");
         bciActivity2.setDescription("Database Design training");
         bciActivity2.setType(ActivityType.DIAGNOSING);
-        bciActivity2.setRole(roles);
+        bciActivity2.setParties(roles);
         bciActivity2.addContent(content);
         bciActivity2.addDevelops(develops);
         bciActivity2.addRequires(requires);

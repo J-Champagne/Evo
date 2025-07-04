@@ -36,6 +36,10 @@ public class RoleControllerTest extends AbstractControllerTest {
 
     private Role role = new Role();
 
+    private static final String URL = "/roles";
+    private static final String URL_SPLITTER = "/roles/";
+    private static final String URL_FIND = "/roles/find/";
+
     @BeforeEach
     void setUp() {
         role.setId(1L);
@@ -47,7 +51,16 @@ public class RoleControllerTest extends AbstractControllerTest {
 
     @Test
     public void testCreate() throws Exception {
-        performCreateRequest("/roles", role);
+        performCreateRequest(URL, role);
+    }
+
+    @Test
+    void testCreateBadRequest() throws Exception {
+        // Creates a Role invalid.
+        Role role = new Role();
+        role.setId(99L);
+        // Perform a POST with a Bad Request to test the controller.
+        performCreateRequestBadRequest(URL, role);
     }
 
     @Test
@@ -64,13 +77,13 @@ public class RoleControllerTest extends AbstractControllerTest {
         when(roleRepository.findById(role.getId())).thenReturn(Optional.of(role));
 
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/roles", role, "$.name", role.getName());
+        performUpdateRequest(URL, role, "$.name", role.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/roles/" + role.getId(), role);
+        performDeleteRequest(URL_SPLITTER + role.getId(), role);
     }
 
     @Test
@@ -89,7 +102,7 @@ public class RoleControllerTest extends AbstractControllerTest {
         when(roleRepository.findById(2L)).thenReturn(Optional.of(role));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/roles/find/" + role.getId(),"$.name","e-Facilitator");
+        performGetRequest(URL_FIND + role.getId(),"$.name","e-Facilitator");
     }
 
     @Test
@@ -107,14 +120,14 @@ public class RoleControllerTest extends AbstractControllerTest {
         when(roleRepository.findByName(role.getName())).thenReturn(Collections.singletonList(role));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/roles/find/name/" + role.getName(),"$[0].name", role.getName());
+        performGetRequest(URL_FIND + "name/" + role.getName(),"$[0].name", role.getName());
     }
 
     @Test
     void testFindByBCIActivity() throws Exception {
         // Create the Role.
         Role role = new Role();
-        role.setId(2L);
+        role.setId(21L);
         role.setName("e-Facilitator");
         role.setDescription("e-Facilitator Description");
 
@@ -123,20 +136,19 @@ public class RoleControllerTest extends AbstractControllerTest {
 
         // Create the BCIActivity.
         BCIActivity bciActivity = new BCIActivity();
-        bciActivity.setId(1L);
+        bciActivity.setId(99L);
         bciActivity.setDescription("Programming language training 2");
         bciActivity.setType(ActivityType.LEARNING);
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
 
         // Save the BCIActivity.
         when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
 
-        // Mock behavior for findByBciActivitiesRole.
-        when(roleRepository.findByBciActivitiesRole(bciActivity)).thenReturn(Collections.singletonList(role));
+        // Mock behavior for findByBciActivities.
+        when(roleRepository.findByBciActivities(bciActivity)).thenReturn(Collections.singletonList(role));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/roles/find/bciactivity", bciActivity,"$[0].name",
-                role.getName());
+        performGetRequest(URL_FIND + "bciactivity", bciActivity,"$[0].name", role.getName());
     }
 
     @Test
@@ -155,18 +167,16 @@ public class RoleControllerTest extends AbstractControllerTest {
         bciActivity.setId(69L);
         bciActivity.setDescription("Programming language training 3");
         bciActivity.setType(ActivityType.LEARNING);
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
 
         // Save the BCIActivity.
         when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
 
         // Mock behavior for findByBciActivitiesRoleId.
-        when(roleRepository.findByBciActivitiesRoleId(bciActivity.getId())).thenReturn(Collections.singletonList(role));
+        when(roleRepository.findByBciActivities_Id(bciActivity.getId())).thenReturn(Collections.singletonList(role));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/roles/find/bciactivity/" + bciActivity.getId(),"$[0].name",
-                role.getName());
-
+        performGetRequest(URL_FIND + "bciactivity/" + bciActivity.getId(),"$[0].name", role.getName());
     }
 
     @Test
@@ -185,6 +195,6 @@ public class RoleControllerTest extends AbstractControllerTest {
         when(roleRepository.findAll()).thenReturn(Collections.singletonList(role2));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/roles","$[0].id", role2.getId());
+        performGetRequest(URL,"$[0].id", role2.getId());
     }
 }

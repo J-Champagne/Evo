@@ -77,7 +77,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         behaviorPerformance.setType(ActivityType.LEARNING);
         behaviorPerformance.setPreconditions("Preconditions 2");
         behaviorPerformance.setPostconditions("Post-conditions 2");
-        behaviorPerformance.addRole(role);
+        behaviorPerformance.addParty(role);
         behaviorPerformanceService.create(behaviorPerformance);
 
         behaviorPerformance2.setName("Testing 2");
@@ -85,7 +85,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         behaviorPerformance2.setType(ActivityType.LEARNING);
         behaviorPerformance2.setPreconditions("Testing Preconditions 2");
         behaviorPerformance2.setPostconditions("Testing Post-conditions 2");
-        behaviorPerformance2.addRole(role2);
+        behaviorPerformance2.addParty(role2);
 
         // Create BehaviorPerformance.
         behaviorPerformanceService.create(behaviorPerformance2);
@@ -155,7 +155,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         behaviorPerformance.setType(ActivityType.LEARNING);
         behaviorPerformance.setPreconditions("Preconditions 1112");
         behaviorPerformance.setPostconditions("Post-conditions 1112");
-        behaviorPerformance.addRole(role);
+        behaviorPerformance.addParty(role);
         // Create a behavior performance.
         BCIActivity bciActivitySaved = behaviorPerformanceService.create(behaviorPerformance);
 
@@ -174,7 +174,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         saved.setPreconditions("Preconditions - Behavior Performance Test");
         saved.setPostconditions("Post-conditions - Behavior Performance Test");
         saved.setType(behaviorPerformance.getType());
-        saved.setRole(behaviorPerformance.getRole());
+        saved.setParties(behaviorPerformance.getParties());
 
         // Update a Behavior Performance.
         BehaviorPerformance updated = behaviorPerformanceService.update(saved);

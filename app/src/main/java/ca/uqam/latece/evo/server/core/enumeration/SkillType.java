@@ -14,5 +14,20 @@ public enum SkillType {
     BCT,
     MENTAL,
     PHYSICAL,
-    ETC
+    ETC;
+
+    /**
+     * Convert the SkillType to String.
+     * @param skillType The selected SkillType.
+     * @return Return the SkillType in string format.
+     */
+    public static String toString(SkillType skillType) {
+        return switch (skillType) {
+            case BCT -> "BCT";
+            case MENTAL -> "Mental";
+            case PHYSICAL -> "Physical";
+            case ETC -> "Etc.";
+        };
+    }
+
 }

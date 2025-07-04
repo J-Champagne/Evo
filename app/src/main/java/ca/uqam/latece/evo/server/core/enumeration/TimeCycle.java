@@ -16,5 +16,20 @@ public enum TimeCycle {
     BEGINNING,
     MIDDLE,
     END,
-    UNSPECIFIED
+    UNSPECIFIED;
+
+    /**
+     * Convert the TimeCycle to String.
+     * @param timeCycle The selected TimeCycle.
+     * @return Return the TimeCycle in string format.
+     */
+    public static String toString(TimeCycle timeCycle) {
+        return switch (timeCycle) {
+            case BEGINNING -> "Beginning";
+            case MIDDLE -> "Middle";
+            case END -> "End";
+            case UNSPECIFIED -> "Unspecified";
+        };
+    }
+
 }

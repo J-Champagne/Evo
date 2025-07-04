@@ -97,7 +97,7 @@ public class ComposedOfServiceTest extends AbstractServiceTest {
         bciActivity.setName("BCIActivity Name");
         bciActivity.setDescription("BCIActivity Description");
         bciActivity.setType(ActivityType.BCI_ACTIVITY);
-        bciActivity.setRole(roles);
+        bciActivity.setParties(roles);
         bciActivity.addContent(content);
         bciActivity.addDevelops(develops);
         bciActivity.addRequires(requires);

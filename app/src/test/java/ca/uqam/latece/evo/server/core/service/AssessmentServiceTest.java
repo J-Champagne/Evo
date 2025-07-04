@@ -81,8 +81,8 @@ public class AssessmentServiceTest extends AbstractServiceTest {
         assessment.setType(ActivityType.LEARNING);
         assessment.setPreconditions("Preconditions 2 - Assessment Test");
         assessment.setPostconditions("Post-conditions 2 - Assessment Test");
-        assessment.addRole(role);
-        assessment.addRole(role2);
+        assessment.addParty(role);
+        assessment.addParty(role2);
         assessment.setAssessmentScale(Scale.LETTER);
         assessment.setAssessmentScoringFunction("Assessment Scoring Function - Assessment Test");
         assessmentService.create(assessment);
@@ -93,8 +93,8 @@ public class AssessmentServiceTest extends AbstractServiceTest {
         assessmentSelf.setType(ActivityType.BCI_ACTIVITY);
         assessmentSelf.setPreconditions("Preconditions 2 - Assessment Self - Test");
         assessmentSelf.setPostconditions("Post-conditions 2 - Assessment Self - Test");
-        assessmentSelf.addRole(role);
-        assessmentSelf.addRole(role2);
+        assessmentSelf.addParty(role);
+        assessmentSelf.addParty(role2);
         assessmentSelf.setAssessmentScale(Scale._100);
         assessmentSelf.setAssessmentScoringFunction("Assessment Scoring Function - Assessment Self - Test");
         assessmentService.create(assessmentSelf);
@@ -316,9 +316,9 @@ public class AssessmentServiceTest extends AbstractServiceTest {
         // Assert that the result
         assertEquals(2, result.size());
         assertEquals(assessmentSelf.getName(), result.get(0).getName());
-        assertEquals(assessmentSelf.getRole().get(0).getId(), result.getFirst().getRole().get(0).getId());
+        assertEquals(assessmentSelf.getParties().get(0).getId(), result.getFirst().getParties().get(0).getId());
         assertEquals(assessment.getName(), result.get(1).getName());
-        assertEquals(assessmentSelf.getRole().get(1).getId(), result.getFirst().getRole().get(1).getId());
+        assertEquals(assessmentSelf.getParties().get(1).getId(), result.getFirst().getParties().get(1).getId());
     }
 
     @Test
@@ -415,8 +415,8 @@ public class AssessmentServiceTest extends AbstractServiceTest {
         newAssessment.setType(ActivityType.BCI_ACTIVITY);
         newAssessment.setPreconditions("Preconditions 2 - Assessment Test - Find All");
         newAssessment.setPostconditions("Post-conditions 2 - Assessment Test - Find All");
-        newAssessment.addRole(role);
-        newAssessment.addRole(role2);
+        newAssessment.addParty(role);
+        newAssessment.addParty(role2);
         newAssessment.setAssessmentScale(Scale._100);
         newAssessment.setAssessmentScoringFunction("Assessment Scoring Function - Assessment Test - Find All");
         newAssessment.addDevelops(develops);

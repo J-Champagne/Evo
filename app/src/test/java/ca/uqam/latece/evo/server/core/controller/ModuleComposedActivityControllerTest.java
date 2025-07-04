@@ -64,7 +64,7 @@ public class ModuleComposedActivityControllerTest extends AbstractControllerTest
         bciActivity.setType(ActivityType.GOAL_SETTING);
         bciActivity.setName("BCI Activity - Module");
         bciActivity.setDescription("BCI Activity Description - Module");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         // Save in the database.
         when(bciActivityRepository.save(bciActivity)).thenReturn(bciActivity);
 
@@ -107,7 +107,7 @@ public class ModuleComposedActivityControllerTest extends AbstractControllerTest
 
     @Test
     void testCreateBadRequest() throws Exception {
-        // Creates an ModuleComposedActivity invalid.
+        // Creates a ModuleComposedActivity invalid.
         ModuleComposedActivity badRequest = new ModuleComposedActivity();
         badRequest.setId(2L);
         // Perform a POST with a Bad Request to test the controller.

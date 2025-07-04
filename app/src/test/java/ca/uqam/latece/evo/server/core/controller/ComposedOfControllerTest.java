@@ -41,6 +41,9 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
     private Skill skill = new Skill();
     private Content content = new Content();
 
+    private static final String URL = "/composedof";
+    private static final String URL_SPLITTER = "/composedof/";
+    private static final String URL_FIND = "/composedof/find/";
 
     @BeforeEach
     @Override
@@ -81,7 +84,7 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         bciActivity.setName("BCIActivity Name");
         bciActivity.setDescription("BCIActivity Description");
         bciActivity.setType(ActivityType.BCI_ACTIVITY);
-        bciActivity.setRole(roles);
+        bciActivity.setParties(roles);
         bciActivity.addContent(content);
 
         // Creates Develops.
@@ -105,18 +108,8 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        // Creates a new ComposedOf.
-        ComposedOf composedOf = new ComposedOf();
-        composedOf.setId(2L);
-        composedOf.setOrder(2);
-        composedOf.setTiming(TimeCycle.UNSPECIFIED);
-        composedOf.setBciActivity(bciActivity);
-        composedOf.setBciBlock(behaviorChangeInterventionBlock);
-
-        // Save in the database.
-        when(composedOfRepository.save(composedOf)).thenReturn(composedOf);
         // Perform a POST request to test the controller.
-        performCreateRequest("/composedof", composedOf);
+        performCreateRequest(URL, composedOf);
     }
 
     @Test
@@ -124,7 +117,7 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         ComposedOf composedOf = new ComposedOf();
         composedOf.setId(99L);
         // Perform a POST request with Bad request to test the controller.
-        performCreateRequestBadRequest("/composedof", composedOf);
+        performCreateRequestBadRequest(URL, composedOf);
     }
 
     @Test
@@ -138,13 +131,13 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         when(composedOfRepository.save(composedOf)).thenReturn(composedOf);
 
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/composedof", composedOf,"$.timing", composedOf.getTiming().name());
+        performUpdateRequest(URL, composedOf,"$.timing", composedOf.getTiming().name());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/composedof/" + composedOf.getId(), composedOf);
+        performDeleteRequest(URL_SPLITTER + composedOf.getId(), composedOf);
     }
 
     @Test
@@ -167,10 +160,10 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         when(composedOfRepository.findById(composedOf.getId())).thenReturn(Optional.of(composedOf));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/composedof/find/" + composedOf2.getId(), "$.order", composedOf2.getOrder());
-        performGetRequest("/composedof/find/" + composedOf2.getId(), "$.timing", composedOf2.getTiming().name());
-        performGetRequest("/composedof/find/" + composedOf.getId(), "$.order", composedOf.getOrder());
-        performGetRequest("/composedof/find/" + composedOf.getId(), "$.timing", composedOf.getTiming().name());
+        performGetRequest(URL_FIND + composedOf2.getId(), "$.order", composedOf2.getOrder());
+        performGetRequest(URL_FIND + composedOf2.getId(), "$.timing", composedOf2.getTiming().name());
+        performGetRequest(URL_FIND + composedOf.getId(), "$.order", composedOf.getOrder());
+        performGetRequest(URL_FIND + composedOf.getId(), "$.timing", composedOf.getTiming().name());
     }
 
     @Test
@@ -192,10 +185,10 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         when(composedOfRepository.findByTiming(composedOf.getTiming())).thenReturn(Collections.singletonList(composedOf));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/composedof/find/timing/" + composedOf2.getTiming(), "$[0].order", composedOf2.getOrder());
-        performGetRequest("/composedof/find/timing/" + composedOf2.getTiming(), "$[0].timing", composedOf2.getTiming().name());
-        performGetRequest("/composedof/find/timing/" + composedOf.getTiming(), "$[0].order", composedOf.getOrder());
-        performGetRequest("/composedof/find/timing/" + composedOf.getTiming(), "$[0].timing", composedOf.getTiming().name());
+        performGetRequest(URL_FIND + "timing/" + composedOf2.getTiming(), "$[0].order", composedOf2.getOrder());
+        performGetRequest(URL_FIND + "timing/" + composedOf2.getTiming(), "$[0].timing", composedOf2.getTiming().name());
+        performGetRequest(URL_FIND + "timing/" + composedOf.getTiming(), "$[0].order", composedOf.getOrder());
+        performGetRequest(URL_FIND + "timing/" + composedOf.getTiming(), "$[0].timing", composedOf.getTiming().name());
     }
 
     @Test
@@ -217,10 +210,10 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         when(composedOfRepository.findByOrder(composedOf.getOrder())).thenReturn(Collections.singletonList(composedOf));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/composedof/find/order/" + composedOf2.getOrder(), "$[0].order", composedOf2.getOrder());
-        performGetRequest("/composedof/find/order/" + composedOf2.getOrder(), "$[0].timing", composedOf2.getTiming().name());
-        performGetRequest("/composedof/find/order/" + composedOf.getOrder(), "$[0].order", composedOf.getOrder());
-        performGetRequest("/composedof/find/order/" + composedOf.getOrder(), "$[0].timing", composedOf.getTiming().name());
+        performGetRequest(URL_FIND + "order/" + composedOf2.getOrder(), "$[0].order", composedOf2.getOrder());
+        performGetRequest(URL_FIND + "order/" + composedOf2.getOrder(), "$[0].timing", composedOf2.getTiming().name());
+        performGetRequest(URL_FIND + "order/" + composedOf.getOrder(), "$[0].order", composedOf.getOrder());
+        performGetRequest(URL_FIND + "order/" + composedOf.getOrder(), "$[0].timing", composedOf.getTiming().name());
     }
 
     @Test
@@ -238,6 +231,6 @@ public class ComposedOfControllerTest extends AbstractControllerTest {
         when(composedOfRepository.findAll()).thenReturn(Collections.singletonList(composedOf2));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/composedof", "$[0].id", composedOf2.getId());
+        performGetRequest(URL, "$[0].id", composedOf2.getId());
     }
 }

@@ -45,6 +45,9 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
 
+    private static final String URL = "/bciactivityinstance";
+    private static final String URL_SPLITTER = "/bciactivityinstance/";
+    private static final String URL_FIND = "/bciactivityinstance/find/";
 
     @BeforeEach
     @Override
@@ -54,7 +57,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         role.setName("Admin - BCIActivity Test");
 
         // Create an Actor
-        hcp.setId(1L);
+        hcp.setId(2L);
         hcp.setName("Bob");
         hcp.setEmail("bob@gmail.com");
         hcp.setContactInformation("222-2222");
@@ -63,7 +66,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         hcp.setSpecialties("None");
 
         // Create a participant
-        participant.setId(1L);
+        participant.setId(3L);
         participant.setRole(role);
         participant.setActor(hcp);
 
@@ -74,10 +77,10 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2 - BCIActivity Test");
         bciActivity.setPostconditions("Post-conditions 2 - BCIActivity Test");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
 
         // Create BCIActivityInstance.
-        bciActivityInstance.setId(1L);
+        bciActivityInstance.setId(5L);
         bciActivityInstance.setStatus("BCIActivity Instance Java");
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
@@ -91,18 +94,8 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        // Create BCIActivityInstance.
-        bciActivityInstance.setId(2L);
-        bciActivityInstance.setStatus("BCIActivity Instance Java 2");
-        bciActivityInstance.setEntryDate(localEntryDate);
-        bciActivityInstance.setExitDate(localExitDate);
-        bciActivityInstance.setBciActivity(bciActivity);
-
-        // Save in the database.
-        when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
-
         // Perform a Create request to test the controller.
-        performCreateRequest("/bciactivityinstance", bciActivityInstance);
+        performCreateRequest(URL, bciActivityInstance);
     }
 
     @Test
@@ -111,7 +104,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         instance.setId(23L);
 
         // Perform a Create request to test the controller.
-        performCreateRequestBadRequest("/bciactivityinstance", instance);
+        performCreateRequestBadRequest(URL, instance);
     }
 
     @Test
@@ -122,14 +115,14 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Save in the database.
         when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/bciactivityinstance", bciActivityInstance, "$.status", bciActivityInstance.getStatus());
+        performUpdateRequest(URL, bciActivityInstance, "$.status", bciActivityInstance.getStatus());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
         // Perform a Delete request to test the controller.
-        performDeleteRequest("/bciactivityinstance/" + bciActivityInstance.getId(), bciActivityInstance);
+        performDeleteRequest(URL_SPLITTER + bciActivityInstance.getId(), bciActivityInstance);
     }
 
     @Test
@@ -140,7 +133,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityInstanceRepository.findById().
         when(bciActivityInstanceRepository.findById(bciActivityInstance.getId())).thenReturn(Optional.of(bciActivityInstance));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivityinstance/find/" + bciActivityInstance.getId(), "$.status", bciActivityInstance.getStatus());
+        performGetRequest(URL_FIND + bciActivityInstance.getId(), "$.status", bciActivityInstance.getStatus());
     }
 
     @Test
@@ -150,7 +143,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityInstanceRepository.findById().
         when(bciActivityInstanceRepository.findByStatus(bciActivityInstance.getStatus())).thenReturn(Collections.singletonList(bciActivityInstance));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivityinstance/find/status/" + bciActivityInstance.getStatus(), "$[0].status", bciActivityInstance.getStatus());
+        performGetRequest(URL_FIND + "status/" + bciActivityInstance.getStatus(), "$[0].status", bciActivityInstance.getStatus());
     }
 
     @Test
@@ -161,7 +154,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityInstanceRepository.findAll().
         when(bciActivityInstanceRepository.findAll()).thenReturn(Collections.singletonList(bciActivityInstance));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivityinstance", "$[0].id", bciActivityInstance.getId());
+        performGetRequest(URL, "$[0].id", bciActivityInstance.getId());
     }
 
     @Test
@@ -171,7 +164,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityInstanceRepository.findAll().
         when(bciActivityInstanceRepository.findByParticipantsId(participant.getId())).thenReturn((bciActivityInstance));
         // Perform a GET request to test the controller.
-        performGetRequest("/bciactivityinstance/find/participants/" + participant.getId(),
-                "$.participants.[0].id", participant.getId());
+        performGetRequest(URL_FIND + "participants/" + participant.getId(), "$.participants.[0].id",
+                participant.getId());
     }
 }

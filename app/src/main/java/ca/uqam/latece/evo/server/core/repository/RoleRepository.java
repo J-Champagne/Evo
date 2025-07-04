@@ -33,16 +33,17 @@ public interface RoleRepository extends EvoRepository<Role> {
 
     /**
      * Retrieves a list of Role entities that match the specified BCI Activity Id.
-     * @param bciActivitiesRoleId The BCI Activity Id to filter Role entities by, must not be null.
+     *
+     * @param bciActivitiesId The BCI Activity Id to filter Role entities by, must not be null.
      * @return a list of Role entities that have the specified BCI Activity Id, or an empty list if no matches are found.
      */
-    List<Role> findByBciActivitiesRoleId(Long bciActivitiesRoleId);
+    List<Role> findByBciActivities_Id(Long bciActivitiesId);
 
     /**
      * Retrieves a list of Role entities that match the specified BCI Activity.
-     * @param bciActivitiesRole The BCI Activity to filter Role entities by, must not be null.
+     *
+     * @param bciActivities The BCI Activity to filter Role entities by, must not be null.
      * @return a list of Role entities that have the specified BCI Activity, or an empty list if no matches are found.
      */
-    List<Role> findByBciActivitiesRole(BCIActivity bciActivitiesRole);
-
+    List<Role> findByBciActivities(BCIActivity bciActivities);
 }

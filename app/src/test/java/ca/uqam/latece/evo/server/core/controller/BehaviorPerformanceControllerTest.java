@@ -40,6 +40,10 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
     private Skill skill = new Skill();
     private Content content = new Content();
 
+    private static final String URL = "/behaviorperformance";
+    private static final String URL_SPLITTER = "/behaviorperformance/";
+    private static final String URL_FIND = "/behaviorperformance/find/";
+
     @BeforeEach
     void setUp() {
         // Create the role associated with Behavior Performance.
@@ -85,7 +89,15 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
         content.setType("Content type - Behavior Performance");
         content.setDescription("Content description - Behavior Performance");
 
-        performCreateRequest("/behaviorperformance", behaviorPerformance);
+        performCreateRequest(URL, behaviorPerformance);
+    }
+
+    @Test
+    void testCreateBadRequest() throws Exception {
+        BehaviorPerformance behaviorPerformance  = new BehaviorPerformance();
+        behaviorPerformance.setId(999L);
+
+        performCreateRequestBadRequest(URL, behaviorPerformance);
     }
 
     @Test
@@ -96,14 +108,13 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
         // Save in the database.
         when(behaviorPerformanceRepository.save(behaviorPerformance)).thenReturn(behaviorPerformance);
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/behaviorperformance",
-                behaviorPerformance,"$.name", behaviorPerformance.getName());
+        performUpdateRequest(URL, behaviorPerformance,"$.name", behaviorPerformance.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/behaviorperformance/" + behaviorPerformance.getId(), behaviorPerformance);
+        performDeleteRequest(URL_SPLITTER + behaviorPerformance.getId(), behaviorPerformance);
     }
 
     @Test
@@ -120,8 +131,8 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
         when(behaviorPerformanceRepository.findById(bPerformance.getId())).thenReturn(Optional.of(bPerformance));
         when(behaviorPerformanceRepository.findById(behaviorPerformance.getId())).thenReturn(Optional.of(behaviorPerformance));
         // Perform a GET request to test the controller.
-        performGetRequest("/behaviorperformance/find/" + bPerformance.getId(), "$.name", bPerformance.getName());
-        performGetRequest("/behaviorperformance/find/" + behaviorPerformance.getId(), "$.name", behaviorPerformance.getName());
+        performGetRequest(URL_FIND + bPerformance.getId(), "$.name", bPerformance.getName());
+        performGetRequest(URL_FIND + behaviorPerformance.getId(), "$.name", behaviorPerformance.getName());
     }
 
     @Test
@@ -136,15 +147,14 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
         when(behaviorPerformanceRepository.findByName(behaviorPerformance.getName())).
                 thenReturn(Collections.singletonList(behaviorPerformance));
         // Perform a GET request to test the controller.
-        performGetRequest("/behaviorperformance/find/name/" + behaviorPerformance.getName(),
-                "$[0].name", behaviorPerformance.getName());
+        performGetRequest(URL_FIND + "name/" + behaviorPerformance.getName(), "$[0].name",
+                behaviorPerformance.getName());
 
         // Mock behavior for behaviorPerformanceRepository.findByName().
         when(behaviorPerformanceRepository.findByName(bPerformance.getName())).
                 thenReturn(Collections.singletonList(bPerformance));
         // Perform a GET request to test the controller.
-        performGetRequest("/behaviorperformance/find/name/" + bPerformance.getName(),
-                "$[0].name", bPerformance.getName());
+        performGetRequest(URL_FIND + "name/" + bPerformance.getName(), "$[0].name", bPerformance.getName());
     }
 
     @Test
@@ -159,14 +169,14 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
         // Mock behavior for behaviorPerformanceRepository.findByType().
         when(behaviorPerformanceRepository.findByType(bPerformance.getType())).thenReturn(Collections.singletonList(bPerformance));
         // Perform a GET request to test the controller.
-        performGetRequest("/behaviorperformance/find/type/" + bPerformance.getType(),
-                "$[0].type", bPerformance.getType().toString());
+        performGetRequest(URL_FIND + "type/" + bPerformance.getType(), "$[0].type",
+                bPerformance.getType().toString());
 
         // Mock behavior for behaviorPerformanceRepository.findByType().
         when(behaviorPerformanceRepository.findByType(bPerformance.getType())).thenReturn(Collections.singletonList(bPerformance));
         // Perform a GET request to test the controller.
-        performGetRequest("/behaviorperformance/find/type/" + bPerformance.getType(),
-                "$[0].type", bPerformance.getType().toString());
+        performGetRequest(URL_FIND + "type/" + bPerformance.getType(), "$[0].type",
+                bPerformance.getType().toString());
     }
 
     private BehaviorPerformance dataToPerformTheFindTest() throws Exception {
@@ -201,7 +211,7 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
         bPerformance.setName("Database Design 2");
         bPerformance.setDescription("Database Design training");
         bPerformance.setType(ActivityType.DIAGNOSING);
-        bPerformance.setRole(roles);
+        bPerformance.setParties(roles);
         bPerformance.addContent(content);
         bPerformance.addDevelops(develops);
         bPerformance.addRequires(requires);
@@ -221,6 +231,6 @@ public class BehaviorPerformanceControllerTest extends AbstractControllerTest {
         // Mock behavior for behaviorPerformanceRepository.findAll().
         when(behaviorPerformanceRepository.findAll()).thenReturn(Collections.singletonList(bPerformance));
         // Perform a GET request to test the controller.
-        performGetRequest("/behaviorperformance", "$[0].id", bPerformance.getId());
+        performGetRequest(URL, "$[0].id", bPerformance.getId());
     }
 }

@@ -48,14 +48,14 @@ public class ParticipantControllerTest extends AbstractControllerTest {
 
     private Participant participant = new Participant(role, hcp);
 
-    private static final String url = "/participant";
+    private static final String URL = "/participant";
 
     @BeforeEach
     @Override
     void setUp() {
         role.setId(1L);
-        hcp.setId(1L);
-        participant.setId(1L);
+        hcp.setId(2L);
+        participant.setId(3L);
         when(roleRepository.save(role)).thenReturn(role);
         when(healthCareProfessionalRepository.save(hcp)).thenReturn(hcp);
         when(participantRepository.save(participant)).thenReturn(participant);
@@ -64,7 +64,7 @@ public class ParticipantControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest(url, participant);
+        performCreateRequest(URL, participant);
     }
 
     @Test
@@ -73,47 +73,47 @@ public class ParticipantControllerTest extends AbstractControllerTest {
         HealthCareProfessional hcpUpdated = new HealthCareProfessional("Bob2", "bob2@gmail.com", "222-2222",
                 "Student", "New-York", "Health");
         Participant updated = new Participant(role, hcpUpdated);
-        hcpUpdated.setId(2L);
-        updated.setId(1L);
+        hcpUpdated.setId(hcp.getId());
+        updated.setId(participant.getId());
 
         when(healthCareProfessionalRepository.save(hcpUpdated)).thenReturn(hcpUpdated);
         when(participantRepository.save(updated)).thenReturn(updated);
         when(participantRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
 
-        performUpdateRequest(url, updated, "$.actor.name", updated.getActor().getName());
+        performUpdateRequest(URL, updated, "$.actor.name", updated.getActor().getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest(url + "/" + participant.getId(), participant);
+        performDeleteRequest(URL + "/" + participant.getId(), participant);
     }
 
     @Test
     @Override
     void testFindAll() throws Exception {
         when(participantRepository.findAll()).thenReturn(Collections.singletonList(participant));
-        performGetRequest(url, "$[0].id", 1);
+        performGetRequest(URL, "$[0].id", participant.getId());
     }
 
     @Test
     @Override
     void testFindById() throws Exception {
         when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
-        performGetRequest(url + "/find/" + participant.getId(), "$.id", participant.getId());
+        performGetRequest(URL + "/find/" + participant.getId(), "$.id", participant.getId());
     }
 
     @Test
     void testFindByRoleId() throws Exception {
         when(participantRepository.findByRoleId(participant.getRole().getId())).thenReturn(Collections.singletonList(participant));
-        performGetRequest(url + "/find/role/" + participant.getRole().getId(), "$[0].role.id",
+        performGetRequest(URL + "/find/role/" + participant.getRole().getId(), "$[0].role.id",
                 participant.getRole().getId());
     }
 
     @Test
     void testFindByActorId() throws Exception {
         when(participantRepository.findByActorId(participant.getActor().getId())).thenReturn(Collections.singletonList(participant));
-        performGetRequest(url + "/find/actor/" + participant.getActor().getId(), "$[0].actor.id",
+        performGetRequest(URL + "/find/actor/" + participant.getActor().getId(), "$[0].actor.id",
                 participant.getActor().getId());
     }
 }

@@ -4,7 +4,6 @@ package ca.uqam.latece.evo.server.core.repository;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.Scale;
 import ca.uqam.latece.evo.server.core.model.Assessment;
-import ca.uqam.latece.evo.server.core.model.Develops;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -67,11 +66,11 @@ public interface AssessmentRepository extends EvoRepository<Assessment> {
 
     /**
      * Finds a list of Assessment entities by Role id.
-     * @param id The Role id to filter Assessment entities by must not be null.
+     * @param partiesId The Role id to filter Assessment entities by must not be null.
      * @return the Assessment with the given Role id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if Role id is null.
      */
-    List<Assessment> findByRoleBCIActivities_Id(Long id);
+    List<Assessment> findByParties_Id(Long partiesId);
 
     /**
      * Finds a list of Assessment entities by ComposedOf id.
@@ -109,7 +108,7 @@ public interface AssessmentRepository extends EvoRepository<Assessment> {
      * Finds a list of Assessment entities by scoring function.
      * @param assessmentScoringFunction The Assessment scoring function to filter Assessment entities by must not be null.
      * @return the Assessment with the given scoring function or Optional#empty() if none found.
-     * @throws IllegalArgumentException – if scoring function is null.
+     * @throws IllegalArgumentException – if the scoring function is null.
      */
     List<Assessment> findByAssessmentScoringFunction(String assessmentScoringFunction);
 

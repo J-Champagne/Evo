@@ -79,7 +79,7 @@ public class ReportingServiceTest extends AbstractServiceTest {
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2");
         bciActivity.setPostconditions("Post-conditions 2");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity);
 
@@ -90,7 +90,7 @@ public class ReportingServiceTest extends AbstractServiceTest {
         reporting.setPreconditions("Preconditions");
         reporting.setPostconditions("Post-conditions");
         reporting.setFrequency("Frequency");
-        reporting.addRole(role);
+        reporting.addParty(role);
         reporting.setBciActivity(bciActivity);
         // Create a reporting.
         reportingService.create(reporting);
@@ -101,7 +101,7 @@ public class ReportingServiceTest extends AbstractServiceTest {
         reporting2.setPreconditions("Preconditions 2");
         reporting2.setPostconditions("Post-conditions 2");
         reporting2.setFrequency("Frequency 2");
-        reporting2.addRole(role2);
+        reporting2.addParty(role2);
         reporting2.setBciActivity(bciActivity);
         // Create a reporting.
         reportingService.create(reporting2);
@@ -174,7 +174,7 @@ public class ReportingServiceTest extends AbstractServiceTest {
         reporting.setPostconditions("Post-conditions");
         reporting.setFrequency("Frequency 002");
         reporting.setBciActivity(bciActivity);
-        reporting.addRole(role);
+        reporting.addParty(role);
         // Create a reporting.
         Reporting reportingSaved = reportingService.create(reporting);
 
@@ -195,7 +195,7 @@ public class ReportingServiceTest extends AbstractServiceTest {
         saved.setPostconditions("Post-conditions - Test");
         saved.setFrequency("Frequency 003");
         saved.setType(reporting.getType());
-        saved.setRole(reporting.getRole());
+        saved.setParties(reporting.getParties());
 
         // Update a reporting.
         Reporting updated = reportingService.update(saved);

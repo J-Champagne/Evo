@@ -3,10 +3,7 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
-import ca.uqam.latece.evo.server.core.model.Requires;
-import ca.uqam.latece.evo.server.core.model.Skill;
-import ca.uqam.latece.evo.server.core.model.Role;
-import ca.uqam.latece.evo.server.core.model.BCIActivity;
+import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.repository.RequiresRepository;
 import ca.uqam.latece.evo.server.core.service.RequiresService;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +37,10 @@ public class RequiresControllerTest extends AbstractControllerTest {
     private Role role = new Role();
     private BCIActivity activity = new BCIActivity();
 
+    private static final String URL = "/requires";
+    private static final String URL_SPLITTER = "/requires/";
+    private static final String URL_FIND = "/requires/find/";
+
     @BeforeEach
     @Override
     void setUp() {
@@ -72,7 +73,16 @@ public class RequiresControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/requires", requires);
+        performCreateRequest(URL, requires);
+    }
+
+    @Test
+    void testCreateBadRequest() throws Exception {
+        // Creates a Requires invalid.
+        Requires requires = new Requires();
+        requires.setId(99L);
+        // Perform a POST with a Bad Request to test the controller.
+        performCreateRequestBadRequest(URL, requires);
     }
 
     @Test
@@ -83,13 +93,13 @@ public class RequiresControllerTest extends AbstractControllerTest {
         // Save in the database.
         when(requiresRepository.save(requires)).thenReturn(requires);
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/requires", requires, "$.level", requires.getLevel().toString());
+        performUpdateRequest(URL, requires, "$.level", requires.getLevel().toString());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/requires/" + requires.getId(), requires);
+        performDeleteRequest(URL_SPLITTER + requires.getId(), requires);
     }
 
     private Requires dataToPerformTheFindTest() {
@@ -102,7 +112,7 @@ public class RequiresControllerTest extends AbstractControllerTest {
         activity.setName("Programming");
         activity.setDescription("Programming language training");
         activity.setType(ActivityType.LEARNING);
-        activity.addRole(role);
+        activity.addParty(role);
         requires.setRole(role);
         requires.setBciActivity(activity);
 
@@ -126,7 +136,7 @@ public class RequiresControllerTest extends AbstractControllerTest {
         activity1.setName("Database");
         activity1.setDescription("Database training");
         activity1.setType(ActivityType.LEARNING);
-        activity1.addRole(role1);
+        activity1.addParty(role1);
 
         // Creates Requires.
         requires1.setId(62L);
@@ -152,8 +162,8 @@ public class RequiresControllerTest extends AbstractControllerTest {
         when(requiresRepository.findById(requires.getId())).thenReturn(Optional.of(requires));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/requires/find/" + requires2.getId(), "$.level", requires2.getLevel().toString());
-        performGetRequest("/requires/find/" + requires.getId(), "$.level", requires.getLevel().toString());
+        performGetRequest(URL_FIND + requires2.getId(), "$.level", requires2.getLevel().toString());
+        performGetRequest(URL_FIND + requires.getId(), "$.level", requires.getLevel().toString());
     }
 
     @Test
@@ -169,8 +179,8 @@ public class RequiresControllerTest extends AbstractControllerTest {
         when(requiresRepository.findByBCIActivityId(requires.getBciActivity().getId())).thenReturn(Collections.singletonList(requires));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/requires/find/bciactivityid/" + requires2.getBciActivity().getId(), "$[0].level", requires2.getLevel().toString());
-        performGetRequest("/requires/find/bciactivityid/" + requires.getBciActivity().getId(), "$[0].level", requires.getLevel().toString());
+        performGetRequest(URL_FIND + "bciactivityid/" + requires2.getBciActivity().getId(), "$[0].level", requires2.getLevel().toString());
+        performGetRequest(URL_FIND + "bciactivityid/" + requires.getBciActivity().getId(), "$[0].level", requires.getLevel().toString());
     }
 
     @Test
@@ -186,8 +196,8 @@ public class RequiresControllerTest extends AbstractControllerTest {
         when(requiresRepository.findByRoleId(requires.getRole().getId())).thenReturn(Collections.singletonList(requires));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/requires/find/roleid/" + requires2.getRole().getId(), "$[0].level", requires2.getLevel().toString());
-        performGetRequest("/requires/find/roleid/" + requires.getRole().getId(), "$[0].level", requires.getLevel().toString());
+        performGetRequest(URL_FIND + "roleid/" + requires2.getRole().getId(), "$[0].level", requires2.getLevel().toString());
+        performGetRequest(URL_FIND + "roleid/" + requires.getRole().getId(), "$[0].level", requires.getLevel().toString());
     }
 
     @Test
@@ -203,8 +213,8 @@ public class RequiresControllerTest extends AbstractControllerTest {
         when(requiresRepository.findBySkillId(requires.getSkill().getId())).thenReturn(Collections.singletonList(requires));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/requires/find/skillid/" + requires2.getSkill().getId(), "$[0].level", requires2.getLevel().toString());
-        performGetRequest("/requires/find/skillid/" + requires.getSkill().getId(), "$[0].level", requires.getLevel().toString());
+        performGetRequest(URL_FIND + "skillid/" + requires2.getSkill().getId(), "$[0].level", requires2.getLevel().toString());
+        performGetRequest(URL_FIND + "skillid/" + requires.getSkill().getId(), "$[0].level", requires.getLevel().toString());
     }
 
     @Test
@@ -219,6 +229,6 @@ public class RequiresControllerTest extends AbstractControllerTest {
         // Mock behavior for requiresRepository.findAll().
         when(requiresRepository.findAll()).thenReturn(Collections.singletonList(requires2));
         // Perform a GET request to test the controller.
-        performGetRequest("/requires", "$[0].level", requires2.getLevel().toString());
+        performGetRequest(URL, "$[0].level", requires2.getLevel().toString());
     }
 }

@@ -64,7 +64,7 @@ public class ReportingControllerTest extends AbstractControllerTest {
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2");
         bciActivity.setPostconditions("Post-conditions 2");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
 
         // Create a reporting.
         reporting.setId(4L);
@@ -74,7 +74,7 @@ public class ReportingControllerTest extends AbstractControllerTest {
         reporting.setPreconditions("Preconditions");
         reporting.setPostconditions("Post-conditions");
         reporting.setFrequency("Frequency");
-        reporting.addRole(role);
+        reporting.addParty(role);
         reporting.setBciActivity(bciActivity);
 
         // Save in the database.
@@ -111,11 +111,20 @@ public class ReportingControllerTest extends AbstractControllerTest {
         reporting.setPreconditions("Preconditions");
         reporting.setPostconditions("Post-conditions");
         reporting.setFrequency("Frequency");
-        reporting.addRole(role);
+        reporting.addParty(role);
         reporting.setBciActivity(bciActivity);
         reporting.addDevelops(develops);
 
         performCreateRequest(URL, reporting);
+    }
+
+    @Test
+    void testCreateBadRequest() throws Exception {
+        // Creates a Reporting invalid.
+        Reporting reporting = new Reporting();
+        reporting.setId(99L);
+        // Perform a POST with a Bad Request to test the controller.
+        performCreateRequestBadRequest(URL, reporting);
     }
 
     @Test
@@ -224,7 +233,7 @@ public class ReportingControllerTest extends AbstractControllerTest {
         saved.setName("Database Design 2 reporting");
         saved.setDescription("Database Design training reporting");
         saved.setType(ActivityType.PERFORMING);
-        saved.setRole(roles);
+        saved.setParties(roles);
         saved.addContent(content);
         saved.addDevelops(develops);
         saved.addRequires(requires);

@@ -48,31 +48,35 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
 
+    private static final String URL = "/goalsettinginstance";
+    private static final String URL_SPLITTER = "/goalsettinginstance/";
+    private static final String URL_FIND = "/goalsettinginstance/find/";
+
     @BeforeEach
     @Override
     void setUp() {
         // Create the role associated with Behavior Performance.
         List<Role> roles = new ArrayList<>();
-        role.setId(9L);
+        role.setId(1L);
         role.setName("Participant - Behavior Performance");
         Role role2 = new Role();
-        role2.setId(12L);
+        role2.setId(2L);
         role2.setName("e-Facilitator - Goal Setting");
 
         roles.add(role);
         roles.add(role2);
 
         // Create a BCI Activity.
-        bciActivity.setId(7L);
+        bciActivity.setId(3L);
         bciActivity.setName("Programming 2 - BCIActivity Test");
         bciActivity.setDescription("Programming language training 2 - BCIActivity Test");
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2 - BCIActivity Test");
         bciActivity.setPostconditions("Post-conditions 2 - BCIActivity Test");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
 
         // Create Actor and Participant
-        hcp.setId(1L);
+        hcp.setId(4L);
         hcp.setName("Bob");
         hcp.setEmail("bob@gmail.com");
         hcp.setContactInformation("222-2222");
@@ -80,22 +84,22 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
         hcp.setPosition("Chief");
         hcp.setSpecialties("None");
 
-        participant.setId(1L);
+        participant.setId(5L);
         participant.setRole(role);
         participant.setActor(hcp);
 
         // Create a Goal Setting.
-        goalSetting.setId(2L);
+        goalSetting.setId(6L);
         goalSetting.setName("Goal Setting");
         goalSetting.setDescription("Programming language training - Goal Setting");
         goalSetting.setType(ActivityType.LEARNING);
         goalSetting.setPreconditions("Preconditions 2 - Goal Setting");
         goalSetting.setPostconditions("Post-conditions 2 - Goal Setting");
         goalSetting.setBciActivity(bciActivity);
-        goalSetting.setRole(roles);
+        goalSetting.setParties(roles);
 
         // Create a Goal Setting Instance.
-        goalSettingInstance.setId(1L);
+        goalSettingInstance.setId(7L);
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setStatus("Goal Setting Instance Java");
         goalSettingInstance.setEntryDate(localEntryDate);
@@ -110,51 +114,38 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        // Create a Goal Setting Instance.
-        GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
-        goalSettingInstance.setId(1L);
-        goalSettingInstance.setGoalSetting(goalSetting);
-        goalSettingInstance.setStatus("Goal Setting Instance Java");
-        goalSettingInstance.setEntryDate(localEntryDate);
-        goalSettingInstance.setExitDate(localExitDate);
-        goalSettingInstance.setBciActivity(bciActivity);
-
-        // Save in the database.
-        when(goalSettingInstanceRepository.save(goalSettingInstance)).thenReturn(goalSettingInstance);
-
         // Perform a Create request to test the controller.
-        performCreateRequest("/goalsettinginstance", goalSettingInstance);
+        performCreateRequest(URL, goalSettingInstance);
     }
 
     @Test
     void testCreateBadRequest() throws Exception {
         // Create a Goal Setting Instance.
         GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
-        goalSettingInstance.setId(1L);
+        goalSettingInstance.setId(99L);
 
         // Perform a Create request to test the controller.
-        performCreateRequestBadRequest("/goalsettinginstance", goalSettingInstance);
+        performCreateRequestBadRequest(URL, goalSettingInstance);
     }
 
     @Test
     @Override
     void testUpdate() throws Exception {
         // Update a Goal Setting Instance.
-        goalSettingInstance.setStatus("Setting Instance");
+        goalSettingInstance.setStatus("Setting Instance 2222");
 
         // Save in the database.
         when(goalSettingInstanceRepository.save(goalSettingInstance)).thenReturn(goalSettingInstance);
 
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/goalsettinginstance", goalSettingInstance, "$.status",
-                goalSettingInstance.getStatus());
+        performUpdateRequest(URL, goalSettingInstance, "$.status", goalSettingInstance.getStatus());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
         // Perform a Delete request to test the controller.
-        performDeleteRequest("/goalsettinginstance/" + goalSettingInstance.getId(), goalSettingInstance);
+        performDeleteRequest(URL_SPLITTER + goalSettingInstance.getId(), goalSettingInstance);
     }
 
     @Test
@@ -167,8 +158,7 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
         when(goalSettingInstanceRepository.findById(goalSettingInstance.getId())).thenReturn(Optional.of(goalSettingInstance));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/goalsettinginstance/find/" + goalSettingInstance.getId(), "$.status",
-                goalSettingInstance.getStatus());
+        performGetRequest(URL_FIND + goalSettingInstance.getId(), "$.status", goalSettingInstance.getStatus());
     }
 
     @Test
@@ -181,8 +171,19 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
                 thenReturn(Collections.singletonList(goalSettingInstance));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/goalsettinginstance/find/status/" + goalSettingInstance.getStatus(),
-                "$[0].status", goalSettingInstance.getStatus());
+        performGetRequest(URL_FIND + "status/" + goalSettingInstance.getStatus(), "$[0].status",
+                goalSettingInstance.getStatus());
+    }
+
+    @Test
+    void testFindParticipantsId() throws Exception {
+        // Mock behavior for goalSettingInstanceRepository.save
+        when(goalSettingInstanceRepository.save(goalSettingInstance)).thenReturn(goalSettingInstance);
+        // Mock behavior for goalSettingInstanceRepository.findByParticipantsId().
+        when(goalSettingInstanceRepository.findByParticipantsId(participant.getId())).thenReturn((goalSettingInstance));
+        // Perform a GET request to test the controller.
+        performGetRequest(URL_FIND + "participants/" + participant.getId(), "$.participants.[0].id",
+                participant.getId());
     }
 
     @Test
@@ -195,17 +196,6 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
         when(goalSettingInstanceRepository.findAll()).thenReturn(Collections.singletonList(goalSettingInstance));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/goalsettinginstance", "$[0].id", goalSettingInstance.getId());
-    }
-
-    @Test
-    void testFindParticipantsId() throws Exception {
-        // Mock behavior for goalSettingInstanceRepository.save
-        when(goalSettingInstanceRepository.save(goalSettingInstance)).thenReturn(goalSettingInstance);
-        // Mock behavior for goalSettingInstanceRepository.findByParticipantsId().
-        when(goalSettingInstanceRepository.findByParticipantsId(participant.getId())).thenReturn((goalSettingInstance));
-        // Perform a GET request to test the controller.
-        performGetRequest("/goalsettinginstance/find/participants/" + participant.getId(),
-                "$.participants.[0].id", participant.getId());
+        performGetRequest(URL, "$[0].id", goalSettingInstance.getId());
     }
 }

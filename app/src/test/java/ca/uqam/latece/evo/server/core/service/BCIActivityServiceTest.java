@@ -77,7 +77,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2 - BCIActivity Test");
         bciActivity.setPostconditions("Post-conditions 2 - BCIActivity Test");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity);
 
@@ -86,7 +86,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         bciActivity2.setType(ActivityType.LEARNING);
         bciActivity2.setPreconditions("Testing Preconditions 2 - BCIActivity Test");
         bciActivity2.setPostconditions("Testing Post-conditions 2 - BCIActivity Test");
-        bciActivity2.addRole(role2);
+        bciActivity2.addParty(role2);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity2);
 
@@ -171,7 +171,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions - BCIActivity Test");
         bciActivity.setPostconditions("Post-conditions - BCIActivity Test");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         // Create a BCI Activity.
         BCIActivity bciActivitySaved = bciActivityService.create(bciActivity);
 
@@ -190,7 +190,7 @@ public class BCIActivityServiceTest extends AbstractServiceTest {
         bciActivitySaved.setPreconditions("Preconditions - BCIActivity Test");
         bciActivitySaved.setPostconditions("Post-conditions - BCIActivity Test");
         bciActivitySaved.setType(bciActivity.getType());
-        bciActivitySaved.setRole(bciActivity.getRole());
+        bciActivitySaved.setParties(bciActivity.getParties());
 
         // Update a BCI Activity.
         BCIActivity bciActivityUpdated = bciActivityService.update(bciActivitySaved);

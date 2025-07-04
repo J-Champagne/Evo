@@ -106,7 +106,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2");
         bciActivity.setPostconditions("Post-conditions 2");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity);
 
@@ -116,7 +116,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         bciActivity2.setType(ActivityType.LEARNING);
         bciActivity2.setPreconditions("Preconditions 21");
         bciActivity2.setPostconditions("Post-conditions 21");
-        bciActivity2.addRole(role);
+        bciActivity2.addParty(role);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity2);
 
@@ -183,7 +183,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         behaviorPerformance.setType(ActivityType.LEARNING);
         behaviorPerformance.setPreconditions("Preconditions 2");
         behaviorPerformance.setPostconditions("Post-conditions 2");
-        behaviorPerformance.addRole(role);
+        behaviorPerformance.addParty(role);
         behaviorPerformanceService.create(behaviorPerformance);
 
         // Create a BehaviorPerformanceInstance.

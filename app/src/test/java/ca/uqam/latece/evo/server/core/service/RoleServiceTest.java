@@ -124,7 +124,7 @@ public class RoleServiceTest extends AbstractServiceTest {
         bciActivityRole.setName("Research");
         bciActivityRole.setDescription("Research training");
         bciActivityRole.setType(ActivityType.LEARNING);
-        bciActivityRole.addRole(roleSaved);
+        bciActivityRole.addParty(roleSaved);
         // Save a BCI Activity.
         BCIActivity bciActivityCreated = bciActivityService.create(bciActivityRole);
         List<Role> result = roleService.findByBCIActivity(bciActivityCreated);
@@ -147,7 +147,7 @@ public class RoleServiceTest extends AbstractServiceTest {
         bciActivityRole.setName("Research Activity");
         bciActivityRole.setDescription("Research Activity training");
         bciActivityRole.setType(ActivityType.LEARNING);
-        bciActivityRole.addRole(roleSaved);
+        bciActivityRole.addParty(roleSaved);
         // Save a BCI Activity.
         BCIActivity bciActivityCreated = bciActivityService.create(bciActivityRole);
 

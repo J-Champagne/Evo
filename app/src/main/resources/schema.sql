@@ -366,6 +366,32 @@ CREATE TABLE IF NOT EXISTS reporting (
 );
 
 /***********************************************************************************************************************
+interaction table: This table stores details about interaction.
+- Columns:
+  - interaction_id: A unique identifier for each interaction. Also works as a foreign key referencing a bci_activity_id in
+  the bci_activity table used by the Hibernate to map the subclass of BCIActivity.
+  - interaction_mode: The interaction mode.
+  - interaction_initiator_role_id: The role id used to initiate the interaction.
+  - interaction_medium: The interaction medium.
+- Constraints:
+  - interaction_pkey: Primary key for this table.
+  - interaction_fkey: This constraint is used by the Hibernate to map the subclass of BCIActivity.
+  - interaction_initiator_role_fkey: Ensures that interaction_initiator_role_id references a valid record in the role table.
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS interaction (
+    interaction_id BIGINT NOT NULL,
+    interaction_mode VARCHAR(12) NOT NULL,
+    interaction_initiator_role_id BIGINT NOT NULL,
+    interaction_medium1 VARCHAR(9) NOT NULL,
+    interaction_medium2 VARCHAR(9) NULL,
+    interaction_medium3 VARCHAR(9) NULL,
+    interaction_medium4 VARCHAR(9) NULL,
+    CONSTRAINT interaction_pkey PRIMARY KEY (interaction_id),
+    CONSTRAINT interaction_fkey FOREIGN KEY (interaction_id) REFERENCES bci_activity (bci_activity_id),
+    CONSTRAINT interaction_initiator_role_fkey FOREIGN KEY (interaction_initiator_role_id) REFERENCES role (role_id)
+);
+
+/***********************************************************************************************************************
 behavior_performance table: This table stores details about Behavior Performance.
 - Columns:
   - behavior_performance_id: A unique identifier for each Behavior Performance. Also, works as a foreign key referencing

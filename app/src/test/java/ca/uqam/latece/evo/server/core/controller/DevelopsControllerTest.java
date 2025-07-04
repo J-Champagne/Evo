@@ -38,6 +38,9 @@ public class DevelopsControllerTest extends AbstractControllerTest {
     private Role role = new Role();
     private BCIActivity activity = new BCIActivity();
 
+    private static final String URL = "/develops";
+    private static final String URL_SPLITTER = "/develops/";
+    private static final String URL_FIND = "/develops/find/";
 
     @BeforeEach
     @Override
@@ -72,7 +75,7 @@ public class DevelopsControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/develops", develops);
+        performCreateRequest(URL, develops);
     }
 
     @Test
@@ -80,7 +83,7 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         Develops develops1 = new Develops();
         develops1.setId(99L);
         // Perform a POST request with Bad request to test the controller.
-        performCreateRequestBadRequest("/develops", develops1);
+        performCreateRequestBadRequest(URL, develops1);
     }
 
     @Test
@@ -101,13 +104,13 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         when(developsRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
 
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/develops", updated, "$.level", updated.getLevel().toString());
+        performUpdateRequest(URL, updated, "$.level", updated.getLevel().toString());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/develops/" + develops.getId(), develops);
+        performDeleteRequest(URL_SPLITTER + develops.getId(), develops);
     }
 
     @Test
@@ -124,8 +127,8 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         when(developsRepository.findById(develops.getId())).thenReturn(Optional.of(develops));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/develops/find/" + develops2.getId(), "$.level", develops2.getLevel().toString());
-        performGetRequest("/develops/find/" + develops.getId(), "$.level", develops.getLevel().toString());
+        performGetRequest(URL_FIND + develops2.getId(), "$.level", develops2.getLevel().toString());
+        performGetRequest(URL_FIND + develops.getId(), "$.level", develops.getLevel().toString());
     }
 
     private Develops dataToPerformTheFindTest() {
@@ -138,7 +141,7 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         activity.setName("Programming");
         activity.setDescription("Programming language training");
         activity.setType(ActivityType.LEARNING);
-        activity.addRole(role);
+        activity.addParty(role);
 
         // Add Role and BCIActivity to Develops.
         develops.setRole(role);
@@ -164,7 +167,7 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         activity1.setName("Database");
         activity1.setDescription("Database training");
         activity1.setType(ActivityType.LEARNING);
-        activity1.addRole(role1);
+        activity1.addParty(role1);
 
         // Creates Develops.
         develops.setId(10L);
@@ -189,8 +192,8 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         when(developsRepository.findByBCIActivityId(develops.getBciActivity().getId())).thenReturn(Collections.singletonList(develops));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/develops/find/bciactivityid/" + develops2.getBciActivity().getId(), "$[0].level", develops2.getLevel().toString());
-        performGetRequest("/develops/find/bciactivityid/" + develops.getBciActivity().getId(), "$[0].level", develops.getLevel().toString());
+        performGetRequest(URL_FIND + "bciactivityid/" + develops2.getBciActivity().getId(), "$[0].level", develops2.getLevel().toString());
+        performGetRequest(URL_FIND + "bciactivityid/" + develops.getBciActivity().getId(), "$[0].level", develops.getLevel().toString());
     }
 
     @Test
@@ -206,8 +209,8 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         when(developsRepository.findByRoleId(develops.getRole().getId())).thenReturn(Collections.singletonList(develops));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/develops/find/roleid/" + develops2.getRole().getId(), "$[0].level", develops2.getLevel().toString());
-        performGetRequest("/develops/find/roleid/" + develops.getRole().getId(), "$[0].level", develops.getLevel().toString());
+        performGetRequest(URL_FIND + "roleid/" + develops2.getRole().getId(), "$[0].level", develops2.getLevel().toString());
+        performGetRequest(URL_FIND + "roleid/" + develops.getRole().getId(), "$[0].level", develops.getLevel().toString());
     }
 
     @Test
@@ -223,8 +226,8 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         when(developsRepository.findBySkillId(develops.getSkill().getId())).thenReturn(Collections.singletonList(develops));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/develops/find/skillid/" + develops2.getSkill().getId(), "$[0].level", develops2.getLevel().toString());
-        performGetRequest("/develops/find/skillid/" + develops.getSkill().getId(), "$[0].level", develops.getLevel().toString());
+        performGetRequest(URL_FIND + "skillid/" + develops2.getSkill().getId(), "$[0].level", develops2.getLevel().toString());
+        performGetRequest(URL_FIND + "skillid/" + develops.getSkill().getId(), "$[0].level", develops.getLevel().toString());
     }
 
     @Test
@@ -237,8 +240,8 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         when(developsRepository.findByLevel(develops.getLevel())).thenReturn(Collections.singletonList(develops));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/develops/find/level/" + develops2.getLevel().toString(), "$[0].level", develops2.getLevel().toString());
-        performGetRequest("/develops/find/level/" + develops.getLevel().toString(), "$[0].level", develops.getLevel().toString());
+        performGetRequest(URL_FIND + "level/" + develops2.getLevel().toString(), "$[0].level", develops2.getLevel().toString());
+        performGetRequest(URL_FIND + "level/" + develops.getLevel().toString(), "$[0].level", develops.getLevel().toString());
     }
 
     @Test
@@ -253,6 +256,6 @@ public class DevelopsControllerTest extends AbstractControllerTest {
         // Mock behavior for developsRepository.findAll().
         when(developsRepository.findAll()).thenReturn(Collections.singletonList(develops2));
         // Perform a GET request to test the controller.
-        performGetRequest("/develops", "$[0].level", develops2.getLevel().toString());
+        performGetRequest(URL, "$[0].level", develops2.getLevel().toString());
     }
 }

@@ -3,7 +3,9 @@ package ca.uqam.latece.evo.server.core.model.instance;
 import ca.uqam.latece.evo.server.core.model.Activity;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -18,12 +20,14 @@ import java.util.List;
 
 /**
  * BCIActivityInstance model class.
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @Entity
 @Table(name = "bci_activity_instance")
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonPropertyOrder({"id", "status", "entryDate", "exitDate", "BCIActivity", "participants"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class BCIActivityInstance extends ActivityInstance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +53,6 @@ public class BCIActivityInstance extends ActivityInstance {
     @Column(name="bci_activity_instance_exit_date", nullable = false)
     private LocalDate exitDate;
 
-    //@NotNull
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bci_activity_instance_bci_id", referencedColumnName = "bci_activity_id", nullable = false)
     private BCIActivity bciActivity;

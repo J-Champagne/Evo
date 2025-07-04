@@ -113,7 +113,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2 - BCIActivity Test");
         bciActivity.setPostconditions("Post-conditions 2 - BCIActivity Test");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         bciActivityService.create(bciActivity);
 
         bciActivity2.setName("Testing 2 - BCIActivity Test");
@@ -121,7 +121,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivity2.setType(ActivityType.LEARNING);
         bciActivity2.setPreconditions("Testing Preconditions 2 - BCIActivity Test");
         bciActivity2.setPostconditions("Testing Post-conditions 2 - BCIActivity Test");
-        bciActivity2.addRole(role2);
+        bciActivity2.addParty(role2);
         bciActivityService.create(bciActivity2);
 
         // Creates and saves Requires

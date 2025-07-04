@@ -110,7 +110,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2");
         bciActivity.setPostconditions("Post-conditions 2");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity);
 
@@ -120,7 +120,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         bciActivity2.setType(ActivityType.LEARNING);
         bciActivity2.setPreconditions("Preconditions 21");
         bciActivity2.setPostconditions("Post-conditions 21");
-        bciActivity2.addRole(role);
+        bciActivity2.addParty(role);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity2);
 
@@ -130,7 +130,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSetting.setType(ActivityType.LEARNING);
         goalSetting.setPreconditions("Preconditions 2");
         goalSetting.setPostconditions("Post-conditions 2");
-        goalSetting.addRole(role);
+        goalSetting.addParty(role);
         goalSetting.setBciActivity(bciActivity);
         // Create a Goal Setting.
         goalSettingService.create(goalSetting);
@@ -140,7 +140,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSetting2.setType(ActivityType.LEARNING);
         goalSetting2.setPreconditions("Testing Preconditions 2");
         goalSetting2.setPostconditions("Testing Post-conditions 2");
-        goalSetting2.addRole(role2);
+        goalSetting2.addParty(role2);
         goalSetting2.setBciActivity(bciActivity);
         // Create a Goal Setting.
         goalSettingService.create(goalSetting2);
@@ -336,7 +336,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSetting.setType(ActivityType.LEARNING);
         goalSetting.setPreconditions("GoalSetting Preconditions 2");
         goalSetting.setPostconditions("GoalSetting Post-conditions 2");
-        goalSetting.addRole(role);
+        goalSetting.addParty(role);
         goalSetting.setBciActivity(bciActivity);
 
         // Create a Goal Setting.

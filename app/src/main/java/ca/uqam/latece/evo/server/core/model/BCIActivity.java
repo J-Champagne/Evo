@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * BCIActivity model class.
@@ -55,7 +56,8 @@ public class BCIActivity extends Activity {
     private List<Requires> requiresBCIActivities = new ArrayList<>();
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
+            fetch = FetchType.LAZY)
     @JoinTable(
             name = "bci_activity_content",
             joinColumns = @JoinColumn(name = "bci_activity_content_bci_activity_id", referencedColumnName="bci_activity_id"),
@@ -63,16 +65,15 @@ public class BCIActivity extends Activity {
     )
     private List<Content> contentBCIActivities = new ArrayList<>();
 
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
+            fetch = FetchType.LAZY)
     @JoinTable(
             name = "bci_activity_role",
             joinColumns = @JoinColumn(name = "bci_activity_role_bci_activity_id", referencedColumnName="bci_activity_id"),
             inverseJoinColumns = @JoinColumn(name = "bci_activity_role_role_id", referencedColumnName="role_id")
     )
-    private List<Role> roleBCIActivities = new ArrayList<>();
+    private List<Role> parties = new ArrayList<>();
 
-    @JsonIgnore
     @OneToMany(mappedBy = "bciActivityComposedOf", orphanRemoval = true, targetEntity = ComposedOf.class)
     private List<ComposedOf> composedOfList = new ArrayList<>();
 
@@ -80,15 +81,15 @@ public class BCIActivity extends Activity {
     public BCIActivity() {}
 
     public BCIActivity(@NotNull String name, @NotNull ActivityType type, @NotNull String preconditions,
-                       @NotNull String postconditions, @NotNull Develops develop, @NotNull Role... role) {
+                       @NotNull String postconditions, @NotNull Develops develop, @NotNull Role... parties) {
         this.name = name;
         this.type = type;
         this.preconditions = preconditions;
         this.postconditions = postconditions;
         this.developsBCIActivity.add(develop);
 
-        if(role.length > 0) {
-            this.roleBCIActivities.addAll(List.of(role));
+        if(parties.length > 0) {
+            this.parties.addAll(List.of(parties));
         }
     }
 
@@ -210,9 +211,12 @@ public class BCIActivity extends Activity {
         return this.contentBCIActivities;
     }
 
-    public void addRole(Role role) {
+    public void addParty(Role... role) {
         ObjectValidator.validateObject(role);
-        this.roleBCIActivities.add(role);
+
+        if(role.length > 0) {
+            this.parties.addAll(List.of(role));
+        }
     }
 
     public void addDevelops(Develops develops) {
@@ -228,30 +232,30 @@ public class BCIActivity extends Activity {
         }
     }
 
-    public void removeRole(Role role) {
+    public void removeParty(Role role) {
         List<Role> roleList = new ArrayList<>();
         ObjectValidator.validateObject(role);
         roleList.add(role);
 
-        this.removeAllRole(roleList);
+        this.removeAllParties(roleList);
     }
 
-    public void removeAllRole(List<Role> roles) {
+    public void removeAllParties(List<Role> roles) {
         ObjectValidator.validateObject(roles);
 
-        if(!this.roleBCIActivities.isEmpty()) {
-            this.roleBCIActivities.removeAll(roles);
+        if(!this.parties.isEmpty()) {
+            this.parties.removeAll(roles);
         }
     }
 
-    public List<Role> getRole() {
-        return this.roleBCIActivities;
+    public List<Role> getParties() {
+        return this.parties;
     }
 
-    public void setRole(List<Role> role) {
+    public void setParties(List<Role> role) {
         ObjectValidator.validateObject(role);
         if(!role.isEmpty()) {
-            this.roleBCIActivities = role;
+            this.parties = role;
         }
     }
 
@@ -263,6 +267,32 @@ public class BCIActivity extends Activity {
         if(composedOf != null && composedOf.length > 0) {
             this.composedOfList.addAll(List.of(composedOf));
         }
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (super.equals(object)) {
+            BCIActivity bciActivity = (BCIActivity) object;
+            return Objects.equals(this.getName(), bciActivity.getName()) &&
+                    Objects.equals(this.getDescription(), bciActivity.getDescription()) &&
+                    Objects.equals(this.getComposedOf(), bciActivity.getComposedOf()) &&
+                    Objects.equals(this.getContent(), bciActivity.getContent()) &&
+                    Objects.equals(this.getDevelops(), bciActivity.getDevelops()) &&
+                    Objects.equals(this.getPostconditions(), bciActivity.getPostconditions()) &&
+                    Objects.equals(this.getPreconditions(), bciActivity.getPreconditions()) &&
+                    Objects.equals(this.getRequires(), bciActivity.getRequires()) &&
+                    Objects.equals(this.getParties(), bciActivity.getParties()) &&
+                    Objects.equals(this.getType(), bciActivity.getType());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId(), this.getName(), this.getDescription(), this.getComposedOf(),this.getContent(),
+                this.getDevelops(), this.getPostconditions(), this.getPreconditions(), this.getRequires(), this.getParties(),
+                this.getType());
     }
 
 }

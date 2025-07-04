@@ -247,7 +247,7 @@ public class AssessmentService extends AbstractEvoService<Assessment> {
      */
     public List<Assessment> findByRoleBCIActivities_Id(Long id) {
         ObjectValidator.validateObject(id);
-        return this.assessmentRepository.findByRoleBCIActivities_Id(id);
+        return this.assessmentRepository.findByParties_Id(id);
     }
 
     /**

@@ -3,13 +3,22 @@ package ca.uqam.latece.evo.server.core.model.instance;
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 
 import ca.uqam.latece.evo.server.core.model.Role;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Participant instance class.
+ * @version 1.0
+ * @author Julien Champagne
+ * @author Edilton Lima dos Santos
+ */
 @Entity
 @Table(name = "participant")
 @Transactional
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Participant extends AbstractEvoModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

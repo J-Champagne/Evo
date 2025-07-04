@@ -79,7 +79,7 @@ public class GoalSettingServiceTest extends AbstractServiceTest {
         bciActivity.setType(ActivityType.LEARNING);
         bciActivity.setPreconditions("Preconditions 2");
         bciActivity.setPostconditions("Post-conditions 2");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         // Create a BCI Activity.
         bciActivityService.create(bciActivity);
 
@@ -89,7 +89,7 @@ public class GoalSettingServiceTest extends AbstractServiceTest {
         goalSetting.setType(ActivityType.LEARNING);
         goalSetting.setPreconditions("Preconditions 2");
         goalSetting.setPostconditions("Post-conditions 2");
-        goalSetting.addRole(role);
+        goalSetting.addParty(role);
         goalSetting.setBciActivity(bciActivity);
         // Create a Goal Setting.
         goalSettingService.create(goalSetting);
@@ -99,7 +99,7 @@ public class GoalSettingServiceTest extends AbstractServiceTest {
         goalSetting2.setType(ActivityType.LEARNING);
         goalSetting2.setPreconditions("Testing Preconditions 2");
         goalSetting2.setPostconditions("Testing Post-conditions 2");
-        goalSetting2.addRole(role2);
+        goalSetting2.addParty(role2);
         goalSetting2.setBciActivity(bciActivity);
         // Create a Goal Setting.
         goalSettingService.create(goalSetting2);
@@ -170,7 +170,7 @@ public class GoalSettingServiceTest extends AbstractServiceTest {
         goalSetting.setType(ActivityType.LEARNING);
         goalSetting.setPreconditions("Preconditions 1112");
         goalSetting.setPostconditions("Post-conditions 1112");
-        goalSetting.addRole(role);
+        goalSetting.addParty(role);
         // Create a Goal Setting.
         GoalSetting goalSettingSaved = goalSettingService.create(goalSetting);
         System.out.println(" Goal Setting: " + goalSettingSaved);
@@ -191,7 +191,7 @@ public class GoalSettingServiceTest extends AbstractServiceTest {
         saved.setPreconditions("Preconditions - Goal Setting Test");
         saved.setPostconditions("Post-conditions - Goal Setting Test");
         saved.setType(goalSetting.getType());
-        saved.setRole(goalSetting.getRole());
+        saved.setParties(goalSetting.getParties());
 
         // Update a Behavior Setting.
         GoalSetting updated = goalSettingService.update(saved);

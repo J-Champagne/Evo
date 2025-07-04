@@ -129,7 +129,7 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      * @param id The BCIActivity Id to filter BCIActivity entities by, must not be null.
      * @return the BCIActivity with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws RuntimeException if the BCIActivity not found.
+     * @throws EntityNotFoundException if the BCIActivity not found.
      */
     @Override
     public BCIActivity findById(Long id) {
@@ -185,7 +185,7 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      */
     public List<BCIActivity> findByRole(Long roleId) {
         ObjectValidator.validateId(roleId);
-        return bciActivityRepository.findByRoleBCIActivities_Id(roleId);
+        return bciActivityRepository.findByParties_Id(roleId);
     }
 
     /**

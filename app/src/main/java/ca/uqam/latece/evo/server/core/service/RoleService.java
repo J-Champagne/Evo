@@ -165,15 +165,6 @@ public class RoleService extends AbstractEvoService<Role> {
     }
 
     /**
-     * Retrieves all roles from the repository.
-     * @return a list of all roles present in the repository.
-     */
-    @Override
-    public List<Role> findAll() {
-        return roleRepository.findAll().stream().toList();
-    }
-
-    /**
      * Retrieves a role by id.
      * <p>Note: <p/>Validates the provided identifier before fetching the role from the repository.
      * @param id the unique identifier of the role to be retrieved.
@@ -195,13 +186,27 @@ public class RoleService extends AbstractEvoService<Role> {
      */
     public List<Role> findByBCIActivityId(Long bciActivityId) {
         ObjectValidator.validateId(bciActivityId);
-        return roleRepository.findByBciActivitiesRoleId(bciActivityId);
+        return roleRepository.findByBciActivities_Id(bciActivityId);
     }
 
+    /**
+     * Retrieves a list of Role entities that match the specified BCI Activity.
+     * @param bciActivitiesRole The BCI Activity to filter Role entities by, must not be null.
+     * @return a list of Role entities that have the specified BCI Activity, or an empty list if no matches are found.
+     */
     public List<Role> findByBCIActivity(BCIActivity bciActivitiesRole) {
         ObjectValidator.validateObject(bciActivitiesRole);
         ObjectValidator.validateId(bciActivitiesRole.getId());
-        return roleRepository.findByBciActivitiesRole(bciActivitiesRole);
+        return roleRepository.findByBciActivities(bciActivitiesRole);
+    }
+
+    /**
+     * Retrieves all roles from the repository.
+     * @return a list of all roles present in the repository.
+     */
+    @Override
+    public List<Role> findAll() {
+        return roleRepository.findAll().stream().toList();
     }
 }
 

@@ -301,8 +301,8 @@ public class SkillServiceTest extends AbstractServiceTest {
         assessment.setType(ActivityType.LEARNING);
         assessment.setPreconditions("Preconditions 2 - Assessment Test - New Skill 2");
         assessment.setPostconditions("Post-conditions 2 - Assessment Test - New Skill 2");
-        assessment.addRole(role);
-        assessment.addRole(role2);
+        assessment.addParty(role);
+        assessment.addParty(role2);
         assessment.setAssessmentScale(Scale.LETTER);
         assessment.setAssessmentScoringFunction("Assessment Scoring Function - Assessment Test - New Skill 2");
         assessmentService.create(assessment);

@@ -15,5 +15,19 @@ package ca.uqam.latece.evo.server.core.enumeration;
 public enum SkillLevel {
 	BEGINNER,
 	INTERMEDIATE,
-	ADVANCED
+	ADVANCED;
+
+	/**
+	 * Convert the SkillLevel to String.
+	 * @param skillLevel The selected skillLevel.
+	 * @return Return the SkillLevel in string format.
+	 */
+	public static String toString(SkillLevel skillLevel) {
+		return switch (skillLevel) {
+			case BEGINNER -> "Beginner";
+			case INTERMEDIATE -> "Intermediate";
+			case ADVANCED -> "Advanced";
+		};
+	}
+
 }

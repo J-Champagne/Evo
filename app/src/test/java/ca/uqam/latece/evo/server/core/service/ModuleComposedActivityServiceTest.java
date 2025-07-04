@@ -54,7 +54,7 @@ public class ModuleComposedActivityServiceTest extends AbstractServiceTest {
         bciActivity.setType(ActivityType.GOAL_SETTING);
         bciActivity.setName("BCI Activity - Module");
         bciActivity.setDescription("BCI Activity Description - Module");
-        bciActivity.addRole(role);
+        bciActivity.addParty(role);
         bciActivityService.create(bciActivity);
 
         // Creates a Skill.
