@@ -4,28 +4,45 @@ import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
  * BCIActivityInstance repository creates CRUD implementation at runtime automatically.
- * @version 1.0
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @Repository
 public interface BCIActivityInstanceRepository extends EvoRepository<BCIActivityInstance> {
     /**
-     * Checks if a BCIActivityInstance entity with the specified status exists in the repository.
-     * @param status the status of the BCIActivityInstance to check for existence, must not be null.
-     * @return A list of BCIActivityInstance with the specified status.
-     * @throws IllegalArgumentException if the status is null.
+     * Finds BCIActivityInstance entities by their status.
+     * @param status String.
+     * @return List<BCIActivityInstance> with the given status.
+     * @throws IllegalArgumentException if outcome is null.
      */
     List<BCIActivityInstance> findByStatus(String status);
 
     /**
-     * Finds a BCIActivityInstance by its Participant id.
+     * Finds BCIActivityInstance entities by their entryDate.
+     * @param entryDate LocalDate.
+     * @return List<BCIActivityInstance> with the given entryDate.
+     * @throws IllegalArgumentException if outcome is null.
+     */
+    List<BCIActivityInstance> findByEntryDate(LocalDate entryDate);
+
+    /**
+     * Finds BCIActivityInstance entities by their exitDate.
+     * @param exitDate LocalDate.
+     * @return List<BCIActivityInstance> with the given exitDate.
+     * @throws IllegalArgumentException if outcome is null.
+     */
+    List<BCIActivityInstance> findByExitDate(LocalDate exitDate);
+
+    /**
+     * Finds a BCIActivityInstance by a Participant id.
      * @param id Long.
      * @return BCIActivityInstance with the given Participant id.
      * @throws IllegalArgumentException if id is null.
      */
-    BCIActivityInstance findByParticipantsId(Long id);
+    List<BCIActivityInstance> findByParticipantsId(Long id);
 }

@@ -61,7 +61,8 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
-        moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL, activities));
+        moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance("NOTSTARTED", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
+                OutcomeType.SUCCESSFUL, activities));
     }
 
     @Test

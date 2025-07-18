@@ -103,7 +103,6 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
         behaviorPerformanceInstance.setStatus("Behavior Performance Instance Java");
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
-        behaviorPerformanceInstance.setBciActivity(bciActivity);
         behaviorPerformanceInstance.addParticipant(participant);
 
         // Save in the database.
@@ -120,7 +119,6 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
         performanceInstance.setStatus("Behavior Performance Instance Java");
         performanceInstance.setEntryDate(localEntryDate);
         performanceInstance.setExitDate(localExitDate);
-        performanceInstance.setBciActivity(bciActivity);
 
         // Save in the database.
         when(behaviorPerformanceInstanceRepository.save(performanceInstance)).thenReturn(performanceInstance);

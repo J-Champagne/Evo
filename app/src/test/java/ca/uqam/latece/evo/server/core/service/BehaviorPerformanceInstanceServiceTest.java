@@ -174,7 +174,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         bciActivityInstance.setStatus("BCIActivity Instance Java");
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
-        bciActivityInstance.setBciActivity(bciActivity);
         bciActivityInstanceService.create(bciActivityInstance);
 
         // Create a behavior performance.
@@ -190,7 +189,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         behaviorPerformanceInstance.setStatus("Status Testing - Behavior Performance Instance Test");
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
-        behaviorPerformanceInstance.setBciActivity(bciActivity);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
         behaviorPerformanceInstance.addParticipant(participant);
         behaviorPerformanceInstanceService.create(behaviorPerformanceInstance);
@@ -226,7 +224,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         // Create a Behavior Performance instance.
         BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
         behaviorPerformanceInstance.setStatus("Status - Behavior Performance Instance Test - Save");
-        behaviorPerformanceInstance.setBciActivity(bciActivity);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
@@ -245,7 +242,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         BehaviorPerformanceInstance saved = new BehaviorPerformanceInstance();
         saved.setId(behaviorPerformanceInstance.getId());
         saved.setStatus("Status Update - Behavior Performance Instance Test - Update");
-        saved.setBciActivity(bciActivity2);
         saved.setEntryDate(localEntryDate);
         saved.setExitDate(localExitDate);
         saved.setBehaviorPerformance(behaviorPerformance);
@@ -276,7 +272,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         // Create a Behavior Performance instance.
         BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
         behaviorPerformanceInstance.setStatus("Status 123 - Behavior Performance Instance Test");
-        behaviorPerformanceInstance.setBciActivity(bciActivity);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
@@ -295,7 +290,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         // Create a Behavior Performance instance.
         BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
         behaviorPerformanceInstance.setStatus("Status-Behavior Performance Instance Test");
-        behaviorPerformanceInstance.setBciActivity(bciActivity);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
@@ -316,7 +310,6 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         // Create a Behavior Performance instance.
         BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
         behaviorPerformanceInstance.setStatus("Status 3 - Behavior Performance Instance Test");
-        behaviorPerformanceInstance.setBciActivity(bciActivity2);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);

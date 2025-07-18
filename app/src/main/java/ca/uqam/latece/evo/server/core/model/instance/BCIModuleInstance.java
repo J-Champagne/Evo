@@ -1,14 +1,14 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
-import ca.uqam.latece.evo.server.core.model.Activity;
+import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import io.micrometer.observation.annotation.Observed;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -24,7 +24,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "bci_module_instance")
 @JsonPropertyOrder("id, status, entrydate, exitdate, outcome")
-public class BCIModuleInstance extends ProcessInstance {
+public class BCIModuleInstance extends AbstractEvoModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bci_module_instance_id")
@@ -56,15 +56,9 @@ public class BCIModuleInstance extends ProcessInstance {
             name = "bci_module_instance_activities",
             joinColumns = @JoinColumn(name = "bci_module_instance_activities_module_id", referencedColumnName="bci_module_instance_id"),
             inverseJoinColumns = @JoinColumn(name = "bci_module_instance_activities_activity_id", referencedColumnName="bci_activity_instance_id"))
-    private List<BCIActivityInstance> activities;
+    private List<BCIActivityInstance> activities = new ArrayList<>();
 
-    @Transient
-    private List<ActivityInstance> activityInstances;
-
-    public BCIModuleInstance() {
-        this.activities = new ArrayList<>();
-        this.activityInstances = new ArrayList<>();
-    }
+    public BCIModuleInstance() {}
 
     public BCIModuleInstance(String status, OutcomeType outcome) {
         this.status = status;
@@ -73,6 +67,13 @@ public class BCIModuleInstance extends ProcessInstance {
 
     public BCIModuleInstance(String status, OutcomeType outcome, List<BCIActivityInstance> activities) {
         this(status, outcome);
+        this.activities = activities;
+    }
+
+    public BCIModuleInstance(String status, LocalDate entryDate, LocalDate exitDate, OutcomeType outcome, List<BCIActivityInstance> activities) {
+        this(status, outcome);
+        this.entryDate = entryDate;
+        this.exitDate = exitDate;
         this.activities = activities;
     }
 
@@ -86,33 +87,27 @@ public class BCIModuleInstance extends ProcessInstance {
         this.id = id;
     }
 
-    @Override
     public String getStatus() {
         return this.status;
     }
 
-    @Override
     public void setStatus(String status) {
 
         this.status = status;
     }
 
-    @Override
     public LocalDate getEntryDate() {
         return this.entryDate;
     }
 
-    @Override
     public void setEntryDate(LocalDate entryDate) {
         this.entryDate = entryDate;
     }
 
-    @Override
     public LocalDate getExitDate() {
         return this.exitDate;
     }
 
-    @Override
     public void setExitDate(LocalDate exitDate) {
         this.exitDate = exitDate;
     }
@@ -133,19 +128,6 @@ public class BCIModuleInstance extends ProcessInstance {
         this.activities = activities;
     }
 
-    @Override
-    public List<ActivityInstance> getActivityInstances() {
-        return activityInstances;
-    }
-
-    @Override
-    public void setActivityInstances(List<ActivityInstance> activityInstances) {
-        if (activityInstances != null && !activityInstances.isEmpty()) {
-            this.activityInstances.addAll(activityInstances);
-        }
-    }
-
-    @Override
     public boolean equals(Object object) {
         if (super.equals(object)) {
             BCIModuleInstance moduleInstance = (BCIModuleInstance) object;

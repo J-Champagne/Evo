@@ -104,7 +104,6 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
         goalSettingInstance.setStatus("Goal Setting Instance Java");
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
-        goalSettingInstance.setBciActivity(bciActivity);
         goalSettingInstance.addParticipant(participant);
 
         // Save in the database.

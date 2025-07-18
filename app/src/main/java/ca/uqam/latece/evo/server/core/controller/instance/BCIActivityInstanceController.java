@@ -4,20 +4,21 @@ import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
  * BCIActivityInstance Controller.
- * @version 1.0
  * @author Edilton Lima dos Santos
  * @author Julien Champagne.
  */
@@ -25,14 +26,17 @@ import java.util.List;
 @RequestMapping("/bciactivityinstance")
 public class BCIActivityInstanceController extends AbstractEvoController<BCIActivityInstance> {
     private static final Logger logger = LoggerFactory.getLogger(BCIActivityInstanceController.class);
-    @Qualifier("BCIActivityInstanceService")
+
     @Autowired
     private BCIActivityInstanceService bciActivityInstanceService;
 
     /**
-     * Inserts a BCIActivityInstance in the database.
-     * @param model The BCIActivityInstance entity.
-     * @return The saved BCIActivityInstance.
+     * Creates a BCIActivityInstance in the database.
+     * @param model BCIActivityInstance.
+     * @return The created BCIActivityInstance in JSON format.
+     * @throws IllegalArgumentException if model is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
@@ -61,8 +65,11 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
 
     /**
      * Updates a BCIActivityInstance in the database.
-     * @param model The BCIActivityInstance entity.
-     * @return The saved BCIActivityInstance.
+     * @param model BCIActivityInstance.
+     * @return The updated BCIActivityInstance in JSON format.
+     * @throws IllegalArgumentException if model is null.
+     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
+     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK) // 200
@@ -90,11 +97,10 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
     }
 
     /**
-     * Deletes the BCIActivityInstance with the given id.
-     * <p>
-     * If the BCIActivityInstance is not found in the persistence store it is silently ignored.
-     * @param id the unique identifier of the BCIActivityInstance to be retrieved; must not be null or invalid.
-     * @throws IllegalArgumentException in case the given id is null.
+     * Deletes a BCIActivityInstance by its id.
+     * Silently ignored if not found.
+     * @param id Long.
+     * @throws IllegalArgumentException if id is null.
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // 204
@@ -104,10 +110,40 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
         logger.info("BCIActivityInstance deleted: {}", id);
     }
 
+
     /**
-     * Retrieves a BCIActivityInstance by its id.
-     * @param id The BCIActivityInstance Id to filter BCIActivityInstance entities by, must not be null.
-     * @return the BCIActivityInstance with the given id or Optional#empty() if none found.
+     * Finds all BCIActivityInstance entities.
+     * @return List<BCIActivityInstance> in JSON format.
+     */
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK) // 200
+    @Override
+    public ResponseEntity<List<BCIActivityInstance>> findAll() {
+        ResponseEntity<List<BCIActivityInstance>> response;
+
+        try {
+            List<BCIActivityInstance> bciActivityList = bciActivityInstanceService.findAll();
+
+            if (bciActivityList != null && !bciActivityList.isEmpty()) {
+                response = new ResponseEntity<>(bciActivityList, HttpStatus.OK);
+                logger.info("Found all BCIActivityInstance : {}", bciActivityList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find all BCIActivityInstance entities.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find all BCIActivityInstance entities. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds a BCIActivityInstance by its id.
+     * @param id Long.
+     * @return BCIActivityInstance in JSON format.
+     * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
@@ -134,11 +170,12 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
         return response;
     }
 
+
     /**
-     * Checks if a BCIActivityInstance entity with the specified status exists in the repository.
-     * @param status the status of the BCIActivityInstance to check for existence, must not be null.
-     * @return A list of BCIActivityInstance with the specified status.
-     * @throws IllegalArgumentException if the status is null.
+     * Finds BCIActivityInstance entities by their status.
+     * @param status String.
+     * @return List<BCIActivityInstance> in JSON format.
+     * @throws IllegalArgumentException if status is null.
      */
     @GetMapping("/find/status/{status}")
     @ResponseStatus(HttpStatus.OK) // 200
@@ -151,64 +188,96 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
 
             if (foundList != null && !foundList.isEmpty()) {
                 response = new ResponseEntity<>(foundList, HttpStatus.OK);
-                logger.info("Found BCIActivityInstance list by status: {}", foundList);
+                logger.info("Found BCIActivityInstance entities by status: {}", foundList);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find BCIActivityInstance list by status.");
+                logger.info("Failed to find BCIActivityInstance entities by status.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find BCIActivityInstance list by status. Error: {}", e.getMessage());
+            logger.error("Failed to find BCIActivityInstance entities by status. Error: {}", e.getMessage());
         }
 
         return response;
     }
 
     /**
-     * Gets all BCIActivityInstance.
-     * @return all BCIActivityInstance.
+     * Finds BCIActivityInstance entities by their entryDate.
+     * @param entryDate LocalDate.
+     * @return List<BCIActivityInstance> in JSON format.
+     * @throws IllegalArgumentException if stage is null.
      */
-    @GetMapping
+    @GetMapping("/find/entrydate/{entryDate}")
     @ResponseStatus(HttpStatus.OK) // 200
-    @Override
-    public ResponseEntity<List<BCIActivityInstance>> findAll() {
+    public ResponseEntity<List<BCIActivityInstance>> findByEntryDate(@PathVariable String entryDate) {
         ResponseEntity<List<BCIActivityInstance>> response;
 
         try {
-            List<BCIActivityInstance> bciActivityList = bciActivityInstanceService.findAll();
+            LocalDate paramEntryDate = LocalDate.parse(entryDate);
+            List<BCIActivityInstance> foundList = bciActivityInstanceService.findByEntryDate(paramEntryDate);
 
-            if (bciActivityList != null && !bciActivityList.isEmpty()) {
-                response = new ResponseEntity<>(bciActivityList, HttpStatus.OK);
-                logger.info("Found all BCIActivityInstance : {}", bciActivityList);
+            if (foundList != null && !foundList.isEmpty()) {
+                response = new ResponseEntity<>(foundList, HttpStatus.OK);
+                logger.info("Found BCIActivityInstance entities by entryDate: {}", foundList);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find all BCIActivityInstance list.");
+                logger.info("Failed to find BCIActivityInstance entities by entryDate.");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find all BCIActivityInstance list. Error: {}", e.getMessage());
+            logger.error("Failed to find BCIActivityInstance entities by entryDate. Error: {}", e.getMessage());
         }
 
         return response;
     }
 
     /**
-     * Finds a BCIActivityInstance by its Participant id.
-     * @param id the Participant id.
-     * @return BCIActivityInstance in JSON format.
+     * Finds BCIActivityInstance entities by their exitDate.
+     * @param exitDate LocalDate.
+     * @return List<BCIActivityInstance> in JSON format.
+     * @throws IllegalArgumentException if stage is null.
+     */
+    @GetMapping("/find/exitdate/{exitDate}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<List<BCIActivityInstance>> findByExitDate(@PathVariable String exitDate) {
+        ResponseEntity<List<BCIActivityInstance>> response;
+
+        try {
+            LocalDate paramExitDate = LocalDate.parse(exitDate);
+            List<BCIActivityInstance> foundList = bciActivityInstanceService.findByExitDate(paramExitDate);
+
+            if (foundList != null && !foundList.isEmpty()) {
+                response = new ResponseEntity<>(foundList, HttpStatus.OK);
+                logger.info("Found BCIActivityInstance entities by exitDate: {}", foundList);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BCIActivityInstance entities by exitDate.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BCIActivityInstance entities by exitDate. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds BCIActivityInstance entities by the id of a Participant.
+     * @param id Long.
+     * @return List<BCIActivityInstance> in JSON format.
      * @throws IllegalArgumentException if id is null.
      */
     @GetMapping("/find/participants/{id}")
     @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<BCIActivityInstance> findByParticipantsId(@PathVariable Long id) {
-        ResponseEntity<BCIActivityInstance> response;
+    public ResponseEntity<List<BCIActivityInstance>> findByParticipantsId(@PathVariable Long id) {
+        ResponseEntity<List<BCIActivityInstance>> response;
 
         try {
-            BCIActivityInstance bciActivityList = bciActivityInstanceService.findByParticipantsId(id);
+            List<BCIActivityInstance> result = bciActivityInstanceService.findByParticipantsId(id);
 
-            if (bciActivityList != null) {
-                response = new ResponseEntity<>(bciActivityList, HttpStatus.OK);
-                logger.info("Found BCIActivityInstance by participant id : {}", bciActivityList);
+            if (result != null) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found BCIActivityInstance by participant id : {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
                 logger.info("Failed to find BCIActivityInstance by participant id.");

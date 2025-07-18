@@ -199,7 +199,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         bciActivityInstance.setStatus("BCIActivity Instance Java");
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
-        bciActivityInstance.setBciActivity(bciActivity);
         bciActivityInstanceService.create(bciActivityInstance);
 
         // Save a GoalSettingInstance
@@ -207,7 +206,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
-        goalSettingInstance.setBciActivity(bciActivity2);
         goalSettingInstance.addParticipant(participant);
         goalSettingInstanceService.create(goalSettingInstance);
     }
@@ -246,7 +244,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
-        goalSettingInstance.setBciActivity(bciActivity2);
         // Save the Goal Setting Instance.
         GoalSettingInstance saved = goalSettingInstanceService.create(goalSettingInstance);
 
@@ -264,7 +261,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         instance.setGoalSetting(goalSetting2);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
-        instance.setBciActivity(bciActivity2);
         // Updated the Goal Setting Instance.
         GoalSettingInstance updated = goalSettingInstanceService.update(instance);
 
@@ -293,7 +289,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
-        goalSettingInstance.setBciActivity(bciActivity2);
 
         // Save the Goal Setting Instance.
         GoalSettingInstance saved = goalSettingInstanceService.create(goalSettingInstance);
@@ -313,7 +308,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
-        goalSettingInstance.setBciActivity(bciActivity2);
 
         // Save the Goal Setting Instance.
         GoalSettingInstance saved = goalSettingInstanceService.create(goalSettingInstance);
@@ -348,7 +342,6 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         settingInstance.setGoalSetting(savedGoalSetting);
         settingInstance.setEntryDate(localEntryDate);
         settingInstance.setExitDate(localExitDate);
-        settingInstance.setBciActivity(bciActivity2);
 
         // Save the Goal Setting Instance.
         GoalSettingInstance saved = goalSettingInstanceService.create(settingInstance);

@@ -57,13 +57,12 @@ healthcare_professional table: This table stores information about health care p
   - healthcare_professional_fkey: Ensures that healthcare_professional_actor_id references a valid actor in the actor table.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS healthcare_professional (
-    healthcare_professional_id BIGSERIAL NOT NULL,
+    healthcare_professional_id BIGINT NOT NULL,
     healthcare_professional_position VARCHAR,
     healthcare_professional_affiliation VARCHAR,
     healthcare_professional_specialties VARCHAR,
-    healthcare_professional_actor_id BIGINT NULL,
     CONSTRAINT healthcare_professional_pkey PRIMARY KEY (healthcare_professional_id),
-    CONSTRAINT healthcare_professional_fkey FOREIGN KEY (healthcare_professional_actor_id) REFERENCES actor (actor_id)
+    CONSTRAINT healthcare_professional_actor_fkey FOREIGN KEY (healthcare_professional_id) REFERENCES actor (actor_id)
 );
 
 /***********************************************************************************************************************
@@ -95,14 +94,13 @@ patient table: This table stores information about patients (a subtype of Actors
   - patient_fkey: Ensures that patient_actor_id references a valid actor in the actor table.
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS patient (
-    patient_id BIGSERIAL NOT NULL,
+    patient_id BIGINT NOT NULL,
     patient_birthdate VARCHAR,
     patient_occupation VARCHAR,
     patient_address VARCHAR,
-    patient_actor_id BIGINT NULL,
     patient_patient_medical_file_id BIGINT NULL,
     CONSTRAINT patient_pkey PRIMARY KEY (patient_id),
-    CONSTRAINT patient_fkey FOREIGN KEY (patient_actor_id) REFERENCES actor (actor_id),
+    CONSTRAINT patient_actor_fkey FOREIGN KEY (patient_id) REFERENCES actor (actor_id),
     CONSTRAINT patient_patient_medicalfile_fkey FOREIGN KEY (patient_patient_medical_file_id) REFERENCES patient_medicalfile (patient_medicalfile_id)
 );
 
@@ -117,7 +115,6 @@ participant table: This table stores information about participants.
   - participant_actor_id_fkey: Ensures that participant_actor references a valid actor in the actor table.
   - participant_role_fkey: Ensures that participant_role references a valid role in the role table.
   ***********************************************************************************************************************/
-
 CREATE TABLE IF NOT EXISTS participant (
     participant_id BIGSERIAL NOT NULL,
     participant_role_id BIGINT NOT NULL,
@@ -268,30 +265,36 @@ CREATE TABLE IF NOT EXISTS bci_activity (
     CONSTRAINT bci_activity_name_ukey UNIQUE (bci_activity_name)
 );
 
-/***********************************************************************************************************************
-bci_activity_instance table: This table stores details about Behavior Change Technique Intervention Activity Instance.
-- Columns:
-  - bci_activity_instance_id: A unique identifier for each Behavior Change Technique Intervention Activity Instance,
-  auto-incremented.
-  - bci_activity_instance_status: Define a bci_activity_instance status.
-  - bci_activity_instance_entry_date: A string to define a preconditions of Behavior Change Technique Intervention Activity.
-  - bci_activity_instance_exit_date: A string to define a post-conditions of Behavior Change Technique Intervention Activity.
-  - bci_activity_instance_bci_id: This foreign key is used to mapping the relationship between a bci_activity_instance
-  and bci_activity. Consequently, the bci_activity_instance_bci_id key referencing a bci_activity_id in the bci_activity table.
-- Constraints:
-  - bci_activity_pkey: Establishes bci_activity_instance_id as the primary key.
-  - bci_activity_instance_bci_fkey: Ensures that bci_activity_instance_bci_id references a valid record in the bci_activity table.
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+    activity_instance table: Holds data for the instances of activity (ActivityInstance class).
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS activity_instance (
+    activity_instance_id BIGSERIAL NOT NULL,
+    activity_instance_status VARCHAR(128) NULL,
+    activity_instance_entry_date DATE NULL,
+    activity_instance_exit_date DATE NULL,
+    CONSTRAINT activity_instance_pkey PRIMARY KEY (activity_instance_id)
+);
+
+/**********************************************************************************************************************
+    bci_activity_instance table: Holds data for the instances of bci_activity (BCIActivityInstance class).
+ **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_activity_instance (
-    bci_activity_instance_id BIGSERIAL NOT NULL,
-    bci_activity_instance_status VARCHAR(128) NOT NULL,
-    bci_activity_instance_entry_date DATE NOT NULL,
-    bci_activity_instance_exit_date DATE NOT NULL,
-    bci_activity_instance_bci_id BIGINT NULL,
-    bci_activity_instance_participant_id BIGINT NULL,
+    bci_activity_instance_id BIGINT NOT NULL,
     CONSTRAINT bci_activity_instance_pkey PRIMARY KEY (bci_activity_instance_id),
-    CONSTRAINT bci_activity_instance_bci_fkey FOREIGN KEY (bci_activity_instance_bci_id) REFERENCES bci_activity (bci_activity_id),
-    CONSTRAINT bci_activity_instance_participant_id_fkey FOREIGN KEY (bci_activity_instance_participant_id) REFERENCES participant (participant_id)
+    CONSTRAINT bci_activity_instance_activity_instance_fkey FOREIGN KEY (bci_activity_instance_id) REFERENCES activity_instance (activity_instance_id)
+);
+
+/***********************************************************************************************************************
+    bci_activity_instance_participants table: Junction table for the many-to-many relationship
+        between bci_activity_instance and participant.
+ **********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS bci_activity_instance_participants (
+    bci_activity_instance_participants_bci_activity_instance_id BIGINT NOT NULL,
+    bci_activity_instance_participants_participant_id BIGINT NOT NULL,
+    CONSTRAINT  bci_activity_instance_participants_pk PRIMARY KEY (bci_activity_instance_participants_bci_activity_instance_id, bci_activity_instance_participants_participant_id),
+    CONSTRAINT  bci_activity_instance_participants_bci_activity_fkey FOREIGN KEY (bci_activity_instance_participants_bci_activity_instance_id) REFERENCES bci_activity_instance (bci_activity_instance_id),
+    CONSTRAINT  bci_activity_instance_participants_participant_fkey FOREIGN KEY (bci_activity_instance_participants_participant_id) REFERENCES participant (participant_id)
 );
 
 /***********************************************************************************************************************

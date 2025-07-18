@@ -84,7 +84,6 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         bciActivityInstance.setStatus("BCIActivity Instance Java");
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
-        bciActivityInstance.setBciActivity(bciActivity);
         bciActivityInstance.addParticipant(participant);
 
         // Save in the database.
@@ -162,9 +161,9 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityInstanceRepository.save
         when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
         // Mock behavior for bciActivityInstanceRepository.findAll().
-        when(bciActivityInstanceRepository.findByParticipantsId(participant.getId())).thenReturn((bciActivityInstance));
+        when(bciActivityInstanceRepository.findByParticipantsId(participant.getId())).thenReturn(Collections.singletonList(bciActivityInstance));
         // Perform a GET request to test the controller.
-        performGetRequest(URL_FIND + "participants/" + participant.getId(), "$.participants.[0].id",
+        performGetRequest(URL_FIND + "participants/" + participant.getId(), "$[0].participants.[0].id",
                 participant.getId());
     }
 }
