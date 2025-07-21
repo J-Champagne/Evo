@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
+import ca.uqam.latece.evo.server.core.interfaces.ProcessInstance;
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -24,7 +25,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "bci_module_instance")
 @JsonPropertyOrder("id, status, entrydate, exitdate, outcome")
-public class BCIModuleInstance extends AbstractEvoModel {
+public class BCIModuleInstance extends AbstractEvoModel implements ProcessInstance<BCIActivityInstance> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bci_module_instance_id")
@@ -120,12 +121,33 @@ public class BCIModuleInstance extends AbstractEvoModel {
         this.outcome = outcome;
     }
 
+    @Override
     public List<BCIActivityInstance> getActivities() {
         return activities;
     }
 
-    public void setActivities(List<BCIActivityInstance> activities) {
-        this.activities = activities;
+    @Override
+    public void addActivity(BCIActivityInstance activityInstance) {
+        if (activityInstance != null) {
+            this.activities.add(activityInstance);
+        }
+    }
+
+    @Override
+    public void addActivities(List<BCIActivityInstance> activityInstances) {
+        if (activityInstances != null) {
+            this.activities.addAll(activityInstances);
+        }
+    }
+
+    @Override
+    public boolean removeActivity(BCIActivityInstance activityInstance) {
+        boolean removed = false;
+
+        if (activities != null) {
+           removed = activities.remove(activityInstance);
+       }
+        return removed;
     }
 
     public boolean equals(Object object) {
