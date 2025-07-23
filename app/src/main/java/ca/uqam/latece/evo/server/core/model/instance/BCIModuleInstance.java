@@ -24,29 +24,9 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "bci_module_instance")
-@JsonPropertyOrder("id, status, entrydate, exitdate, outcome")
-public class BCIModuleInstance extends AbstractEvoModel implements ProcessInstance<BCIActivityInstance> {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bci_module_instance_id")
-    private Long id;
-
-    @NotNull
-    @Column(name="bci_module_instance_status", nullable = false, length = 128)
-    private String status;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
-    @Column(name = "bci_module_instance_entrydate")
-    private LocalDate entryDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
-    @Column(name = "bci_module_instance_exitdate")
-    private LocalDate exitDate;
-
+@JsonPropertyOrder("outcome")
+@PrimaryKeyJoinColumn(name="bci_module_instance_id", referencedColumnName = "activity_instance_id")
+public class BCIModuleInstance extends ActivityInstance implements ProcessInstance<BCIActivityInstance> {
     @Enumerated(EnumType.STRING)
     @Column(name = "bci_module_instance_outcome")
     private OutcomeType outcome;
@@ -62,55 +42,20 @@ public class BCIModuleInstance extends AbstractEvoModel implements ProcessInstan
     public BCIModuleInstance() {}
 
     public BCIModuleInstance(String status, OutcomeType outcome) {
-        this.status = status;
+        super(status);
         this.outcome = outcome;
     }
 
     public BCIModuleInstance(String status, OutcomeType outcome, List<BCIActivityInstance> activities) {
         this(status, outcome);
-        this.activities = activities;
+        this.addActivities(activities);
     }
 
-    public BCIModuleInstance(String status, LocalDate entryDate, LocalDate exitDate, OutcomeType outcome, List<BCIActivityInstance> activities) {
-        this(status, outcome);
-        this.entryDate = entryDate;
-        this.exitDate = exitDate;
-        this.activities = activities;
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getStatus() {
-        return this.status;
-    }
-
-    public void setStatus(String status) {
-
-        this.status = status;
-    }
-
-    public LocalDate getEntryDate() {
-        return this.entryDate;
-    }
-
-    public void setEntryDate(LocalDate entryDate) {
-        this.entryDate = entryDate;
-    }
-
-    public LocalDate getExitDate() {
-        return this.exitDate;
-    }
-
-    public void setExitDate(LocalDate exitDate) {
-        this.exitDate = exitDate;
+    public BCIModuleInstance(String status, LocalDate entryDate, LocalDate exitDate, OutcomeType outcome,
+                             List<BCIActivityInstance> activities) {
+        super(status, entryDate, exitDate);
+        this.outcome = outcome;
+        this.addActivities(activities);
     }
 
     public OutcomeType getOutcome() {
@@ -150,6 +95,7 @@ public class BCIModuleInstance extends AbstractEvoModel implements ProcessInstan
         return removed;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (super.equals(object)) {
             BCIModuleInstance moduleInstance = (BCIModuleInstance) object;
@@ -162,6 +108,6 @@ public class BCIModuleInstance extends AbstractEvoModel implements ProcessInstan
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getId(), this.getOutcome(), this.getActivities());
+        return Objects.hash(super.hashCode(), this.getOutcome(), this.getActivities());
     }
 }

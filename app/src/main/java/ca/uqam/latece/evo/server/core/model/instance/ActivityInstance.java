@@ -49,6 +49,11 @@ public class ActivityInstance extends AbstractEvoModel {
 
     public ActivityInstance() {}
 
+    public ActivityInstance(String status) {
+        this.status = status;
+        this.entryDate = LocalDate.now();
+    }
+
     public ActivityInstance(@NotNull String status, LocalDate entryDate, LocalDate exitDate) {
         this.status = status;
         this.entryDate = entryDate;

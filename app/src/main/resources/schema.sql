@@ -809,12 +809,10 @@ CREATE TABLE IF NOT EXISTS bci_block_instance_activities (
     bci_module_instance table: Holds data for the instances of bci_module (BCIModuleInstance class).
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_module_instance (
-    bci_module_instance_id BIGSERIAL NOT NULL,
-    bci_module_instance_status VARCHAR(128) NOT NULL,
-    bci_module_instance_entrydate DATE NULL,
-    bci_module_instance_exitdate DATE NULL,
+    bci_module_instance_id BIGINT NOT NULL,
     bci_module_instance_outcome VARCHAR(128) NULL,
-    CONSTRAINT bci_module_instance_pk PRIMARY KEY (bci_module_instance_id)
+    CONSTRAINT bci_module_instance_pk PRIMARY KEY (bci_module_instance_id),
+    CONSTRAINT bci_module_instance_activity_instance_fkey FOREIGN KEY (bci_module_instance_id) REFERENCES activity_instance (activity_instance_id)
 );
 
 /***********************************************************************************************************************
