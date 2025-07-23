@@ -1,12 +1,12 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,14 +16,10 @@ import java.util.Objects;
  * @author Julien Champagne.
  */
 @Entity
+@JsonPropertyOrder({"stage"})
 @Table(name = "bci_block_instance")
-@JsonPropertyOrder({"id", "stage"})
-public class BehaviorChangeInterventionBlockInstance extends AbstractEvoModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bci_block_instance_id")
-    private Long id;
-
+@PrimaryKeyJoinColumn(name="bci_block_instance_id", referencedColumnName = "activity_instance_id")
+public class BehaviorChangeInterventionBlockInstance extends ActivityInstance {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "bci_block_instance_stage", length = 128, nullable = false)
@@ -35,30 +31,29 @@ public class BehaviorChangeInterventionBlockInstance extends AbstractEvoModel {
             name = "bci_block_instance_activities",
             joinColumns = @JoinColumn(name = "bci_block_instance_activities_block_id", referencedColumnName="bci_block_instance_id"),
             inverseJoinColumns = @JoinColumn(name = "bci_block_instance_activities_activity_id", referencedColumnName="bci_activity_instance_id"))
-    private List<BCIActivityInstance> activities;
+    private List<BCIActivityInstance> activities = new ArrayList<>();
 
-    public BehaviorChangeInterventionBlockInstance() {
-        activities = new ArrayList<>();
+    public BehaviorChangeInterventionBlockInstance() {}
+
+    public BehaviorChangeInterventionBlockInstance(String status) {
+        super(status);
     }
 
-    public BehaviorChangeInterventionBlockInstance(TimeCycle stage) {
-        this.stage = stage;
-        this.activities = new ArrayList<>();
+    public BehaviorChangeInterventionBlockInstance(String status, TimeCycle stage) {
+       this(status);
+       this.stage = stage;
     }
 
-    public BehaviorChangeInterventionBlockInstance(TimeCycle stage, List<BCIActivityInstance> activities) {
-        this.stage = stage;
+    public BehaviorChangeInterventionBlockInstance(String status, TimeCycle stage, List<BCIActivityInstance> activities) {
+        this(status, stage);
         this.activities = activities;
     }
 
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
+    public BehaviorChangeInterventionBlockInstance(String status, LocalDate entryDate, LocalDate exitDate, TimeCycle stage,
+                                                   List<BCIActivityInstance> activities) {
+        super(status, entryDate, exitDate);
+        this.stage = stage;
+        this.activities = activities;
     }
 
     public TimeCycle getStage() {
@@ -90,6 +85,6 @@ public class BehaviorChangeInterventionBlockInstance extends AbstractEvoModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getId(), this.getStage(), this.getActivities());
+        return Objects.hash(super.hashCode(), this.getStage(), this.getActivities());
     }
 }

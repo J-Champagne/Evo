@@ -52,7 +52,7 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
-    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(TimeCycle.BEGINNING, activities);
+    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.BEGINNING, activities);
 
     private static final String url = "/behaviorchangeinterventionblockinstance";
 
@@ -74,7 +74,7 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
     @Test
     @Override
     void testUpdate() throws Exception {
-        BehaviorChangeInterventionBlockInstance updated = new BehaviorChangeInterventionBlockInstance(TimeCycle.END, blockInstance.getActivities());
+        BehaviorChangeInterventionBlockInstance updated = new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.END, blockInstance.getActivities());
         updated.setId(blockInstance.getId());
 
         when(bciBlockInstanceRepository.save(updated)).thenReturn(updated);

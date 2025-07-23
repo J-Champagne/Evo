@@ -68,7 +68,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         modules.add(moduleInstance);
 
         BehaviorChangeInterventionBlockInstance blockInstance = behaviorChangeInterventionBlockInstanceService.
-                create(new BehaviorChangeInterventionBlockInstance(TimeCycle.BEGINNING, activities));
+                create(new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.BEGINNING, activities));
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>();
         blocks.add(blockInstance);
 

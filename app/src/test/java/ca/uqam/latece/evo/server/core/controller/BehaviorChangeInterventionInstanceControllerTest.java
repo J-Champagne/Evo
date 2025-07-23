@@ -63,7 +63,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
-    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(TimeCycle.BEGINNING,
+    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.BEGINNING,
             activities);
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);

@@ -59,7 +59,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
-    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(TimeCycle.BEGINNING,
+    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.BEGINNING,
             activities);
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
@@ -88,8 +88,8 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
     @Test
     @Override
     void testUpdate() throws Exception {
-        BehaviorChangeInterventionBlockInstance blockInstance2 = new BehaviorChangeInterventionBlockInstance(TimeCycle.END,
-                activities);
+        BehaviorChangeInterventionBlockInstance blockInstance2 = new BehaviorChangeInterventionBlockInstance("NOTSTARTED",
+                TimeCycle.END, activities);
         blockInstance2.setId(2L);
         when(bciBlockInstanceRepository.save(blockInstance2)).thenReturn(blockInstance2);
 

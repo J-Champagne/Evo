@@ -72,7 +72,8 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         activities.add(activityInstance);
 
         blockInstance = behaviorChangeInterventionBlockInstanceService.
-                    create(new BehaviorChangeInterventionBlockInstance(TimeCycle.MIDDLE, activities));
+                    create(new BehaviorChangeInterventionBlockInstance("Started", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
+                            TimeCycle.MIDDLE, activities));
     }
 
     @Test
@@ -107,7 +108,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     @Test
     @Override
     void testFindAll() {
-        behaviorChangeInterventionBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance(TimeCycle.MIDDLE));
+        behaviorChangeInterventionBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.MIDDLE));
         List<BehaviorChangeInterventionBlockInstance> results = behaviorChangeInterventionBlockInstanceService.findAll();
 
         assertEquals(2, results.size());

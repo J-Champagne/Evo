@@ -4,8 +4,6 @@ import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -22,8 +20,6 @@ import java.util.Objects;
  * @author Julien Champagne
  */
 @Entity
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "sub_type", include = JsonTypeInfo.As.PROPERTY, visible = true)
-@JsonSubTypes({@JsonSubTypes.Type(value = BCIActivityInstance.class, name = "BCIActivityInstance")})
 @JsonPropertyOrder({"id", "status", "entryDate", "exitDate"})
 @Inheritance(strategy = InheritanceType.JOINED)
 public class ActivityInstance extends AbstractEvoModel {
