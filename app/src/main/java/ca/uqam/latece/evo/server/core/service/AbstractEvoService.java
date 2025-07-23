@@ -1,12 +1,18 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.EvoEvent;
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -16,9 +22,12 @@ import java.util.List;
  * @author Edilton Lima dos Santos.
  */
 @Service
-public abstract class AbstractEvoService <T extends AbstractEvoModel> {
+public abstract class AbstractEvoService <T extends AbstractEvoModel> implements ApplicationEventPublisherAware {
     private static final Logger logger = LoggerFactory.getLogger(AbstractEvoService.class);
     protected static final String ERROR_NAME_ALREADY_REGISTERED = "Name already registered!";
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * Creates a evoModel in the database.
@@ -49,9 +58,10 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> {
      * @return an exception object.
      */
     protected IllegalArgumentException createDuplicatedNameException(AbstractEvoModel evoModel, String duplicatedNameText) {
-        final String EMPTY_SPACE = " ";
-        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(ERROR_NAME_ALREADY_REGISTERED +
-                EMPTY_SPACE + evoModel.getClass().getSimpleName() + " Name: " + duplicatedNameText);
+        String errorMessage = String.format("%s %s Name: %s", ERROR_NAME_ALREADY_REGISTERED,
+                evoModel.getClass().getSimpleName(), duplicatedNameText);
+
+        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(errorMessage);
         logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
         return illegalArgumentException;
     }
@@ -93,4 +103,83 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> {
      * @return all AbstractEvoModel.
      */
     public abstract List<T> findAll();
+
+    /**
+     * Sets the application event publisher for the service. This allows the service to publish application-wide
+     * events using the provided {@link ApplicationEventPublisher}.
+     * @param applicationEventPublisher the event publisher to be set. Must not be null.
+     */
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
+
+    /**
+     * Build the Event error message.
+     * @param event the model for which the event is published. Must not be null.
+     */
+    private void buildEventErrorMessage(EvoEvent<T> event){
+        String errorMessage = String.format("Application Event Publisher is null. Cannot publish event: %s", event);
+        IllegalArgumentException illegalArgumentException = new IllegalArgumentException(errorMessage);
+        logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
+    }
+
+    /**
+     * Publishes an event for the given evoModel using the application's event publisher.
+     * @param evoModel the model for which the event is published. Must not be null.
+     * @throws IllegalArgumentException if the {@code applicationEventPublisher} is null, logging the relevant error.
+     */
+    public final void publishEvent(@NotNull T evoModel) {
+        this.publishEvent(evoModel, TimeCycle.UNSPECIFIED);
+    }
+
+    /**
+     * Publishes an event for the given evoModel and timeCycle using the application's event publisher.
+     * @param evoModel the model for which the event is published. Must not be null.
+     * @param timeCycle the timeCycle instance used to define the status.
+     * @throws IllegalArgumentException if the {@code applicationEventPublisher} or {@code timeCycle} is null, logging
+     * the relevant error.
+     */
+    public final void publishEvent(@NotNull T evoModel, @NotNull TimeCycle timeCycle) {
+        EvoEvent<T> event = null;
+
+        if (this.applicationEventPublisher != null) {
+            event = new EvoEvent<>(evoModel, timeCycle);
+            this.applicationEventPublisher.publishEvent(event);
+            logger.info("{} created with event: {} and TimeCycle: {}", evoModel.getClass().getSimpleName(), event, timeCycle);
+        } else {
+            this.buildEventErrorMessage(event);
+        }
+    }
+
+    /**
+     * Publishes an event for the given evoModel and clock using the application's event publisher.
+     * @param evoModel the model associated with this event, which must not be null.
+     *                 The type of the model must extend {@code AbstractEvoModel}.
+     * @param clock the clock instance used to timestamp this event, which must not be null.
+     * @throws NullPointerException if {@code evoModel} or {@code clock} is null.
+     */
+    public final void publishEvent(@NotNull T evoModel, @NotNull Clock clock) {
+        this.publishEvent(evoModel, clock, TimeCycle.UNSPECIFIED);
+    }
+
+    /**
+     * Publishes an event for the given evoModel, clock, and timeCycle using the application's event publisher.
+     * @param evoModel the model associated with this event, which must not be null.
+     *                 The type of the model must extend {@code AbstractEvoModel}.
+     * @param clock the clock instance used to timestamp this event, which must not be null.
+     * @param timeCycle the timeCycle instance used to define the status.
+     * @throws NullPointerException if {@code evoModel} or {@code clock} is null.
+     */
+    public final void publishEvent(@NotNull T evoModel, @NotNull Clock clock, TimeCycle timeCycle) {
+        EvoEvent<T> event = null;
+
+        if (this.applicationEventPublisher != null) {
+            event = new EvoEvent<>(evoModel, clock, timeCycle);
+            this.applicationEventPublisher.publishEvent(event);
+            logger.info("{} created with event: {} || Clock: {} || TimeCycle: {}", evoModel.getClass().getSimpleName(), event, clock, timeCycle);
+        } else {
+            this.buildEventErrorMessage(event);
+        }
+    }
 }

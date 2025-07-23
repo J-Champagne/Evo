@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +19,7 @@ import java.util.List;
 /**
  * BehaviorChangeInterventionBlockInstance Service.
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Service
 @Transactional
@@ -27,15 +27,13 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     private static final Logger logger = LoggerFactory.getLogger(BehaviorChangeInterventionBlockInstanceService.class);
 
     @Autowired
-    BehaviorChangeInterventionBlockInstanceRepository bciBlockInstanceRepository;
+    private BehaviorChangeInterventionBlockInstanceRepository bciBlockInstanceRepository;
 
     /**
      * Creates a BehaviorChangeInterventionBlockInstance in the database.
      * @param blockInstance BehaviorChangeInterventionBlockInstance.
      * @return The created BehaviorChangeInterventionBlockInstance.
      * @throws IllegalArgumentException if blockInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionBlockInstance create(BehaviorChangeInterventionBlockInstance blockInstance) {
@@ -46,6 +44,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
         ObjectValidator.validateObject(blockInstance.getActivities());
 
         saved = this.bciBlockInstanceRepository.save(blockInstance);
+        this.publishEvent(saved);
         logger.info("BehaviorChangeInterventionBlockInstance created: {}", saved);
         return saved;
     }
@@ -55,8 +54,6 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      * @param blockInstance BehaviorChangeInterventionBlockInstance.
      * @return The updated BehaviorChangeInterventionBlockInstance.
      * @throws IllegalArgumentException if blockInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionBlockInstance update(BehaviorChangeInterventionBlockInstance blockInstance) {
@@ -69,6 +66,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
 
         if (found != null) {
             updated = this.bciBlockInstanceRepository.save(blockInstance);
+            this.publishEvent(updated, updated.getStage());
         }
         return updated;
     }
@@ -78,8 +76,6 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      * @param blockInstance BehaviorChangeInterventionBlockInstance.
      * @return The saved BehaviorChangeInterventionBlockInstance.
      * @throws IllegalArgumentException if blockInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionBlockInstance save(BehaviorChangeInterventionBlockInstance blockInstance) {
@@ -89,7 +85,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     /**
      * Deletes a BehaviorChangeInterventionBlockInstance by its id.
      * Silently ignored if not found.
-     * @param id Long.
+     * @param id Behavior Change Intervention Block Instance id.
      * @throws IllegalArgumentException if id is null.
      */
     public void deleteById(Long id) {
@@ -99,16 +95,8 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     }
 
     /**
-     * Finds all BehaviorChangeInterventionBlockInstance entities.
-     * @return List<BehaviorChangeInterventionBlockInstance>.
-     */
-    public List<BehaviorChangeInterventionBlockInstance> findAll() {
-        return this.bciBlockInstanceRepository.findAll();
-    }
-
-    /**
      * Finds a BehaviorChangeInterventionBlockInstance by its id.
-     * @param id Long.
+     * @param id Behavior Change Intervention Block Instance id.
      * @return BehaviorChangeInterventionBlockInstance with the given id.
      * @throws IllegalArgumentException if id is null.
      */
@@ -116,14 +104,14 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     public BehaviorChangeInterventionBlockInstance findById(Long id) {
         ObjectValidator.validateId(id);
         return this.bciBlockInstanceRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("BehaviorChangeInterventionBlockInstance not found"));
+                orElseThrow(() -> new EntityNotFoundException("BehaviorChangeInterventionBlockInstance not found."));
     }
 
     /**
      * Finds BehaviorChangeInterventionBlockInstance entities by their stage.
      * @param stage TimeCycle.
-     * @return List<BehaviorChangeInterventionBlockInstance> with the given stage.
-     * @throws IllegalArgumentException if stage is null.
+     * @return List of BehaviorChangeInterventionBlockInstance with the given stage.
+     * @throws IllegalArgumentException if the stage is null.
      */
     public List<BehaviorChangeInterventionBlockInstance> findByStage(TimeCycle stage) {
         ObjectValidator.validateObject(stage);
@@ -132,8 +120,8 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
 
     /**
      * Finds BehaviorChangeInterventionBlockInstance entities by their BCIActivityInstance id.
-     * @param id Long.
-     * @return List<BehaviorChangeInterventionBlockInstance> with the given BCIActivityInstance id.
+     * @param id Behavior Change Intervention Block Instance id.
+     * @return List of BehaviorChangeInterventionBlockInstance with the given BCIActivityInstance id.
      * @throws IllegalArgumentException if id is null.
      */
     public List<BehaviorChangeInterventionBlockInstance> findByActivitiesId(Long id) {
@@ -143,13 +131,21 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
 
     /**
      * Checks if a BehaviorChangeInterventionBlockInstance exists in the database by its id
-     * @param id Long
-     * @return boolean
+     * @param id Behavior Change Intervention Block Instance id.
+     * @return True if existed, otherwise false.
      * @throws IllegalArgumentException if id is null.
      */
     @Override
     public boolean existsById(Long id) {
         ObjectValidator.validateId(id);
         return this.bciBlockInstanceRepository.existsById(id);
+    }
+
+    /**
+     * Finds all BehaviorChangeInterventionBlockInstance entities.
+     * @return List of BehaviorChangeInterventionBlockInstance.
+     */
+    public List<BehaviorChangeInterventionBlockInstance> findAll() {
+        return this.bciBlockInstanceRepository.findAll();
     }
 }

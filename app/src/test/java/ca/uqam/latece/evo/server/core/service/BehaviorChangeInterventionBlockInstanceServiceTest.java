@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.EvoEvent;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
@@ -10,10 +11,14 @@ import ca.uqam.latece.evo.server.core.service.instance.*;
 
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
+import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,6 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Julien Champagne.
  * @author Edilton Lima dos Santos.
  */
+@RecordApplicationEvents
+@ApplicationScope
 @ContextConfiguration(classes = {BehaviorChangeInterventionBlockInstance.class, BehaviorChangeInterventionBlockInstanceService.class})
 public class BehaviorChangeInterventionBlockInstanceServiceTest extends AbstractServiceTest {
     @Autowired
@@ -46,6 +53,9 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     private HealthCareProfessionalService healthCareProfessionalService;
 
     private BehaviorChangeInterventionBlockInstance blockInstance;
+
+    @Autowired
+    private ApplicationEvents applicationEvents;
 
     @BeforeEach
     public void setUp() {
@@ -118,5 +128,15 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
 
         assertEquals(1, found.size());
         assertEquals(blockInstance.getId(), found.getFirst().getId());
+    }
+
+    @Test
+    void testPublishEvent() {
+        blockInstance.setStage(TimeCycle.BEGINNING);
+        BehaviorChangeInterventionBlockInstance updated = behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+        assertEquals(blockInstance.getStage(), updated.getStage());
+
+        assertEquals(1, applicationEvents.stream(EvoEvent.class).
+                filter(event -> event.getTimeCycle().equals(TimeCycle.BEGINNING)).count());
     }
 }
