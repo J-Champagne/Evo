@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionBlockInstanceRepository;
 
@@ -44,7 +45,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
         ObjectValidator.validateObject(blockInstance.getActivities());
 
         saved = this.bciBlockInstanceRepository.save(blockInstance);
-        this.publishEvent(saved);
+        this.publishEvent(new BCIBlockInstanceEvent(saved, saved.getStage()));
         logger.info("BehaviorChangeInterventionBlockInstance created: {}", saved);
         return saved;
     }
@@ -66,7 +67,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
 
         if (found != null) {
             updated = this.bciBlockInstanceRepository.save(blockInstance);
-            this.publishEvent(updated, updated.getStage());
+            this.publishEvent(new BCIBlockInstanceEvent(updated));
         }
         return updated;
     }

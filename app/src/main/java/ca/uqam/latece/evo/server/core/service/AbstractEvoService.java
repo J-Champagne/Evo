@@ -115,13 +115,16 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
     }
 
     /**
-     * Build the Event error message.
-     * @param event the model for which the event is published. Must not be null.
+     * Constructs an {@code IllegalArgumentException} with an error message indicating that the
+     * application event publisher is null and cannot publish the provided event.
+     * @param event the event that could not be published because the application event publisher is null.
+     * @return an {@code IllegalArgumentException} constructed with the appropriate error message.
      */
-    private void buildEventErrorMessage(EvoEvent<T> event){
+    private IllegalArgumentException buildEventException(EvoEvent<T> event){
         String errorMessage = String.format("Application Event Publisher is null. Cannot publish event: %s", event);
         IllegalArgumentException illegalArgumentException = new IllegalArgumentException(errorMessage);
         logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
+        return illegalArgumentException;
     }
 
     /**
@@ -148,7 +151,7 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
             this.applicationEventPublisher.publishEvent(event);
             logger.info("{} created with event: {} and TimeCycle: {}", evoModel.getClass().getSimpleName(), event, timeCycle);
         } else {
-            this.buildEventErrorMessage(event);
+           throw this.buildEventException(event);
         }
     }
 
@@ -179,7 +182,22 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
             this.applicationEventPublisher.publishEvent(event);
             logger.info("{} created with event: {} || Clock: {} || TimeCycle: {}", evoModel.getClass().getSimpleName(), event, clock, timeCycle);
         } else {
-            this.buildEventErrorMessage(event);
+            throw this.buildEventException(event);
+        }
+    }
+
+    /**
+     * Publishes the given {@code EvoEvent} using the application's event publisher.
+     * @param event the event to be published.
+     * @throws IllegalArgumentException if the {@code applicationEventPublisher} is not initialized, logging the
+     * relevant error message.
+     */
+    public final void publishEvent(@NotNull EvoEvent<T> event) {
+        if (this.applicationEventPublisher != null) {
+            this.applicationEventPublisher.publishEvent(event);
+            logger.info("{} created with event: {} ", event.getEvoModel().getClass().getSimpleName(), event);
+        } else {
+            throw this.buildEventException(event);
         }
     }
 }

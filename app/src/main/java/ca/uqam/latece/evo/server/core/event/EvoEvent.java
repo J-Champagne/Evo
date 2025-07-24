@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.event;
 
+import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,7 @@ public class EvoEvent<T extends AbstractEvoModel> extends ApplicationEvent {
     private static final long serialVersionUID = 194568719L;
     private T evoModel;
     private TimeCycle timeCycle = TimeCycle.UNSPECIFIED;
+    private ChangeAspect changeAspect = ChangeAspect.UNSPECIFIED;
 
     /**
      * Constructs a new EvoEvent with the specified Evo model.
@@ -33,6 +35,7 @@ public class EvoEvent<T extends AbstractEvoModel> extends ApplicationEvent {
     public EvoEvent(@NotNull T evoModel) {
         super(evoModel);
         this.evoModel = evoModel;
+        changeAspect = ChangeAspect.STARTED;
     }
 
     /**
@@ -60,6 +63,7 @@ public class EvoEvent<T extends AbstractEvoModel> extends ApplicationEvent {
     public EvoEvent(@NotNull T evoModel, @NotNull Clock clock) {
         super(evoModel, clock);
         this.evoModel = evoModel;
+        changeAspect = ChangeAspect.STARTED;
     }
 
     /**
@@ -93,8 +97,38 @@ public class EvoEvent<T extends AbstractEvoModel> extends ApplicationEvent {
         return this.evoModel;
     }
 
+    /**
+     * Updates the TimeCycle property for the EvoEvent instance.
+     * @param timeCycle the TimeCycle instance to be set, representing the state of the time cycle (e.g., BEGINNING,
+     *                  MIDDLE, END, UNSPECIFIED).
+     */
+    public void setTimeCycle(TimeCycle timeCycle) {
+        this.timeCycle = timeCycle;
+    }
+
+    /**
+     * Retrieves the current TimeCycle associated with this event.
+     * @return the {@code TimeCycle} instance representing the current state of the time cycle (e.g., BEGINNING, MIDDLE,
+     * END, UNSPECIFIED).
+     */
     public TimeCycle getTimeCycle() {
         return this.timeCycle;
+    }
+
+    /**
+     * Retrieves the current change aspect associated with this event.
+     * @return the {@code ChangeAspect} representing the current state of change for this event.
+     */
+    public ChangeAspect getChangeAspect() {
+        return this.changeAspect;
+    }
+
+    /**
+     * Sets the change aspect associated with this event.
+     * @param changeAspect the {@code ChangeAspect} representing the state of change to be assigned to this event.
+     */
+    public void setChangeAspect(ChangeAspect changeAspect) {
+        this.changeAspect = changeAspect;
     }
 
     /**

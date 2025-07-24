@@ -1,6 +1,8 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.EvoEvent;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
@@ -137,7 +139,8 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         BehaviorChangeInterventionBlockInstance updated = behaviorChangeInterventionBlockInstanceService.update(blockInstance);
         assertEquals(blockInstance.getStage(), updated.getStage());
 
-        assertEquals(1, applicationEvents.stream(EvoEvent.class).
-                filter(event -> event.getTimeCycle().equals(TimeCycle.BEGINNING)).count());
+        assertEquals(1, applicationEvents.stream(BCIBlockInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getTimeCycle().equals(TimeCycle.BEGINNING)).count());
     }
 }
