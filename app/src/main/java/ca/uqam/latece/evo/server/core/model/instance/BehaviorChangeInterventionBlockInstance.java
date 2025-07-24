@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 
+import ca.uqam.latece.evo.server.core.interfaces.ProcessInstance;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ import java.util.Objects;
 @JsonPropertyOrder({"stage"})
 @Table(name = "bci_block_instance")
 @PrimaryKeyJoinColumn(name="bci_block_instance_id", referencedColumnName = "activity_instance_id")
-public class BehaviorChangeInterventionBlockInstance extends ActivityInstance {
+public class BehaviorChangeInterventionBlockInstance extends ActivityInstance implements ProcessInstance<BCIActivityInstance> {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "bci_block_instance_stage", length = 128, nullable = false)
@@ -64,12 +65,33 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance {
         this.stage = stage;
     }
 
+    @Override
     public List<BCIActivityInstance> getActivities() {
         return activities;
     }
 
-    public void setActivities(List<BCIActivityInstance> activities) {
-        this.activities = activities;
+    @Override
+    public void addActivity(BCIActivityInstance activityInstance) {
+        if (activityInstance != null) {
+            this.activities.add(activityInstance);
+        }
+    }
+
+    @Override
+    public void addActivities(List<BCIActivityInstance> activityInstances){
+        if (activityInstances != null) {
+            this.activities.addAll(activityInstances);
+        }
+    }
+
+    @Override
+    public boolean removeActivity(BCIActivityInstance activityInstance) {
+        boolean removed = false;
+
+        if (activities != null) {
+            removed = activities.remove(activityInstance);
+        }
+        return removed;
     }
 
     @Override
