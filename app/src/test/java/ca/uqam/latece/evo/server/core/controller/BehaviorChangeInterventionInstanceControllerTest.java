@@ -63,12 +63,13 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
-    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.BEGINNING,
-            activities);
+    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED",
+            TimeCycle.BEGINNING, activities);
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
-    private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance(blockInstance, blocks, modules);
+    private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance("NOTSTARTED",
+            blockInstance, blocks, modules);
 
     private List<BehaviorChangeInterventionPhaseInstance> phases = List.of(phaseInstance);
 
@@ -101,7 +102,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Override
     void testUpdate() throws Exception {
         BehaviorChangeInterventionPhaseInstance bciPhaseInstance2 = new BehaviorChangeInterventionPhaseInstance(
-                phaseInstance.getCurrentBlock(), phaseInstance.getBlocks(), phaseInstance.getModules());
+                "NOTSTARTED", phaseInstance.getCurrentBlock(), phaseInstance.getBlocks(), phaseInstance.getModules());
         bciPhaseInstance2.setId(2L);
         when(bciPhaseInstanceRepository.save(bciPhaseInstance2)).thenReturn(bciPhaseInstance2);
 

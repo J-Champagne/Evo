@@ -83,7 +83,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         blocks.add(blockInstance);
 
         phaseInstance = behaviorChangeInterventionPhaseInstanceService.create
-                (new BehaviorChangeInterventionPhaseInstance(blockInstance, blocks, modules));
+                (new BehaviorChangeInterventionPhaseInstance("NOTSTARTED", blockInstance, blocks, modules));
     }
 
     @Test
@@ -121,7 +121,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         List<BCIModuleInstance> modules = new ArrayList<>(phaseInstance.getModules());
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>(phaseInstance.getBlocks());
         behaviorChangeInterventionPhaseInstanceService.create(new BehaviorChangeInterventionPhaseInstance(
-                phaseInstance.getCurrentBlock(), blocks, modules));
+                "NOTSTARTED", phaseInstance.getCurrentBlock(), blocks, modules));
         List<BehaviorChangeInterventionPhaseInstance> results = behaviorChangeInterventionPhaseInstanceService.findAll();
 
         assertEquals(2, results.size());

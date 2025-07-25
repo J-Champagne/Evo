@@ -64,7 +64,8 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
-    private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance(blockInstance, blocks, modules);
+    private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance("NOTSTARTED",
+            blockInstance, blocks, modules);
 
     private static final String url = "/behaviorchangeinterventionphaseinstance";
 
@@ -94,7 +95,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
         when(bciBlockInstanceRepository.save(blockInstance2)).thenReturn(blockInstance2);
 
         BehaviorChangeInterventionPhaseInstance updated = new BehaviorChangeInterventionPhaseInstance(
-                blockInstance2, blocks, modules);
+                "NOTSTARTED", blockInstance2, blocks, modules);
         updated.setId(phaseInstance.getId());
 
         when(bciPhaseInstanceRepository.save(updated)).thenReturn(updated);

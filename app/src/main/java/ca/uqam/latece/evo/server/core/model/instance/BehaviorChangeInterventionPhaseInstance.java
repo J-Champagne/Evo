@@ -1,10 +1,10 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
-import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,13 +15,9 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "bci_phase_instance")
-@JsonPropertyOrder()
-public class BehaviorChangeInterventionPhaseInstance extends AbstractEvoModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bci_phase_instance_id")
-    private Long id;
-
+@JsonPropertyOrder({"currentBlock", "blocks", "modules"})
+@PrimaryKeyJoinColumn(name="bci_phase_instance_id", referencedColumnName = "activity_instance_id")
+public class BehaviorChangeInterventionPhaseInstance extends ActivityInstance {
     @NotNull
     @ManyToOne
     @JoinColumn(name = "bci_phase_instance_currentblock_id", referencedColumnName = "bci_block_instance_id", nullable = false)
@@ -33,7 +29,7 @@ public class BehaviorChangeInterventionPhaseInstance extends AbstractEvoModel {
             name = "bci_phase_instance_blocks",
             joinColumns = @JoinColumn(name = "bci_phase_instance_blocks_phase_id", referencedColumnName="bci_phase_instance_id"),
             inverseJoinColumns = @JoinColumn(name = "bci_phase_instance_blocks_block_id", referencedColumnName="bci_block_instance_id"))
-    private List<BehaviorChangeInterventionBlockInstance> blocks;
+    private List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>();
 
     @NotNull
     @ManyToMany
@@ -41,29 +37,36 @@ public class BehaviorChangeInterventionPhaseInstance extends AbstractEvoModel {
             name = "bci_phase_instance_modules",
             joinColumns = @JoinColumn(name = "bci_phase_instance_modules_phase_id", referencedColumnName="bci_phase_instance_id"),
             inverseJoinColumns = @JoinColumn(name = "bci_phase_instance_modules_module_id", referencedColumnName="bci_module_instance_id"))
-    private List<BCIModuleInstance> modules;
+    private List<BCIModuleInstance> modules = new ArrayList<>();
 
-    public BehaviorChangeInterventionPhaseInstance() {
-        blocks = new ArrayList<>();
-        modules = new ArrayList<>();
+    public BehaviorChangeInterventionPhaseInstance() {}
+
+    public BehaviorChangeInterventionPhaseInstance(@NotNull String status) {
+        super(status);
     }
 
-    public BehaviorChangeInterventionPhaseInstance(@NotNull BehaviorChangeInterventionBlockInstance currentBlock,
+    public BehaviorChangeInterventionPhaseInstance(@NotNull String status, LocalDate entryDate, LocalDate exitDate) {
+        super(status, entryDate, exitDate);
+    }
+
+    public BehaviorChangeInterventionPhaseInstance(@NotNull String status,
+                                                   @NotNull BehaviorChangeInterventionBlockInstance currentBlock,
                                                    @NotNull List<BehaviorChangeInterventionBlockInstance> blocks,
                                                    @NotNull List<BCIModuleInstance> modules) {
+        this(status);
         this.currentBlock = currentBlock;
         this.blocks = blocks;
         this.modules = modules;
     }
 
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
+    public BehaviorChangeInterventionPhaseInstance(@NotNull String status, LocalDate entryDate, LocalDate exitDate,
+                                                   @NotNull BehaviorChangeInterventionBlockInstance currentBlock,
+                                                   @NotNull List<BehaviorChangeInterventionBlockInstance> blocks,
+                                                   @NotNull List<BCIModuleInstance> modules) {
+        this(status, entryDate, exitDate);
+        this.currentBlock = currentBlock;
+        this.blocks = blocks;
+        this.modules = modules;
     }
 
     public List<BehaviorChangeInterventionBlockInstance> getBlocks() {
@@ -104,6 +107,6 @@ public class BehaviorChangeInterventionPhaseInstance extends AbstractEvoModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getId(), this.getCurrentBlock(), this.getBlocks(), this.getModules());
+        return Objects.hash(super.hashCode(), this.getCurrentBlock(), this.getBlocks(), this.getModules());
     }
 }
