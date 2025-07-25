@@ -1,6 +1,8 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
+import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.*;
@@ -11,6 +13,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
+import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,6 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Julien Champagne.
  * @author Edilton Lima dos Santos.
  */
+@RecordApplicationEvents
+@ApplicationScope
 @ContextConfiguration(classes = {BCIModuleInstanceService.class, BCIModuleInstanceService.class})
 public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     @Autowired
@@ -46,6 +53,9 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     private HealthCareProfessionalService healthCareProfessionalService;
 
     private BCIModuleInstance moduleInstance;
+
+    @Autowired
+    private ApplicationEvents applicationEvents;
 
     @BeforeEach
     public void setUp() {
@@ -118,5 +128,16 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
 
         assertEquals(1, found.size());
         assertEquals(moduleInstance.getId(), found.getFirst().getId());
+    }
+
+    @Test
+    void testPublishEvent() {
+        moduleInstance.setOutcome(OutcomeType.SUCCESSFUL);
+        BCIModuleInstance updated = bciModuleInstanceService.update(moduleInstance);
+        assertEquals(moduleInstance.getOutcome(), updated.getOutcome());
+
+        assertEquals(1, applicationEvents.stream(BCIModuleInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getEvoModel().getOutcome().equals(moduleInstance.getOutcome())).count());
     }
 }

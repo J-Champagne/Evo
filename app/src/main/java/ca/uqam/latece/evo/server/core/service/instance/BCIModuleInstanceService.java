@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
+import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIModuleInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -11,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,12 +19,13 @@ import java.util.List;
 /**
  * BCIModuleInstance Service.
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Service
 @Transactional
 public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstance> {
     private static final Logger logger = LoggerFactory.getLogger(BCIModuleInstanceService.class);
-    
+
     @Autowired
     private BCIModuleInstanceRepository bciModuleInstanceRepository;
 
@@ -33,8 +34,6 @@ public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstan
      * @param moduleInstance BCIModuleInstance.
      * @return The created BCIModuleInstance.
      * @throws IllegalArgumentException if moduleInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BCIModuleInstance create(BCIModuleInstance moduleInstance) {
@@ -54,8 +53,6 @@ public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstan
      * @param moduleInstance BCIModuleInstance.
      * @return The updated BCIModuleInstance.
      * @throws IllegalArgumentException if moduleInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BCIModuleInstance update(BCIModuleInstance moduleInstance) {
@@ -68,6 +65,7 @@ public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstan
 
         if (found != null) {
             updated = this.bciModuleInstanceRepository.save(moduleInstance);
+            this.publishEvent(new BCIModuleInstanceEvent(updated));
         }
         return updated;
     }
@@ -77,8 +75,6 @@ public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstan
      * @param moduleInstance BCIModuleInstance.
      * @return The saved BCIModuleInstance.
      * @throws IllegalArgumentException if moduleInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BCIModuleInstance save(BCIModuleInstance moduleInstance) {
