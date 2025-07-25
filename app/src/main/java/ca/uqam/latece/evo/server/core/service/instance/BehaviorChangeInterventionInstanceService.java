@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.event.BCIInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -9,12 +10,17 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Service class providing business operations for BehaviorChangeInterventionInstance entities.
+ * @version 1.0
+ * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
+ */
 @Service
 @Transactional
 public class BehaviorChangeInterventionInstanceService extends AbstractEvoService<BehaviorChangeInterventionInstance> {
@@ -28,16 +34,10 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
      * @param bciInstance BehaviorChangeInterventionInstance.
      * @return The created BehaviorChangeInterventionInstance.
      * @throws IllegalArgumentException if bciInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionInstance create(BehaviorChangeInterventionInstance bciInstance) {
         BehaviorChangeInterventionInstance saved = null;
-
-//        ObjectValidator.validateObject(bciInstance);
-//        ObjectValidator.validateObject(bciInstance.getStage());
-//        ObjectValidator.validateObject(bciInstance.getActivities());
 
         saved = this.bciInstanceRepository.save(bciInstance);
         logger.info("BehaviorChangeInterventionInstance created: {}", saved);
@@ -49,8 +49,6 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
      * @param bciInstance BehaviorChangeInterventionInstance.
      * @return The updated BehaviorChangeInterventionInstance.
      * @throws IllegalArgumentException if bciInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionInstance update(BehaviorChangeInterventionInstance bciInstance) {
@@ -63,6 +61,7 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
 
         if (found != null) {
             updated = this.bciInstanceRepository.save(bciInstance);
+            this.publishEvent(new BCIInstanceEvent(updated));
         }
         return updated;
     }
@@ -72,8 +71,6 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
      * @param bciInstance BehaviorChangeInterventionInstance.
      * @return The saved BehaviorChangeInterventionInstance.
      * @throws IllegalArgumentException if bciInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionInstance save(BehaviorChangeInterventionInstance bciInstance) {
