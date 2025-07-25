@@ -52,7 +52,7 @@ public class BCIPhaseInstanceEvent extends EvoEvent<BehaviorChangeInterventionPh
     }
 
     public List<BehaviorChangeInterventionBlockInstance> getBlocks() {
-        return this.getEvoModel().getBlocks();
+        return this.getEvoModel().getActivities();
     }
 
 }

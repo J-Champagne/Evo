@@ -28,7 +28,7 @@ public interface BehaviorChangeInterventionPhaseInstanceRepository extends EvoRe
      * @return List<BehaviorChangeInterventionPhaseInstance> with the given BCIBlocksInstance id.
      * @throws IllegalArgumentException if id is null.
      */
-    List<BehaviorChangeInterventionPhaseInstance> findByBlocksId(Long id);
+    List<BehaviorChangeInterventionPhaseInstance> findByActivitiesId(Long id);
 
     /**
      * Finds BehaviorChangeInterventionPhaseInstance entities by a BCIModuleInstance id.

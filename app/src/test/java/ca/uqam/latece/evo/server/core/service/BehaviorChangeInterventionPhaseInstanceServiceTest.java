@@ -119,7 +119,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
     @Override
     void testFindAll() {
         List<BCIModuleInstance> modules = new ArrayList<>(phaseInstance.getModules());
-        List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>(phaseInstance.getBlocks());
+        List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>(phaseInstance.getActivities());
         behaviorChangeInterventionPhaseInstanceService.create(new BehaviorChangeInterventionPhaseInstance(
                 "NOTSTARTED", phaseInstance.getCurrentBlock(), blocks, modules));
         List<BehaviorChangeInterventionPhaseInstance> results = behaviorChangeInterventionPhaseInstanceService.findAll();
@@ -139,7 +139,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
     @Test
     void testFindByBlocksId() {
         List<BehaviorChangeInterventionPhaseInstance> result = behaviorChangeInterventionPhaseInstanceService
-                .findByBlocksId(phaseInstance.getBlocks().getFirst().getId());
+                .findByActivitiesId(phaseInstance.getActivities().get(0).getId());
 
         assertFalse(result.isEmpty());
         assertEquals(phaseInstance.getId(), result.getFirst().getId());

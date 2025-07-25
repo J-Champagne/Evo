@@ -131,8 +131,8 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     @Test
     void testFindByBlocksId() throws Exception {
-        when(bciPhaseInstanceRepository.findByBlocksId(phaseInstance.getBlocks().get(0).getId())).thenReturn(Collections.singletonList(phaseInstance));
-        performGetRequest(url + "/find/blocks/" + phaseInstance.getBlocks().get(0).getId(), "$[0].id", phaseInstance.getId());
+        when(bciPhaseInstanceRepository.findByActivitiesId(phaseInstance.getActivities().get(0).getId())).thenReturn(Collections.singletonList(phaseInstance));
+        performGetRequest(url + "/find/activities/" + phaseInstance.getActivities().get(0).getId(), "$[0].id", phaseInstance.getId());
     }
 
     @Test

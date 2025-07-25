@@ -102,7 +102,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Override
     void testUpdate() throws Exception {
         BehaviorChangeInterventionPhaseInstance bciPhaseInstance2 = new BehaviorChangeInterventionPhaseInstance(
-                "NOTSTARTED", phaseInstance.getCurrentBlock(), phaseInstance.getBlocks(), phaseInstance.getModules());
+                "NOTSTARTED", phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules());
         bciPhaseInstance2.setId(2L);
         when(bciPhaseInstanceRepository.save(bciPhaseInstance2)).thenReturn(bciPhaseInstance2);
 

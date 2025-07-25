@@ -43,7 +43,7 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
         BehaviorChangeInterventionPhaseInstance saved = null;
 
         ObjectValidator.validateObject(phaseInstance);
-        ObjectValidator.validateObject(phaseInstance.getBlocks());
+        ObjectValidator.validateObject(phaseInstance.getActivities());
         ObjectValidator.validateObject(phaseInstance.getModules());
 
         saved = this.bciPhaseInstanceRepository.save(phaseInstance);
@@ -65,7 +65,7 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
         BehaviorChangeInterventionPhaseInstance found = findById(phaseInstance.getId());
 
         ObjectValidator.validateObject(phaseInstance);
-        ObjectValidator.validateObject(phaseInstance.getBlocks());
+        ObjectValidator.validateObject(phaseInstance.getActivities());
         ObjectValidator.validateObject(phaseInstance.getModules());
 
         if (found != null) {
@@ -138,9 +138,9 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
      * @return List<BehaviorChangeInterventionPhaseInstance> with the given BCIBlocksInstance id.
      * @throws IllegalArgumentException if id is null.
      */
-    public List<BehaviorChangeInterventionPhaseInstance> findByBlocksId(Long id) {
+    public List<BehaviorChangeInterventionPhaseInstance> findByActivitiesId(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciPhaseInstanceRepository.findByBlocksId(id);
+        return this.bciPhaseInstanceRepository.findByActivitiesId(id);
     }
 
     /**
