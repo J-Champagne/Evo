@@ -1,7 +1,9 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.*;
@@ -12,6 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
+import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,7 +27,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests methods found in BehaviorChangeInterventionBlockInstanceService in a containerized setup.
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
+@RecordApplicationEvents
+@ApplicationScope
 @ContextConfiguration(classes = {BehaviorChangeInterventionPhaseInstance.class, BehaviorChangeInterventionPhaseInstanceService.class})
 public class BehaviorChangeInterventionPhaseInstanceServiceTest extends AbstractServiceTest {
     @Autowired
@@ -30,7 +38,6 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
 
     @Autowired
     private BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
-
     @Autowired
     private BCIActivityInstanceService bciActivityInstanceService;
 
@@ -47,6 +54,9 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
     private BCIModuleInstanceService bciModuleInstanceService;
 
     private BehaviorChangeInterventionPhaseInstance phaseInstance;
+
+    @Autowired
+    private ApplicationEvents applicationEvents;
 
     @BeforeEach
     public void setUp() {
@@ -120,27 +130,46 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
     @Test
     void testFindByCurrentBlock() {
         List<BehaviorChangeInterventionPhaseInstance> result = behaviorChangeInterventionPhaseInstanceService
-            .findByCurrentBlockId(phaseInstance.getCurrentBlock().getId());
+                .findByCurrentBlockId(phaseInstance.getCurrentBlock().getId());
 
         assertFalse(result.isEmpty());
-        assertEquals(phaseInstance.getId(), result.get(0).getId());
+        assertEquals(phaseInstance.getId(), result.getFirst().getId());
     }
 
     @Test
     void testFindByBlocksId() {
         List<BehaviorChangeInterventionPhaseInstance> result = behaviorChangeInterventionPhaseInstanceService
-                .findByBlocksId(phaseInstance.getBlocks().get(0).getId());
+                .findByBlocksId(phaseInstance.getBlocks().getFirst().getId());
 
         assertFalse(result.isEmpty());
-        assertEquals(phaseInstance.getId(), result.get(0).getId());
+        assertEquals(phaseInstance.getId(), result.getFirst().getId());
     }
 
     @Test
     void testFindByModulesId() {
         List<BehaviorChangeInterventionPhaseInstance> result = behaviorChangeInterventionPhaseInstanceService
-                .findByModulesId(phaseInstance.getModules().get(0).getId());
+                .findByModulesId(phaseInstance.getModules().getFirst().getId());
 
         assertFalse(result.isEmpty());
-        assertEquals(phaseInstance.getId(), result.get(0).getId());
+        assertEquals(phaseInstance.getId(), result.getFirst().getId());
+    }
+
+    @Test
+    void testFindByIdAndCurrentBlockId() {
+        BehaviorChangeInterventionPhaseInstance result = behaviorChangeInterventionPhaseInstanceService.
+                findByIdAndCurrentBlockId(phaseInstance.getId(), phaseInstance.getCurrentBlock().getId());
+        assertEquals(phaseInstance.getId(), result.getId());
+        assertEquals(phaseInstance.getCurrentBlock().getId(), result.getCurrentBlock().getId());
+    }
+
+    @Test
+    void testPublishEvent() {
+        phaseInstance.getCurrentBlock().setStage(TimeCycle.BEGINNING);
+        BehaviorChangeInterventionPhaseInstance updated = behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
+        assertEquals(phaseInstance.getCurrentBlock().getStage(), updated.getCurrentBlock().getStage());
+
+        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getCurrentBlock().getStage().equals(TimeCycle.BEGINNING)).count());
     }
 }

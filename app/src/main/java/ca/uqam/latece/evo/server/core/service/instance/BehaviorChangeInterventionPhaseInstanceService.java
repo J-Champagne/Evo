@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionPhaseInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -9,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.List;
 /**
  * BehaviorChangeInterventionPhaseInstance Service.
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Service
 @Transactional
@@ -67,6 +70,7 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
 
         if (found != null) {
             updated = this.bciPhaseInstanceRepository.save(phaseInstance);
+            this.publishEvent(new BCIPhaseInstanceEvent(updated));
         }
         return updated;
     }
@@ -160,5 +164,19 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
     public boolean existsById(Long id) {
         ObjectValidator.validateId(id);
         return this.bciPhaseInstanceRepository.existsById(id);
+    }
+
+    /**
+     * Finds a BehaviorChangeInterventionPhaseInstance entity by its unique id and the id of its current block.
+     * @param id the unique identifier of the BehaviorChangeInterventionPhaseInstance.
+     * @param currentBlockId the unique identifier of the current block associated with the phase instance.
+     * @return the BehaviorChangeInterventionPhaseInstance entity that matches both the id and currentBlockId, or null
+     *         if no such entity exists.
+     * @throws IllegalArgumentException if id or currentBlockId is null.
+     */
+    public BehaviorChangeInterventionPhaseInstance findByIdAndCurrentBlockId(Long id, Long currentBlockId) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateId(currentBlockId);
+        return this.bciPhaseInstanceRepository.findByIdAndCurrentBlockId(id, currentBlockId);
     }
 }

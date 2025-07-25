@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * BehaviorChangeInterventionPhaseInstance repository creates CRUD implementation at runtime automatically.
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Repository
 public interface BehaviorChangeInterventionPhaseInstanceRepository extends EvoRepository<BehaviorChangeInterventionPhaseInstance> {
@@ -36,4 +37,14 @@ public interface BehaviorChangeInterventionPhaseInstanceRepository extends EvoRe
      * @throws IllegalArgumentException if id is null.
      */
     List<BehaviorChangeInterventionPhaseInstance> findByModulesId(Long id);
+
+    /**
+     * Finds a BehaviorChangeInterventionPhaseInstance entity by its unique id and the id of its current block.
+     * @param id the unique identifier of the BehaviorChangeInterventionPhaseInstance.
+     * @param currentBlockId the unique identifier of the current block associated with the phase instance.
+     * @return the BehaviorChangeInterventionPhaseInstance entity that matches both the id and currentBlockId, or null
+     *         if no such entity exists.
+     * @throws IllegalArgumentException if id or currentBlockId is null.
+     */
+    BehaviorChangeInterventionPhaseInstance findByIdAndCurrentBlockId(Long id, Long currentBlockId);
 }
