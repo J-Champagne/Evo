@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.BehaviorPerformanceInstanceController;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
@@ -100,7 +101,7 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
         // Create a Behavior Performance Instance.
         behaviorPerformanceInstance.setId(7L);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
-        behaviorPerformanceInstance.setStatus("Behavior Performance Instance Java");
+        behaviorPerformanceInstance.setStatus(ExecutionStatus.STALLED);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.addParticipant(participant);
@@ -116,7 +117,7 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
         BehaviorPerformanceInstance performanceInstance = new BehaviorPerformanceInstance();
         performanceInstance.setId(8L);
         performanceInstance.setBehaviorPerformance(behaviorPerformance);
-        performanceInstance.setStatus("Behavior Performance Instance Java");
+        performanceInstance.setStatus(ExecutionStatus.IN_PROGRESS);
         performanceInstance.setEntryDate(localEntryDate);
         performanceInstance.setExitDate(localExitDate);
 
@@ -141,13 +142,13 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
     @Override
     void testUpdate() throws Exception {
         // Update a Behavior Performance Instance.
-        behaviorPerformanceInstance.setStatus("Performance Instance 2");
+        behaviorPerformanceInstance.setStatus(ExecutionStatus.FINISHED);
 
         // Save in the database.
         when(behaviorPerformanceInstanceRepository.save(behaviorPerformanceInstance)).thenReturn(behaviorPerformanceInstance);
 
         // Perform a PUT request to test the controller.
-        performUpdateRequest(URL, behaviorPerformanceInstance, "$.status", behaviorPerformanceInstance.getStatus());
+        performUpdateRequest(URL, behaviorPerformanceInstance, "$.status", behaviorPerformanceInstance.getStatus().toString());
     }
 
     @Test
@@ -169,7 +170,7 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
 
         // Perform a GET request to test the controller.
         performGetRequest(URL_FIND + behaviorPerformanceInstance.getId(), "$.status",
-                behaviorPerformanceInstance.getStatus());
+                behaviorPerformanceInstance.getStatus().toString());
     }
 
     @Test
@@ -183,7 +184,7 @@ public class BehaviorPerformanceInstanceControllerTest extends AbstractControlle
 
         // Perform a GET request to test the controller.
         performGetRequest(URL_FIND + "status/" + behaviorPerformanceInstance.getStatus(), "$[0].status",
-                behaviorPerformanceInstance.getStatus());
+                behaviorPerformanceInstance.getStatus().toString());
     }
 
     @Test

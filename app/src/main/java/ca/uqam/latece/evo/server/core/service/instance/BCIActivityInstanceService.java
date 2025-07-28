@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -9,7 +10,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * BCIActivity Instance Service.
+ * @version 1.0
  * @author Edilton Lima dos Santos.
  * @author Julien Champagne
  */
@@ -32,8 +33,6 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
      * @param bciActivityInstance BCIActivityInstance.
      * @return The created BCIActivityInstance.
      * @throws IllegalArgumentException if bciActivityInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     public BCIActivityInstance create (BCIActivityInstance bciActivityInstance) {
         BCIActivityInstance bciBCIActivityInstance = null;
@@ -51,8 +50,6 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
      * @param bciActivityInstance BCIActivityInstance.
      * @return The updated BCIActivityInstance.
      * @throws IllegalArgumentException if bciActivityInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     public BCIActivityInstance update (BCIActivityInstance bciActivityInstance) {
         BCIActivityInstance bciBCIActivityInstance = null;
@@ -71,12 +68,10 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
      * @param bciActivityInstance BCIActivityInstance.
      * @return The saved BCIActivityInstance.
      * @throws IllegalArgumentException if bciActivityInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     protected BCIActivityInstance save(BCIActivityInstance bciActivityInstance) {
-        ObjectValidator.validateString(bciActivityInstance.getStatus());
+        ObjectValidator.validateObject(bciActivityInstance.getStatus());
         ObjectValidator.validateObject(bciActivityInstance.getEntryDate());
         ObjectValidator.validateObject(bciActivityInstance.getExitDate());
         ObjectValidator.validateObject(bciActivityInstance.getParticipants());
@@ -85,9 +80,9 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
 
     /**
      * Deletes a BCIActivityInstance by its id.
-     * Silently ignored if not found.
-     * @param id Long.
-     * @throws IllegalArgumentException if id is null.
+     * Silently ignored if the instance with the given id is not found.
+     * @param id the id of the BCIActivityInstance to delete. Must not be null.
+     * @throws IllegalArgumentException if id is null or invalid.
      */
     public void deleteById(Long id) {
         ObjectValidator.validateId(id);
@@ -96,18 +91,11 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     }
 
     /**
-     * Finds all BCIActivityInstance entities.
-     * @return List<BCIActivityInstance>.
-     */
-    public List<BCIActivityInstance> findAll() {
-        return this.bciActivityInstanceRepository.findAll();
-    }
-
-    /**
      * Finds a BCIActivityInstance by its id.
-     * @param id Long.
-     * @return BCIActivityInstance with the given id.
+     * @param id the id of the BCIActivityInstance to find. Must not be null.
+     * @return the BCIActivityInstance with the given id.
      * @throws IllegalArgumentException if id is null.
+     * @throws EntityNotFoundException if no BCIActivityInstance is found with the given id.
      */
     public BCIActivityInstance findById(Long id) {
         ObjectValidator.validateId(id);
@@ -117,19 +105,19 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
 
     /**
      * Finds BCIActivityInstance entities by their status.
-     * @param status String.
-     * @return List<BCIActivityInstance> with the given status.
-     * @throws IllegalArgumentException if status is null.
+     * @param status the status of the BCIActivityInstance entities to find.
+     * @return a list of BCIActivityInstance entities with the given status.
+     * @throws IllegalArgumentException if the status is null or invalid.
      */
-    public List<BCIActivityInstance> findByStatus(String status) {
-        ObjectValidator.validateString(status);
+    public List<BCIActivityInstance> findByStatus(ExecutionStatus status) {
+        ObjectValidator.validateObject(status);
         return this.bciActivityInstanceRepository.findByStatus(status);
     }
 
     /**
-     * Finds BCIActivityInstance entities by their entryDate.
-     * @param entryDate LocalDate.
-     * @return List<BCIActivityInstance> with the given entryDate.
+     * Fetches a list of BCIActivityInstance entities by their entry date.
+     * @param entryDate the entry date of the BCIActivityInstance entities to retrieve. Must not be null.
+     * @return a list of BCIActivityInstance entities corresponding to the given entry date.
      * @throws IllegalArgumentException if entryDate is null.
      */
     public List<BCIActivityInstance> findByEntryDate(LocalDate entryDate) {
@@ -138,9 +126,9 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     }
 
     /**
-     * Finds BCIActivityInstance entities by their exitDate.
-     * @param exitDate LocalDate.
-     * @return List<BCIActivityInstance> with the given exitDate.
+     * Finds BCIActivityInstance entities by their exit date.
+     * @param exitDate the exit date of the BCIActivityInstance entities to retrieve. Must not be null.
+     * @return a list of BCIActivityInstance entities with the specified exit date.
      * @throws IllegalArgumentException if exitDate is null.
      */
     public List<BCIActivityInstance> findByExitDate(LocalDate exitDate) {
@@ -149,10 +137,10 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     }
 
     /**
-     * Finds BCIActivityInstance entities by the id of their Participant.
-     * @param id Long.
-     * @return List<BCIActivityInstance> with the given Participant id.
-     * @throws IllegalArgumentException if id is null.
+     * Retrieves a list of BCIActivityInstance entities associated with a specific participant ID.
+     * @param id the ID of the participant to find associated activity instances for. Must not be null.
+     * @return a list of BCIActivityInstance entities associated with the given participant ID.
+     * @throws IllegalArgumentException if the provided ID is null or invalid.
      */
     public List<BCIActivityInstance> findByParticipantsId(Long id) {
         ObjectValidator.validateId(id);
@@ -160,13 +148,21 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     }
 
     /**
-     * Checks if an BCIActivityInstance exists in the database by its id
-     * @param id Long
-     * @return boolean
-     * @throws IllegalArgumentException if id is null.
+     * Checks whether a BCIActivityInstance exists with the given ID.
+     * @param id the ID of the BCIActivityInstance to check. Must not be null.
+     * @return true if a BCIActivityInstance exists with the given ID, false otherwise.
+     * @throws IllegalArgumentException if the ID is null or invalid.
      */
     public boolean existsById(Long id) {
         ObjectValidator.validateId(id);
         return this.bciActivityInstanceRepository.existsById(id);
+    }
+
+    /**
+     * Finds all BCIActivityInstance entities.
+     * @return a list of all BCIActivityInstance entities.
+     */
+    public List<BCIActivityInstance> findAll() {
+        return this.bciActivityInstanceRepository.findAll();
     }
 }

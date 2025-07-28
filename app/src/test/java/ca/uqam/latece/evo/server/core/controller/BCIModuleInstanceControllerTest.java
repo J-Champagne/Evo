@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.BCIModuleInstanceController;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
@@ -50,12 +51,12 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
 
     private List<Participant> participants = List.of(participant);
 
-    private BCIActivityInstance activityInstance = new BCIActivityInstance(
-            "In progress", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+    private BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
+            DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
-    private BCIModuleInstance moduleInstance = new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL, activities);
+    private BCIModuleInstance moduleInstance = new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.SUCCESSFUL, activities);
 
     private static final String url = "/bcimoduleinstance";
 
@@ -63,7 +64,7 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
     @Override
     public void setUp() {
         activityInstance.setId(1L);
-        moduleInstance.setId(1L);
+        moduleInstance.setId(2L);
         when(bciActivityInstanceRepo.save(activityInstance)).thenReturn(activityInstance);
         when(bciModuleInstanceRepository.save(moduleInstance)).thenReturn(moduleInstance);
     }
@@ -77,7 +78,7 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testUpdate() throws Exception {
-        BCIModuleInstance updated = new BCIModuleInstance("NOTSTARTED", OutcomeType.UNSUCCESSFUL, moduleInstance.getActivities());
+        BCIModuleInstance updated = new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.UNSUCCESSFUL, moduleInstance.getActivities());
         updated.setId(moduleInstance.getId());
 
         when(bciModuleInstanceRepository.save(updated)).thenReturn(updated);
@@ -95,7 +96,7 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
     @Override
     void testFindAll() throws Exception {
         when(bciModuleInstanceRepository.findAll()).thenReturn(Collections.singletonList(moduleInstance));
-        performGetRequest(url, "$[0].id", 1);
+        performGetRequest(url, "$[0].id", moduleInstance.getId());
     }
 
     @Test
@@ -113,8 +114,8 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
 
     @Test
     void testFindByActivitiesId() throws Exception {
-        when(bciModuleInstanceRepository.findByActivitiesId(moduleInstance.getActivities().get(0).getId())).thenReturn(Collections.singletonList(moduleInstance));
-        performGetRequest(url + "/find/activities/" + moduleInstance.getActivities().get(0).getId(),
+        when(bciModuleInstanceRepository.findByActivitiesId(moduleInstance.getActivities().getFirst().getId())).thenReturn(Collections.singletonList(moduleInstance));
+        performGetRequest(url + "/find/activities/" + moduleInstance.getActivities().getFirst().getId(),
                 "$[0].id", moduleInstance.getId());
     }
 }

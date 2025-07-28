@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
 import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
@@ -128,8 +129,8 @@ public class BehaviorPerformanceInstanceService extends AbstractEvoService<Behav
      * @return A list of BehaviorPerformanceInstance with the specified status.
      * @throws IllegalArgumentException if the status is null.
      */
-    public List<BehaviorPerformanceInstance> findByStatus(String status) {
-        ObjectValidator.validateString(status);
+    public List<BehaviorPerformanceInstance> findByStatus(ExecutionStatus status) {
+        ObjectValidator.validateObject(status);
         return this.behaviorPerformanceInstanceRepository.findByStatus(status);
     }
 

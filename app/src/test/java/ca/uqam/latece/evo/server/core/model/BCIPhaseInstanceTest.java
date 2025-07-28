@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.instance.*;
@@ -14,6 +15,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * BCIPhaseInstance Test.
+ * @version 1.0
+ * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
+ */
 public class BCIPhaseInstanceTest {
     private BehaviorChangeInterventionPhaseInstance bciPhaseInstance;
 
@@ -28,22 +35,22 @@ public class BCIPhaseInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivityInstance bciActivityInstance = new BCIActivityInstance(
-                "In progress", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+        BCIActivityInstance bciActivityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(bciActivityInstance));
 
-        bciBlockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED",
-                LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities);
+        bciBlockInstance = new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities);
 
         List<BehaviorChangeInterventionBlockInstance> blockInstances = new ArrayList<>(List.of(bciBlockInstance));
 
-        BCIModuleInstance bciModuleInstance = new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL,
+        BCIModuleInstance bciModuleInstance = new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.SUCCESSFUL,
                 activities);
 
         List<BCIModuleInstance> moduleInstances = new ArrayList<>(List.of(bciModuleInstance));
 
-        bciPhaseInstance = new BehaviorChangeInterventionPhaseInstance("NOTSTARTED", LocalDate.now(),
+        bciPhaseInstance = new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), bciBlockInstance, blockInstances, moduleInstances);
     }
 
@@ -58,8 +65,8 @@ public class BCIPhaseInstanceTest {
     @Test
     public void testAddActivity() {
         BehaviorChangeInterventionBlockInstance newBlockInstance = new BehaviorChangeInterventionBlockInstance(
-                "NOTSTARTED", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), TimeCycle.END,
-                bciBlockInstance.getActivities());
+                ExecutionStatus.STALLED, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"),
+                TimeCycle.END, bciBlockInstance.getActivities());
 
         bciPhaseInstance.addActivity(newBlockInstance);
 
@@ -72,12 +79,12 @@ public class BCIPhaseInstanceTest {
     @Test
     public void testAddActivities() {
         BehaviorChangeInterventionBlockInstance newBlockInstance = new BehaviorChangeInterventionBlockInstance(
-                "NOTSTARTED", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), TimeCycle.END,
-                bciBlockInstance.getActivities());
+                ExecutionStatus.STALLED, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"),
+                TimeCycle.END, bciBlockInstance.getActivities());
 
         BehaviorChangeInterventionBlockInstance newBlockInstance2 = new BehaviorChangeInterventionBlockInstance(
-                "STARTED", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), TimeCycle.UNSPECIFIED,
-                bciBlockInstance.getActivities());
+                ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"),
+                TimeCycle.UNSPECIFIED, bciBlockInstance.getActivities());
 
         List<BehaviorChangeInterventionBlockInstance> activities = new ArrayList<>(List.of(newBlockInstance, newBlockInstance2));
 

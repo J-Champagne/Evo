@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -13,6 +14,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * BCIBlockInstance Test.
+ * @version 1.0
+ * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
+ */
 public class BCIBlockInstanceTest {
     private BehaviorChangeInterventionBlockInstance bciBlockInstance;
 
@@ -27,12 +34,12 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        bciActivityInstance = new BCIActivityInstance(
-                "In progress", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+        bciActivityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(bciActivityInstance));
 
-        bciBlockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED", LocalDate.now(), 
+        bciBlockInstance = new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities);
     }
 
@@ -53,8 +60,8 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivityInstance activityInstance = new BCIActivityInstance(
-                "Not started", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2028/01/08"), participants);
+        BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2028/01/08"), participants);
 
         bciBlockInstance.addActivity(activityInstance);
 
@@ -73,11 +80,11 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivityInstance activityInstance = new BCIActivityInstance(
-                "Not started", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+        BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
 
-        BCIActivityInstance activityInstance2 = new BCIActivityInstance(
-                "Not started", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), participants);
+        BCIActivityInstance activityInstance2 = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), participants);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(activityInstance, activityInstance2));
 

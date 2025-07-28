@@ -1,7 +1,7 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
-import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.service.instance.GoalSettingInstanceService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -18,7 +18,8 @@ import java.util.List;
 /**
  * GoalSettingInstance Controller.
  * @version 1.0
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos.
+ * @author Julien Champagne.
  */
 @RestController
 @RequestMapping("/goalsettinginstance")
@@ -90,7 +91,6 @@ public class GoalSettingInstanceController extends AbstractEvoController<GoalSet
 
     /**
      * Deletes the GoalSettingInstance with the given id.
-     * <p>
      * If the GoalSettingInstance is not found in the persistence store it is silently ignored.
      * @param id the unique identifier of the GoalSettingInstance to be retrieved; must not be null or invalid.
      * @throws IllegalArgumentException in case the given id is null.
@@ -141,11 +141,11 @@ public class GoalSettingInstanceController extends AbstractEvoController<GoalSet
      */
     @GetMapping("/find/status/{status}")
     @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<GoalSettingInstance>> findByStatus(@PathVariable String status) {
+    public ResponseEntity<List<GoalSettingInstance>> findByStatus(@PathVariable ExecutionStatus status) {
         ResponseEntity<List<GoalSettingInstance>> response;
 
         try {
-            ObjectValidator.validateString(status);
+            ObjectValidator.validateObject(status);
             List<GoalSettingInstance> foundList = goalSettingInstanceService.findByStatus(status);
 
             if (foundList != null && !foundList.isEmpty()) {
@@ -158,6 +158,34 @@ public class GoalSettingInstanceController extends AbstractEvoController<GoalSet
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find GoalSettingInstance list by status. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds a GoalSettingInstance by its Participant id.
+     * @param id The unique identifier of the Participant whose GoalSettingInstance is to be retrieved; must not be null.
+     * @return A ResponseEntity containing the found GoalSettingInstance if it exists.
+     */
+    @GetMapping("/find/participants/{id}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<GoalSettingInstance> findByParticipantsId(@PathVariable Long id) {
+        ResponseEntity<GoalSettingInstance> response;
+
+        try {
+            GoalSettingInstance result = goalSettingInstanceService.findByParticipantsId(id);
+
+            if (result != null) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found GoalSettingInstance by participant id : {}", result);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find GoalSettingInstance by participant id.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find GoalSettingInstance by participant id. Error: {}", e.getMessage());
         }
 
         return response;
@@ -186,35 +214,6 @@ public class GoalSettingInstanceController extends AbstractEvoController<GoalSet
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find all GoalSettingInstance list. Error: {}", e.getMessage());
-        }
-
-        return response;
-    }
-
-    /**
-     * Finds a GoalSettingInstance by its Participant id.
-     * @param id Long.
-     * @return GoalSettingInstance in JSON format.
-     * @throws IllegalArgumentException if id is null.
-     */
-    @GetMapping("/find/participants/{id}")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<GoalSettingInstance> findByParticipantsId(@PathVariable Long id) {
-        ResponseEntity<GoalSettingInstance> response;
-
-        try {
-            GoalSettingInstance result = goalSettingInstanceService.findByParticipantsId(id);
-
-            if (result != null) {
-                response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found GoalSettingInstance by participant id : {}", result);
-            } else {
-                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find GoalSettingInstance by participant id.");
-            }
-        } catch (Exception e) {
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find GoalSettingInstance by participant id. Error: {}", e.getMessage());
         }
 
         return response;

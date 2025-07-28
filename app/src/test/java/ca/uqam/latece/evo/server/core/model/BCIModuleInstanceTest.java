@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
@@ -16,6 +17,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * BCIModuleInstance Test.
+ * @version 1.0
+ * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
+ */
 public class BCIModuleInstanceTest {
      private BCIModuleInstance bciModuleInstance;
 
@@ -30,12 +37,12 @@ public class BCIModuleInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        bciActivityInstance = new BCIActivityInstance(
-                "In progress", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+        bciActivityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(bciActivityInstance));
 
-        bciModuleInstance = new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL, activities);
+        bciModuleInstance = new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.SUCCESSFUL, activities);
     }
 
     @Test
@@ -55,8 +62,8 @@ public class BCIModuleInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivityInstance activityInstance = new BCIActivityInstance(
-                "Not started", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2028/01/08"), participants);
+        BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2028/01/08"), participants);
 
         bciModuleInstance.addActivity(activityInstance);
 
@@ -75,11 +82,11 @@ public class BCIModuleInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivityInstance activityInstance = new BCIActivityInstance(
-                "Not started", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+        BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
 
-        BCIActivityInstance activityInstance2 = new BCIActivityInstance(
-                "Not started", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), participants);
+        BCIActivityInstance activityInstance2 = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), participants);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(activityInstance, activityInstance2));
 

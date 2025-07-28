@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.event;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
@@ -21,7 +22,7 @@ public class BCIModuleInstanceEvent extends EvoEvent<BCIModuleInstance> {
         super(evoModel);
     }
 
-    public String getStatus() {
+    public ExecutionStatus getStatus() {
         return this.getEvoModel().getStatus();
     }
 

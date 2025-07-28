@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests methods found in BehaviorChangeInterventionBlockInstanceService in a containerized setup.
+ * @version 1.0
  * @author Julien Champagne.
  * @author Edilton Lima dos Santos.
  */
@@ -68,22 +70,23 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         participants.add(participant);
 
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
-                "In progress", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants));
+                ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
+                participants));
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
-        BCIModuleInstance moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL,
-                activities));
+        BCIModuleInstance moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance(ExecutionStatus.STALLED,
+                OutcomeType.SUCCESSFUL, activities));
         List<BCIModuleInstance> modules = new ArrayList<>();
         modules.add(moduleInstance);
 
         BehaviorChangeInterventionBlockInstance blockInstance = behaviorChangeInterventionBlockInstanceService.
-                create(new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.BEGINNING, activities));
+                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities));
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>();
         blocks.add(blockInstance);
 
         phaseInstance = behaviorChangeInterventionPhaseInstanceService.create
-                (new BehaviorChangeInterventionPhaseInstance("NOTSTARTED", blockInstance, blocks, modules));
+                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules));
     }
 
     @Test
@@ -121,7 +124,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         List<BCIModuleInstance> modules = new ArrayList<>(phaseInstance.getModules());
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>(phaseInstance.getActivities());
         behaviorChangeInterventionPhaseInstanceService.create(new BehaviorChangeInterventionPhaseInstance(
-                "NOTSTARTED", phaseInstance.getCurrentBlock(), blocks, modules));
+                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), blocks, modules));
         List<BehaviorChangeInterventionPhaseInstance> results = behaviorChangeInterventionPhaseInstanceService.findAll();
 
         assertEquals(2, results.size());
@@ -139,7 +142,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
     @Test
     void testFindByBlocksId() {
         List<BehaviorChangeInterventionPhaseInstance> result = behaviorChangeInterventionPhaseInstanceService
-                .findByActivitiesId(phaseInstance.getActivities().get(0).getId());
+                .findByActivitiesId(phaseInstance.getActivities().getFirst().getId());
 
         assertFalse(result.isEmpty());
         assertEquals(phaseInstance.getId(), result.getFirst().getId());

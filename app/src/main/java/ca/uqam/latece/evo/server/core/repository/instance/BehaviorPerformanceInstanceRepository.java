@@ -1,6 +1,6 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
-import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 import org.springframework.stereotype.Repository;
@@ -20,7 +20,7 @@ public interface BehaviorPerformanceInstanceRepository extends EvoRepository<Beh
      * @return A list of BehaviorPerformanceInstance with the specified status.
      * @throws IllegalArgumentException if the status is null.
      */
-    List<BehaviorPerformanceInstance> findByStatus(String status);
+    List<BehaviorPerformanceInstance> findByStatus(ExecutionStatus status);
 
     /**
      * Finds a BehaviorPerformanceInstance by its Participant id.

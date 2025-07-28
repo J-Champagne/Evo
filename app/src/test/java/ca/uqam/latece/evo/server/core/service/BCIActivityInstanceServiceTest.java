@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.model.*;
@@ -158,7 +159,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         contentService.create(content2);
 
         // Create and save a BCIActivityInstance
-        bciActivityInstance.setStatus("BCIActivity Instance Java");
+        bciActivityInstance.setStatus(ExecutionStatus.UNKNOWN);
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
         bciActivityInstance.addParticipant(participant);
@@ -191,7 +192,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     void testSave() {
         // Create BCIActivityInstance.
         BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
-        bciActivityInstance.setStatus("BCIActivity Instance Java");
+        bciActivityInstance.setStatus(ExecutionStatus.UNKNOWN);
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
 
@@ -207,22 +208,22 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         // Update the BCIActivityInstance.
         BCIActivityInstance instance = new BCIActivityInstance();
         instance.setId(bciActivityInstance.getId());
-        instance.setStatus("BCIActivity Instance Java 62");
+        instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
         BCIActivityInstance saved = bciActivityInstanceService.update(instance);
 
         // Checks if the BCI Activity Instance id saved is the same of the BCI Activity Instance updated.
         assertEquals(saved.getId(), bciActivityInstance.getId());
-        // Checks if the BCI Activity Instance Status is different.
-        assertNotEquals("BCIActivity Instance Java", saved.getStatus());
+        // Checks if the BCI Activity Instance Status is equals.
+        assertEquals(ExecutionStatus.IN_PROGRESS, saved.getStatus());
     }
 
     @Test
     @Override
     void testFindById() {
         BCIActivityInstance instance = new BCIActivityInstance();
-        instance.setStatus("BCIActivity Instance Java 63");
+        instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
 
@@ -235,7 +236,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Override
     void testDeleteById() {
         BCIActivityInstance instance = new BCIActivityInstance();
-        instance.setStatus("BCIActivity Instance Java 79");
+        instance.setStatus(ExecutionStatus.SUSPENDED);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
         BCIActivityInstance saved = bciActivityInstanceService.create(instance);
@@ -250,7 +251,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     void testFindByStatus() {
         // Creates a BCIActivityInstance.
         BCIActivityInstance instance = new BCIActivityInstance();
-        instance.setStatus("Status 1");
+        instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
         BCIActivityInstance saved = bciActivityInstanceService.create(instance);
@@ -259,14 +260,14 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         List<BCIActivityInstance> found = bciActivityInstanceService.findByStatus(saved.getStatus());
         // Tests.
         assertEquals(1, found.size());
-        assertEquals(instance.getStatus(), found.get(0).getStatus());
+        assertEquals(instance.getStatus(), found.getFirst().getStatus());
     }
 
     @Test
     @Override
     void testFindAll() {
         BCIActivityInstance instance = new BCIActivityInstance();
-        instance.setStatus("BCIActivity Instance Java 99");
+        instance.setStatus(ExecutionStatus.FINISHED);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
         BCIActivityInstance saved = bciActivityInstanceService.create(instance);
@@ -282,7 +283,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Test
     void testFindByParticipantsId() {
         BCIActivityInstance instance = new BCIActivityInstance();
-        instance.setStatus("BCIActivity Instance Java 99");
+        instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
         instance.addParticipant(participant);
@@ -290,8 +291,8 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
 
         // Find by ParticipantId
         List<BCIActivityInstance> bciActivities = bciActivityInstanceService.findByParticipantsId(participant.getId());
-        assertEquals(1, bciActivities.get(0).getParticipants().size());
-        assertEquals(participant.getId(), bciActivities.get(0).getParticipants().get(0).getId());
+        assertEquals(1, bciActivities.getFirst().getParticipants().size());
+        assertEquals(participant.getId(), bciActivities.getFirst().getParticipants().getFirst().getId());
     }
 
     @Test

@@ -1,13 +1,13 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.ActivityInstance;
 import ca.uqam.latece.evo.server.core.service.instance.ActivityInstanceService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,9 @@ import java.util.List;
 
 /**
  * ActivityInstance Controller.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @RestController
 @RequestMapping("/activityinstance")
@@ -28,12 +30,10 @@ public class ActivityInstanceController extends AbstractEvoController<ActivityIn
     private ActivityInstanceService activityInstanceService;
 
     /**
-     * Creates a ActivityInstance in the database.
+     * Creates an ActivityInstance in the database.
      * @param model ActivityInstance.
      * @return The created ActivityInstance in JSON format.
      * @throws IllegalArgumentException if model is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -60,12 +60,10 @@ public class ActivityInstanceController extends AbstractEvoController<ActivityIn
     }
 
     /**
-     * Updates a ActivityInstance in the database.
+     * Updates an ActivityInstance in the database.
      * @param model ActivityInstance.
      * @return The updated ActivityInstance in JSON format.
      * @throws IllegalArgumentException if model is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
@@ -165,13 +163,14 @@ public class ActivityInstanceController extends AbstractEvoController<ActivityIn
 
     /**
      * Finds ActivityInstance entities by their status.
-     * @param status String.
-     * @return List<ActivityInstance> in JSON format.
-     * @throws IllegalArgumentException if status is null.
+     * @param status The execution status used as a filter criteria.
+     * @return A ResponseEntity containing a list of ActivityInstance entities matching the provided status
+     *         if found, or an appropriate HTTP status (NOT_FOUND or BAD_REQUEST) if no matching entities
+     *         are found or if an error occurs.
      */
     @GetMapping("/find/status/{status}")
     @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<ActivityInstance>> findStatus(@PathVariable String status) {
+    public ResponseEntity<List<ActivityInstance>> findStatus(@PathVariable ExecutionStatus status) {
         ResponseEntity<List<ActivityInstance>> response;
 
         try {

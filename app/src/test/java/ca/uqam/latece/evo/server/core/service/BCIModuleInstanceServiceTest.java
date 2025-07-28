@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.Role;
@@ -67,12 +68,13 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
         participants.add(participant);
 
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
-                "In progress", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants));
+                ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
+                participants));
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
-        moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance("NOTSTARTED", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
-                OutcomeType.SUCCESSFUL, activities));
+        moduleInstance = bciModuleInstanceService.create(new BCIModuleInstance(ExecutionStatus.STALLED, LocalDate.now(),
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), OutcomeType.SUCCESSFUL, activities));
     }
 
     @Test
@@ -107,7 +109,7 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     @Override
     void testFindAll() {
         List<BCIActivityInstance> activities = new ArrayList<>(moduleInstance.getActivities());
-        bciModuleInstanceService.create(new BCIModuleInstance("NOTSTARTED", OutcomeType.PARTIALLYSUCCESSFUL, activities));
+        bciModuleInstanceService.create(new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.PARTIALLYSUCCESSFUL, activities));
         List<BCIModuleInstance> results = bciModuleInstanceService.findAll();
 
         assertEquals(2, results.size());

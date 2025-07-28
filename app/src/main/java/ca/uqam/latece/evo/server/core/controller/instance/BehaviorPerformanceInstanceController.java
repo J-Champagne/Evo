@@ -1,8 +1,8 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
-import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorPerformanceInstanceService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.validation.Valid;
@@ -141,11 +141,11 @@ public class BehaviorPerformanceInstanceController extends AbstractEvoController
      */
     @GetMapping("/find/status/{status}")
     @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<List<BehaviorPerformanceInstance>> findByStatus(@PathVariable String status) {
+    public ResponseEntity<List<BehaviorPerformanceInstance>> findByStatus(@PathVariable ExecutionStatus status) {
         ResponseEntity<List<BehaviorPerformanceInstance>> response;
 
         try {
-            ObjectValidator.validateString(status);
+            ObjectValidator.validateObject(status);
             List<BehaviorPerformanceInstance> foundList = behaviorPerformanceInstanceService.findByStatus(status);
 
             if (foundList != null && !foundList.isEmpty()) {

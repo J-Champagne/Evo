@@ -1,7 +1,6 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
-import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
-import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.GoalSettingInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -114,8 +113,8 @@ public class GoalSettingInstanceService extends AbstractEvoService<GoalSettingIn
      * @return A list of GoalSettingInstance with the specified status.
      * @throws IllegalArgumentException if the status is null.
      */
-    public List<GoalSettingInstance> findByStatus(String status) {
-        ObjectValidator.validateString(status);
+    public List<GoalSettingInstance> findByStatus(ExecutionStatus status) {
+        ObjectValidator.validateObject(status);
         return this.goalSettingInstanceRepository.findByStatus(status);
     }
 

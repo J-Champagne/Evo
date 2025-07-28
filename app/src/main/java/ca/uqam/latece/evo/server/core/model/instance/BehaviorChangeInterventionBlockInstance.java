@@ -1,9 +1,12 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 
 import ca.uqam.latece.evo.server.core.interfaces.ProcessInstance;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,12 +17,15 @@ import java.util.Objects;
 
 /**
  * BehaviorChangeInterventionBlock instance class.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Entity
 @JsonPropertyOrder({"stage"})
 @Table(name = "bci_block_instance")
 @PrimaryKeyJoinColumn(name="bci_block_instance_id", referencedColumnName = "activity_instance_id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class BehaviorChangeInterventionBlockInstance extends ActivityInstance implements ProcessInstance<BCIActivityInstance> {
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -36,21 +42,21 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
 
     public BehaviorChangeInterventionBlockInstance() {}
 
-    public BehaviorChangeInterventionBlockInstance(String status) {
+    public BehaviorChangeInterventionBlockInstance(ExecutionStatus status) {
         super(status);
     }
 
-    public BehaviorChangeInterventionBlockInstance(String status, TimeCycle stage) {
+    public BehaviorChangeInterventionBlockInstance(ExecutionStatus status, TimeCycle stage) {
        this(status);
        this.stage = stage;
     }
 
-    public BehaviorChangeInterventionBlockInstance(String status, TimeCycle stage, List<BCIActivityInstance> activities) {
+    public BehaviorChangeInterventionBlockInstance(ExecutionStatus status, TimeCycle stage, List<BCIActivityInstance> activities) {
         this(status, stage);
         this.activities = activities;
     }
 
-    public BehaviorChangeInterventionBlockInstance(String status, LocalDate entryDate, LocalDate exitDate, TimeCycle stage,
+    public BehaviorChangeInterventionBlockInstance(ExecutionStatus status, LocalDate entryDate, LocalDate exitDate, TimeCycle stage,
                                                    List<BCIActivityInstance> activities) {
         super(status, entryDate, exitDate);
         this.stage = stage;

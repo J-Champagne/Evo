@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.model.instance.*;
@@ -171,7 +172,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         participantService.create(participant);
 
         // Create BCIActivityInstance.
-        bciActivityInstance.setStatus("BCIActivity Instance Java");
+        bciActivityInstance.setStatus(ExecutionStatus.READY);
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
         bciActivityInstanceService.create(bciActivityInstance);
@@ -186,7 +187,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         behaviorPerformanceService.create(behaviorPerformance);
 
         // Create a BehaviorPerformanceInstance.
-        behaviorPerformanceInstance.setStatus("Status Testing - Behavior Performance Instance Test");
+        behaviorPerformanceInstance.setStatus(ExecutionStatus.READY);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
@@ -223,7 +224,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
     void testSave() {
         // Create a Behavior Performance instance.
         BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
-        behaviorPerformanceInstance.setStatus("Status - Behavior Performance Instance Test - Save");
+        behaviorPerformanceInstance.setStatus(ExecutionStatus.READY);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
@@ -241,7 +242,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         // Create a Behavior Performance Instance.
         BehaviorPerformanceInstance saved = new BehaviorPerformanceInstance();
         saved.setId(behaviorPerformanceInstance.getId());
-        saved.setStatus("Status Update - Behavior Performance Instance Test - Update");
+        saved.setStatus(ExecutionStatus.FINISHED);
         saved.setEntryDate(localEntryDate);
         saved.setExitDate(localExitDate);
         saved.setBehaviorPerformance(behaviorPerformance);
@@ -252,8 +253,8 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
         // Checks if the Behavior Performance id saved is the same of the Behavior Performance updated.
         assertEquals(saved.getId(), updated.getId());
 
-        // Checks if the Behavior Performance Instance status is different.
-        assertNotEquals("Status Testing - Behavior Performance Instance Test", updated.getStatus());
+        // Checks if the Behavior Performance Instance status is equals.
+        assertEquals(saved.getStatus(), updated.getStatus());
         assertEquals(localEntryDate, updated.getEntryDate());
         assertEquals(localExitDate, updated.getExitDate());
         assertEquals(behaviorPerformance.getId(), updated.getBehaviorPerformance().getId());
@@ -271,7 +272,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
     void testDeleteById() {
         // Create a Behavior Performance instance.
         BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
-        behaviorPerformanceInstance.setStatus("Status 123 - Behavior Performance Instance Test");
+        behaviorPerformanceInstance.setStatus(ExecutionStatus.UNKNOWN);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
@@ -289,7 +290,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
     void testFindByStatus() {
         // Create a Behavior Performance instance.
         BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
-        behaviorPerformanceInstance.setStatus("Status-Behavior Performance Instance Test");
+        behaviorPerformanceInstance.setStatus(ExecutionStatus.SUSPENDED);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);
@@ -309,7 +310,7 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
     void testFindAll() {
         // Create a Behavior Performance instance.
         BehaviorPerformanceInstance behaviorPerformanceInstance = new BehaviorPerformanceInstance();
-        behaviorPerformanceInstance.setStatus("Status 3 - Behavior Performance Instance Test");
+        behaviorPerformanceInstance.setStatus(ExecutionStatus.READY);
         behaviorPerformanceInstance.setEntryDate(localEntryDate);
         behaviorPerformanceInstance.setExitDate(localExitDate);
         behaviorPerformanceInstance.setBehaviorPerformance(behaviorPerformance);

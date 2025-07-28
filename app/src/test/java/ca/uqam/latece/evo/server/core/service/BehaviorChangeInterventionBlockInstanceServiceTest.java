@@ -1,9 +1,9 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
-import ca.uqam.latece.evo.server.core.event.EvoEvent;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
@@ -13,10 +13,10 @@ import ca.uqam.latece.evo.server.core.service.instance.*;
 
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
@@ -59,6 +59,9 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     @Autowired
     private ApplicationEvents applicationEvents;
 
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @BeforeEach
     public void setUp() {
         Role role = roleService.create(new Role("Administrator"));
@@ -69,13 +72,14 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         participants.add(participant);
 
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
-                "In progress", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants));
+                ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
+                participants));
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
         blockInstance = behaviorChangeInterventionBlockInstanceService.
-                    create(new BehaviorChangeInterventionBlockInstance("Started", LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
-                            TimeCycle.MIDDLE, activities));
+                    create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
+                            DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities));
     }
 
     @Test
@@ -110,7 +114,8 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     @Test
     @Override
     void testFindAll() {
-        behaviorChangeInterventionBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.MIDDLE));
+        behaviorChangeInterventionBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance(
+                ExecutionStatus.STALLED, TimeCycle.MIDDLE));
         List<BehaviorChangeInterventionBlockInstance> results = behaviorChangeInterventionBlockInstanceService.findAll();
 
         assertEquals(2, results.size());
@@ -136,11 +141,34 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     @Test
     void testPublishEvent() {
         blockInstance.setStage(TimeCycle.BEGINNING);
+        blockInstance.setStatus(ExecutionStatus.IN_PROGRESS);
         BehaviorChangeInterventionBlockInstance updated = behaviorChangeInterventionBlockInstanceService.update(blockInstance);
         assertEquals(blockInstance.getStage(), updated.getStage());
 
         assertEquals(1, applicationEvents.stream(BCIBlockInstanceEvent.class).
                 filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
-                        event.getTimeCycle().equals(TimeCycle.BEGINNING)).count());
+                        event.getEvoModel().getStage().equals(TimeCycle.BEGINNING)).count());
+    }
+
+    @Test
+    void handleBCIBlockInstanceEvents() {
+        // Update the blockInstance.
+        blockInstance.setStage(TimeCycle.END);
+        blockInstance.setStatus(ExecutionStatus.FINISHED);
+        BehaviorChangeInterventionBlockInstance updated = behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+        assertEquals(blockInstance.getStage(), updated.getStage());
+
+        // Creates the BCIBlockInstanceEvent
+        BCIBlockInstanceEvent blockInstanceEvent = new BCIBlockInstanceEvent(updated, updated.getStage());
+        blockInstanceEvent.setChangeAspect(ChangeAspect.TERMINATED);
+
+        // Publish the event.
+        applicationEventPublisher.publishEvent(blockInstanceEvent);
+
+        // Test.
+        assertEquals(1, applicationEvents.stream(BCIBlockInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.TERMINATED) &&
+                        event.getEvoModel().getStage().equals(TimeCycle.END) &&
+                        event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED)).count());
     }
 }

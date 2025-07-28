@@ -1,6 +1,6 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
-import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 import org.springframework.stereotype.Repository;
@@ -20,13 +20,14 @@ public interface GoalSettingInstanceRepository extends EvoRepository<GoalSetting
      * @return A list of GoalSettingInstance with the specified status.
      * @throws IllegalArgumentException if the status is null.
      */
-    List<GoalSettingInstance> findByStatus(String status);
+    List<GoalSettingInstance> findByStatus(ExecutionStatus status);
+
 
     /**
-     * Finds a GoalSettingInstance by its Participant id.
-     * @param id Long.
-     * @return GoalSettingInstance with the given Participant id.
-     * @throws IllegalArgumentException if id is null.
+     * Retrieves a GoalSettingInstance associated with the specified participant's ID.
+     * @param id the ID of the participant whose GoalSettingInstance is to be retrieved, must not be null.
+     * @return the GoalSettingInstance associated with the specified participant's ID, or null if not found.
+     * @throws IllegalArgumentException if the provided ID is null.
      */
     GoalSettingInstance findByParticipantsId(Long id);
 }

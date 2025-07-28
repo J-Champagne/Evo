@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.BCIActivityInstanceController;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
@@ -81,7 +82,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
 
         // Create BCIActivityInstance.
         bciActivityInstance.setId(5L);
-        bciActivityInstance.setStatus("BCIActivity Instance Java");
+        bciActivityInstance.setStatus(ExecutionStatus.STALLED);
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
         bciActivityInstance.addParticipant(participant);
@@ -110,11 +111,11 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
     @Override
     void testUpdate() throws Exception {
         // Update a BCIActivityInstance.
-        bciActivityInstance.setStatus("BCIActivity Instance 13");
+        bciActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
         // Save in the database.
         when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
         // Perform a PUT request to test the controller.
-        performUpdateRequest(URL, bciActivityInstance, "$.status", bciActivityInstance.getStatus());
+        performUpdateRequest(URL, bciActivityInstance, "$.status", bciActivityInstance.getStatus().toString());
     }
 
     @Test
@@ -132,7 +133,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityInstanceRepository.findById().
         when(bciActivityInstanceRepository.findById(bciActivityInstance.getId())).thenReturn(Optional.of(bciActivityInstance));
         // Perform a GET request to test the controller.
-        performGetRequest(URL_FIND + bciActivityInstance.getId(), "$.status", bciActivityInstance.getStatus());
+        performGetRequest(URL_FIND + bciActivityInstance.getId(), "$.status", bciActivityInstance.getStatus().toString());
     }
 
     @Test
@@ -142,7 +143,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Mock behavior for bciActivityInstanceRepository.findById().
         when(bciActivityInstanceRepository.findByStatus(bciActivityInstance.getStatus())).thenReturn(Collections.singletonList(bciActivityInstance));
         // Perform a GET request to test the controller.
-        performGetRequest(URL_FIND + "status/" + bciActivityInstance.getStatus(), "$[0].status", bciActivityInstance.getStatus());
+        performGetRequest(URL_FIND + "status/" + bciActivityInstance.getStatus(), "$[0].status", bciActivityInstance.getStatus().toString());
     }
 
     @Test

@@ -270,7 +270,7 @@ CREATE TABLE IF NOT EXISTS bci_activity (
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS activity_instance (
     activity_instance_id BIGSERIAL NOT NULL,
-    activity_instance_status VARCHAR(128) NULL,
+    activity_instance_status VARCHAR(12) NULL,
     activity_instance_entry_date DATE NULL,
     activity_instance_exit_date DATE NULL,
     CONSTRAINT activity_instance_pkey PRIMARY KEY (activity_instance_id)

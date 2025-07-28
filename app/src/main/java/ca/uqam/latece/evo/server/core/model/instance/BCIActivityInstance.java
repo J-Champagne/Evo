@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -12,6 +13,7 @@ import java.util.Objects;
 
 /**
  * BCIActivityInstance model class.
+ * @version 1.0
  * @author Edilton Lima dos Santos
  * @author Julien Champagne.
  */
@@ -31,11 +33,11 @@ public class BCIActivityInstance extends ActivityInstance {
 
     public BCIActivityInstance() {}
 
-    public BCIActivityInstance(String status, LocalDate entryDate, LocalDate exitDate) {
+    public BCIActivityInstance(ExecutionStatus status, LocalDate entryDate, LocalDate exitDate) {
         super(status, entryDate, exitDate);
     }
 
-    public BCIActivityInstance(String status, LocalDate entryDate, LocalDate exitDate, List<Participant> participants) {
+    public BCIActivityInstance(ExecutionStatus status, LocalDate entryDate, LocalDate exitDate, List<Participant> participants) {
         this(status, entryDate, exitDate);
         for (Participant participant : participants) {
             this.addParticipant(participant);
@@ -54,7 +56,7 @@ public class BCIActivityInstance extends ActivityInstance {
         if (participants.size() < 3) {
             participants.add(participant);
         } else {
-            throw new IndexOutOfBoundsException("Can only contain a maximum of 3 participants");
+            throw new IndexOutOfBoundsException("Can only contain a maximum of 3 participants!");
         }
     }
 

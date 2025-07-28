@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.model.*;
@@ -196,13 +197,13 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         participantService.create(participant);
 
         // Create BCIActivityInstance.
-        bciActivityInstance.setStatus("BCIActivity Instance Java");
+        bciActivityInstance.setStatus(ExecutionStatus.STALLED);
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
         bciActivityInstanceService.create(bciActivityInstance);
 
         // Save a GoalSettingInstance
-        goalSettingInstance.setStatus("Status - Goal Setting Instance Test");
+        goalSettingInstance.setStatus(ExecutionStatus.STALLED);
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
@@ -240,7 +241,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
     void testSave() {
         // Create a GoalSettingInstance.
         GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
-        goalSettingInstance.setStatus("Status 12 - Goal Setting Instance Test");
+        goalSettingInstance.setStatus(ExecutionStatus.IN_PROGRESS);
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
@@ -257,7 +258,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
         // Create a GoalSettingInstance.
         GoalSettingInstance instance = new GoalSettingInstance();
         instance.setId(goalSettingInstance.getId());
-        instance.setStatus("Status - Goal Setting Instance Test - Test 1");
+        instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setGoalSetting(goalSetting2);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
@@ -266,8 +267,8 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
 
         // Checks if the Behavior Setting id saved is the same of the Behavior Setting updated.
         assertEquals(instance.getId(), updated.getId());
-        // Checks if the Behavior Performance Instance status is different.
-        assertNotEquals("Status - Goal Setting Instance Test", updated.getStatus());
+        // Checks if the Behavior Performance Instance status is equals.
+        assertEquals(goalSettingInstance.getStatus(), updated.getStatus());
 
         assertEquals(localEntryDate, updated.getEntryDate());
         assertEquals(localExitDate, updated.getExitDate());
@@ -285,7 +286,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
     void testDeleteById() {
         // Create a GoalSettingInstance.
         GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
-        goalSettingInstance.setStatus("Status - Goal Setting Instance Test 2");
+        goalSettingInstance.setStatus(ExecutionStatus.UNKNOWN);
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
@@ -304,7 +305,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
     void testFindByStatus() {
         // Create a GoalSettingInstance.
         GoalSettingInstance goalSettingInstance = new GoalSettingInstance();
-        goalSettingInstance.setStatus("Status-Goal Setting Instance 2");
+        goalSettingInstance.setStatus(ExecutionStatus.FINISHED);
         goalSettingInstance.setGoalSetting(goalSetting);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
@@ -338,7 +339,7 @@ public class GoalSettingInstanceServiceTest extends AbstractServiceTest {
 
         // Create a GoalSettingInstance.
         GoalSettingInstance settingInstance = new GoalSettingInstance();
-        settingInstance.setStatus("Status - Goal Setting Instance Test 22");
+        settingInstance.setStatus(ExecutionStatus.IN_PROGRESS);
         settingInstance.setGoalSetting(savedGoalSetting);
         settingInstance.setEntryDate(localEntryDate);
         settingInstance.setExitDate(localExitDate);

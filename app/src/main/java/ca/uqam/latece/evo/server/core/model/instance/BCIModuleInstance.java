@@ -1,15 +1,12 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.interfaces.ProcessInstance;
-import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -20,12 +17,15 @@ import java.util.Objects;
 
 /**
  * BCIModule instance class.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Entity
 @Table(name = "bci_module_instance")
 @JsonPropertyOrder("outcome")
 @PrimaryKeyJoinColumn(name="bci_module_instance_id", referencedColumnName = "activity_instance_id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class BCIModuleInstance extends ActivityInstance implements ProcessInstance<BCIActivityInstance> {
     @Enumerated(EnumType.STRING)
     @Column(name = "bci_module_instance_outcome")
@@ -41,17 +41,17 @@ public class BCIModuleInstance extends ActivityInstance implements ProcessInstan
 
     public BCIModuleInstance() {}
 
-    public BCIModuleInstance(String status, OutcomeType outcome) {
+    public BCIModuleInstance(ExecutionStatus status, OutcomeType outcome) {
         super(status);
         this.outcome = outcome;
     }
 
-    public BCIModuleInstance(String status, OutcomeType outcome, List<BCIActivityInstance> activities) {
+    public BCIModuleInstance(ExecutionStatus status, OutcomeType outcome, List<BCIActivityInstance> activities) {
         this(status, outcome);
         this.addActivities(activities);
     }
 
-    public BCIModuleInstance(String status, LocalDate entryDate, LocalDate exitDate, OutcomeType outcome,
+    public BCIModuleInstance(ExecutionStatus status, LocalDate entryDate, LocalDate exitDate, OutcomeType outcome,
                              List<BCIActivityInstance> activities) {
         super(status, entryDate, exitDate);
         this.outcome = outcome;

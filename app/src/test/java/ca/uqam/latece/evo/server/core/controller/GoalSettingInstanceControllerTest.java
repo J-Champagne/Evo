@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.GoalSettingInstanceController;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
@@ -101,7 +102,7 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
         // Create a Goal Setting Instance.
         goalSettingInstance.setId(7L);
         goalSettingInstance.setGoalSetting(goalSetting);
-        goalSettingInstance.setStatus("Goal Setting Instance Java");
+        goalSettingInstance.setStatus(ExecutionStatus.READY);
         goalSettingInstance.setEntryDate(localEntryDate);
         goalSettingInstance.setExitDate(localExitDate);
         goalSettingInstance.addParticipant(participant);
@@ -131,13 +132,13 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
     @Override
     void testUpdate() throws Exception {
         // Update a Goal Setting Instance.
-        goalSettingInstance.setStatus("Setting Instance 2222");
+        goalSettingInstance.setStatus(ExecutionStatus.FINISHED);
 
         // Save in the database.
         when(goalSettingInstanceRepository.save(goalSettingInstance)).thenReturn(goalSettingInstance);
 
         // Perform a PUT request to test the controller.
-        performUpdateRequest(URL, goalSettingInstance, "$.status", goalSettingInstance.getStatus());
+        performUpdateRequest(URL, goalSettingInstance, "$.status", goalSettingInstance.getStatus().toString());
     }
 
     @Test
@@ -157,7 +158,8 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
         when(goalSettingInstanceRepository.findById(goalSettingInstance.getId())).thenReturn(Optional.of(goalSettingInstance));
 
         // Perform a GET request to test the controller.
-        performGetRequest(URL_FIND + goalSettingInstance.getId(), "$.status", goalSettingInstance.getStatus());
+        performGetRequest(URL_FIND + goalSettingInstance.getId(), "$.status",
+                goalSettingInstance.getStatus().toString());
     }
 
     @Test
@@ -171,7 +173,7 @@ public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
 
         // Perform a GET request to test the controller.
         performGetRequest(URL_FIND + "status/" + goalSettingInstance.getStatus(), "$[0].status",
-                goalSettingInstance.getStatus());
+                goalSettingInstance.getStatus().toString());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
@@ -12,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -67,9 +70,32 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
 
         if (found != null) {
             updated = this.bciBlockInstanceRepository.save(blockInstance);
-            this.publishEvent(new BCIBlockInstanceEvent(updated));
+
+            // Publish the event only if BehaviorChangeInterventionBlockInstance Status equals in progress or Finished.
+            if ((updated.getStatus().equals(ExecutionStatus.IN_PROGRESS) || updated.getStatus().equals(ExecutionStatus.FINISHED)) &&
+                    !updated.getStage().equals(found.getStage())) {
+                this.publishEvent(new BCIBlockInstanceEvent(updated, updated.getStage()));
+            }
         }
         return updated;
+    }
+
+    /**
+     * Handles BCIBlockInstanceEvent by updating the corresponding BehaviorChangeInterventionBlockInstance
+     * when specific conditions related to its execution status, change aspect, and time cycle are met.
+     * @param event the BCIBlockInstanceEvent to be processed, which contains information about the
+     *              BehaviorChangeInterventionBlockInstance and its state changes.
+     */
+    @EventListener(BCIBlockInstanceEvent.class)
+    public void handleBCIBlockInstanceEvents(BCIBlockInstanceEvent event) {
+        if (event !=null) {
+            // If this BehaviorChangeInterventionBlockInstance was finished by the BehaviorChangeInterventionPhaseInstance.
+            if (event.getChangeAspect().equals(ChangeAspect.TERMINATED) &&
+                    event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED) &&
+                    event.getTimeCycle().equals(TimeCycle.END)) {
+                this.update(event.getEvoModel());
+            }
+        }
     }
 
     /**

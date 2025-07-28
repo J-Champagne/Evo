@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.ActivityInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.ActivityInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -9,7 +10,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +18,9 @@ import java.util.List;
 
 /**
  * ActivityInstance Service.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Service
 @Transactional
@@ -29,12 +31,10 @@ public class ActivityInstanceService extends AbstractEvoService<ActivityInstance
     private ActivityInstanceRepository activityInstanceRepository;
 
     /**
-     * Creates a ActivityInstance in the database.
+     * Creates an ActivityInstance in the database.
      * @param activityInstance ActivityInstance.
      * @return The created ActivityInstance.
      * @throws IllegalArgumentException if activityInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public ActivityInstance create(ActivityInstance activityInstance) {
@@ -48,12 +48,10 @@ public class ActivityInstanceService extends AbstractEvoService<ActivityInstance
     }
 
     /**
-     * Updates a ActivityInstance in the database.
+     * Updates an ActivityInstance in the database.
      * @param activityInstance ActivityInstance.
      * @return The updated ActivityInstance.
      * @throws IllegalArgumentException if activityInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public ActivityInstance update(ActivityInstance activityInstance) {
@@ -74,19 +72,17 @@ public class ActivityInstanceService extends AbstractEvoService<ActivityInstance
      * @param activityInstance ActivityInstance.
      * @return The saved ActivityInstance.
      * @throws IllegalArgumentException if activityInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public ActivityInstance save(ActivityInstance activityInstance) {
-        ObjectValidator.validateString(activityInstance.getStatus());
+        ObjectValidator.validateObject(activityInstance.getStatus());
         ObjectValidator.validateObject(activityInstance.getEntryDate());
         ObjectValidator.validateObject(activityInstance.getExitDate());
         return this.activityInstanceRepository.save(activityInstance);
     }
 
     /**
-     * Deletes a ActivityInstance by its id.
+     * Deletes an ActivityInstance by its id.
      * Silently ignored if not found.
      * @param id Long.
      * @throws IllegalArgumentException if id is null.
@@ -106,7 +102,7 @@ public class ActivityInstanceService extends AbstractEvoService<ActivityInstance
     }
 
     /**
-     * Finds a ActivityInstance by its id.
+     * Finds an ActivityInstance by its id.
      * @param id Long.
      * @return ActivityInstance with the given id.
      * @throws IllegalArgumentException if id is null.
@@ -120,12 +116,12 @@ public class ActivityInstanceService extends AbstractEvoService<ActivityInstance
 
     /**
      * Finds ActivityInstance entities by their status.
-     * @param status String.
-     * @return List<ActivityInstance> with the given status.
-     * @throws IllegalArgumentException if status is null.
+     * @param status ExecutionStatus representing the status of the ActivityInstance.
+     * @return List of ActivityInstance entities with the given status.
+     * @throws IllegalArgumentException if the status is null.
      */
-    public List<ActivityInstance> findByStatus(String status) {
-        ObjectValidator.validateString(status);
+    public List<ActivityInstance> findByStatus(ExecutionStatus status) {
+        ObjectValidator.validateObject(status);
         return this.activityInstanceRepository.findByStatus(status);
     }
 

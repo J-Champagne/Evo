@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -16,10 +17,12 @@ import java.util.Objects;
 
 /**
  * ActivityInstance class.
+ * @version 1.0
  * @author Edilton Lima dos Santos.
  * @author Julien Champagne
  */
 @Entity
+@Table(name = "activity_instance")
 @JsonPropertyOrder({"id", "status", "entryDate", "exitDate"})
 @Inheritance(strategy = InheritanceType.JOINED)
 public class ActivityInstance extends AbstractEvoModel {
@@ -28,8 +31,9 @@ public class ActivityInstance extends AbstractEvoModel {
     @Column(name = "activity_instance_id")
     private Long id;
 
-    @Column(name = "activity_instance_status", length = 128)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "activity_instance_status", length = 12)
+    private ExecutionStatus status;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -45,12 +49,12 @@ public class ActivityInstance extends AbstractEvoModel {
 
     public ActivityInstance() {}
 
-    public ActivityInstance(String status) {
+    public ActivityInstance(ExecutionStatus status) {
         this.status = status;
         this.entryDate = LocalDate.now();
     }
 
-    public ActivityInstance(@NotNull String status, LocalDate entryDate, LocalDate exitDate) {
+    public ActivityInstance(@NotNull ExecutionStatus status, LocalDate entryDate, LocalDate exitDate) {
         this.status = status;
         this.entryDate = entryDate;
         this.exitDate = exitDate;
@@ -66,11 +70,11 @@ public class ActivityInstance extends AbstractEvoModel {
         this.id = id;
     }
 
-    public String getStatus() {
+    public ExecutionStatus getStatus() {
         return this.status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ExecutionStatus status) {
         this.status = status;
     }
 

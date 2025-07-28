@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.BehaviorChangeInterventionPhaseInstanceController;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.Role;
@@ -26,7 +27,9 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests methods found in BehaviorChangeInterventionPhaseInstanceController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = BehaviorChangeInterventionPhaseInstanceController.class)
 @ContextConfiguration(classes = {BehaviorChangeInterventionPhaseInstance.class, BehaviorChangeInterventionPhaseInstanceService.class,
@@ -50,22 +53,22 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private List<Participant> participants = List.of(participant);
 
-    private BCIActivityInstance activityInstance = new BCIActivityInstance("In progress", LocalDate.now(),
+    private BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
             DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
-    private BCIModuleInstance moduleInstance = new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL, activities);
+    private BCIModuleInstance moduleInstance = new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.SUCCESSFUL, activities);
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
-    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED", TimeCycle.BEGINNING,
-            activities);
+    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(
+            ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities);
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
-    private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance("NOTSTARTED",
-            blockInstance, blocks, modules);
+    private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance(
+            ExecutionStatus.STALLED, blockInstance, blocks, modules);
 
     private static final String url = "/behaviorchangeinterventionphaseinstance";
 
@@ -73,8 +76,8 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
     @Override
     public void setUp() {
         blockInstance.setId(1L);
-        moduleInstance.setId(1L);
-        phaseInstance.setId(1L);
+        moduleInstance.setId(2L);
+        phaseInstance.setId(3L);
         when(bciBlockInstanceRepository.save(blockInstance)).thenReturn(blockInstance);
         when(bciModuleInstanceRepository.save(moduleInstance)).thenReturn(moduleInstance);
         when(bciPhaseInstanceRepository.save(phaseInstance)).thenReturn(phaseInstance);
@@ -89,13 +92,13 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
     @Test
     @Override
     void testUpdate() throws Exception {
-        BehaviorChangeInterventionBlockInstance blockInstance2 = new BehaviorChangeInterventionBlockInstance("NOTSTARTED",
-                TimeCycle.END, activities);
-        blockInstance2.setId(2L);
+        BehaviorChangeInterventionBlockInstance blockInstance2 = new BehaviorChangeInterventionBlockInstance(
+                ExecutionStatus.STALLED, TimeCycle.END, activities);
+        blockInstance2.setId(4L);
         when(bciBlockInstanceRepository.save(blockInstance2)).thenReturn(blockInstance2);
 
         BehaviorChangeInterventionPhaseInstance updated = new BehaviorChangeInterventionPhaseInstance(
-                "NOTSTARTED", blockInstance2, blocks, modules);
+                ExecutionStatus.STALLED, blockInstance2, blocks, modules);
         updated.setId(phaseInstance.getId());
 
         when(bciPhaseInstanceRepository.save(updated)).thenReturn(updated);
@@ -113,7 +116,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
     @Override
     void testFindAll() throws Exception {
         when(bciPhaseInstanceRepository.findAll()).thenReturn(Collections.singletonList(phaseInstance));
-        performGetRequest(url, "$[0].id", 1);
+        performGetRequest(url, "$[0].id", phaseInstance.getId());
     }
 
     @Test
@@ -131,13 +134,13 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     @Test
     void testFindByBlocksId() throws Exception {
-        when(bciPhaseInstanceRepository.findByActivitiesId(phaseInstance.getActivities().get(0).getId())).thenReturn(Collections.singletonList(phaseInstance));
-        performGetRequest(url + "/find/activities/" + phaseInstance.getActivities().get(0).getId(), "$[0].id", phaseInstance.getId());
+        when(bciPhaseInstanceRepository.findByActivitiesId(phaseInstance.getActivities().getFirst().getId())).thenReturn(Collections.singletonList(phaseInstance));
+        performGetRequest(url + "/find/activities/" + phaseInstance.getActivities().getFirst().getId(), "$[0].id", phaseInstance.getId());
     }
 
     @Test
     void testFindByModuleId() throws Exception {
-        when(bciPhaseInstanceRepository.findByModulesId(phaseInstance.getModules().get(0).getId())).thenReturn(Collections.singletonList(phaseInstance));
-        performGetRequest(url + "/find/modules/" + phaseInstance.getModules().get(0).getId(), "$[0].id", phaseInstance.getId());
+        when(bciPhaseInstanceRepository.findByModulesId(phaseInstance.getModules().getFirst().getId())).thenReturn(Collections.singletonList(phaseInstance));
+        performGetRequest(url + "/find/modules/" + phaseInstance.getModules().getFirst().getId(), "$[0].id", phaseInstance.getId());
     }
 }

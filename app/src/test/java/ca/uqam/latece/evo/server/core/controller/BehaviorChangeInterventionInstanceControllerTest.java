@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.BehaviorChangeInterventionInstanceController;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.Role;
@@ -23,8 +24,11 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests methods found in BehaviorChangeInterventionInstanceController using WebMvcTest, and repository queries using MockMvc (Mockito).
+ * Tests methods found in BehaviorChangeInterventionInstanceController using WebMvcTest, and repository queries using
+ * MockMvc (Mockito).
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @WebMvcTest(controllers = BehaviorChangeInterventionInstanceController.class)
 @ContextConfiguration(classes = {BehaviorChangeInterventionInstance.class, BehaviorChangeInterventionInstanceService.class,
@@ -54,22 +58,22 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private List<Participant> participants = List.of(participant);
 
-    private BCIActivityInstance activityInstance = new BCIActivityInstance("In progress", LocalDate.now(),
+    private BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
             DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
-    private BCIModuleInstance moduleInstance = new BCIModuleInstance("NOTSTARTED", OutcomeType.SUCCESSFUL, activities);
+    private BCIModuleInstance moduleInstance = new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.SUCCESSFUL, activities);
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
-    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance("NOTSTARTED",
-            TimeCycle.BEGINNING, activities);
+    private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(
+            ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities);
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
-    private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance("NOTSTARTED",
-            blockInstance, blocks, modules);
+    private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance(
+            ExecutionStatus.STALLED, blockInstance, blocks, modules);
 
     private List<BehaviorChangeInterventionPhaseInstance> phases = List.of(phaseInstance);
 
@@ -81,10 +85,10 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Override
     public void setUp() {
         patient.setId(1L);
-        blockInstance.setId(1L);
-        moduleInstance.setId(1L);
-        phaseInstance.setId(1L);
-        bciInstance.setId(1L);
+        blockInstance.setId(2L);
+        moduleInstance.setId(3L);
+        phaseInstance.setId(4L);
+        bciInstance.setId(5L);
         when(patientRepository.save(patient)).thenReturn(patient);
         when(bciBlockInstanceRepository.save(blockInstance)).thenReturn(blockInstance);
         when(bciModuleInstanceRepository.save(moduleInstance)).thenReturn(moduleInstance);
@@ -102,8 +106,8 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Override
     void testUpdate() throws Exception {
         BehaviorChangeInterventionPhaseInstance bciPhaseInstance2 = new BehaviorChangeInterventionPhaseInstance(
-                "NOTSTARTED", phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules());
-        bciPhaseInstance2.setId(2L);
+                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules());
+        bciPhaseInstance2.setId(6L);
         when(bciPhaseInstanceRepository.save(bciPhaseInstance2)).thenReturn(bciPhaseInstance2);
 
         BehaviorChangeInterventionInstance updated = new BehaviorChangeInterventionInstance(
@@ -125,7 +129,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Override
     void testFindAll() throws Exception {
         when(bciInstanceRepository.findAll()).thenReturn(Collections.singletonList(bciInstance));
-        performGetRequest(url, "$[0].id", 1);
+        performGetRequest(url, "$[0].id", bciInstance.getId());
     }
 
     @Test
@@ -149,7 +153,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     @Test
     void testFindByPhasesId() throws Exception {
-        when(bciInstanceRepository.findByPhasesId(bciInstance.getPhases().get(0).getId())).thenReturn(Collections.singletonList(bciInstance));
-        performGetRequest(url + "/find/phases/" + bciInstance.getPhases().get(0).getId(), "$[0].id", bciInstance.getId());
+        when(bciInstanceRepository.findByPhasesId(bciInstance.getPhases().getFirst().getId())).thenReturn(Collections.singletonList(bciInstance));
+        performGetRequest(url + "/find/phases/" + bciInstance.getPhases().getFirst().getId(), "$[0].id", bciInstance.getId());
     }
 }
