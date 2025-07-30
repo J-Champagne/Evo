@@ -77,7 +77,8 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private List<BehaviorChangeInterventionPhaseInstance> phases = List.of(phaseInstance);
 
-    private BehaviorChangeInterventionInstance bciInstance = new BehaviorChangeInterventionInstance(patient, phaseInstance, phases);
+    private BehaviorChangeInterventionInstance bciInstance = new BehaviorChangeInterventionInstance(ExecutionStatus.UNKNOWN,
+            patient, phaseInstance, phases);
 
     private static final String url = "/behaviorchangeinterventioninstance";
 
@@ -105,18 +106,13 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Test
     @Override
     void testUpdate() throws Exception {
-        BehaviorChangeInterventionPhaseInstance bciPhaseInstance2 = new BehaviorChangeInterventionPhaseInstance(
-                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules());
-        bciPhaseInstance2.setId(6L);
-        when(bciPhaseInstanceRepository.save(bciPhaseInstance2)).thenReturn(bciPhaseInstance2);
-
-        BehaviorChangeInterventionInstance updated = new BehaviorChangeInterventionInstance(
-                patient, bciPhaseInstance2, phases);
+        BehaviorChangeInterventionInstance updated = new BehaviorChangeInterventionInstance(ExecutionStatus.READY,
+                bciInstance.getPatient(), bciInstance.getCurrentPhase(), bciInstance.getActivities());
         updated.setId(phaseInstance.getId());
 
         when(bciInstanceRepository.save(updated)).thenReturn(updated);
         when(bciInstanceRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
-        performUpdateRequest(url, updated, "$.currentPhase.id", updated.getCurrentPhase().getId());
+        performUpdateRequest(url, updated, "$.status", updated.getStatus().toString());
     }
 
     @Test
@@ -152,8 +148,8 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     }
 
     @Test
-    void testFindByPhasesId() throws Exception {
-        when(bciInstanceRepository.findByPhasesId(bciInstance.getPhases().getFirst().getId())).thenReturn(Collections.singletonList(bciInstance));
-        performGetRequest(url + "/find/phases/" + bciInstance.getPhases().getFirst().getId(), "$[0].id", bciInstance.getId());
+    void testFindByActivitiesId() throws Exception {
+        when(bciInstanceRepository.findByActivitiesId(bciInstance.getActivities().getFirst().getId())).thenReturn(Collections.singletonList(bciInstance));
+        performGetRequest(url + "/find/activities/" + bciInstance.getActivities().getFirst().getId(), "$[0].id", bciInstance.getId());
     }
 }

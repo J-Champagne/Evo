@@ -34,5 +34,5 @@ public interface BehaviorChangeInterventionInstanceRepository extends EvoReposit
      * @return List<BehaviorChangeInterventionInstance> with the given phases id.
      * @throws IllegalArgumentException if id is null.
      */
-    List<BehaviorChangeInterventionInstance> findByPhasesId(Long id);
+    List<BehaviorChangeInterventionInstance> findByActivitiesId(Long id);
 }

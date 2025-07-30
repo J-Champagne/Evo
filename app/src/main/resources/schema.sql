@@ -840,15 +840,15 @@ CREATE TABLE IF NOT EXISTS bci_phase_instance (
 );
 
 /***********************************************************************************************************************
-    bci_phase_instance_blocks table: Junction table for the many-to-many relationship
+    bci_phase_instance_activities table: Junction table for the many-to-many relationship
         between bci_phase_instance and bci_block_instance.
  **********************************************************************************************************************/
-CREATE TABLE IF NOT EXISTS bci_phase_instance_blocks (
-    bci_phase_instance_blocks_phase_id BIGINT NOT NULL,
-    bci_phase_instance_blocks_block_id BIGINT NOT NULL,
-    CONSTRAINT bci_phase_instance_blocks_pk PRIMARY KEY (bci_phase_instance_blocks_phase_id, bci_phase_instance_blocks_block_id),
-    CONSTRAINT bci_phase_instance_blocks_phase_fkey FOREIGN KEY (bci_phase_instance_blocks_phase_id) REFERENCES bci_phase_instance (bci_phase_instance_id),
-    CONSTRAINT bci_phase_instance_blocks_block_fkey FOREIGN KEY (bci_phase_instance_blocks_block_id) REFERENCES bci_block_instance (bci_block_instance_id)
+CREATE TABLE IF NOT EXISTS bci_phase_instance_activities (
+    bci_phase_instance_activities_phase_id BIGINT NOT NULL,
+    bci_phase_instance_activities_block_id BIGINT NOT NULL,
+    CONSTRAINT bci_phase_instance_activities_pk PRIMARY KEY (bci_phase_instance_activities_phase_id, bci_phase_instance_activities_block_id),
+    CONSTRAINT bci_phase_instance_activities_phase_fkey FOREIGN KEY (bci_phase_instance_activities_phase_id) REFERENCES bci_phase_instance (bci_phase_instance_id),
+    CONSTRAINT bci_phase_instance_activities_block_fkey FOREIGN KEY (bci_phase_instance_activities_block_id) REFERENCES bci_block_instance (bci_block_instance_id)
 );
 
 /***********************************************************************************************************************
@@ -867,25 +867,26 @@ CREATE TABLE IF NOT EXISTS bci_phase_instance_modules (
     bci_instance table: Holds data for the instances of behavioral change interventions (BehaviorChangeInterventionInstance class).
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_instance (
-    bci_instance_id BIGSERIAL NOT NULL,
+    bci_instance_id BIGINT NOT NULL,
     bci_instance_patient_id BIGINT NOT NULL,
     bci_instance_currentphase_id BIGINT,
-    bci_instance_phases_id BIGINT,
+    bci_instance_activities_id BIGINT,
     CONSTRAINT bci_instance_pk PRIMARY KEY (bci_instance_id),
     CONSTRAINT bci_instance_patient_fkey FOREIGN KEY (bci_instance_patient_id) REFERENCES patient (patient_id),
-    CONSTRAINT bci_instance_currentphase_fkey FOREIGN KEY (bci_instance_currentphase_id) REFERENCES bci_phase_instance (bci_phase_instance_id)
+    CONSTRAINT bci_instance_currentphase_fkey FOREIGN KEY (bci_instance_currentphase_id) REFERENCES bci_phase_instance (bci_phase_instance_id),
+    CONSTRAINT bci_instance_activity_instance_fkey FOREIGN KEY (bci_instance_id) REFERENCES activity_instance (activity_instance_id)
 );
 
 /***********************************************************************************************************************
-    bci_instance_phases table: Junction table for the many-to-many relationship
+    bci_instance_pactivities table: Junction table for the many-to-many relationship
         between bci_instance and bci_phase_instance.
  **********************************************************************************************************************/
-CREATE TABLE IF NOT EXISTS bci_instance_phases (
-    bci_instance_phases_bci_id BIGINT NOT NULL,
-    bci_instance_phases_phase_id BIGINT NOT NULL,
-    CONSTRAINT bci_instance_phases_pk PRIMARY KEY (bci_instance_phases_bci_id, bci_instance_phases_phase_id),
-    CONSTRAINT bci_instance_phases_bci_fkey FOREIGN KEY (bci_instance_phases_bci_id) REFERENCES bci_instance (bci_instance_id),
-    CONSTRAINT bci_instance_phases_phase_fkey FOREIGN KEY (bci_instance_phases_phase_id) REFERENCES bci_phase_instance (bci_phase_instance_id)
+CREATE TABLE IF NOT EXISTS bci_instance_activities (
+    bci_instance_activities_bci_id BIGINT NOT NULL,
+    bci_instance_activities_phase_id BIGINT NOT NULL,
+    CONSTRAINT bci_instance_activities_pk PRIMARY KEY (bci_instance_activities_bci_id, bci_instance_activities_phase_id),
+    CONSTRAINT bci_instance_activities_bci_fkey FOREIGN KEY (bci_instance_activities_bci_id) REFERENCES bci_instance (bci_instance_id),
+    CONSTRAINT bci_instance_activities_phase_fkey FOREIGN KEY (bci_instance_activities_phase_id) REFERENCES bci_phase_instance (bci_phase_instance_id)
 );
 
 /***********************************************************************************************************************

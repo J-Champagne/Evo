@@ -138,9 +138,9 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
      * @return List<BehaviorChangeInterventionInstance> with the given BehaviorChangeInterventionPhaseInstance id.
      * @throws IllegalArgumentException if id is null.
      */
-    public List<BehaviorChangeInterventionInstance> findByPhasesId(Long id) {
+    public List<BehaviorChangeInterventionInstance> findByActivitiesId(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciInstanceRepository.findByPhasesId(id);
+        return this.bciInstanceRepository.findByActivitiesId(id);
     }
 
     /**

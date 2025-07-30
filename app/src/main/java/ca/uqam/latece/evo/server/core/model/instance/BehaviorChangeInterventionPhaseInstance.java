@@ -33,9 +33,9 @@ public class BehaviorChangeInterventionPhaseInstance extends ActivityInstance im
     @NotNull
     @ManyToMany
     @JoinTable(
-            name = "bci_phase_instance_blocks",
-            joinColumns = @JoinColumn(name = "bci_phase_instance_blocks_phase_id", referencedColumnName="bci_phase_instance_id"),
-            inverseJoinColumns = @JoinColumn(name = "bci_phase_instance_blocks_block_id", referencedColumnName="bci_block_instance_id"))
+            name = "bci_phase_instance_activities",
+            joinColumns = @JoinColumn(name = "bci_phase_instance_activities_phase_id", referencedColumnName="bci_phase_instance_id"),
+            inverseJoinColumns = @JoinColumn(name = "bci_phase_instance_activities_block_id", referencedColumnName="bci_block_instance_id"))
     private List<BehaviorChangeInterventionBlockInstance> activities = new ArrayList<>();
 
     @NotNull

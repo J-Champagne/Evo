@@ -93,9 +93,9 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>();
         phases.add(phaseInstance);
 
-        bciInstance = bciInstanceService.create(new BehaviorChangeInterventionInstance(patient, phaseInstance, phases));
+        bciInstance = bciInstanceService.create(new BehaviorChangeInterventionInstance(ExecutionStatus.READY, patient,
+                phaseInstance, phases));
     }
-
     @Test
     @Override
     public void testSave() {
@@ -128,8 +128,9 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     @Test
     @Override
     void testFindAll() {
-        List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>(bciInstance.getPhases());
-        bciInstanceService.create(new BehaviorChangeInterventionInstance(bciInstance.getPatient(), bciInstance.getCurrentPhase(), phases));
+        List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>(bciInstance.getActivities());
+        bciInstanceService.create(new BehaviorChangeInterventionInstance(ExecutionStatus.FINISHED, bciInstance.getPatient(),
+                bciInstance.getCurrentPhase(), phases));
         List<BehaviorChangeInterventionInstance> results = bciInstanceService.findAll();
 
         assertEquals(2, results.size());
@@ -153,7 +154,8 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
 
     @Test
     void testFindByPhasesId() {
-        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByPhasesId(bciInstance.getPhases().getFirst().getId());
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByActivitiesId(bciInstance
+                .getActivities().getFirst().getId());
 
         assertFalse(result.isEmpty());
         assertEquals(bciInstance.getId(), result.getFirst().getId());

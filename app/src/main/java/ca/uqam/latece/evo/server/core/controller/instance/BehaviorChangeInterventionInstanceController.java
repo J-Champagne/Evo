@@ -227,24 +227,24 @@ public class BehaviorChangeInterventionInstanceController extends AbstractEvoCon
      * @return List<BehaviorChangeInterventionInstance> in JSON format.
      * @throws IllegalArgumentException if id is null.
      */
-    @GetMapping("/find/phases/{id}")
+    @GetMapping("/find/activities/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<BehaviorChangeInterventionInstance>> findByPhasesId(@PathVariable Long id) {
+    public ResponseEntity<List<BehaviorChangeInterventionInstance>> findByActivitiesId(@PathVariable Long id) {
         ResponseEntity<List<BehaviorChangeInterventionInstance>> response;
 
         try {
-            List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByPhasesId(id);
+            List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByActivitiesId(id);
 
             if (result != null && !result.isEmpty()) {
                 response = new ResponseEntity<>(result, HttpStatus.OK);
-                logger.info("Found BehaviorChangeInterventionInstance entities by Phases Id: {}", result);
+                logger.info("Found BehaviorChangeInterventionInstance entities by Activities Id: {}", result);
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to find BehaviorChangeInterventionInstance entities by Phases Id");
+                logger.info("Failed to find BehaviorChangeInterventionInstance entities by Activities Id");
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find BehaviorChangeInterventionInstance entities by Phases Id. Error: {}", e.getMessage());
+            logger.error("Failed to find BehaviorChangeInterventionInstance entities by Activities Id. Error: {}", e.getMessage());
         }
 
         return response;

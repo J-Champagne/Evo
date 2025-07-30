@@ -29,7 +29,7 @@ public class BCIInstanceEvent extends EvoEvent<BehaviorChangeInterventionInstanc
     }
 
     public List<BehaviorChangeInterventionPhaseInstance> getPhases() {
-        return this.getEvoModel().getPhases();
+        return this.getEvoModel().getActivities();
     }
 
     @Override
