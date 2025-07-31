@@ -17,7 +17,7 @@ import java.util.Objects;
  * BehaviorChangeInterventionPhase instance class.
  * @version 1.0
  * @author Julien Champagne.
- * @Edilton Lima dos Santos
+ * @author Edilton Lima dos Santos
  */
 @Entity
 @Table(name = "bci_phase_instance")

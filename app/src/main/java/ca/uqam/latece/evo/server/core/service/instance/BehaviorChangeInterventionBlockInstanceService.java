@@ -22,6 +22,7 @@ import java.util.List;
 
 /**
  * BehaviorChangeInterventionBlockInstance Service.
+ * @version 1.0
  * @author Julien Champagne.
  * @author Edilton Lima dos Santos.
  */
@@ -78,24 +79,6 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
             }
         }
         return updated;
-    }
-
-    /**
-     * Handles BCIBlockInstanceEvent by updating the corresponding BehaviorChangeInterventionBlockInstance
-     * when specific conditions related to its execution status, change aspect, and time cycle are met.
-     * @param event the BCIBlockInstanceEvent to be processed, which contains information about the
-     *              BehaviorChangeInterventionBlockInstance and its state changes.
-     */
-    @EventListener(BCIBlockInstanceEvent.class)
-    public void handleBCIBlockInstanceEvents(BCIBlockInstanceEvent event) {
-        if (event !=null) {
-            // If this BehaviorChangeInterventionBlockInstance was finished by the BehaviorChangeInterventionPhaseInstance.
-            if (event.getChangeAspect().equals(ChangeAspect.TERMINATED) &&
-                    event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED) &&
-                    event.getTimeCycle().equals(TimeCycle.END)) {
-                this.update(event.getEvoModel());
-            }
-        }
     }
 
     /**
@@ -174,5 +157,27 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      */
     public List<BehaviorChangeInterventionBlockInstance> findAll() {
         return this.bciBlockInstanceRepository.findAll();
+    }
+
+    /**
+     * Handles BCIBlockInstanceEvent by updating the corresponding BehaviorChangeInterventionBlockInstance
+     * when specific conditions related to its execution status, change aspect, and time cycle are met.
+     * @param event the BCIBlockInstanceEvent to be processed, which contains information about the
+     *              BehaviorChangeInterventionBlockInstance and its state changes.
+     */
+    @EventListener(BCIBlockInstanceEvent.class)
+    public void handleBCIBlockInstanceEvents(BCIBlockInstanceEvent event) {
+        if (event !=null) {
+            // If this BehaviorChangeInterventionBlockInstance was finished by the BehaviorChangeInterventionPhaseInstance.
+            if (event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                    event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED) &&
+                    event.getEvoModel().getStage().equals(TimeCycle.END) &&
+                    event.getTimeCycle().equals(TimeCycle.END)) {
+
+                // Update the block.
+                this.update(event.getEvoModel());
+                event.setChangeAspect(ChangeAspect.TERMINATED);
+            }
+        }
     }
 }

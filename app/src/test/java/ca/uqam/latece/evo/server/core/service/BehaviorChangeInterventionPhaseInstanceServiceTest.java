@@ -4,6 +4,8 @@ import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
@@ -14,6 +16,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
@@ -59,6 +62,9 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
 
     @Autowired
     private ApplicationEvents applicationEvents;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @BeforeEach
     public void setUp() {
@@ -166,13 +172,104 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
     }
 
     @Test
+    void testChangeCurrentBlock() {
+        Role role = roleService.create(new Role("e-Health"));
+
+        HealthCareProfessional hcp = healthCareProfessionalService.create(new HealthCareProfessional("Maria",
+                "maria@gmail.com", "9999", "Professor", "Montreal", "Health"));
+
+        Participant participant = participantService.create(new Participant(role, hcp));
+
+        List<Participant> participants = new ArrayList<>();
+        participants.add(participant);
+
+        BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
+                ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2025/07/30"),
+                participants));
+
+        List<BCIActivityInstance> activities = new ArrayList<>();
+        activities.add(activityInstance);
+
+        BehaviorChangeInterventionBlockInstance blockInstance = behaviorChangeInterventionBlockInstanceService.
+                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities));
+
+        // Set the current block.
+        phaseInstance.setCurrentBlock(blockInstance);
+
+        // Change the current block.
+        BehaviorChangeInterventionPhaseInstance updated = behaviorChangeInterventionPhaseInstanceService.
+                changeCurrentBlock(phaseInstance);
+
+        // Test the update.
+        assertEquals(TimeCycle.BEGINNING, updated.getCurrentBlock().getStage());
+
+        // Test the event (BCIBlockInstanceEvent).
+        assertEquals(1, applicationEvents.stream(BCIBlockInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getEvoModel().getId().equals(blockInstance.getId())).count());
+
+    }
+
+    @Test
+    void testChangeModuleStatusToFinished() {
+        // Update the Module status to finished.
+        BehaviorChangeInterventionPhaseInstance updated = behaviorChangeInterventionPhaseInstanceService.
+                changeModuleStatusToFinished(phaseInstance.getId(), phaseInstance.getModules().getFirst());
+
+        // Test the database updated.
+        assertEquals(ExecutionStatus.FINISHED, updated.getModules().getFirst().getStatus());
+
+        // Test the Event update.
+        assertEquals(1, applicationEvents.stream(BCIModuleInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED)).count());
+    }
+
+    @Test
+    void testChangeModuleStatusToInProgress() {
+        // Update the Module status to in progress.
+        BehaviorChangeInterventionPhaseInstance updated = behaviorChangeInterventionPhaseInstanceService.
+                changeModuleStatusToInProgress(phaseInstance.getId(), phaseInstance.getModules().getFirst());
+
+        // Test the database updated.
+        assertEquals(ExecutionStatus.IN_PROGRESS, updated.getModules().getFirst().getStatus());
+
+        // Test the Event update.
+        assertEquals(1, applicationEvents.stream(BCIModuleInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getEvoModel().getStatus().equals(ExecutionStatus.IN_PROGRESS)).count());
+    }
+
+    @Test
     void testPublishEvent() {
+        phaseInstance.setStatus(ExecutionStatus.IN_PROGRESS);
         phaseInstance.getCurrentBlock().setStage(TimeCycle.BEGINNING);
         BehaviorChangeInterventionPhaseInstance updated = behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
         assertEquals(phaseInstance.getCurrentBlock().getStage(), updated.getCurrentBlock().getStage());
 
         assertEquals(1, applicationEvents.stream(BCIPhaseInstanceEvent.class).
                 filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
-                        event.getCurrentBlock().getStage().equals(TimeCycle.BEGINNING)).count());
+                        event.getEvoModel().getStatus().equals(ExecutionStatus.IN_PROGRESS)).count());
+    }
+
+    @Test
+    void testHandleBCIPhaseInstanceEvents() {
+        phaseInstance.setStatus(ExecutionStatus.FINISHED);
+        phaseInstance.getCurrentBlock().setStage(TimeCycle.END);
+        BehaviorChangeInterventionPhaseInstance updated = behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
+        assertEquals(phaseInstance.getCurrentBlock().getStage(), updated.getCurrentBlock().getStage());
+
+        // Creates the BCIPhaseInstanceEvent
+        BCIPhaseInstanceEvent phaseInstanceEvent = new BCIPhaseInstanceEvent(updated, updated.getCurrentBlock().getStage());
+        phaseInstanceEvent.setChangeAspect(ChangeAspect.TERMINATED);
+
+        // Publish the event.
+        applicationEventPublisher.publishEvent(phaseInstanceEvent);
+
+        // Test.
+        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.TERMINATED) &&
+                        event.getEvoModel().getCurrentBlock().getStage().equals(TimeCycle.END) &&
+                        event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED)).count());
     }
 }

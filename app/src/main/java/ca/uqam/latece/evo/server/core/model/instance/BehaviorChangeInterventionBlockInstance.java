@@ -40,6 +40,9 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
             inverseJoinColumns = @JoinColumn(name = "bci_block_instance_activities_activity_id", referencedColumnName="bci_activity_instance_id"))
     private List<BCIActivityInstance> activities = new ArrayList<>();
 
+    @ManyToMany (mappedBy = "activities")
+    private List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>();
+
     public BehaviorChangeInterventionBlockInstance() {}
 
     public BehaviorChangeInterventionBlockInstance(ExecutionStatus status) {
@@ -98,6 +101,14 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
             removed = activities.remove(activityInstance);
         }
         return removed;
+    }
+
+    public List<BehaviorChangeInterventionPhaseInstance> getPhases() {
+        return phases;
+    }
+
+    public void setPhases(List<BehaviorChangeInterventionPhaseInstance> phases) {
+        this.phases.addAll(phases);
     }
 
     @Override

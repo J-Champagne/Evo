@@ -160,7 +160,6 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
 
         // Creates the BCIBlockInstanceEvent
         BCIBlockInstanceEvent blockInstanceEvent = new BCIBlockInstanceEvent(updated, updated.getStage());
-        blockInstanceEvent.setChangeAspect(ChangeAspect.TERMINATED);
 
         // Publish the event.
         applicationEventPublisher.publishEvent(blockInstanceEvent);

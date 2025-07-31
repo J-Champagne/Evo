@@ -1,6 +1,13 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
+import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
+import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionPhaseInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -11,14 +18,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
  * BehaviorChangeInterventionPhaseInstance Service.
+ * @version 1.0
  * @author Julien Champagne.
  * @author Edilton Lima dos Santos.
  */
@@ -35,8 +44,6 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
      * @param phaseInstance BehaviorChangeInterventionPhaseInstance.
      * @return The created BehaviorChangeInterventionPhaseInstance.
      * @throws IllegalArgumentException if phaseInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionPhaseInstance create(BehaviorChangeInterventionPhaseInstance phaseInstance) {
@@ -56,8 +63,6 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
      * @param phaseInstance BehaviorChangeInterventionPhaseInstance.
      * @return The updated BehaviorChangeInterventionPhaseInstance.
      * @throws IllegalArgumentException if phaseInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionPhaseInstance update(BehaviorChangeInterventionPhaseInstance phaseInstance) {
@@ -70,8 +75,135 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
 
         if (found != null) {
             updated = this.bciPhaseInstanceRepository.save(phaseInstance);
-            this.publishEvent(new BCIPhaseInstanceEvent(updated));
+
+            if (!updated.getStatus().equals(ExecutionStatus.UNKNOWN)) {
+                this.publishEvent(new BCIPhaseInstanceEvent(updated));
+            }
         }
+        return updated;
+    }
+
+    /**
+     * Change the current block of a given BehaviorChangeInterventionPhaseInstance.
+     * @param phaseInstance the instance of BehaviorChangeInterventionPhaseInstance to update
+     * @return the updated BehaviorChangeInterventionPhaseInstance with its current block updated
+     */
+    public BehaviorChangeInterventionPhaseInstance changeCurrentBlock(BehaviorChangeInterventionPhaseInstance phaseInstance) {
+        return this.changeCurrentBlock(phaseInstance.getId(), phaseInstance.getCurrentBlock());
+    }
+
+    /**
+     * Change the current block of a given BehaviorChangeInterventionPhaseInstance. If the current block is different
+     * from the previously set block, the previous block's status, stage, and exit date are updated appropriately. This
+     * method ensures the provided phase instance id and block instance are validated and updates the state and associations
+     * of the given phase instance accordingly.
+     * @param phaseId the BehaviorChangeInterventionPhaseInstance id to be updated.
+     * @param currentBlock the BehaviorChangeInterventionBlockInstance to be set as the current block in the phase instance.
+     * @return the updated BehaviorChangeInterventionPhaseInstance, or null if the phase instance was not found.
+     */
+    public BehaviorChangeInterventionPhaseInstance changeCurrentBlock(Long phaseId,
+                                                                      BehaviorChangeInterventionBlockInstance currentBlock) {
+        BehaviorChangeInterventionPhaseInstance updated = null;
+        BehaviorChangeInterventionPhaseInstance found = this.findById(phaseId);
+
+        ObjectValidator.validateObject(phaseId);
+        ObjectValidator.validateObject(currentBlock);
+        ObjectValidator.validateId(currentBlock.getId());
+
+        if (found != null) {
+            // If the current block is different, update the block status to Finished, change the stage to End, and
+            // set the Exit date.
+            if (found.getCurrentBlock() != null && !found.getCurrentBlock().getId().equals(currentBlock.getId())) {
+                // Get the current block.
+                BehaviorChangeInterventionBlockInstance block = found.getCurrentBlock();
+
+                // Change the status of the current block.
+                block.setStatus(ExecutionStatus.FINISHED);
+                block.setStage(TimeCycle.END);
+                block.setExitDate(LocalDate.now());
+
+                // Publish the current block updated.
+                this.publishEvent(new BCIBlockInstanceEvent(block), block.getStage());
+            }
+
+            // Set the new the current block properties.
+            currentBlock.setStatus(ExecutionStatus.IN_PROGRESS);
+            currentBlock.setStage(TimeCycle.BEGINNING);
+            currentBlock.setEntryDate(LocalDate.now());
+            // Set the current block in the Phase.
+            found.setCurrentBlock(currentBlock);
+            // Update the BehaviorChangeInterventionPhaseInstance in the database.
+            updated = this.update(found);
+        }
+
+        return updated;
+    }
+
+    /**
+     * Changes the status of a specified module instance to "IN_PROGRESS" within a given phase instance.
+     * @param phaseId the behavior change intervention phase instance id that contains the module.
+     * @param moduleInstance the module instance whose status needs to be updated.
+     * @return the updated behavior change intervention phase instance after the module status change.
+     */
+    public BehaviorChangeInterventionPhaseInstance changeModuleStatusToInProgress(
+            Long phaseId, BCIModuleInstance moduleInstance){
+        return this.changeModuleStatus(phaseId, moduleInstance, ExecutionStatus.IN_PROGRESS, TimeCycle.BEGINNING);
+    }
+
+    /**
+     * Changes the status of a specified module instance to 'FINISHED' and sets its time cycle to 'END' within the given
+     * behavior change intervention phase instance.
+     * @param phaseId the behavior change intervention phase instance id containing the module to update.
+     * @param moduleInstance the module instance whose status is to be set to 'FINISHED'.
+     * @return the updated behavior change intervention phase instance reflecting the change in module status.
+     */
+    public BehaviorChangeInterventionPhaseInstance changeModuleStatusToFinished(
+            Long phaseId, BCIModuleInstance moduleInstance){
+        return this.changeModuleStatus(phaseId, moduleInstance, ExecutionStatus.FINISHED, TimeCycle.END);
+    }
+
+    /**
+     * Updates the status of a module in the specified BehaviorChangeInterventionPhaseInstance. Validates the input module
+     * instance and its ID before updating. Publishes an event related to the module status change and updates the phase
+     * instance.
+     * @param phaseId the BehaviorChangeInterventionPhaseInstance id where the module's status needs to be updated.
+     * @param moduleInstance the module whose status is to be changed.
+     * @param status the new ExecutionStatus to be assigned to the module.
+     * @param timeCycle the time cycle associated with the module status update for event publishing.
+     * @return the updated BehaviorChangeInterventionPhaseInstance after modifying the module's status, or null if the
+     * specified phase instance is not found
+     */
+    private BehaviorChangeInterventionPhaseInstance changeModuleStatus(Long phaseId,
+                                                                       BCIModuleInstance moduleInstance, ExecutionStatus status,
+                                                                       TimeCycle timeCycle) {
+        BehaviorChangeInterventionPhaseInstance updated = null;
+        BehaviorChangeInterventionPhaseInstance found = this.findById(phaseId);
+        ObjectValidator.validateObject(moduleInstance);
+        ObjectValidator.validateId(moduleInstance.getId());
+
+        if (found != null) {
+            // Get the selected module.
+            List<BCIModuleInstance> modules = found.getModules().stream().filter(
+                    m -> m.getId().equals(moduleInstance.getId())).toList();
+
+            if (!modules.isEmpty()){
+                for (BCIModuleInstance module : modules) {
+                    if (module != null) {
+                        if (moduleInstance.getId().equals(module.getId())) {
+                            // Update the module status.
+                            module.setStatus(status);
+                            // Publish the module updates.
+                            this.publishEvent(new BCIModuleInstanceEvent(module), timeCycle);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Update the BehaviorChangeInterventionPhaseInstance.
+            updated = this.update(found);
+        }
+
         return updated;
     }
 
@@ -80,8 +212,6 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
      * @param phaseInstance BehaviorChangeInterventionPhaseInstance.
      * @return The saved BehaviorChangeInterventionPhaseInstance.
      * @throws IllegalArgumentException if phaseInstance is null.
-     * @throws OptimisticLockingFailureException when optimistic locking is used and has information with
-     *          different values from the database. Also thrown if assumed to be present but does not exist in the database.
      */
     @Override
     public BehaviorChangeInterventionPhaseInstance save(BehaviorChangeInterventionPhaseInstance phaseInstance) {
@@ -178,5 +308,21 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
         ObjectValidator.validateId(id);
         ObjectValidator.validateId(currentBlockId);
         return this.bciPhaseInstanceRepository.findByIdAndCurrentBlockId(id, currentBlockId);
+    }
+
+    /**
+     * Handles events related to BCI Phase Instance. This method listens for BCIPhaseInstanceEvent and processes it based
+     * on its change aspects, execution status, and time cycle.
+     * @param event the BCIPhaseInstanceEvent to process. It contains details about the change aspect, execution status,
+     *              evolutionary model, and time cycle.
+     */
+    @EventListener(BCIPhaseInstanceEvent.class)
+    public void handleBCIPhaseInstanceEvents(BCIPhaseInstanceEvent event) {
+        if (event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED) &&
+                event.getTimeCycle().equals(TimeCycle.END)) {
+            this.update(event.getEvoModel());
+            event.setChangeAspect(ChangeAspect.TERMINATED);
+        }
     }
 }

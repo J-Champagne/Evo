@@ -1,7 +1,8 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
-import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
+import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionPhaseInstanceService;
 
@@ -18,7 +19,9 @@ import java.util.List;
 
 /**
  * BehaviorChangeInterventionPhaseInstance Controller.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Controller
 @RequestMapping("/behaviorchangeinterventionphaseinstance")
@@ -87,6 +90,126 @@ public class BehaviorChangeInterventionPhaseInstanceController extends AbstractE
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to update BehaviorChangeInterventionPhaseInstance. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Updates the current block for the provided BehaviorChangeInterventionPhaseInstance object.
+     * @param phaseInstance the BehaviorChangeInterventionPhaseInstance object containing the details of the phase instance to be updated.
+     * @return the updated BehaviorChangeInterventionPhaseInstance with its current block updated.
+     */
+    @GetMapping("/changeCurrentBlock/phaseInstance")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionPhaseInstance> changeCurrentBlock(@RequestBody BehaviorChangeInterventionPhaseInstance phaseInstance) {
+        ResponseEntity<BehaviorChangeInterventionPhaseInstance> response;
+
+        try {
+            BehaviorChangeInterventionPhaseInstance updated = bciPhaseInstanceService.changeCurrentBlock(phaseInstance);
+
+            if (updated != null && updated.getId().equals(phaseInstance.getId())) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated BehaviorChangeInterventionPhaseInstance current block: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to update BehaviorChangeInterventionPhaseInstance current block");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update BehaviorChangeInterventionPhaseInstance current block. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Updates the current block of a behavior change intervention phase instance.
+     * @param phaseId the ID of the phase whose current block needs to be changed.
+     * @param currentBlock the new block instance to be set as the current block for the phase.
+     * @return the updated BehaviorChangeInterventionPhaseInstance with its current block updated.
+     */
+    @GetMapping("/changeCurrentBlock/{phaseId}/currentBlock")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionPhaseInstance> changeCurrentBlock(
+            @PathVariable Long phaseId,
+            @RequestBody BehaviorChangeInterventionBlockInstance currentBlock) {
+        ResponseEntity<BehaviorChangeInterventionPhaseInstance> response;
+
+        try {
+            BehaviorChangeInterventionPhaseInstance updated = bciPhaseInstanceService.changeCurrentBlock(phaseId, currentBlock);
+
+            if (updated != null && updated.getId().equals(phaseId)) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated phase current block: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to update phase current block!");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update phase current block. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Changes the status of a specified module instance to "IN_PROGRESS" within a given phase instance.
+     * @param phaseId the behavior change intervention phase instance id that contains the module.
+     * @param moduleToInProgress the module instance whose status needs to be updated.
+     * @return the updated behavior change intervention phase instance after the module status change.
+     */
+    @GetMapping("/changeModuleStatusToInProgress/{phaseId}/moduleToInProgress")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionPhaseInstance> changeModuleStatusToInProgress(@PathVariable Long phaseId,
+            @RequestBody BCIModuleInstance moduleToInProgress){
+        ResponseEntity<BehaviorChangeInterventionPhaseInstance> response;
+
+        try {
+            BehaviorChangeInterventionPhaseInstance updated = bciPhaseInstanceService.changeModuleStatusToInProgress(phaseId, moduleToInProgress);
+
+            if (updated != null && updated.getId().equals(phaseId)) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated phase module status to in progress: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to update phase module status to in progress.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update phase module status to in progress. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Changes the status of a specified module instance to 'FINISHED' and sets its time cycle to 'END' within the given
+     * behavior change intervention phase instance.
+     * @param phaseId the behavior change intervention phase instance id containing the module to update.
+     * @param moduleToFinished the module instance whose status is to be set to 'FINISHED'.
+     * @return the updated behavior change intervention phase instance reflecting the change in module status.
+     */
+    @GetMapping("/changeModuleStatusToFinished/{phaseId}/moduleToFinished")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionPhaseInstance> changeModuleStatusToFinished(@PathVariable Long phaseId,
+                                                                                                @RequestBody BCIModuleInstance moduleToFinished){
+        ResponseEntity<BehaviorChangeInterventionPhaseInstance> response;
+
+        try {
+            BehaviorChangeInterventionPhaseInstance updated = bciPhaseInstanceService.changeModuleStatusToFinished(phaseId, moduleToFinished);
+
+            if (updated != null && updated.getId().equals(phaseId)) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated phase module status to finished: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to update phase module status to finished.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update phase module status to finished. Error: {}", e.getMessage());
         }
 
         return response;

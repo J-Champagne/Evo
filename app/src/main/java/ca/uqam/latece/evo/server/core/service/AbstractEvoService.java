@@ -149,7 +149,8 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
         if (this.applicationEventPublisher != null) {
             event = new EvoEvent<>(evoModel, timeCycle);
             this.applicationEventPublisher.publishEvent(event);
-            logger.info("{} created with event: {} and TimeCycle: {}", evoModel.getClass().getSimpleName(), event, timeCycle);
+            logger.info("{} created with event: {} and TimeCycle: {}", evoModel.getClass().getSimpleName(), event,
+                    timeCycle);
         } else {
            throw this.buildEventException(event);
         }
@@ -180,7 +181,8 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
         if (this.applicationEventPublisher != null) {
             event = new EvoEvent<>(evoModel, clock, timeCycle);
             this.applicationEventPublisher.publishEvent(event);
-            logger.info("{} created with event: {} || Clock: {} || TimeCycle: {}", evoModel.getClass().getSimpleName(), event, clock, timeCycle);
+            logger.info("{} created with event: {} || Clock: {} || TimeCycle: {}", evoModel.getClass().getSimpleName(),
+                    event, clock, timeCycle);
         } else {
             throw this.buildEventException(event);
         }
@@ -196,6 +198,24 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
         if (this.applicationEventPublisher != null) {
             this.applicationEventPublisher.publishEvent(event);
             logger.info("{} created with event: {} ", event.getEvoModel().getClass().getSimpleName(), event);
+        } else {
+            throw this.buildEventException(event);
+        }
+    }
+
+    /**
+     * Publishes the given event using the application event publisher.
+     * The event is associated with a specified time cycle before being published.
+     * If the application event publisher is not initialized, an exception is thrown.
+     * @param event the EvoEvent to be published.
+     * @param timeCycle  the TimeCycle to associate with the event.
+     */
+    public final void publishEvent(@NotNull EvoEvent event, @NotNull TimeCycle timeCycle) {
+        if (this.applicationEventPublisher != null) {
+            event.setTimeCycle(timeCycle);
+            this.applicationEventPublisher.publishEvent(event);
+            logger.info("{} created with event: {} || TimeCycle: {}", event.getEvoModel().getClass().getSimpleName(),
+                    event, timeCycle);
         } else {
             throw this.buildEventException(event);
         }
