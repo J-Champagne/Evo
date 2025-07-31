@@ -1,8 +1,11 @@
 package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
+import ca.uqam.latece.evo.server.core.interfaces.ProcessInstance;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -18,9 +21,9 @@ import java.util.Objects;
 @Entity
 @Table(name = "bci_instance")
 @JsonPropertyOrder({"patient", "currentPhase", "activities"})
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @PrimaryKeyJoinColumn(name="bci_instance_id", referencedColumnName = "activity_instance_id")
-public class BehaviorChangeInterventionInstance extends ActivityInstance {
+public class BehaviorChangeInterventionInstance extends ActivityInstance implements ProcessInstance<BehaviorChangeInterventionPhaseInstance> {
     @NotNull
     @ManyToOne
     @JoinColumn(name = "bci_instance_patient_id")
@@ -79,12 +82,33 @@ public class BehaviorChangeInterventionInstance extends ActivityInstance {
         this.currentPhase = currentPhase;
     }
 
+    @Override
     public List<BehaviorChangeInterventionPhaseInstance> getActivities() {
         return activities;
     }
 
-    public void setActivities(List<BehaviorChangeInterventionPhaseInstance> activities) {
-        this.activities = activities;
+    @Override
+    public void addActivity(BehaviorChangeInterventionPhaseInstance phaseInstance) {
+        if (phaseInstance != null) {
+            this.activities.add(phaseInstance);
+        }
+    }
+
+    @Override
+    public void addActivities(List<BehaviorChangeInterventionPhaseInstance> phaseInstance){
+        if (phaseInstance != null) {
+            this.activities.addAll(phaseInstance);
+        }
+    }
+
+    @Override
+    public boolean removeActivity(BehaviorChangeInterventionPhaseInstance phaseInstance) {
+        boolean removed = false;
+
+        if (activities != null) {
+            removed = activities.remove(phaseInstance);
+        }
+        return removed;
     }
 
     @Override

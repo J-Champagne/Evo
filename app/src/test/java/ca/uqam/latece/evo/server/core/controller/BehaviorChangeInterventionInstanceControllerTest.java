@@ -108,9 +108,12 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     void testUpdate() throws Exception {
         BehaviorChangeInterventionInstance updated = new BehaviorChangeInterventionInstance(ExecutionStatus.READY,
                 bciInstance.getPatient(), bciInstance.getCurrentPhase(), bciInstance.getActivities());
-        updated.setId(phaseInstance.getId());
+        updated.setId(bciInstance.getId());
 
         when(bciInstanceRepository.save(updated)).thenReturn(updated);
+        System.out.println("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd");
+        System.out.println(updated);
+        System.out.println("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd");
         when(bciInstanceRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
         performUpdateRequest(url, updated, "$.status", updated.getStatus().toString());
     }
