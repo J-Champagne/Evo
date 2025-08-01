@@ -58,6 +58,8 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     private ApplicationEvents applicationEvents;
 
+
+
     @BeforeEach
     public void setUp() {
         Role role = roleService.create(new Role("Administrator"));
@@ -133,13 +135,50 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void testPublishEvent() {
-        moduleInstance.setOutcome(OutcomeType.SUCCESSFUL);
-        BCIModuleInstance updated = bciModuleInstanceService.update(moduleInstance);
-        assertEquals(moduleInstance.getOutcome(), updated.getOutcome());
+    void testChangeStatusToFinished() {
+        moduleInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+        // Change the nodule status to Finished.
+        BCIModuleInstance updated = bciModuleInstanceService.changeStatusToFinished(moduleInstance);
 
+        // Check the status update.
+        assertEquals(ExecutionStatus.FINISHED, updated.getStatus());
+
+        // Test the event (BCIModuleInstanceEvent) publication.
         assertEquals(1, applicationEvents.stream(BCIModuleInstanceEvent.class).
                 filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getStatus().equals(ExecutionStatus.FINISHED) &&
+                        event.getEvoModel().getOutcome().equals(moduleInstance.getOutcome())).count());
+    }
+
+    @Test
+    void testChangeStatusToInProgress() {
+        moduleInstance.setStatus(ExecutionStatus.STALLED);
+        // Change the nodule status to in progress.
+        BCIModuleInstance updated = bciModuleInstanceService.changeStatusToInProgress(moduleInstance);
+
+        // Check the status update.
+        assertEquals(ExecutionStatus.IN_PROGRESS, updated.getStatus());
+
+        // Test the event (BCIModuleInstanceEvent) publication.
+        assertEquals(1, applicationEvents.stream(BCIModuleInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getStatus().equals(ExecutionStatus.IN_PROGRESS) &&
+                        event.getEvoModel().getOutcome().equals(moduleInstance.getOutcome())).count());
+    }
+
+    @Test
+    void testPublishEvent() {
+        moduleInstance.setOutcome(OutcomeType.SUCCESSFUL);
+        moduleInstance.setStatus(ExecutionStatus.SUSPENDED);
+        BCIModuleInstance updated = bciModuleInstanceService.update(moduleInstance);
+
+        // Check the status update.
+        assertEquals(moduleInstance.getOutcome(), updated.getOutcome());
+
+        // Test the event (BCIModuleInstanceEvent) publication.
+        assertEquals(1, applicationEvents.stream(BCIModuleInstanceEvent.class).
+                filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                        event.getStatus().equals(ExecutionStatus.SUSPENDED) &&
                         event.getEvoModel().getOutcome().equals(moduleInstance.getOutcome())).count());
     }
 }

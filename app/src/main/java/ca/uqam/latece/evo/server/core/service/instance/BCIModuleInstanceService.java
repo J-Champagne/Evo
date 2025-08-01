@@ -1,6 +1,9 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
+import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIModuleInstanceRepository;
@@ -11,13 +14,16 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
  * BCIModuleInstance Service.
+ * @version 1.0
  * @author Julien Champagne.
  * @author Edilton Lima dos Santos.
  */
@@ -65,7 +71,53 @@ public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstan
 
         if (found != null) {
             updated = this.bciModuleInstanceRepository.save(moduleInstance);
-            this.publishEvent(new BCIModuleInstanceEvent(updated));
+
+            if (!updated.getStatus().equals(ExecutionStatus.UNKNOWN)) {
+                this.publishEvent(new BCIModuleInstanceEvent(updated));
+            }
+        }
+        return updated;
+    }
+
+    /**
+     * Changes the status of the specified BCIModuleInstance to FINISHED. Also sets the exit date to the current date,
+     * then updates the instance status in the database.
+     * @param moduleInstance the BCIModuleInstance whose status is to be changed to FINISHED.
+     * @return the updated BCIModuleInstance with the FINISHED status and updated exit date.
+     */
+    public BCIModuleInstance changeStatusToFinished(BCIModuleInstance moduleInstance) {
+        moduleInstance.setStatus(ExecutionStatus.FINISHED);
+        moduleInstance.setExitDate(LocalDate.now());
+        return this.updateStatus(moduleInstance);
+    }
+
+    /**
+     * Changes the status of the specified BCIModuleInstance to IN_PROGRESS. Also sets the entry date to the current
+     * date, then updates the instance status in the database.
+     * @param moduleInstance the BCIModuleInstance whose status is to be changed to IN_PROGRESS.
+     * @return the updated BCIModuleInstance with the IN_PROGRESS status and updated entry date.
+     */
+    public BCIModuleInstance changeStatusToInProgress(BCIModuleInstance moduleInstance) {
+        moduleInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+        moduleInstance.setEntryDate(LocalDate.now());
+        return this.updateStatus(moduleInstance);
+    }
+
+    /**
+     * Updates the status of a given BCIModuleInstance. First, it validates the module instance's status object.
+     * If the module instance exists in the database, its status is updated, and the updated instance is returned.
+     * @param moduleInstance the BCIModuleInstance whose status needs to be updated.
+     * @return the updated BCIModuleInstance, or null if the module instance does not exist.
+     */
+    private BCIModuleInstance updateStatus(BCIModuleInstance moduleInstance) {
+        BCIModuleInstance updated = null;
+        BCIModuleInstance found = this.findById(moduleInstance.getId());
+
+        ObjectValidator.validateObject(moduleInstance.getStatus());
+
+        if (found != null) {
+            found.setStatus(moduleInstance.getStatus());
+            updated = this.update(found);
         }
         return updated;
     }
@@ -118,7 +170,7 @@ public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstan
      * Finds BCIModuleInstance entities by their outcome.
      * @param outcome OutcomeType.
      * @return List<BCIModuleInstance> with the given outcome.
-     * @throws IllegalArgumentException if outcome is null.
+     * @throws IllegalArgumentException if an outcome is null.
      */
     public List<BCIModuleInstance> findByOutcome(OutcomeType outcome) {
         ObjectValidator.validateObject(outcome);
@@ -146,5 +198,31 @@ public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstan
     public boolean existsById(Long id) {
         ObjectValidator.validateId(id);
         return this.bciModuleInstanceRepository.existsById(id);
+    }
+
+    /**
+     * Handles BCIModuleInstance events received by the application context. The method listens for events of type
+     * BCIModuleInstanceEvent and processes them based on specific conditions related to the event's change aspect,
+     * execution status, and time cycle. Updates the associated EvoModel and modifies the event's change aspect
+     * when applicable.
+     * @param event the BCIModuleInstanceEvent to process. Must contain information to evaluate the change aspect
+     *              (STARTED), the associated EvoModel's execution status (FINISHED), and the event's time cycle (END).
+     */
+    @EventListener(BCIModuleInstanceEvent.class)
+    public void handleBCIModuleInstanceEvents(BCIModuleInstanceEvent event) {
+
+        if (event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED) &&
+                event.getTimeCycle().equals(TimeCycle.END)) {
+            this.changeStatusToFinished(event.getEvoModel());
+            event.setChangeAspect(ChangeAspect.TERMINATED);
+
+        } else if (event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                event.getEvoModel().getStatus().equals(ExecutionStatus.IN_PROGRESS) &&
+                event.getTimeCycle().equals(TimeCycle.BEGINNING)) {
+            this.changeStatusToInProgress(event.getEvoModel());
+            event.setChangeAspect(ChangeAspect.TERMINATED);
+
+        }
     }
 }

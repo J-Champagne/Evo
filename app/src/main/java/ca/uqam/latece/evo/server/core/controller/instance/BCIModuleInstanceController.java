@@ -17,7 +17,9 @@ import java.util.List;
 
 /**
  * BCIModuleInstance Controller.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.
  */
 @Controller
 @RequestMapping("/bcimoduleinstance")
@@ -82,6 +84,64 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to update BCIModuleInstance. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Changes the status of the specified BCIModuleInstance to FINISHED. Also sets the exit date to the current date,
+     * then updates the instance status in the database.
+     * @param module the BCIModuleInstance whose status is to be changed to FINISHED.
+     * @return the updated BCIModuleInstance with the FINISHED status and updated exit date.
+     */
+    @GetMapping("/changeStatusToFinished/module")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BCIModuleInstance> changeStatusToFinished(@RequestBody BCIModuleInstance module) {
+        ResponseEntity<BCIModuleInstance> response;
+        BCIModuleInstance updated = null;
+
+        try {
+            updated = bciModuleInstanceService.changeStatusToFinished(module);
+            if (updated != null && updated.getId().equals(module.getId())) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated BCIModuleInstance status to finished: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to update BCIModuleInstance status to finished!");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update BCIModuleInstance status to finished. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Changes the status of the specified BCIModuleInstance to IN_PROGRESS. Also sets the entry date to the current
+     * date, then updates the instance status in the database.
+     * @param module the BCIModuleInstance whose status is to be changed to IN_PROGRESS.
+     * @return the updated BCIModuleInstance with the IN_PROGRESS status and updated entry date.
+     */
+    @GetMapping("/changeStatusToInProgress/module")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BCIModuleInstance> changeStatusToInProgress(@RequestBody BCIModuleInstance module) {
+        ResponseEntity<BCIModuleInstance> response;
+        BCIModuleInstance updated = null;
+
+        try {
+            updated = bciModuleInstanceService.changeStatusToInProgress(module);
+            if (updated != null && updated.getId().equals(module.getId())) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated BCIModuleInstance status to in progress: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to update BCIModuleInstance status to in progress!");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update BCIModuleInstance status to in progress. Error: {}", e.getMessage());
         }
 
         return response;
@@ -163,7 +223,7 @@ public class BCIModuleInstanceController extends AbstractEvoController<BCIModule
      * Finds BCIModuleInstance entities by their outcome.
      * @param outcome OutcomeType.
      * @return List<BCIModuleInstance> in JSON format.
-     * @throws IllegalArgumentException if outcome is null.
+     * @throws IllegalArgumentException if an outcome is null.
      */
     @GetMapping("/find/outcome/{outcome}")
     @ResponseStatus(HttpStatus.OK)

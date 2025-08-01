@@ -58,7 +58,7 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
 
     private BCIModuleInstance moduleInstance = new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.SUCCESSFUL, activities);
 
-    private static final String url = "/bcimoduleinstance";
+    private static final String URL = "/bcimoduleinstance";
 
     @BeforeEach
     @Override
@@ -72,7 +72,7 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest(url, moduleInstance);
+        performCreateRequest(URL, moduleInstance);
     }
 
     @Test
@@ -83,39 +83,66 @@ public class BCIModuleInstanceControllerTest extends AbstractControllerTest {
 
         when(bciModuleInstanceRepository.save(updated)).thenReturn(updated);
         when(bciModuleInstanceRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
-        performUpdateRequest(url, updated, "$.outcome", updated.getOutcome().toString());
+        performUpdateRequest(URL, updated, "$.outcome", updated.getOutcome().toString());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest(url + "/" + moduleInstance.getId(), moduleInstance);
+        performDeleteRequest(URL + "/" + moduleInstance.getId(), moduleInstance);
     }
 
     @Test
     @Override
     void testFindAll() throws Exception {
         when(bciModuleInstanceRepository.findAll()).thenReturn(Collections.singletonList(moduleInstance));
-        performGetRequest(url, "$[0].id", moduleInstance.getId());
+        performGetRequest(URL, "$[0].id", moduleInstance.getId());
     }
 
     @Test
     @Override
     void testFindById() throws Exception {
         when(bciModuleInstanceRepository.findById(moduleInstance.getId())).thenReturn(Optional.ofNullable(moduleInstance));
-        performGetRequest(url + "/find/" + moduleInstance.getId(), "$.id", moduleInstance.getId());
+        performGetRequest(URL + "/find/" + moduleInstance.getId(), "$.id", moduleInstance.getId());
     }
 
     @Test
     void testFindByStage() throws Exception {
         when(bciModuleInstanceRepository.findByOutcome(moduleInstance.getOutcome())).thenReturn(Collections.singletonList(moduleInstance));
-        performGetRequest(url + "/find/outcome/" + moduleInstance.getOutcome(), "$[0].id", moduleInstance.getId());
+        performGetRequest(URL + "/find/outcome/" + moduleInstance.getOutcome(), "$[0].id", moduleInstance.getId());
     }
 
     @Test
     void testFindByActivitiesId() throws Exception {
         when(bciModuleInstanceRepository.findByActivitiesId(moduleInstance.getActivities().getFirst().getId())).thenReturn(Collections.singletonList(moduleInstance));
-        performGetRequest(url + "/find/activities/" + moduleInstance.getActivities().getFirst().getId(),
+        performGetRequest(URL + "/find/activities/" + moduleInstance.getActivities().getFirst().getId(),
                 "$[0].id", moduleInstance.getId());
     }
+
+    @Test
+    void testChangeStatusToFinished() throws Exception {
+        BCIModuleInstance updated = new BCIModuleInstance(ExecutionStatus.IN_PROGRESS, OutcomeType.SUCCESSFUL,
+                moduleInstance.getActivities());
+        updated.setId(10L);
+
+        when(bciModuleInstanceRepository.save(updated)).thenReturn(updated);
+        when(bciModuleInstanceRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
+
+        performGetRequest(URL + "/changeStatusToFinished/module", updated, "$.status",
+                ExecutionStatus.FINISHED.toString());
+    }
+
+    @Test
+    void testChangeStatusToInProgress() throws Exception {
+        BCIModuleInstance module = new BCIModuleInstance(ExecutionStatus.STALLED, OutcomeType.UNSUCCESSFUL,
+                moduleInstance.getActivities());
+        module.setId(11L);
+
+        when(bciModuleInstanceRepository.save(module)).thenReturn(module);
+        when(bciModuleInstanceRepository.findById(module.getId())).thenReturn(Optional.of(module));
+
+        performGetRequest(URL + "/changeStatusToInProgress/module", module, "$.status",
+                ExecutionStatus.IN_PROGRESS.toString());
+    }
+
 }
