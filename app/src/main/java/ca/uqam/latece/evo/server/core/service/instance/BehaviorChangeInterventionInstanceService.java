@@ -1,7 +1,12 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
+import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -10,9 +15,11 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -61,8 +68,64 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
 
         if (found != null) {
             updated = this.bciInstanceRepository.save(bciInstance);
-            this.publishEvent(new BCIInstanceEvent(updated));
+            if (!updated.getStatus().equals(ExecutionStatus.UNKNOWN)) {
+                this.publishEvent(new BCIInstanceEvent(updated));
+            }
         }
+        return updated;
+    }
+
+    /**
+     * Updates the current phase of the given BehaviorChangeInterventionInstance. If the provided phase is different
+     * from the current phase of the instance, the existing phase status is updated to Finished, and its exit date is set.
+     * The new phase is marked as In Progress and assigned to the BehaviorChangeInterventionInstance.
+     * @param bciInstance the BehaviorChangeInterventionInstance that needs to have its current phase updated.
+     * @return the updated BehaviorChangeInterventionInstance with the applied phase change, or null if the instance was not found
+     */
+    public BehaviorChangeInterventionInstance changeCurrentPhase(BehaviorChangeInterventionInstance bciInstance){
+        return this.changeCurrentPhase(bciInstance.getId(), bciInstance.getCurrentPhase());
+    }
+
+    /**
+     * Updates the current phase of the given BehaviorChangeInterventionInstance id. If the provided phase is different
+     * from the current phase of the instance, the existing phase status is updated to Finished, and its exit date is set.
+     * The new phase is marked as In Progress and assigned to the BehaviorChangeInterventionInstance.
+     * @param bciInstanceId the BehaviorChangeInterventionInstance id that needs to have its current phase updated.
+     * @param currentPhase  the new BehaviorChangeInterventionPhaseInstance to be set as the current phase.
+     * @return the updated BehaviorChangeInterventionInstance with the applied phase change, or null if the instance was not found
+     */
+    public BehaviorChangeInterventionInstance changeCurrentPhase(Long bciInstanceId,
+                                                                 BehaviorChangeInterventionPhaseInstance currentPhase) {
+        BehaviorChangeInterventionInstance updated = null;
+        BehaviorChangeInterventionInstance found = findById(bciInstanceId);
+
+        ObjectValidator.validateObject(currentPhase);
+        ObjectValidator.validateId(currentPhase.getId());
+
+        if (found != null) {
+            // If the current phase is different, update the phase status to Finished, change the stage to End, and
+            // set the Exit date.
+            if (found.getCurrentPhase() != null && !found.getCurrentPhase().getId().equals(currentPhase.getId())) {
+                // Get the current phase.
+                BehaviorChangeInterventionPhaseInstance phase = found.getCurrentPhase();
+
+                // Change the status of the current phase to Finished and update the Exit date.
+                phase.setStatus(ExecutionStatus.FINISHED);
+                phase.setExitDate(LocalDate.now());
+
+                // Publish the current phase updated.
+                this.publishEvent(new BCIPhaseInstanceEvent(phase), TimeCycle.END);
+            }
+
+            // Set the new the current phase properties.
+            currentPhase.setStatus(ExecutionStatus.IN_PROGRESS);
+            currentPhase.setEntryDate(LocalDate.now());
+            // Set the current block in the Phase.
+            found.setCurrentPhase(currentPhase);
+            // Update the BehaviorChangeInterventionInstance in the database.
+            updated = this.update(found);
+        }
+
         return updated;
     }
 
@@ -153,5 +216,35 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
     public boolean existsById(Long id) {
         ObjectValidator.validateId(id);
         return this.bciInstanceRepository.existsById(id);
+    }
+
+    /**
+     * Retrieves a BehaviorChangeInterventionInstance based on its id and the id of its current phase.
+     * @param id the id of the BehaviorChangeInterventionInstance to retrieve.
+     * @param currentPhaseId the id of the current phase associated with the intervention instance.
+     * @return the BehaviorChangeInterventionInstance matching the specified id and currentPhaseId, or null if no such
+     * instance exists
+     * @throws IllegalArgumentException if id or currentPhaseId is null.
+     */
+    public BehaviorChangeInterventionInstance findByIdAndCurrentPhaseId(Long id, Long currentPhaseId) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateId(currentPhaseId);
+        return this.bciInstanceRepository.findByIdAndCurrentPhaseId(id, currentPhaseId);
+    }
+
+    /**
+     * Handles events of type BCIInstanceEvent and processes them under certain conditions. Updates the corresponding
+     * model when the event's change aspect is TERMINATED and the time cycle is END.
+     * @param event the BCIInstanceEvent to be handled. It contains information about the change aspect, time cycle,
+     *              and the associated model.
+     */
+    @EventListener(BCIInstanceEvent.class)
+    public void handleBCIInstanceEvents(BCIInstanceEvent event) {
+        if (event.getChangeAspect().equals(ChangeAspect.STARTED) &&
+                event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED) &&
+                event.getTimeCycle().equals(TimeCycle.END)) {
+            this.update(event.getEvoModel());
+            event.setChangeAspect(ChangeAspect.TERMINATED);
+        }
     }
 }

@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionInstanceService;
 
 import org.slf4j.Logger;
@@ -17,7 +18,9 @@ import java.util.List;
 
 /**
  * BehaviorChangeInterventionInstance Controller.
+ * @version 1.0
  * @author Julien Champagne.
+ * @author Edilton Lima dos Santos.e.
  */
 @Controller
 @RequestMapping("/behaviorchangeinterventioninstance")
@@ -86,6 +89,66 @@ public class BehaviorChangeInterventionInstanceController extends AbstractEvoCon
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to update BehaviorChangeInterventionInstance. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Updates the current phase of a BehaviorChangeInterventionInstance.
+     * @param bciInstance the BehaviorChangeInterventionInstance object containing the data to update the current phase.
+     * @return a ResponseEntity containing the updated BehaviorChangeInterventionInstance if successful, or a ResponseEntity
+     * with an appropriate HTTP status if an error occurs.
+     */
+    @GetMapping("/changeCurrentPhase/bciInstance")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionInstance> changeCurrentPhase(@RequestBody BehaviorChangeInterventionInstance bciInstance){
+        ResponseEntity<BehaviorChangeInterventionInstance> response;
+
+        try {
+            BehaviorChangeInterventionInstance updated = bciInstanceService.changeCurrentPhase(bciInstance);
+
+            if (updated != null && updated.getId().equals(bciInstance.getId())) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated current phase of BehaviorChangeInterventionInstance: {}", bciInstance);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to update current phase of BehaviorChangeInterventionInstance.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update current phase of BehaviorChangeInterventionInstance. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Updates the current phase of a BehaviorChangeInterventionInstance identified by its ID.
+     * @param bciInstanceId the unique identifier of the BehaviorChangeInterventionInstance to update.
+     * @param currentPhase the new current phase to be set for the specified BehaviorChangeInterventionInstance.
+     * @return a ResponseEntity containing the updated BehaviorChangeInterventionInstance and an HTTP status of OK if successful,
+     *         or an HTTP status of BAD_REQUEST if the operation fails.
+     */
+    @GetMapping("/changeCurrentPhase/{bciInstanceId}/currentPhase")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionInstance> changeCurrentPhase(@PathVariable Long bciInstanceId,
+                                                                                 @RequestBody BehaviorChangeInterventionPhaseInstance currentPhase) {
+        ResponseEntity<BehaviorChangeInterventionInstance> response;
+
+        try {
+            BehaviorChangeInterventionInstance updated = bciInstanceService.changeCurrentPhase(bciInstanceId, currentPhase);
+
+            if (updated != null && updated.getId().equals(bciInstanceId)) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("The BehaviorChangeInterventionInstance id {} updated the current phase to {}", bciInstanceId, updated.getCurrentPhase());
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to update the BehaviorChangeInterventionInstance id {} with the new current phase: {}",bciInstanceId, currentPhase);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update the BehaviorChangeInterventionInstance id {} with the new current phase: {}. Error: {}", bciInstanceId, currentPhase, e.getMessage());
         }
 
         return response;

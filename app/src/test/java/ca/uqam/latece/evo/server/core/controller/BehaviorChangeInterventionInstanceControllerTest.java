@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +81,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     private BehaviorChangeInterventionInstance bciInstance = new BehaviorChangeInterventionInstance(ExecutionStatus.UNKNOWN,
             patient, phaseInstance, phases);
 
-    private static final String url = "/behaviorchangeinterventioninstance";
+    private static final String URL = "/behaviorchangeinterventioninstance";
 
     @BeforeEach
     @Override
@@ -100,7 +101,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest(url, bciInstance);
+        performCreateRequest(URL, bciInstance);
     }
 
     @Test
@@ -115,44 +116,83 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
         System.out.println(updated);
         System.out.println("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd");
         when(bciInstanceRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
-        performUpdateRequest(url, updated, "$.status", updated.getStatus().toString());
+        performUpdateRequest(URL, updated, "$.status", updated.getStatus().toString());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest(url + "/" + bciInstance.getId(), bciInstance);
+        performDeleteRequest(URL + "/" + bciInstance.getId(), bciInstance);
     }
 
     @Test
     @Override
     void testFindAll() throws Exception {
         when(bciInstanceRepository.findAll()).thenReturn(Collections.singletonList(bciInstance));
-        performGetRequest(url, "$[0].id", bciInstance.getId());
+        performGetRequest(URL, "$[0].id", bciInstance.getId());
     }
 
     @Test
     @Override
     void testFindById() throws Exception {
         when(bciInstanceRepository.findById(bciInstance.getId())).thenReturn(Optional.of(bciInstance));
-        performGetRequest(url + "/find/" + bciInstance.getId(), "$.id", bciInstance.getId());
+        performGetRequest(URL + "/find/" + bciInstance.getId(), "$.id", bciInstance.getId());
     }
 
     @Test
     void testFindByPatientId() throws Exception {
         when(bciInstanceRepository.findByPatientId(bciInstance.getPatient().getId())).thenReturn(Collections.singletonList(bciInstance));
-        performGetRequest(url + "/find/patient/" + bciInstance.getPatient().getId(), "$[0].id", bciInstance.getId());
+        performGetRequest(URL + "/find/patient/" + bciInstance.getPatient().getId(), "$[0].id", bciInstance.getId());
     }
 
     @Test
     void testFindByCurrentPhaseId() throws Exception {
         when(bciInstanceRepository.findByCurrentPhaseId(bciInstance.getCurrentPhase().getId())).thenReturn(Collections.singletonList(bciInstance));
-        performGetRequest(url + "/find/currentphase/" + bciInstance.getCurrentPhase().getId(), "$[0].id", bciInstance.getId());
+        performGetRequest(URL + "/find/currentphase/" + bciInstance.getCurrentPhase().getId(), "$[0].id", bciInstance.getId());
     }
 
     @Test
     void testFindByActivitiesId() throws Exception {
         when(bciInstanceRepository.findByActivitiesId(bciInstance.getActivities().getFirst().getId())).thenReturn(Collections.singletonList(bciInstance));
-        performGetRequest(url + "/find/activities/" + bciInstance.getActivities().getFirst().getId(), "$[0].id", bciInstance.getId());
+        performGetRequest(URL + "/find/activities/" + bciInstance.getActivities().getFirst().getId(), "$[0].id", bciInstance.getId());
+    }
+
+    private BehaviorChangeInterventionInstance instanceBuilder(BehaviorChangeInterventionPhaseInstance currentPhase){
+        // Create a new mutable list instead of using List.of()
+        List<BehaviorChangeInterventionPhaseInstance> mutablePhases= new ArrayList<>(phases);
+        mutablePhases.add(currentPhase);
+
+        BehaviorChangeInterventionInstance updated = new BehaviorChangeInterventionInstance(ExecutionStatus.IN_PROGRESS,
+                patient, currentPhase, mutablePhases);
+        updated.setId(bciInstance.getId());
+
+        when(bciInstanceRepository.save(updated)).thenReturn(updated);
+        when(bciInstanceRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
+
+        return updated;
+    }
+
+    @Test
+    void testChangeCurrentPhase() throws Exception {
+        BehaviorChangeInterventionPhaseInstance currentPhase = new BehaviorChangeInterventionPhaseInstance(
+                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules());
+        currentPhase.setId(10L);
+        when(bciPhaseInstanceRepository.save(currentPhase)).thenReturn(currentPhase);
+
+        BehaviorChangeInterventionInstance updated = instanceBuilder(currentPhase);
+
+        performGetRequest(URL + "/changeCurrentPhase/bciInstance", updated, "$.currentPhase.id", 10L);
+    }
+
+    @Test
+    void testChangeCurrentPhaseWithPhaseIdAndCurrentPhase() throws Exception {
+        BehaviorChangeInterventionPhaseInstance currentPhase = new BehaviorChangeInterventionPhaseInstance(
+                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules());
+        currentPhase.setId(11L);
+
+        BehaviorChangeInterventionInstance updated = instanceBuilder(currentPhase);
+
+        performGetRequest(URL + "/changeCurrentPhase/" + updated.getId() + "/currentPhase", currentPhase,
+                "$.currentPhase.id", currentPhase.getId());
     }
 }
