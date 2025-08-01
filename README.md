@@ -62,6 +62,16 @@ Also, JaCoCo mainly provides three essential metrics:
 
 **More information can be find at: https://www.jacoco.org/jacoco/**
 
+## POSTMAN collection testing
+Postman is a tool used to test the API of this project. A collection of CRUD requests for the entities is included in the /doc folder.
+This collection can be imported in Postman, and each request can then be run sequentially, acting as a suite of tests.
+
+```./doc/EvoCollection.postman_collection.json```
+
+If the collection needs to be changed, a new updated collection should be exported from Postman to this project.
+
+These requests provide a measure of functional as well as end-to-end testing for the evo+ project.
+
 
 ## Evo+ physical database model
 
