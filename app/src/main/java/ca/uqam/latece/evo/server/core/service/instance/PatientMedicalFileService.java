@@ -108,9 +108,9 @@ public class PatientMedicalFileService extends AbstractEvoService<PatientMedical
     }
 
     /**
-     * Finds a Patient by its id.
+     * Finds a PatientMedicalFile by its id.
      * @param id Long.
-     * @return Patient with the given id.
+     * @return the PatientMedicalFile with the given id.
      * @throws IllegalArgumentException if id is null.
      */
     @Override

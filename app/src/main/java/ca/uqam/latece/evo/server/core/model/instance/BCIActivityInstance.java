@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "bci_activity_instance")
-@JsonPropertyOrder({"participants"})
+@JsonPropertyOrder({"id", "status", "entryDate", "exitDate", "participants"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @PrimaryKeyJoinColumn(name="bci_activity_instance_id", referencedColumnName = "activity_instance_id")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -33,8 +33,19 @@ public class BCIActivityInstance extends ActivityInstance {
 
     public BCIActivityInstance() {}
 
+    public BCIActivityInstance(ExecutionStatus status) {
+        super(status);
+    }
+
     public BCIActivityInstance(ExecutionStatus status, LocalDate entryDate, LocalDate exitDate) {
         super(status, entryDate, exitDate);
+    }
+
+    public BCIActivityInstance(ExecutionStatus status, List<Participant> participants) {
+        this(status);
+        for (Participant participant : participants) {
+            this.addParticipant(participant);
+        }
     }
 
     public BCIActivityInstance(ExecutionStatus status, LocalDate entryDate, LocalDate exitDate, List<Participant> participants) {

@@ -395,6 +395,15 @@ CREATE TABLE IF NOT EXISTS interaction (
 );
 
 /***********************************************************************************************************************
+interaction_instance table: Holds data for the instances of interaction (InteractionInstance class).
+***********************************************************************************************************************/
+CREATE TABLE IF NOT EXISTS interaction_instance (
+    interaction_instance_id BIGINT NOT NULL,
+    CONSTRAINT interaction_instance_pkey PRIMARY KEY (interaction_instance_id),
+    CONSTRAINT interaction_instance_fkey FOREIGN KEY (interaction_instance_id) REFERENCES bci_activity_instance (bci_activity_instance_id)
+);
+
+/***********************************************************************************************************************
 behavior_performance table: This table stores details about Behavior Performance.
 - Columns:
   - behavior_performance_id: A unique identifier for each Behavior Performance. Also, works as a foreign key referencing
