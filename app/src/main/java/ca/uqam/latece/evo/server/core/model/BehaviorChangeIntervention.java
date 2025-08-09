@@ -33,6 +33,12 @@ public class BehaviorChangeIntervention extends AbstractEvoModel {
     @OneToMany(mappedBy = "behaviorChangeInterventionPhaseBci")
     private List<BehaviorChangeInterventionPhase> behaviorChangeInterventionPhases = new ArrayList<>();
 
+    public BehaviorChangeIntervention() {}
+
+    public BehaviorChangeIntervention(String name) {
+        this.name = name;
+    }
+
     @Override
     public Long getId() {
         return id;

@@ -6,6 +6,8 @@ import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.*;
@@ -62,6 +64,16 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     private BehaviorChangeInterventionInstance bciInstance;
 
     @Autowired
+    private BehaviorChangeInterventionService behaviorChangeInterventionService;
+
+    @Autowired
+    private BehaviorChangeInterventionPhaseService behaviorChangeInterventionPhaseService;
+
+    private static final String INTERVENTION_NAME = "Behavior Change Intervention - BCI Instance Test";
+    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
+
+    @Autowired
     private ApplicationEvents applicationEvents;
 
     @BeforeEach
@@ -94,8 +106,18 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>();
         phases.add(phaseInstance);
 
+        // Creates a BehaviorChangeIntervention.
+        BehaviorChangeIntervention behaviorChangeIntervention = new BehaviorChangeIntervention(INTERVENTION_NAME);
+        behaviorChangeInterventionService.create(behaviorChangeIntervention);
+
+        // Creates a BehaviorChangeInterventionPhase.
+        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
+                PHASE_EXIT_CONDITION);
+        behaviorChangeInterventionPhase.setBehaviorChangeIntervention(behaviorChangeIntervention);
+        behaviorChangeInterventionPhaseService.create(behaviorChangeInterventionPhase);
+
         bciInstance = bciInstanceService.create(new BehaviorChangeInterventionInstance(ExecutionStatus.READY, patient,
-                phaseInstance, phases));
+                phaseInstance, phases, behaviorChangeIntervention));
     }
     @Test
     @Override
@@ -131,7 +153,7 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     void testFindAll() {
         List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>(bciInstance.getActivities());
         bciInstanceService.create(new BehaviorChangeInterventionInstance(ExecutionStatus.FINISHED, bciInstance.getPatient(),
-                bciInstance.getCurrentPhase(), phases));
+                bciInstance.getCurrentPhase(), phases, bciInstance.getBehaviorChangeIntervention()));
         List<BehaviorChangeInterventionInstance> results = bciInstanceService.findAll();
 
         assertEquals(2, results.size());
@@ -222,5 +244,12 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         assertEquals(1, applicationEvents.stream(BCIInstanceEvent.class).
                 filter(event -> event.getChangeAspect().equals(ChangeAspect.STARTED) &&
                         event.getCurrentPhase().equals(bciInstance.getCurrentPhase())).count());
+    }
+
+    @Test
+    void testFindByBehaviorChangeInterventionId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByBehaviorChangeInterventionId(bciInstance.getBehaviorChangeIntervention().getId());
+        assertEquals(bciInstance.getId(), result.getFirst().getId());
+        assertEquals(bciInstance.getBehaviorChangeIntervention().getId(), result.getFirst().getBehaviorChangeIntervention().getId());
     }
 }

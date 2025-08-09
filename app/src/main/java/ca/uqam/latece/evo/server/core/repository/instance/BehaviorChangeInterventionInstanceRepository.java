@@ -47,4 +47,12 @@ public interface BehaviorChangeInterventionInstanceRepository extends EvoReposit
      * @throws IllegalArgumentException if id or currentPhaseId is null.
      */
     BehaviorChangeInterventionInstance findByIdAndCurrentPhaseId(Long id, Long currentPhaseId);
+
+    /**
+     * Finds BehaviorChangeInterventionInstance entities by their associated BehaviorChangeIntervention id.
+     * @param id the id of the BehaviorChangeIntervention associated with the intervention instances.
+     * @return a list of BehaviorChangeInterventionInstance objects associated with the specified BehaviorChangeIntervention id.
+     * @throws IllegalArgumentException if the id is null.
+     */
+    List<BehaviorChangeInterventionInstance> findByBehaviorChangeInterventionId(Long id);
 }

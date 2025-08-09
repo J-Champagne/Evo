@@ -73,6 +73,13 @@ public class BehaviorChangeInterventionPhase extends AbstractEvoModel {
     private Set<BCIModule> bciModules = new LinkedHashSet<>();
 
 
+    public BehaviorChangeInterventionPhase() {}
+
+    public BehaviorChangeInterventionPhase(String entryConditions, String exitConditions) {
+        this.entryConditions = entryConditions;
+        this.exitConditions = exitConditions;
+    }
+
     @Override
     public void setId(Long id) {
         this.id = id;

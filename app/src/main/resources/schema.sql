@@ -880,10 +880,12 @@ CREATE TABLE IF NOT EXISTS bci_instance (
     bci_instance_patient_id BIGINT NOT NULL,
     bci_instance_currentphase_id BIGINT,
     bci_instance_activities_id BIGINT,
+    bci_instance_behavior_change_intervention_id BIGINT NOT NULL,
     CONSTRAINT bci_instance_pk PRIMARY KEY (bci_instance_id),
     CONSTRAINT bci_instance_patient_fkey FOREIGN KEY (bci_instance_patient_id) REFERENCES patient (patient_id),
     CONSTRAINT bci_instance_currentphase_fkey FOREIGN KEY (bci_instance_currentphase_id) REFERENCES bci_phase_instance (bci_phase_instance_id),
-    CONSTRAINT bci_instance_activity_instance_fkey FOREIGN KEY (bci_instance_id) REFERENCES activity_instance (activity_instance_id)
+    CONSTRAINT bci_instance_activity_instance_fkey FOREIGN KEY (bci_instance_id) REFERENCES activity_instance (activity_instance_id),
+    CONSTRAINT bci_instance_behavior_change_intervention_fkey FOREIGN KEY (bci_instance_behavior_change_intervention_id) REFERENCES behavior_change_intervention (behavior_change_intervention_id)
 );
 
 /***********************************************************************************************************************

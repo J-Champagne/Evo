@@ -4,8 +4,12 @@ import ca.uqam.latece.evo.server.core.controller.instance.BehaviorChangeInterven
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
+import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionPhaseRepository;
+import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionInstanceService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -50,6 +54,12 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @MockBean
     PatientRepository patientRepository;
 
+    @MockBean
+    BehaviorChangeInterventionRepository behaviorChangeInterventionRepository;
+
+    @MockBean
+    BehaviorChangeInterventionPhaseRepository behaviorChangeInterventionPhaseRepository;
+
     private Role role = new Role("Administrator");
 
     private Patient patient = new Patient("Bob", "bob@gmail.com",
@@ -78,8 +88,16 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private List<BehaviorChangeInterventionPhaseInstance> phases = List.of(phaseInstance);
 
+    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
+
+    private BehaviorChangeIntervention behaviorChangeIntervention = new BehaviorChangeIntervention("My Intervention");
+
+    private BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
+            PHASE_EXIT_CONDITION);
+
     private BehaviorChangeInterventionInstance bciInstance = new BehaviorChangeInterventionInstance(ExecutionStatus.UNKNOWN,
-            patient, phaseInstance, phases);
+            patient, phaseInstance, phases, behaviorChangeIntervention);
 
     private static final String URL = "/behaviorchangeinterventioninstance";
 
@@ -90,11 +108,17 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
         blockInstance.setId(2L);
         moduleInstance.setId(3L);
         phaseInstance.setId(4L);
-        bciInstance.setId(5L);
+        behaviorChangeIntervention.setId(5L);
+        behaviorChangeInterventionPhase.setId(6L);
+        behaviorChangeInterventionPhase.setBehaviorChangeIntervention(behaviorChangeIntervention);
+        bciInstance.setId(7L);
+
         when(patientRepository.save(patient)).thenReturn(patient);
         when(bciBlockInstanceRepository.save(blockInstance)).thenReturn(blockInstance);
         when(bciModuleInstanceRepository.save(moduleInstance)).thenReturn(moduleInstance);
         when(bciPhaseInstanceRepository.save(phaseInstance)).thenReturn(phaseInstance);
+        when(behaviorChangeInterventionRepository.save(behaviorChangeIntervention)).thenReturn(behaviorChangeIntervention);
+        when(behaviorChangeInterventionPhaseRepository.save(behaviorChangeInterventionPhase)).thenReturn(behaviorChangeInterventionPhase);
         when(bciInstanceRepository.save(bciInstance)).thenReturn(bciInstance);
     }
 
@@ -112,9 +136,6 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
         updated.setId(bciInstance.getId());
 
         when(bciInstanceRepository.save(updated)).thenReturn(updated);
-        System.out.println("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd");
-        System.out.println(updated);
-        System.out.println("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd");
         when(bciInstanceRepository.findById(updated.getId())).thenReturn(Optional.of(updated));
         performUpdateRequest(URL, updated, "$.status", updated.getStatus().toString());
     }
@@ -194,5 +215,11 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
         performGetRequest(URL + "/changeCurrentPhase/" + updated.getId() + "/currentPhase", currentPhase,
                 "$.currentPhase.id", currentPhase.getId());
+    }
+
+    @Test
+    void testFindByBehaviorChangeInterventionId() throws Exception {
+        when(bciInstanceRepository.findByBehaviorChangeInterventionId(bciInstance.getBehaviorChangeIntervention().getId())).thenReturn(Collections.singletonList(bciInstance));
+        performGetRequest(URL + "/find/behaviorchangeintervention/" + bciInstance.getBehaviorChangeIntervention().getId(), "$[0].behaviorChangeIntervention.id", bciInstance.getBehaviorChangeIntervention().getId());
     }
 }

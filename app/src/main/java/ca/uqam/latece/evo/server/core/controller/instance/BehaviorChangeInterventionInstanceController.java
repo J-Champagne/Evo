@@ -226,6 +226,29 @@ public class BehaviorChangeInterventionInstanceController extends AbstractEvoCon
         return response;
     }
 
+    @GetMapping("/find/behaviorchangeintervention/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<BehaviorChangeInterventionInstance>> findByBehaviorChangeInterventionId(@PathVariable Long id){
+        ResponseEntity<List<BehaviorChangeInterventionInstance>> response;
+
+        try {
+            List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByBehaviorChangeInterventionId(id);
+
+            if (result != null && !result.isEmpty()) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found BehaviorChangeInterventionInstance by Behavior Change Intervention Id: {}", result);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BehaviorChangeInterventionInstance by Behavior Change Intervention Id");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BehaviorChangeInterventionInstance by Behavior Change Intervention Id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
     /**
      * Finds BehaviorChangeInterventionInstance entities by their patient id.
      * @param id Long.

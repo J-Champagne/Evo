@@ -233,6 +233,21 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
     }
 
     /**
+     * Finds and retrieves a list of BehaviorChangeInterventionInstance entities
+     * associated with the specified behavior change intervention ID.
+     *
+     * @param id the ID of the behavior change intervention to find associated instances for;
+     *           must not be null or invalid.
+     * @return a list of BehaviorChangeInterventionInstance entities associated with the given ID.
+     *         Returns an empty list if no instances are found.
+     * @throws IllegalArgumentException if the id is null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByBehaviorChangeInterventionId(Long id) {
+        ObjectValidator.validateId(id);
+        return this.bciInstanceRepository.findByBehaviorChangeInterventionId(id);
+    }
+
+    /**
      * Handles events of type BCIInstanceEvent and processes them under certain conditions. Updates the corresponding
      * model when the event's change aspect is TERMINATED and the time cycle is END.
      * @param event the BCIInstanceEvent to be handled. It contains information about the change aspect, time cycle,
