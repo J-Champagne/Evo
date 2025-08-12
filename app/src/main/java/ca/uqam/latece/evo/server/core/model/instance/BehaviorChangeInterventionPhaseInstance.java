@@ -2,6 +2,8 @@ package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.interfaces.ProcessInstance;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -46,6 +48,12 @@ public class BehaviorChangeInterventionPhaseInstance extends ActivityInstance im
             inverseJoinColumns = @JoinColumn(name = "bci_phase_instance_modules_module_id", referencedColumnName="bci_module_instance_id"))
     private List<BCIModuleInstance> modules = new ArrayList<>();
 
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "bci_phase_instance_behavior_change_intervention_phase_id", referencedColumnName = "behavior_change_intervention_phase_id",
+            nullable = false)
+    private BehaviorChangeInterventionPhase behaviorChangeInterventionPhase;
+
     public BehaviorChangeInterventionPhaseInstance() {}
 
     public BehaviorChangeInterventionPhaseInstance(ExecutionStatus status) {
@@ -59,21 +67,25 @@ public class BehaviorChangeInterventionPhaseInstance extends ActivityInstance im
     public BehaviorChangeInterventionPhaseInstance(@NotNull ExecutionStatus status,
                                                    @NotNull BehaviorChangeInterventionBlockInstance currentBlock,
                                                    @NotNull List<BehaviorChangeInterventionBlockInstance> activities,
-                                                   @NotNull List<BCIModuleInstance> modules) {
+                                                   @NotNull List<BCIModuleInstance> modules,
+                                                   @NotNull BehaviorChangeInterventionPhase behaviorChangeInterventionPhase) {
         this(status);
         this.currentBlock = currentBlock;
         this.addActivities(activities);
         this.modules = modules;
+        this.behaviorChangeInterventionPhase = behaviorChangeInterventionPhase;
     }
 
     public BehaviorChangeInterventionPhaseInstance(@NotNull ExecutionStatus status, LocalDate entryDate, LocalDate exitDate,
                                                    @NotNull BehaviorChangeInterventionBlockInstance currentBlock,
                                                    @NotNull List<BehaviorChangeInterventionBlockInstance> activities,
-                                                   @NotNull List<BCIModuleInstance> modules) {
+                                                   @NotNull List<BCIModuleInstance> modules,
+                                                   @NotNull BehaviorChangeInterventionPhase behaviorChangeInterventionPhase) {
         this(status, entryDate, exitDate);
         this.currentBlock = currentBlock;
         this.addActivities(activities);
         this.modules = modules;
+        this.behaviorChangeInterventionPhase = behaviorChangeInterventionPhase;
     }
 
     @Override
@@ -121,13 +133,22 @@ public class BehaviorChangeInterventionPhaseInstance extends ActivityInstance im
         this.currentBlock = currentBlock;
     }
 
+    public BehaviorChangeInterventionPhase getBehaviorChangeInterventionPhase() {
+        return this.behaviorChangeInterventionPhase;
+    }
+
+    public void setBehaviorChangeInterventionPhase(BehaviorChangeInterventionPhase behaviorChangeInterventionPhase) {
+        this.behaviorChangeInterventionPhase = behaviorChangeInterventionPhase;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (super.equals(object)) {
             BehaviorChangeInterventionPhaseInstance bciPhaseInstance = (BehaviorChangeInterventionPhaseInstance) object;
             return Objects.equals(this.getCurrentBlock(), bciPhaseInstance.getCurrentBlock()) &&
                     Objects.equals(this.getActivities(), bciPhaseInstance.getActivities()) &&
-                    Objects.equals(this.getModules(), bciPhaseInstance.getModules());
+                    Objects.equals(this.getModules(), bciPhaseInstance.getModules()) &&
+                    Objects.equals(this.getBehaviorChangeInterventionPhase(), bciPhaseInstance.getBehaviorChangeInterventionPhase());
         } else {
             return false;
         }
@@ -135,6 +156,6 @@ public class BehaviorChangeInterventionPhaseInstance extends ActivityInstance im
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.getCurrentBlock(), this.getActivities(), this.getModules());
+        return Objects.hash(super.hashCode(), this.getCurrentBlock(), this.getActivities(), this.getModules(), this.getBehaviorChangeInterventionPhase());
     }
 }

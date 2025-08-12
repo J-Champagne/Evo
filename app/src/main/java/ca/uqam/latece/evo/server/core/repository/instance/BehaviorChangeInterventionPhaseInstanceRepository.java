@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 
@@ -47,4 +48,12 @@ public interface BehaviorChangeInterventionPhaseInstanceRepository extends EvoRe
      * @throws IllegalArgumentException if id or currentBlockId is null.
      */
     BehaviorChangeInterventionPhaseInstance findByIdAndCurrentBlockId(Long id, Long currentBlockId);
+
+    /**
+     * Finds BehaviorChangeInterventionPhaseInstance entities by their associated BehaviorChangeInterventionPhase id.
+     * @param id the id of the BehaviorChangeInterventionPhase associated with the intervention instances.
+     * @return a list of BehaviorChangeInterventionPhaseInstance objects associated with the specified BehaviorChangeInterventionPhase id.
+     * @throws IllegalArgumentException if the id is null.
+     */
+    List<BehaviorChangeInterventionPhaseInstance> findByBehaviorChangeInterventionPhaseId(Long id);
 }

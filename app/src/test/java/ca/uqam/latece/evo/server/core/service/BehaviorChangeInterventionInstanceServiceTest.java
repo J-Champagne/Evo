@@ -61,13 +61,13 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     @Autowired
     private BCIModuleInstanceService bciModuleInstanceService;
 
-    private BehaviorChangeInterventionInstance bciInstance;
-
     @Autowired
     private BehaviorChangeInterventionService behaviorChangeInterventionService;
 
     @Autowired
     private BehaviorChangeInterventionPhaseService behaviorChangeInterventionPhaseService;
+
+    private BehaviorChangeInterventionInstance bciInstance;
 
     private static final String INTERVENTION_NAME = "Behavior Change Intervention - BCI Instance Test";
     private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
@@ -78,10 +78,21 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
 
     @BeforeEach
     public void setUp() {
+        // Creates a BehaviorChangeIntervention.
+        BehaviorChangeIntervention behaviorChangeIntervention = behaviorChangeInterventionService.create( new BehaviorChangeIntervention(INTERVENTION_NAME));
+
+        // Creates a BehaviorChangeInterventionPhase.
+        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = behaviorChangeInterventionPhaseService.create( new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
+                PHASE_EXIT_CONDITION));
+        behaviorChangeInterventionPhase.setBehaviorChangeIntervention(behaviorChangeIntervention);
+
         Role role = roleService.create(new Role("Administrator"));
+
         Patient patient = patientService.create(new Patient("Bob", "bob@gmail.com",
                 "222-2222", "1 January 1970", "Student", "1234 Street"));
+
         Participant participant = participantService.create(new Participant(role, patient));
+
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
@@ -102,19 +113,9 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         blocks.add(blockInstance);
 
         BehaviorChangeInterventionPhaseInstance phaseInstance = bciPhaseInstanceService.create
-                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules));
+                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules, behaviorChangeInterventionPhase));
         List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>();
         phases.add(phaseInstance);
-
-        // Creates a BehaviorChangeIntervention.
-        BehaviorChangeIntervention behaviorChangeIntervention = new BehaviorChangeIntervention(INTERVENTION_NAME);
-        behaviorChangeInterventionService.create(behaviorChangeIntervention);
-
-        // Creates a BehaviorChangeInterventionPhase.
-        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
-                PHASE_EXIT_CONDITION);
-        behaviorChangeInterventionPhase.setBehaviorChangeIntervention(behaviorChangeIntervention);
-        behaviorChangeInterventionPhaseService.create(behaviorChangeInterventionPhase);
 
         bciInstance = bciInstanceService.create(new BehaviorChangeInterventionInstance(ExecutionStatus.READY, patient,
                 phaseInstance, phases, behaviorChangeIntervention));
@@ -195,8 +196,10 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     @Test
     void testChangeCurrentPhase() {
         Role role = roleService.create(new Role("Participant"));
+
         Patient patient = patientService.create(new Patient("Marie", "marie@gmail.com",
                 "77777", "10 April 1990", "Student", "18 Str"));
+
         Participant participant = participantService.create(new Participant(role, patient));
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
@@ -217,8 +220,11 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>();
         blocks.add(blockInstance);
 
+        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = behaviorChangeInterventionPhaseService.
+                create (new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION));
+
         BehaviorChangeInterventionPhaseInstance phaseInstance = bciPhaseInstanceService.create
-                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules));
+                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules, behaviorChangeInterventionPhase));
 
         // Update the current phase.
         BehaviorChangeInterventionInstance updated = bciInstanceService.changeCurrentPhase(bciInstance.getId(), phaseInstance);

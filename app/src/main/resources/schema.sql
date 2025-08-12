@@ -843,9 +843,11 @@ CREATE TABLE IF NOT EXISTS bci_module_instance_activities (
 CREATE TABLE IF NOT EXISTS bci_phase_instance (
     bci_phase_instance_id BIGINT NOT NULL,
     bci_phase_instance_currentblock_id BIGINT NOT NULL,
+    bci_phase_instance_behavior_change_intervention_phase_id BIGINT NOT NULL,
     CONSTRAINT bci_phase_instance_pk PRIMARY KEY (bci_phase_instance_id),
     CONSTRAINT bci_phase_instance_currentblock_fkey FOREIGN KEY (bci_phase_instance_currentblock_id) REFERENCES bci_block_instance (bci_block_instance_id),
-    CONSTRAINT bci_phase_instance_activity_instance_fkey FOREIGN KEY (bci_phase_instance_id) REFERENCES activity_instance (activity_instance_id)
+    CONSTRAINT bci_phase_instance_activity_instance_fkey FOREIGN KEY (bci_phase_instance_id) REFERENCES activity_instance (activity_instance_id),
+    CONSTRAINT bci_phase_instance_behavior_change_intervention_phase_fkey FOREIGN KEY (bci_phase_instance_behavior_change_intervention_phase_id) REFERENCES behavior_change_intervention_phase (behavior_change_intervention_phase_id)
 );
 
 /***********************************************************************************************************************

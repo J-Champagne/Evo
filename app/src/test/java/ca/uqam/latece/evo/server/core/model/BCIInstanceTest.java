@@ -16,6 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BCIInstanceTest {
+    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+
+    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
+
     private BehaviorChangeInterventionPhaseInstance bciPhaseInstance;
 
     private BehaviorChangeInterventionInstance bciInstance;
@@ -48,8 +52,10 @@ public class BCIInstanceTest {
 
         List<BCIModuleInstance> moduleInstances = new ArrayList<>(List.of(bciModuleInstance));
 
+        BehaviorChangeInterventionPhase bciPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION);
+
         bciPhaseInstance = new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, LocalDate.now(),
-                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), bciBlockInstance, blockInstances, moduleInstances);
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), bciBlockInstance, blockInstances, moduleInstances, bciPhase);
 
         List<BehaviorChangeInterventionPhaseInstance> phaseInstances = new ArrayList<>(List.of(bciPhaseInstance));
 
@@ -70,7 +76,8 @@ public class BCIInstanceTest {
     public void testAddActivity() {
         BehaviorChangeInterventionPhaseInstance newPhaseInstance = new BehaviorChangeInterventionPhaseInstance(
                 ExecutionStatus.STALLED, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"),
-                bciPhaseInstance.getCurrentBlock(), bciPhaseInstance.getActivities(), bciPhaseInstance.getModules());
+                bciPhaseInstance.getCurrentBlock(), bciPhaseInstance.getActivities(), bciPhaseInstance.getModules(),
+                bciPhaseInstance.getBehaviorChangeInterventionPhase());
 
         bciInstance.addActivity(newPhaseInstance);
 
@@ -84,11 +91,13 @@ public class BCIInstanceTest {
     public void testAddActivities() {
         BehaviorChangeInterventionPhaseInstance newPhaseInstance = new BehaviorChangeInterventionPhaseInstance(
                 ExecutionStatus.FINISHED, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"),
-                bciPhaseInstance.getCurrentBlock(), bciPhaseInstance.getActivities(), bciPhaseInstance.getModules());
+                bciPhaseInstance.getCurrentBlock(), bciPhaseInstance.getActivities(), bciPhaseInstance.getModules(),
+                bciPhaseInstance.getBehaviorChangeInterventionPhase());
 
         BehaviorChangeInterventionPhaseInstance newPhaseInstance2 = new BehaviorChangeInterventionPhaseInstance(
                 ExecutionStatus.UNKNOWN, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"),
-                bciPhaseInstance.getCurrentBlock(), bciPhaseInstance.getActivities(), bciPhaseInstance.getModules());
+                bciPhaseInstance.getCurrentBlock(), bciPhaseInstance.getActivities(), bciPhaseInstance.getModules(),
+                bciPhaseInstance.getBehaviorChangeInterventionPhase());
 
         List<BehaviorChangeInterventionPhaseInstance> activities = new ArrayList<>(List.of(newPhaseInstance, newPhaseInstance2));
 

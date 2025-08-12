@@ -7,6 +7,7 @@ import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.*;
@@ -38,11 +39,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @ApplicationScope
 @ContextConfiguration(classes = {BehaviorChangeInterventionPhaseInstance.class, BehaviorChangeInterventionPhaseInstanceService.class})
 public class BehaviorChangeInterventionPhaseInstanceServiceTest extends AbstractServiceTest {
+    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+
+    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
+
+    @Autowired
+    private BehaviorChangeInterventionPhaseService behaviorChangeInterventionPhaseService;
+
     @Autowired
     private BehaviorChangeInterventionPhaseInstanceService behaviorChangeInterventionPhaseInstanceService;
 
     @Autowired
     private BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
+
     @Autowired
     private BCIActivityInstanceService bciActivityInstanceService;
 
@@ -58,13 +67,13 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
     @Autowired
     private BCIModuleInstanceService bciModuleInstanceService;
 
-    private BehaviorChangeInterventionPhaseInstance phaseInstance;
-
     @Autowired
     private ApplicationEvents applicationEvents;
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+
+    private BehaviorChangeInterventionPhaseInstance phaseInstance;
 
     @BeforeEach
     public void setUp() {
@@ -91,8 +100,11 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>();
         blocks.add(blockInstance);
 
+        BehaviorChangeInterventionPhase bciPhase = behaviorChangeInterventionPhaseService.create((
+                new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION)));
+
         phaseInstance = behaviorChangeInterventionPhaseInstanceService.create
-                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules));
+                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules, bciPhase));
     }
 
     @Test
@@ -130,7 +142,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         List<BCIModuleInstance> modules = new ArrayList<>(phaseInstance.getModules());
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>(phaseInstance.getActivities());
         behaviorChangeInterventionPhaseInstanceService.create(new BehaviorChangeInterventionPhaseInstance(
-                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), blocks, modules));
+                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), blocks, modules, phaseInstance.getBehaviorChangeInterventionPhase()));
         List<BehaviorChangeInterventionPhaseInstance> results = behaviorChangeInterventionPhaseInstanceService.findAll();
 
         assertEquals(2, results.size());
@@ -161,6 +173,14 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
 
         assertFalse(result.isEmpty());
         assertEquals(phaseInstance.getId(), result.getFirst().getId());
+    }
+
+    @Test
+    void testFindByBehaviorChangeInterventionPhaseID() {
+        List<BehaviorChangeInterventionPhaseInstance> result = behaviorChangeInterventionPhaseInstanceService
+                .findByBehaviorChangeInterventionPhaseId(phaseInstance.getBehaviorChangeInterventionPhase().getId());
+        assertEquals(phaseInstance.getId(), result.getFirst().getId());
+        assertEquals(phaseInstance.getBehaviorChangeInterventionPhase().getId(), result.getFirst().getBehaviorChangeInterventionPhase().getId());
     }
 
     @Test

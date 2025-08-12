@@ -4,6 +4,7 @@ import ca.uqam.latece.evo.server.core.controller.instance.BehaviorChangeInterven
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIModuleInstanceRepository;
@@ -36,6 +37,10 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {BehaviorChangeInterventionPhaseInstance.class, BehaviorChangeInterventionPhaseInstanceService.class,
         BehaviorChangeInterventionPhaseInstanceController.class})
 public class BehaviorChangeInterventionPhaseInstanceControllerTest extends AbstractControllerTest {
+    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+
+    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
+
     @MockBean
     BehaviorChangeInterventionPhaseInstanceRepository bciPhaseInstanceRepository;
 
@@ -68,8 +73,10 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
+    private BehaviorChangeInterventionPhase bciPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION);
+
     private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance(
-            ExecutionStatus.STALLED, blockInstance, blocks, modules);
+            ExecutionStatus.STALLED, blockInstance, blocks, modules, bciPhase);
 
     private static final String URL = "/behaviorchangeinterventionphaseinstance";
 
@@ -79,6 +86,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
         blockInstance.setId(1L);
         moduleInstance.setId(2L);
         phaseInstance.setId(3L);
+        bciPhase.setId(4L);
         when(bciBlockInstanceRepository.save(blockInstance)).thenReturn(blockInstance);
         when(bciModuleInstanceRepository.save(moduleInstance)).thenReturn(moduleInstance);
         when(bciPhaseInstanceRepository.save(phaseInstance)).thenReturn(phaseInstance);
@@ -99,7 +107,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
         when(bciBlockInstanceRepository.save(blockInstance2)).thenReturn(blockInstance2);
 
         BehaviorChangeInterventionPhaseInstance updated = new BehaviorChangeInterventionPhaseInstance(
-                ExecutionStatus.STALLED, blockInstance2, blocks, modules);
+                ExecutionStatus.STALLED, blockInstance2, blocks, modules, bciPhase);
         updated.setId(phaseInstance.getId());
 
         when(bciPhaseInstanceRepository.save(updated)).thenReturn(updated);
@@ -151,7 +159,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
         mutableBlocks.add(currentBlock);
 
         BehaviorChangeInterventionPhaseInstance updated = new BehaviorChangeInterventionPhaseInstance(
-                ExecutionStatus.IN_PROGRESS, currentBlock, mutableBlocks, modules);
+                ExecutionStatus.IN_PROGRESS, currentBlock, mutableBlocks, modules, bciPhase);
         updated.setId(phaseInstance.getId());
 
         when(bciPhaseInstanceRepository.save(updated)).thenReturn(updated);
@@ -200,7 +208,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
         moduleInstanceList.add(module);
 
         BehaviorChangeInterventionPhaseInstance updated = new BehaviorChangeInterventionPhaseInstance(
-                ExecutionStatus.IN_PROGRESS, currentBlock, mutableBlocks, moduleInstanceList);
+                ExecutionStatus.IN_PROGRESS, currentBlock, mutableBlocks, moduleInstanceList, bciPhase);
         updated.setId(phaseInstance.getId());
 
         when(bciPhaseInstanceRepository.save(updated)).thenReturn(updated);
@@ -231,5 +239,13 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
         performGetRequest(URL + "/changeModuleStatusToFinished/" + updated.getId() + "/moduleToFinished", moduleToFinished,
                 "$.modules[0].status", ExecutionStatus.FINISHED.toString());
+    }
+
+    @Test
+    void testFindByBehaviorChangeInterventionPhaseId() throws Exception {
+        when(bciPhaseInstanceRepository.findByBehaviorChangeInterventionPhaseId(phaseInstance.getBehaviorChangeInterventionPhase().getId()))
+                .thenReturn(Collections.singletonList(phaseInstance));
+        performGetRequest(URL + "/find/behaviorchangeinterventionphase/" + phaseInstance.getBehaviorChangeInterventionPhase().getId(),
+                "$[0].behaviorChangeInterventionPhase.id", phaseInstance.getBehaviorChangeInterventionPhase().getId());
     }
 }

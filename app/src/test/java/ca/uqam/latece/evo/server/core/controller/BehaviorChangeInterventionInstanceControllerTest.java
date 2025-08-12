@@ -60,6 +60,11 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @MockBean
     BehaviorChangeInterventionPhaseRepository behaviorChangeInterventionPhaseRepository;
 
+    private BehaviorChangeIntervention behaviorChangeIntervention = new BehaviorChangeIntervention("My Intervention");
+
+    private BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
+            PHASE_EXIT_CONDITION);
+
     private Role role = new Role("Administrator");
 
     private Patient patient = new Patient("Bob", "bob@gmail.com",
@@ -84,20 +89,15 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
     private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance(
-            ExecutionStatus.STALLED, blockInstance, blocks, modules);
+            ExecutionStatus.STALLED, blockInstance, blocks, modules, behaviorChangeInterventionPhase);
 
     private List<BehaviorChangeInterventionPhaseInstance> phases = List.of(phaseInstance);
 
-    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
-    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
-
-    private BehaviorChangeIntervention behaviorChangeIntervention = new BehaviorChangeIntervention("My Intervention");
-
-    private BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
-            PHASE_EXIT_CONDITION);
-
     private BehaviorChangeInterventionInstance bciInstance = new BehaviorChangeInterventionInstance(ExecutionStatus.UNKNOWN,
             patient, phaseInstance, phases, behaviorChangeIntervention);
+
+    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
 
     private static final String URL = "/behaviorchangeinterventioninstance";
 
@@ -196,7 +196,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Test
     void testChangeCurrentPhase() throws Exception {
         BehaviorChangeInterventionPhaseInstance currentPhase = new BehaviorChangeInterventionPhaseInstance(
-                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules());
+                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules(), behaviorChangeInterventionPhase);
         currentPhase.setId(10L);
         when(bciPhaseInstanceRepository.save(currentPhase)).thenReturn(currentPhase);
 
@@ -208,7 +208,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Test
     void testChangeCurrentPhaseWithPhaseIdAndCurrentPhase() throws Exception {
         BehaviorChangeInterventionPhaseInstance currentPhase = new BehaviorChangeInterventionPhaseInstance(
-                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules());
+                ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules(), behaviorChangeInterventionPhase);
         currentPhase.setId(11L);
 
         BehaviorChangeInterventionInstance updated = instanceBuilder(currentPhase);

@@ -8,6 +8,7 @@ import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionPhaseInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -308,6 +309,21 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
         ObjectValidator.validateId(id);
         ObjectValidator.validateId(currentBlockId);
         return this.bciPhaseInstanceRepository.findByIdAndCurrentBlockId(id, currentBlockId);
+    }
+
+    /**
+     * Finds and retrieves a list of BehaviorChangeInterventionPhaseInstance entities
+     * associated with the specified behavior change intervention phase ID.
+     *
+     * @param id the ID of the behavior change intervention phase to find associated instances for;
+     *           must not be null or invalid.
+     * @return a list of BehaviorChangeInterventionPhaseInstance entities associated with the given ID.
+     *         Returns an empty list if no instances are found.
+     * @throws IllegalArgumentException if the id is null.
+     */
+    public List<BehaviorChangeInterventionPhaseInstance> findByBehaviorChangeInterventionPhaseId(Long id) {
+        ObjectValidator.validateId(id);
+        return this.bciPhaseInstanceRepository.findByBehaviorChangeInterventionPhaseId(id);
     }
 
     /**
