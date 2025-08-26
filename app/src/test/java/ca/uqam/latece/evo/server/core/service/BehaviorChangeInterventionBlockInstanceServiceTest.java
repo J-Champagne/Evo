@@ -42,15 +42,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ApplicationScope
 @ContextConfiguration(classes = {BehaviorChangeInterventionBlockInstance.class, BehaviorChangeInterventionBlockInstanceService.class})
 public class BehaviorChangeInterventionBlockInstanceServiceTest extends AbstractServiceTest {
-    private static final String ENTRY_CONDITION = "Intervention ENTRY";
-
-    private static final String EXIT_CONDITION = "Intervention EXIT";
-
     @Autowired
     BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
 
     @Autowired
-    private BCIActivityService bCIActivityService;
+    private BCIActivityService bciActivityService;
 
     @Autowired
     private BCIActivityInstanceService bciActivityInstanceService;
@@ -84,8 +80,8 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
-        BCIActivity bciActivity = bCIActivityService.create(new BCIActivity("Programming", "Description",
-                ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION));
+        BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming", "Description",
+                ActivityType.BCI_ACTIVITY, "Intervention ENTRY", "Intervention EXIT"));
 
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
@@ -94,7 +90,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         activities.add(activityInstance);
 
         BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
-                (ENTRY_CONDITION, EXIT_CONDITION));
+                ("Intervention ENTRY", "Intervention EXIT"));
 
         blockInstance = behaviorChangeInterventionBlockInstanceService.
                     create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),

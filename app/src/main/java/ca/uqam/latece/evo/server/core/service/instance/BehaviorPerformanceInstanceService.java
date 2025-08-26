@@ -1,9 +1,7 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance;
-import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorPerformanceInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;

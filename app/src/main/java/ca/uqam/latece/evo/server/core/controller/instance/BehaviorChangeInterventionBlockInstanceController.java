@@ -3,9 +3,7 @@ package ca.uqam.latece.evo.server.core.controller.instance;
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
-import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionBlockInstanceService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

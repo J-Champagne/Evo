@@ -2,7 +2,6 @@ package ca.uqam.latece.evo.server.core.repository.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
-import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 import org.springframework.stereotype.Repository;
 

@@ -25,10 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Edilton Lima dos Santos.
  */
 public class BCIModuleInstanceTest {
-    private static final String ENTRY_CONDITION = "Intervention Phase ENTRY";
-
-    private static final String EXIT_CONDITION = "Intervention Phase EXIT";
-
     private BCIModuleInstance bciModuleInstance;
 
     private BCIActivityInstance bciActivityInstance;
@@ -42,7 +38,8 @@ public class BCIModuleInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY,
+                "Intervention ENTRY", "Intervention EXIT");
 
         bciActivityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);
@@ -69,7 +66,8 @@ public class BCIModuleInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY,
+                "Intervention ENTRY", "Intervention EXIT");
 
         BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2028/01/08"), participants, bciActivity);
@@ -91,9 +89,11 @@ public class BCIModuleInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY,
+                "Intervention ENTRY", "Intervention EXIT");
 
-        BCIActivity bciActivity2 = new BCIActivity("Wight loss", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+        BCIActivity bciActivity2 = new BCIActivity("Wight loss", "Description", ActivityType.BCI_ACTIVITY,
+                "Intervention ENTRY", "Intervention EXIT");
 
         BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);

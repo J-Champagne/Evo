@@ -3,20 +3,18 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.controller.instance.InteractionInstanceController;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.enumeration.InteractionMedium;
+import ca.uqam.latece.evo.server.core.enumeration.InteractionMode;
 import ca.uqam.latece.evo.server.core.model.Interaction;
 import ca.uqam.latece.evo.server.core.model.Role;
-import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.repository.InteractionRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.InteractionInstanceRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.ParticipantRepository;
-import ca.uqam.latece.evo.server.core.service.InteractionService;
 import ca.uqam.latece.evo.server.core.service.instance.InteractionInstanceService;
 
-import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -56,7 +54,8 @@ public class InteractionInstanceControllerTest extends AbstractControllerTest {
 
     private List<Participant> participants = List.of(participant);
 
-    private Interaction interaction = new Interaction("Interaction with system", "Description", ActivityType.BCI_ACTIVITY, "ENTRY_CONDITION", "EXIT_CONDITION");
+    private Interaction interaction = new Interaction("Interaction with system", "Description", ActivityType.BCI_ACTIVITY,
+            "ENTRY_CONDITION", "EXIT_CONDITION", InteractionMode.ASYNCHRONOUS, role, InteractionMedium.VIDEO);
 
     private InteractionInstance interactionInstance = new InteractionInstance(ExecutionStatus.READY, participants, interaction);
 

@@ -1,7 +1,6 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 

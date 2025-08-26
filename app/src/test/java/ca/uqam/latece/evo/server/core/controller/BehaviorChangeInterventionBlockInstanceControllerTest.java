@@ -39,10 +39,6 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {BehaviorChangeInterventionBlockInstance.class, BehaviorChangeInterventionBlockInstanceService.class,
         BehaviorChangeInterventionBlockInstanceController.class})
 public class BehaviorChangeInterventionBlockInstanceControllerTest extends AbstractControllerTest {
-    private static final String ENTRY_CONDITION = "Intervention ENTRY";
-
-    private static final String EXIT_CONDITION = "Intervention EXIT";
-
     @MockBean
     private BehaviorChangeInterventionBlockInstanceRepository bciBlockInstanceRepository;
 
@@ -56,14 +52,16 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
 
     private List<Participant> participants = List.of(participant);
 
-    private BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+    private BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, "ENTRY_CONDITION",
+            "EXIT_CONDITION");
 
     private BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
             DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
-    private BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(ENTRY_CONDITION, EXIT_CONDITION);
+    private BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock("ENTRY_CONDITION",
+            "EXIT_CONDITION");
 
     private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(
             ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock);

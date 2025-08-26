@@ -38,10 +38,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ApplicationScope
 @ContextConfiguration(classes = {BehaviorChangeInterventionPhaseInstance.class, BehaviorChangeInterventionPhaseInstanceService.class})
 public class BehaviorChangeInterventionPhaseInstanceServiceTest extends AbstractServiceTest {
-    private static final String ENTRY_CONDITION = "Intervention Phase ENTRY";
-
-    private static final String EXIT_CONDITION = "Intervention Phase EXIT";
-
     @Autowired
     private BehaviorChangeInterventionPhaseService behaviorChangeInterventionPhaseService;
 
@@ -90,7 +86,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         participants.add(participant);
 
         BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming", "Description",
-                ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION));
+                ActivityType.BCI_ACTIVITY, "Intervention ENTRY", "Intervention EXIT"));
 
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
@@ -104,7 +100,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         modules.add(moduleInstance);
 
         BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
-                (ENTRY_CONDITION, EXIT_CONDITION));
+                ("Intervention ENTRY", "Intervention EXIT"));
 
         BehaviorChangeInterventionBlockInstance blockInstance = behaviorChangeInterventionBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));
@@ -112,7 +108,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         blocks.add(blockInstance);
 
         BehaviorChangeInterventionPhase bciPhase = behaviorChangeInterventionPhaseService.create((
-                new BehaviorChangeInterventionPhase(ENTRY_CONDITION, EXIT_CONDITION)));
+                new BehaviorChangeInterventionPhase("Intervention Phase ENTRY", "Intervention Phase EXIT")));
 
         phaseInstance = behaviorChangeInterventionPhaseInstanceService.create
                 (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules, bciPhase));
@@ -215,7 +211,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         participants.add(participant);
 
         BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming2", "Description", ActivityType.BCI_ACTIVITY,
-                ENTRY_CONDITION, EXIT_CONDITION));
+                "Intervention ENTRY", "Intervention EXIT"));
 
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2025/07/30"),
@@ -224,7 +220,8 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
-        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock(ENTRY_CONDITION, EXIT_CONDITION));
+        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create
+                (new BehaviorChangeInterventionBlock("Intervention ENTRY", "Intervention EXIT"));
 
         BehaviorChangeInterventionBlockInstance blockInstance = behaviorChangeInterventionBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));

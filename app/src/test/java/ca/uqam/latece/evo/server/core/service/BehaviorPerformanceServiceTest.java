@@ -122,7 +122,7 @@ public class BehaviorPerformanceServiceTest extends AbstractServiceTest {
         content2.setType("Content Test");
         content2.addBCIActivity(behaviorPerformance2);
 
-        // Save ontent.
+        // Save content.
         contentService.create(content);
         contentService.create(content2);
     }

@@ -197,26 +197,26 @@ public class BehaviorPerformanceInstanceServiceTest extends AbstractServiceTest 
 
     @AfterEach
     void afterEach(){
-//        // Delete a behavior performance Instance.
-//        behaviorPerformanceInstanceService.deleteById(behaviorPerformanceInstance.getId());
-//        // Delete a behavior performance.
-//        behaviorPerformanceService.deleteById(behaviorPerformance.getId());
-//        // Delete a bciActivityInstanceService.
-//        bciActivityInstanceService.deleteById(bciActivity.getId());
-//        //  Delete a bciActivityService.
-//        bciActivityService.deleteById(bciActivity2.getId());
-//        // Delete a Role.
-//        roleService.deleteById(role.getId());
-//        // Delete a Skill.
-//        skillService.deleteById(skill.getId());
-//        // Delete the Requires.
-//        requiresService.deleteById(requires.getId());
-//        requiresService.deleteById(requires1.getId());
-//        // Delete Develops.
-//        developsService.deleteById(develops.getId());
-//        // Delete the Content.
-//        contentService.deleteById(content.getId());
-//        contentService.deleteById(content2.getId());
+        // Delete a behavior performance Instance.
+        behaviorPerformanceInstanceService.deleteById(behaviorPerformanceInstance.getId());
+        // Delete a behavior performance.
+        behaviorPerformanceService.deleteById(behaviorPerformance.getId());
+        // Delete a bciActivityInstanceService.
+        bciActivityInstanceService.deleteById(bciActivity.getId());
+        //  Delete a bciActivityService.
+        bciActivityService.deleteById(bciActivity2.getId());
+        // Delete a Role.
+        roleService.deleteById(role.getId());
+        // Delete a Skill.
+        skillService.deleteById(skill.getId());
+        // Delete the Requires.
+        requiresService.deleteById(requires.getId());
+        requiresService.deleteById(requires1.getId());
+        // Delete Develops.
+        developsService.deleteById(develops.getId());
+        // Delete the Content.
+        contentService.deleteById(content.getId());
+        contentService.deleteById(content2.getId());
     }
 
     @Test

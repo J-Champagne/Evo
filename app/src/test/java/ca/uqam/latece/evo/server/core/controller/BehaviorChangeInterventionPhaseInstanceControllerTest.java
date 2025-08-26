@@ -40,9 +40,9 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {BehaviorChangeInterventionPhaseInstance.class, BehaviorChangeInterventionPhaseInstanceService.class,
         BehaviorChangeInterventionPhaseInstanceController.class})
 public class BehaviorChangeInterventionPhaseInstanceControllerTest extends AbstractControllerTest {
-    private static final String ENTRY_CONDITION = "Intervention Phase ENTRY";
+    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
 
-    private static final String EXIT_CONDITION = "Intervention Phase EXIT";
+    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
 
     @MockBean
     BehaviorChangeInterventionPhaseInstanceRepository bciPhaseInstanceRepository;
@@ -62,7 +62,8 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private List<Participant> participants = List.of(participant);
 
-    private BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+    private BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY,
+            "ENTRY_CONDITION", "EXIT_CONDITION");
 
     private BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
             DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);
@@ -74,14 +75,15 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
     private BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock
-            (ENTRY_CONDITION, EXIT_CONDITION);
+            ("ENTRY_CONDITION", "EXIT_CONDITION");
 
     private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(
             ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock);
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
-    private BehaviorChangeInterventionPhase bciPhase = new BehaviorChangeInterventionPhase(ENTRY_CONDITION, EXIT_CONDITION);
+    private BehaviorChangeInterventionPhase bciPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
+            PHASE_EXIT_CONDITION);
 
     private BehaviorChangeInterventionPhaseInstance phaseInstance = new BehaviorChangeInterventionPhaseInstance(
             ExecutionStatus.STALLED, blockInstance, blocks, modules, bciPhase);

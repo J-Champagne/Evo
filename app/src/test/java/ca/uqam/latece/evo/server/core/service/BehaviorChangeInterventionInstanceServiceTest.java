@@ -4,6 +4,10 @@ import ca.uqam.latece.evo.server.core.enumeration.*;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.*;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -71,8 +75,8 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     private BehaviorChangeInterventionInstance bciInstance;
 
     private static final String INTERVENTION_NAME = "Behavior Change Intervention - BCI Instance Test";
-    private static final String ENTRY_CONDITION = "Intervention Phase ENTRY";
-    private static final String EXIT_CONDITION = "Intervention Phase EXIT";
+    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
 
     @Autowired
     private ApplicationEvents applicationEvents;
@@ -83,8 +87,8 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         BehaviorChangeIntervention behaviorChangeIntervention = behaviorChangeInterventionService.create( new BehaviorChangeIntervention(INTERVENTION_NAME));
 
         // Creates a BehaviorChangeInterventionPhase.
-        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = behaviorChangeInterventionPhaseService.create( new BehaviorChangeInterventionPhase(ENTRY_CONDITION,
-                EXIT_CONDITION));
+        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = behaviorChangeInterventionPhaseService.create( new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
+                PHASE_EXIT_CONDITION));
         behaviorChangeInterventionPhase.setBehaviorChangeIntervention(behaviorChangeIntervention);
 
         Role role = roleService.create(new Role("Administrator"));
@@ -98,7 +102,7 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         participants.add(participant);
 
         BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY,
-                ENTRY_CONDITION, EXIT_CONDITION));
+                "ENTRY_CONDITION", "EXIT_CONDITION"));
 
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
@@ -112,7 +116,7 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         modules.add(moduleInstance);
 
         BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
-                (ENTRY_CONDITION, EXIT_CONDITION));
+                ("ENTRY_CONDITION", "EXIT_CONDITION"));
 
         BehaviorChangeInterventionBlockInstance blockInstance = bciBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));
@@ -212,7 +216,7 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         participants.add(participant);
 
         BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming2", "Description",
-                ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION));
+                ActivityType.BCI_ACTIVITY, "ENTRY_CONDITION", "EXIT_CONDITION"));
 
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2025/07/30"),
@@ -226,7 +230,7 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         modules.add(moduleInstance);
 
         BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
-                (ENTRY_CONDITION, EXIT_CONDITION));
+                ("ENTRY_CONDITION", "EXIT_CONDITION"));
 
         BehaviorChangeInterventionBlockInstance blockInstance = bciBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));
@@ -234,7 +238,7 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         blocks.add(blockInstance);
 
         BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = behaviorChangeInterventionPhaseService.
-                create (new BehaviorChangeInterventionPhase(ENTRY_CONDITION, EXIT_CONDITION));
+                create (new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION));
 
         BehaviorChangeInterventionPhaseInstance phaseInstance = bciPhaseInstanceService.create
                 (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules, behaviorChangeInterventionPhase));

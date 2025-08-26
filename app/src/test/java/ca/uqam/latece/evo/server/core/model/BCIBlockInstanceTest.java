@@ -22,10 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author Edilton Lima dos Santos.
  */
 public class BCIBlockInstanceTest {
-    private static final String ENTRY_CONDITION = "Intervention ENTRY";
-
-    private static final String EXIT_CONDITION = "Intervention EXIT";
-
     private BehaviorChangeInterventionBlockInstance bciBlockInstance;
 
     private BCIActivityInstance bciActivityInstance;
@@ -39,14 +35,16 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY,
+                "Intervention ENTRY", "Intervention EXIT");
 
         bciActivityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(bciActivityInstance));
 
-        BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(ENTRY_CONDITION, EXIT_CONDITION);
+        BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock("Intervention ENTRY",
+                "Intervention EXIT");
 
         bciBlockInstance = new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities, bciBlock);
@@ -69,7 +67,8 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, "Intervention ENTRY",
+                "Intervention EXIT");
 
         BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2028/01/08"), participants, bciActivity);
@@ -91,9 +90,11 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
-        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY,
+                "Intervention ENTRY", "Intervention EXIT");
 
-        BCIActivity bciActivity2 = new BCIActivity("Weight loss", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+        BCIActivity bciActivity2 = new BCIActivity("Weight loss", "Description", ActivityType.BCI_ACTIVITY,
+                "Intervention ENTRY", "Intervention EXIT");
 
         BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);

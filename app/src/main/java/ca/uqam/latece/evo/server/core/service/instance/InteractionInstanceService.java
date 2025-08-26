@@ -1,14 +1,11 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.model.instance.*;
-import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
-import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.InteractionInstanceRepository;
-
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;

@@ -59,15 +59,7 @@ public class Interaction extends BCIActivity {
     @Column(name = "interaction_medium4", nullable = true, length = 9)
     private InteractionMedium interactionMedium4;
 
-    public Interaction() { }
-
-    public Interaction(@NotNull String name,
-                       @NotNull String description,
-                       @NotNull ActivityType type,
-                       @NotNull String preconditions,
-                       @NotNull String postconditions) {
-        super(name, description, type, preconditions, postconditions);
-    }
+    public Interaction() {}
 
     public Interaction(@NotNull String name,
                        @NotNull String description,

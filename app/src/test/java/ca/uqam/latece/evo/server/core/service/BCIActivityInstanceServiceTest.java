@@ -12,6 +12,7 @@ import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceServic
 import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
 import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,10 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     private DevelopsService developsService;
 
     @Autowired
-    private GoalSettingService goalSettingService;
+    private ParticipantService participantService;
+
+    @Autowired
+    private HealthCareProfessionalService healthCareProfessionalService;
 
     private BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
     private BCIActivity bciActivity = new BCIActivity();
@@ -72,13 +76,8 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     private Develops develops = new Develops();
     private HealthCareProfessional hcp = new HealthCareProfessional();
     private Participant participant = new Participant();
-
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
-    @Autowired
-    private ParticipantService participantService;
-    @Autowired
-    private HealthCareProfessionalService healthCareProfessionalService;
 
     @BeforeEach
     void beforeEach() {

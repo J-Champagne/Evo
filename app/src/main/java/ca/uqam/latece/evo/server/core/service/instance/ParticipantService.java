@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
-import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.repository.instance.ParticipantRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;

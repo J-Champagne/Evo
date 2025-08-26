@@ -286,9 +286,9 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
      * @return List<BCIActivityInstance> in JSON format.
      * @throws IllegalArgumentException if id is null.
      */
-    @GetMapping("/find/bciactivityinstance/{id}")
+    @GetMapping("/find/bciactivity/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<BCIActivityInstance>> findByBciActivityInstanceId(@PathVariable Long id) {
+    public ResponseEntity<List<BCIActivityInstance>> findByBciActivityId(@PathVariable Long id) {
         ResponseEntity<List<BCIActivityInstance>> response;
 
         try {
