@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
@@ -16,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BCIInstanceTest {
-    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+    private static final String ENTRY_CONDITION = "Intervention Phase ENTRY";
 
-    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
+    private static final String EXIT_CONDITION = "Intervention Phase EXIT";
 
     private BehaviorChangeInterventionPhaseInstance bciPhaseInstance;
 
@@ -37,12 +38,14 @@ public class BCIInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+
         BCIActivityInstance bciActivityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
-                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(bciActivityInstance));
 
-        BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION);
+        BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(ENTRY_CONDITION, EXIT_CONDITION);
 
         BehaviorChangeInterventionBlockInstance bciBlockInstance = new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities, bciBlock);
@@ -54,7 +57,7 @@ public class BCIInstanceTest {
 
         List<BCIModuleInstance> moduleInstances = new ArrayList<>(List.of(bciModuleInstance));
 
-        BehaviorChangeInterventionPhase bciPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION);
+        BehaviorChangeInterventionPhase bciPhase = new BehaviorChangeInterventionPhase(ENTRY_CONDITION, EXIT_CONDITION);
 
         bciPhaseInstance = new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, LocalDate.now(),
                 DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), bciBlockInstance, blockInstances, moduleInstances, bciPhase);

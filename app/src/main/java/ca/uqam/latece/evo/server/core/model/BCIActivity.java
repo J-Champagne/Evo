@@ -77,22 +77,26 @@ public class BCIActivity extends Activity {
     @OneToMany(mappedBy = "bciActivityComposedOf", orphanRemoval = true, targetEntity = ComposedOf.class)
     private List<ComposedOf> composedOfList = new ArrayList<>();
 
-
     public BCIActivity() {}
 
-    public BCIActivity(@NotNull String name, @NotNull ActivityType type, @NotNull String preconditions,
-                       @NotNull String postconditions, @NotNull Develops develop, @NotNull Role... parties) {
+    public BCIActivity(@NotNull String name, @NotNull String description, @NotNull ActivityType type, @NotNull String preconditions,
+                       @NotNull String postconditions) {
         this.name = name;
+        this.description = description;
         this.type = type;
         this.preconditions = preconditions;
         this.postconditions = postconditions;
+    }
+
+    public BCIActivity(@NotNull String name, @NotNull String description, @NotNull ActivityType type, @NotNull String preconditions,
+                       @NotNull String postconditions, @NotNull Develops develop, @NotNull Role... parties) {
+        this(name, description, type, preconditions, postconditions);
         this.developsBCIActivity.add(develop);
 
         if(parties.length > 0) {
             this.parties.addAll(List.of(parties));
         }
     }
-
 
     @Override
     public void setId(Long id) {

@@ -162,6 +162,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivityInstance.setStatus(ExecutionStatus.UNKNOWN);
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
+        bciActivityInstance.setBciActivity(bciActivity);
         bciActivityInstance.addParticipant(participant);
         bciActivityInstanceService.create(bciActivityInstance);
     }
@@ -195,6 +196,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivityInstance.setStatus(ExecutionStatus.UNKNOWN);
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
+        bciActivityInstance.setBciActivity(bciActivity);
 
         BCIActivityInstance saved = bciActivityInstanceService.create(bciActivityInstance);
 
@@ -211,6 +213,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
         BCIActivityInstance saved = bciActivityInstanceService.update(instance);
 
         // Checks if the BCI Activity Instance id saved is the same of the BCI Activity Instance updated.
@@ -226,6 +229,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
 
         BCIActivityInstance saved =  bciActivityInstanceService.create(instance);
         BCIActivityInstance bciInstanceFound = bciActivityInstanceService.findById(saved.getId());
@@ -239,6 +243,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         instance.setStatus(ExecutionStatus.SUSPENDED);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
         BCIActivityInstance saved = bciActivityInstanceService.create(instance);
 
         // Delete a BCI Activity Instance.
@@ -254,6 +259,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
         BCIActivityInstance saved = bciActivityInstanceService.create(instance);
 
         // Find all BCIActivityInstance.
@@ -270,6 +276,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         instance.setStatus(ExecutionStatus.FINISHED);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
         BCIActivityInstance saved = bciActivityInstanceService.create(instance);
 
         // Find all bciActivities.
@@ -286,6 +293,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         instance.setStatus(ExecutionStatus.IN_PROGRESS);
         instance.setEntryDate(localEntryDate);
         instance.setExitDate(localExitDate);
+        instance.setBciActivity(bciActivity);
         instance.addParticipant(participant);
         BCIActivityInstance saved = bciActivityInstanceService.create(instance);
 

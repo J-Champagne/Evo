@@ -1,5 +1,6 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.instance.*;
@@ -38,8 +39,10 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+
         bciActivityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
-                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(bciActivityInstance));
 
@@ -66,8 +69,10 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+
         BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
-                DateFormatter.convertDateStrTo_yyyy_MM_dd("2028/01/08"), participants);
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2028/01/08"), participants, bciActivity);
 
         bciBlockInstance.addActivity(activityInstance);
 
@@ -86,11 +91,15 @@ public class BCIBlockInstanceTest {
 
         List<Participant> participants = List.of(participant);
 
+        BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+
+        BCIActivity bciActivity2 = new BCIActivity("Weight loss", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+
         BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
-                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);
 
         BCIActivityInstance activityInstance2 = new BCIActivityInstance(ExecutionStatus.STALLED, LocalDate.now(),
-                DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), participants);
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2030/01/08"), participants, bciActivity2);
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(activityInstance, activityInstance2));
 

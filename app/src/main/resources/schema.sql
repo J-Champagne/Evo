@@ -281,8 +281,10 @@ CREATE TABLE IF NOT EXISTS activity_instance (
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_activity_instance (
     bci_activity_instance_id BIGINT NOT NULL,
+    bci_activity_instance_bci_activity_id BIGINT NULL,
     CONSTRAINT bci_activity_instance_pkey PRIMARY KEY (bci_activity_instance_id),
-    CONSTRAINT bci_activity_instance_activity_instance_fkey FOREIGN KEY (bci_activity_instance_id) REFERENCES activity_instance (activity_instance_id)
+    CONSTRAINT bci_activity_instance_activity_instance_fkey FOREIGN KEY (bci_activity_instance_id) REFERENCES activity_instance (activity_instance_id),
+    CONSTRAINT bci_activity_instance_bci_activity_fkey FOREIGN KEY (bci_activity_instance_bci_activity_id) REFERENCES bci_activity (bci_activity_id)
 );
 
 /***********************************************************************************************************************
@@ -399,8 +401,10 @@ interaction_instance table: Holds data for the instances of interaction (Interac
 ***********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS interaction_instance (
     interaction_instance_id BIGINT NOT NULL,
+    interaction_instance_interaction_id BIGINT NOT NULL,
     CONSTRAINT interaction_instance_pkey PRIMARY KEY (interaction_instance_id),
-    CONSTRAINT interaction_instance_fkey FOREIGN KEY (interaction_instance_id) REFERENCES bci_activity_instance (bci_activity_instance_id)
+    CONSTRAINT interaction_instance_fkey FOREIGN KEY (interaction_instance_id) REFERENCES bci_activity_instance (bci_activity_instance_id),
+    CONSTRAINT interaction_instance_interaction_fkey FOREIGN KEY (interaction_instance_interaction_id) REFERENCES interaction (interaction_id)
 );
 
 /***********************************************************************************************************************

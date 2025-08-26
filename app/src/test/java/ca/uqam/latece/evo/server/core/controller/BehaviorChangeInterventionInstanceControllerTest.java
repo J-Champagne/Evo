@@ -1,13 +1,11 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.BehaviorChangeInterventionInstanceController;
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
-import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
-import ca.uqam.latece.evo.server.core.model.Role;
+import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionPhaseRepository;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionRepository;
@@ -63,8 +61,8 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private BehaviorChangeIntervention behaviorChangeIntervention = new BehaviorChangeIntervention("My Intervention");
 
-    private BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION,
-            PHASE_EXIT_CONDITION);
+    private BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = new BehaviorChangeInterventionPhase(ENTRY_CONDITION,
+            EXIT_CONDITION);
 
     private Role role = new Role("Administrator");
 
@@ -75,8 +73,10 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private List<Participant> participants = List.of(participant);
 
+    private BCIActivity bciActivity = new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION);
+
     private BCIActivityInstance activityInstance = new BCIActivityInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
-            DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants);
+            DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), participants, bciActivity);
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
@@ -84,7 +84,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
-    private BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION);
+    private BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(ENTRY_CONDITION, EXIT_CONDITION);
 
     private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(
             ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock);
@@ -99,8 +99,9 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     private BehaviorChangeInterventionInstance bciInstance = new BehaviorChangeInterventionInstance(ExecutionStatus.UNKNOWN,
             patient, phaseInstance, phases, behaviorChangeIntervention);
 
-    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
-    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
+    private static final String ENTRY_CONDITION = "Intervention Phase ENTRY";
+    
+    private static final String EXIT_CONDITION = "Intervention Phase EXIT";
 
     private static final String URL = "/behaviorchangeinterventioninstance";
 

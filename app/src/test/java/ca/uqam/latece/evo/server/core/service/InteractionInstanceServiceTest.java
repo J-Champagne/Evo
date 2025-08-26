@@ -1,6 +1,10 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
+import ca.uqam.latece.evo.server.core.enumeration.InteractionMedium;
+import ca.uqam.latece.evo.server.core.enumeration.InteractionMode;
+import ca.uqam.latece.evo.server.core.model.Interaction;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
@@ -40,6 +44,9 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     InteractionInstanceService interactionInstanceService;
 
+    @Autowired
+    InteractionService interactionService;
+
     Role role;
 
     HealthCareProfessional hcp;
@@ -58,7 +65,12 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
-        interactionInstance = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants));
+        Interaction interaction = interactionService.create(new Interaction("Interaction", "Description",
+                ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
+                role, InteractionMedium.VIDEO));
+
+        interactionInstance = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
+                interaction));
     }
 
     @Test
@@ -93,7 +105,8 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
     @Test
     @Override
     void testFindAll() {
-        InteractionInstance interactionInstance2 = interactionInstanceService.create(new InteractionInstance());
+        InteractionInstance interactionInstance2 = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.FINISHED,
+                interactionInstance.getParticipants(), interactionInstance.getInteraction()));
         List<InteractionInstance> results = interactionInstanceService.findAll();
 
         assertEquals(2, results.size());

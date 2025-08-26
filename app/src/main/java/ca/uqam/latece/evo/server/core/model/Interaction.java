@@ -3,6 +3,7 @@ package ca.uqam.latece.evo.server.core.model;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.InteractionMedium;
 import ca.uqam.latece.evo.server.core.enumeration.InteractionMode;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -12,11 +13,11 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.*;
 
-
 /**
  * Interaction model class.
  * @version 1.0
  * @author Edilton Lima dos Santos.
+ * @author Julien Champagne
  */
 @Entity
 @Table(name = "interaction")
@@ -25,7 +26,6 @@ import java.util.*;
 "interactionInitiatorRole", "interactionMedium1", "interactionMedium2", "interactionMedium3", "interactionMedium4"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Interaction extends BCIActivity {
-
     @NotNull
     @JsonProperty("interactionMode")
     @Enumerated(EnumType.STRING)
@@ -59,19 +59,45 @@ public class Interaction extends BCIActivity {
     @Column(name = "interaction_medium4", nullable = true, length = 9)
     private InteractionMedium interactionMedium4;
 
-
     public Interaction() { }
 
-    public Interaction(@NotNull String name, @NotNull ActivityType type, @NotNull String preconditions,
-                       @NotNull String postconditions, @NotNull Develops develop, @NotNull InteractionMode interactionMode,
-                       @NotNull Role interactionInitiatorRole, @NotNull InteractionMedium interactionMedium1,
-                       Role... parties) {
-        super(name, type, preconditions, postconditions, develop, parties);
+    public Interaction(@NotNull String name,
+                       @NotNull String description,
+                       @NotNull ActivityType type,
+                       @NotNull String preconditions,
+                       @NotNull String postconditions) {
+        super(name, description, type, preconditions, postconditions);
+    }
+
+    public Interaction(@NotNull String name,
+                       @NotNull String description,
+                       @NotNull ActivityType type,
+                       @NotNull String preconditions,
+                       @NotNull String postconditions,
+                       @NotNull InteractionMode interactionMode,
+                       @NotNull Role interactionInitiatorRole,
+                       @NotNull InteractionMedium interactionMedium1) {
+        super(name, description, type, preconditions, postconditions);
         this.interactionMode = interactionMode;
         this.interactionInitiatorRole = interactionInitiatorRole;
         this.interactionMedium1 = interactionMedium1;
     }
 
+    public Interaction(@NotNull String name,
+                       @NotNull String description,
+                       @NotNull ActivityType type,
+                       @NotNull String preconditions,
+                       @NotNull String postconditions,
+                       @NotNull Develops develop,
+                       @NotNull InteractionMode interactionMode,
+                       @NotNull Role interactionInitiatorRole,
+                       @NotNull InteractionMedium interactionMedium1,
+                       Role... parties) {
+        super(name, description, type, preconditions, postconditions, develop, parties);
+        this.interactionMode = interactionMode;
+        this.interactionInitiatorRole = interactionInitiatorRole;
+        this.interactionMedium1 = interactionMedium1;
+    }
 
     public void setInteractionMode(InteractionMode interactionMode) {
         this.interactionMode = interactionMode;

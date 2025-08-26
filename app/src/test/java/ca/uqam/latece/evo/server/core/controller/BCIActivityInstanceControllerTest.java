@@ -85,6 +85,7 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         bciActivityInstance.setStatus(ExecutionStatus.STALLED);
         bciActivityInstance.setEntryDate(localEntryDate);
         bciActivityInstance.setExitDate(localExitDate);
+        bciActivityInstance.setBciActivity(bciActivity);
         bciActivityInstance.addParticipant(participant);
 
         // Save in the database.

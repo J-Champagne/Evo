@@ -1,15 +1,19 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.controller.instance.InteractionInstanceController;
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.model.Interaction;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
+import ca.uqam.latece.evo.server.core.repository.InteractionRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.InteractionInstanceRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.ParticipantRepository;
+import ca.uqam.latece.evo.server.core.service.InteractionService;
 import ca.uqam.latece.evo.server.core.service.instance.InteractionInstanceService;
 
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -38,6 +42,9 @@ public class InteractionInstanceControllerTest extends AbstractControllerTest {
     private ParticipantRepository participantRepository;
 
     @MockBean
+    private InteractionRepository interactionRepository;
+
+    @MockBean
     private InteractionInstanceRepository interactionInstanceRepository;
 
     private Role role = new Role("Administrator");
@@ -49,15 +56,19 @@ public class InteractionInstanceControllerTest extends AbstractControllerTest {
 
     private List<Participant> participants = List.of(participant);
 
-    private InteractionInstance interactionInstance = new InteractionInstance(ExecutionStatus.READY, participants);
+    private Interaction interaction = new Interaction("Interaction with system", "Description", ActivityType.BCI_ACTIVITY, "ENTRY_CONDITION", "EXIT_CONDITION");
+
+    private InteractionInstance interactionInstance = new InteractionInstance(ExecutionStatus.READY, participants, interaction);
 
     private static final String url = "/interactioninstance";
 
     @BeforeEach
     public void setUp() {
+        interaction.setId(3L);
         participant.setId(2L);
         interactionInstance.setId(1L);
 
+        when(interactionRepository.save(interaction)).thenReturn(interaction);
         when(participantRepository.save(participant)).thenReturn(participant);
         when(interactionInstanceRepository.save(interactionInstance)).thenReturn(interactionInstance);
     }
@@ -71,7 +82,8 @@ public class InteractionInstanceControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testUpdate() throws Exception {
-        InteractionInstance updated = new InteractionInstance(ExecutionStatus.FINISHED, interactionInstance.getEntryDate(), interactionInstance.getExitDate());
+        InteractionInstance updated = new InteractionInstance(ExecutionStatus.FINISHED, interactionInstance.getEntryDate(),
+                interactionInstance.getExitDate(), interactionInstance.getInteraction());
         updated.setId(interactionInstance.getId());
 
         when(interactionInstanceRepository.save(updated)).thenReturn(updated);

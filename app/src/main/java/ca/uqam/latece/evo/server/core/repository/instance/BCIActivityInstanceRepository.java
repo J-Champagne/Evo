@@ -3,6 +3,7 @@ package ca.uqam.latece.evo.server.core.repository.instance;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
+
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -46,4 +47,12 @@ public interface BCIActivityInstanceRepository extends EvoRepository<BCIActivity
      * @return a list of BCIActivityInstance entities associated with the specified participant ID.
      */
     List<BCIActivityInstance> findByParticipantsId(Long id);
+
+    /**
+     * Finds BCIActivityInstance entities by their associated BCIActivity id.
+     * @param id the id of the BCIActivity associated with the intervention instances.
+     * @return a list of BCIActivityInstance objects associated with the specified BCIActivity id.
+     * @throws IllegalArgumentException if the id is null.
+     */
+    List<BCIActivityInstance> findByBciActivityId(Long id);
 }

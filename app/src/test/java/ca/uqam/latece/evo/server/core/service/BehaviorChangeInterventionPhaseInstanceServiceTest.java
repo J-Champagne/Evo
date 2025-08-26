@@ -1,12 +1,10 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
-import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
-import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.enumeration.*;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
@@ -40,9 +38,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @ApplicationScope
 @ContextConfiguration(classes = {BehaviorChangeInterventionPhaseInstance.class, BehaviorChangeInterventionPhaseInstanceService.class})
 public class BehaviorChangeInterventionPhaseInstanceServiceTest extends AbstractServiceTest {
-    private static final String PHASE_ENTRY_CONDITION = "Intervention Phase ENTRY";
+    private static final String ENTRY_CONDITION = "Intervention Phase ENTRY";
 
-    private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
+    private static final String EXIT_CONDITION = "Intervention Phase EXIT";
 
     @Autowired
     private BehaviorChangeInterventionPhaseService behaviorChangeInterventionPhaseService;
@@ -58,6 +56,9 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
 
     @Autowired
     private BCIActivityInstanceService bciActivityInstanceService;
+
+    @Autowired
+    private BCIActivityService bciActivityService;
 
     @Autowired
     private ParticipantService participantService;
@@ -88,9 +89,12 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
+        BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming", "Description",
+                ActivityType.BCI_ACTIVITY, ENTRY_CONDITION, EXIT_CONDITION));
+
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
-                participants));
+                participants, bciActivity));
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
@@ -100,7 +104,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         modules.add(moduleInstance);
 
         BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
-                (PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION));
+                (ENTRY_CONDITION, EXIT_CONDITION));
 
         BehaviorChangeInterventionBlockInstance blockInstance = behaviorChangeInterventionBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));
@@ -108,7 +112,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         blocks.add(blockInstance);
 
         BehaviorChangeInterventionPhase bciPhase = behaviorChangeInterventionPhaseService.create((
-                new BehaviorChangeInterventionPhase(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION)));
+                new BehaviorChangeInterventionPhase(ENTRY_CONDITION, EXIT_CONDITION)));
 
         phaseInstance = behaviorChangeInterventionPhaseInstanceService.create
                 (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, blockInstance, blocks, modules, bciPhase));
@@ -210,14 +214,17 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
+        BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming2", "Description", ActivityType.BCI_ACTIVITY,
+                ENTRY_CONDITION, EXIT_CONDITION));
+
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2025/07/30"),
-                participants));
+                participants, bciActivity));
 
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
-        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION));
+        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock(ENTRY_CONDITION, EXIT_CONDITION));
 
         BehaviorChangeInterventionBlockInstance blockInstance = behaviorChangeInterventionBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));

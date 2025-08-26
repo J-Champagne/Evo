@@ -280,4 +280,32 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
         return response;
     }
 
+    /**
+     * Finds BCIActivityInstance entities by the id of a BCIActivity.
+     * @param id Long.
+     * @return List<BCIActivityInstance> in JSON format.
+     * @throws IllegalArgumentException if id is null.
+     */
+    @GetMapping("/find/bciactivityinstance/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<BCIActivityInstance>> findByBciActivityInstanceId(@PathVariable Long id) {
+        ResponseEntity<List<BCIActivityInstance>> response;
+
+        try {
+            List<BCIActivityInstance> result = bciActivityInstanceService.findByBciActivityId(id);
+
+            if (result != null && !result.isEmpty()) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found BCIActivityInstance by BCI Activity Id: {}", result);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BCIActivityInstance by BCI Activity Id");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BCIActivityInstance by BCI Activity Id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
 }

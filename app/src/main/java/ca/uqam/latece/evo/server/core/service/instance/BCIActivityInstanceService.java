@@ -165,4 +165,15 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     public List<BCIActivityInstance> findAll() {
         return this.bciActivityInstanceRepository.findAll();
     }
+
+    /**
+     * Finds BCIActivityInstance entities by their associated BCIActivity id.
+     * @param id the id of the BCIActivity associated with the intervention instances.
+     * @return a list of BCIActivityInstance objects associated with the specified BCIActivity id.
+     * @throws IllegalArgumentException if the id is null.
+     */
+    public List<BCIActivityInstance> findByBciActivityId(Long id) {
+        ObjectValidator.validateId(id);
+        return this.bciActivityInstanceRepository.findByBciActivityId(id);
+    }
 }

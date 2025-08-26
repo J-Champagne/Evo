@@ -1,9 +1,11 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.*;
@@ -45,6 +47,9 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     private BCIActivityInstanceService bciActivityInstanceService;
 
     @Autowired
+    private BCIActivityService bciActivityService;
+
+    @Autowired
     private ParticipantService participantService;
 
     @Autowired
@@ -58,8 +63,6 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     private ApplicationEvents applicationEvents;
 
-
-
     @BeforeEach
     public void setUp() {
         Role role = roleService.create(new Role("Administrator"));
@@ -69,9 +72,12 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
+        BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming", "Description", ActivityType.BCI_ACTIVITY,
+                "ENTRY_CONDITION", "EXIT_CONDITION"));
+
         BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
-                participants));
+                participants, bciActivity));
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
