@@ -312,4 +312,12 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivityInstance.addParticipant(participant3);
         assertThrows(IndexOutOfBoundsException.class, () -> bciActivityInstance.addParticipant(participant4));
     }
+
+    @Test
+    void testUpdateStatus() {
+        BCIActivityInstance updated = bciActivityInstanceService.updateStatus(bciActivityInstance.getId(),
+                ExecutionStatus.FINISHED);
+        assertEquals(ExecutionStatus.FINISHED, updated.getStatus());
+        assertNotNull(updated.getExitDate());
+    }
 }

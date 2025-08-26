@@ -168,4 +168,17 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         performGetRequest(URL_FIND + "participants/" + participant.getId(), "$[0].participants.[0].id",
                 participant.getId());
     }
+
+    @Test
+    void testUpdateStatus() throws Exception {
+        // Mock behavior for bciActivityInstanceRepository.save
+        when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
+        // Mock behavior for Update status
+        bciActivityInstance.setStatus(ExecutionStatus.FINISHED);
+        when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
+        when(bciActivityInstanceRepository.findById(bciActivityInstance.getId())).thenReturn(Optional.of(bciActivityInstance));
+        // Perform a PUT request to test the controller.
+        performUpdateRequest(URL + "/update/"+ bciActivityInstance.getId() + "/status/" + bciActivityInstance.getStatus(),
+                bciActivityInstance, "$.status", bciActivityInstance.getStatus().toString());
+    }
 }

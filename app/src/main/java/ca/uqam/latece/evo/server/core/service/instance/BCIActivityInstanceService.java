@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
+import ca.uqam.latece.evo.server.core.event.BCIActivityInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
@@ -175,5 +176,40 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     public List<BCIActivityInstance> findByBciActivityId(Long id) {
         ObjectValidator.validateId(id);
         return this.bciActivityInstanceRepository.findByBciActivityId(id);
+    }
+
+    /**
+     * Updates the current status of a BCIActivityInstance.
+     * If the specified execution status is FINISHED, the exitDate of the BCIActivityInstance will be set.
+     * @param id the BCIActivityInstance id to be updated.
+     * @param status the execution status to be assigned to the BCIActivityInstance.
+     * @return the updated BCIActivityInstance, or null if the instance was not found
+     */
+    public BCIActivityInstance updateStatus(Long id, ExecutionStatus status) {
+        BCIActivityInstance found = findById(id);
+        BCIActivityInstance updated = null;
+
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateObject(status);
+
+        if (found != null && status != null) {
+            found.setStatus(status);
+
+            switch (status) {
+                case FINISHED -> {
+                    found.setExitDate(LocalDate.now());
+                }
+
+                default -> {
+                    return null;
+                }
+            }
+
+            updated = this.update(found);
+            if (updated != null) {
+                this.publishEvent(new BCIActivityInstanceEvent(updated));
+            }
+        }
+        return updated;
     }
 }

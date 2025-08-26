@@ -3,6 +3,7 @@ package ca.uqam.latece.evo.server.core.service.instance;
 import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.BCIActivityInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionBlockInstanceRepository;
@@ -192,6 +193,23 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
                 // Update the block.
                 this.update(event.getEvoModel());
                 event.setChangeAspect(ChangeAspect.TERMINATED);
+            }
+        }
+    }
+
+    /**
+     * Handles BCIActivityInstanceEvent by updating the corresponding BehaviorChangeInterventionBlockInstance
+     * when specific conditions related to its execution status are met.
+     * @param event the BCIActivityInstanceEvent to be processed, which contains information about the
+     *              BCIActivityInstance and its state changes.
+     */
+    @EventListener(BCIActivityInstanceEvent.class)
+    public void handleBCIActivityInstanceEvents(BCIActivityInstanceEvent event) {
+        if (event != null && event.getEvoModel() != null) {
+            ExecutionStatus newStatus = event.getEvoModel().getStatus();
+
+            if (newStatus == ExecutionStatus.FINISHED) {
+                //TODO Find associated BCIBlockInstance and check if entire block is finished
             }
         }
     }

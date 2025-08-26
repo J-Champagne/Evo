@@ -308,4 +308,34 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
 
         return response;
     }
+
+    /**
+     * Updates the status of a BCIActivityInstance.
+     * @param id The id of the BCIActivityInstance to be updated.
+     * @param status The new Execution status.
+     * @return ResponseEntity containing the BCIActivityInstance with the updated Execution status.
+     */
+    @PutMapping("/update/{id}/status/{status}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<BCIActivityInstance> updateStatus(@PathVariable Long id, @PathVariable ExecutionStatus status) {
+        ResponseEntity<BCIActivityInstance> response;
+
+        try {
+            BCIActivityInstance bciActivity = bciActivityInstanceService.updateStatus(id, status);
+
+            if (bciActivity != null) {
+                response = new ResponseEntity<>(bciActivity, HttpStatus.OK);
+                logger.info("Updated status of BCIActivityInstance with ID {} to {}", id, status);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to update status of BCIActivityInstance with ID {} to {}", id, status);
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.info("Failed to update status of BCIActivityInstance with ID {} to {}. " +
+                    "Error: {}", id, status, e.getMessage());
+        }
+
+        return response;
+    }
 }
