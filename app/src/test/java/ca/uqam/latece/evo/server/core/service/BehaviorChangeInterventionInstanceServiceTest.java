@@ -271,8 +271,201 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
 
     @Test
     void testFindByBehaviorChangeInterventionId() {
-        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByBehaviorChangeInterventionId(bciInstance.getBehaviorChangeIntervention().getId());
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByBehaviorChangeInterventionId(
+                bciInstance.getBehaviorChangeIntervention().getId());
+
         assertEquals(bciInstance.getId(), result.getFirst().getId());
         assertEquals(bciInstance.getBehaviorChangeIntervention().getId(), result.getFirst().getBehaviorChangeIntervention().getId());
+    }
+
+    @Test
+    void testFindByStatusAndPatientId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusAndPatientId(ExecutionStatus.READY,
+                bciInstance.getPatient().getId());
+
+        assertEquals(bciInstance.getId(), result.getFirst().getId());
+        assertEquals(bciInstance.getStatus(), result.getFirst().getStatus());
+        assertEquals(bciInstance.getPatient().getId(), result.getFirst().getPatient().getId());
+    }
+
+    @Test
+    void testFindByStatusReadyAndPatientId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusReadyAndPatientId(
+                bciInstance.getPatient().getId());
+
+        assertEquals(bciInstance.getId(), result.getFirst().getId());
+    }
+
+    @Test
+    void testFindByStatusInProgressAndPatientId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusInProgressAndPatientId(
+                bciInstance.getPatient().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusFinishedAndPatientId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusFinishedAndPatientId(
+                bciInstance.getPatient().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusUnknowAndPatientId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusUnknowAndPatientId(
+                bciInstance.getPatient().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusStalledAndPatientId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusStalledAndPatientId(
+                bciInstance.getPatient().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusSuspendedAndPatientId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusSuspendedAndPatientId(
+                bciInstance.getPatient().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusInProgressAndPatientIdAndCurrentPhaseId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusInProgressAndPatientIdAndCurrentPhaseId(
+                bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusReadyAndPatientIdAndCurrentPhaseId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusReadyAndPatientIdAndCurrentPhaseId(
+                bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId());
+        assertEquals(bciInstance.getId(), result.getFirst().getId());
+        assertEquals(bciInstance.getStatus(), result.getFirst().getStatus());
+        assertEquals(bciInstance.getPatient().getId(), result.getFirst().getPatient().getId());
+        assertEquals(bciInstance.getCurrentPhase().getId(), result.getFirst().getCurrentPhase().getId());
+    }
+
+    @Test
+    void testFindByStatusFinishedAndPatientIdAndCurrentPhaseId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusFinishedAndPatientIdAndCurrentPhaseId(
+                bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusSuspendedAndPatientIdAndCurrentPhaseId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusSuspendedAndPatientIdAndCurrentPhaseId(
+                bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusStalledAndPatientIdAndCurrentPhaseId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusStalledAndPatientIdAndCurrentPhaseId(
+                bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindByStatusUnknowAndPatientIdAndCurrentPhaseId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusUnknowAndPatientIdAndCurrentPhaseId(
+                bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void findByStatusAndPatientIdAndCurrentPhaseId() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusAndPatientIdAndCurrentPhaseId(ExecutionStatus.READY,
+                bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId());
+
+        assertEquals(bciInstance.getId(), result.getFirst().getId());
+        assertEquals(bciInstance.getStatus(), result.getFirst().getStatus());
+        assertEquals(bciInstance.getPatient().getId(), result.getFirst().getPatient().getId());
+        assertEquals(bciInstance.getCurrentPhase().getId(), result.getFirst().getCurrentPhase().getId());
+    }
+
+    @Test
+    void testFindByStatusAndPatientIdAndCurrentPhaseIdAndCurrentPhaseStatus() {
+        List<BehaviorChangeInterventionInstance> result = bciInstanceService.findByStatusAndPatientIdAndCurrentPhaseIdAndCurrentPhaseStatus(
+                ExecutionStatus.READY, bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId(), ExecutionStatus.STALLED);
+
+        assertEquals(bciInstance.getId(), result.getFirst().getId());
+        assertEquals(bciInstance.getStatus(), result.getFirst().getStatus());
+        assertEquals(bciInstance.getPatient().getId(), result.getFirst().getPatient().getId());
+        assertEquals(bciInstance.getCurrentPhase().getId(), result.getFirst().getCurrentPhase().getId());
+        assertEquals(bciInstance.getCurrentPhase().getStatus(), result.getFirst().getCurrentPhase().getStatus());
+    }
+
+    @Test
+    void testFindByIdAndStatusAndPatientId() {
+        BehaviorChangeInterventionInstance result = bciInstanceService.findByIdAndStatusAndPatientId(bciInstance.getId(),
+                ExecutionStatus.READY, bciInstance.getPatient().getId());
+
+        assertEquals(bciInstance.getId(), result.getId());
+        assertEquals(bciInstance.getStatus(), result.getStatus());
+        assertEquals(bciInstance.getPatient().getId(), result.getPatient().getId());
+    }
+
+    @Test
+    void testFindByIdAndStatusAndPatient() {
+        BehaviorChangeInterventionInstance result = bciInstanceService.findByIdAndStatusAndPatient(bciInstance.getId(),
+                ExecutionStatus.READY, bciInstance.getPatient());
+
+        assertEquals(bciInstance.getId(), result.getId());
+        assertEquals(bciInstance.getStatus(), result.getStatus());
+        assertEquals(bciInstance.getPatient().getId(), result.getPatient().getId());
+    }
+
+    @Test
+    void testFindByIdAndPatient() {
+        BehaviorChangeInterventionInstance result = bciInstanceService.findByIdAndPatient(bciInstance.getId(),
+                bciInstance.getPatient());
+
+        assertEquals(bciInstance.getId(), result.getId());
+        assertEquals(bciInstance.getPatient().getId(), result.getPatient().getId());
+    }
+
+    @Test
+    void testFindByIdAndPatientId() {
+        BehaviorChangeInterventionInstance result = bciInstanceService.findByIdAndPatientId(bciInstance.getId(),
+                bciInstance.getPatient().getId());
+
+        assertEquals(bciInstance.getId(), result.getId());
+        assertEquals(bciInstance.getPatient().getId(), result.getPatient().getId());
+    }
+
+    @Test
+    void testFindByIdAndStatusAndPatientIdAndCurrentPhaseId() {
+        BehaviorChangeInterventionInstance result = bciInstanceService.findByIdAndStatusAndPatientIdAndCurrentPhaseId(bciInstance.getId(),
+                ExecutionStatus.READY, bciInstance.getPatient().getId(), bciInstance.getCurrentPhase().getId());
+
+        assertEquals(bciInstance.getId(), result.getId());
+        assertEquals(bciInstance.getStatus(), result.getStatus());
+        assertEquals(bciInstance.getPatient().getId(), result.getPatient().getId());
+        assertEquals(bciInstance.getCurrentPhase().getId(), result.getCurrentPhase().getId());
+    }
+
+    @Test
+    void tesstFindByIdAndStatusAndPatientAndCurrentPhaseId() {
+        BehaviorChangeInterventionInstance result = bciInstanceService.findByIdAndStatusAndPatientAndCurrentPhaseId(bciInstance.getId(),
+                ExecutionStatus.READY, bciInstance.getPatient(), bciInstance.getCurrentPhase().getId());
+
+        assertEquals(bciInstance.getId(), result.getId());
+        assertEquals(bciInstance.getStatus(), result.getStatus());
+        assertEquals(bciInstance.getPatient().getId(), result.getPatient().getId());
+        assertEquals(bciInstance.getCurrentPhase().getId(), result.getCurrentPhase().getId());
     }
 }

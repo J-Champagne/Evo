@@ -3,8 +3,10 @@ package ca.uqam.latece.evo.server.core.controller.instance;
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
+import ca.uqam.latece.evo.server.core.request.BCIInstanceRequest;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionInstanceService;
 
+import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,6 +151,123 @@ public class BehaviorChangeInterventionInstanceController extends AbstractEvoCon
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to update the BehaviorChangeInterventionInstance id {} with the new current phase: {}. Error: {}", bciInstanceId, currentPhase, e.getMessage());
+        }
+
+        return response;
+    }
+
+    @GetMapping("/find/bciinstanceidstatuspatientid/instanceRequest")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionInstance> findByIdAndStatusAndPatientId(@RequestBody BCIInstanceRequest instanceRequest) {
+        ResponseEntity<BehaviorChangeInterventionInstance> response;
+
+        try {
+
+            ObjectValidator.validateObject(instanceRequest);
+            BehaviorChangeInterventionInstance found = bciInstanceService.findByIdAndStatusAndPatientId(instanceRequest.getId(),
+                    instanceRequest.getStatus(), instanceRequest.resolvePatientId());
+
+            if (found != null && found.getId().equals(instanceRequest.getId())) {
+                response = ResponseEntity.ok(found);
+                logger.info("The BehaviorChangeInterventionInstance id: {} associated with the participant id: {}",
+                        found.getId(), found.getPatient());
+            } else {
+                response = ResponseEntity.badRequest().build();
+                logger.info("Failed to find the BehaviorChangeInterventionInstance id: {} associated with the participant id: {}",
+                        instanceRequest.getId(), instanceRequest.resolvePatientId());
+            }
+        } catch (Exception e) {
+            response = ResponseEntity.badRequest().build();
+            logger.error("Failed to find the BehaviorChangeInterventionInstance id: {} associated with the participant id: {}. Error: {}",
+                    instanceRequest.getId(), instanceRequest.resolvePatientId(), e.getMessage());
+        }
+
+        return response;
+    }
+
+    @GetMapping("/find/bciinstanceidstatuspatient/instanceRequest")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionInstance> findByIdAndStatusAndPatient(@RequestBody BCIInstanceRequest instanceRequest) {
+        ResponseEntity<BehaviorChangeInterventionInstance> response;
+
+        try {
+
+            ObjectValidator.validateObject(instanceRequest);
+            BehaviorChangeInterventionInstance found = bciInstanceService.findByIdAndStatusAndPatient(instanceRequest.getId(),
+                    instanceRequest.getStatus(), instanceRequest.getPatient());
+
+            if (found != null && found.getId().equals(instanceRequest.getId())) {
+                response = ResponseEntity.ok(found);
+                logger.info("The BehaviorChangeInterventionInstance id: {} and status: {} associated with the participant: {}",
+                        found.getId(),found.getStatus(), found.getPatient());
+            } else {
+                response = ResponseEntity.badRequest().build();
+                logger.info("Failed to find the BehaviorChangeInterventionInstance id: {} and status: {} associated with the participant: {}",
+                        instanceRequest.getId(), instanceRequest.getStatus(), instanceRequest.getPatient());
+            }
+        } catch (Exception e) {
+            response = ResponseEntity.badRequest().build();
+            logger.error("Failed to find the BehaviorChangeInterventionInstance id: {} and status: {} associated with the participant: {}. Error: {}",
+                    instanceRequest.getId(), instanceRequest.getStatus(), instanceRequest.getPatient(), e.getMessage());
+        }
+
+        return response;
+    }
+
+    @GetMapping("/find/bciinstanceidandpatient/instanceRequest")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionInstance> findByIdAndPatient(@RequestBody BCIInstanceRequest instanceRequest) {
+        ResponseEntity<BehaviorChangeInterventionInstance> response;
+
+        try {
+
+            ObjectValidator.validateObject(instanceRequest);
+            BehaviorChangeInterventionInstance found = bciInstanceService.findByIdAndPatient(instanceRequest.getId(),
+                    instanceRequest.getPatient());
+
+            if (found != null && found.getId().equals(instanceRequest.getId())) {
+                response = ResponseEntity.ok(found);
+                logger.info("The BehaviorChangeInterventionInstance id: {} associated with the participant: {}",
+                        found.getId(), found.getPatient());
+            } else {
+                response = ResponseEntity.badRequest().build();
+                logger.info("Failed to find the BehaviorChangeInterventionInstance id: {} associated with the participant: {}",
+                        instanceRequest.getId(), instanceRequest.getPatient());
+            }
+        } catch (Exception e) {
+            response = ResponseEntity.badRequest().build();
+            logger.error("Failed to find the BehaviorChangeInterventionInstance id: {} associated with the participant: {}. Error: {}",
+                    instanceRequest.getId(), instanceRequest.getPatient(), e.getMessage());
+        }
+
+        return response;
+    }
+
+    @GetMapping("/find/bciinstanceidandpatientid/instanceRequest")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<BehaviorChangeInterventionInstance> findByIdAndPatientId(@RequestBody BCIInstanceRequest instanceRequest) {
+        ResponseEntity<BehaviorChangeInterventionInstance> response;
+
+        try {
+
+            ObjectValidator.validateObject(instanceRequest);
+            ObjectValidator.validateObject(instanceRequest.getPatient());
+            BehaviorChangeInterventionInstance found = bciInstanceService.findByIdAndPatientId(instanceRequest.getId(),
+                    instanceRequest.getPatient().getId());
+
+            if (found != null && found.getId().equals(instanceRequest.getId())) {
+                response = ResponseEntity.ok(found);
+                logger.info("The Behavior Change Intervention Instance id: {} associated with the participant id: {}",
+                        found.getId(), found.getPatient().getId());
+            } else {
+                response = ResponseEntity.badRequest().build();
+                logger.info("Failed to find the Behavior Change Intervention Instance id: {} associated with the participant id: {}",
+                        instanceRequest.getId(), instanceRequest.getPatientId());
+            }
+        } catch (Exception e) {
+            response = ResponseEntity.badRequest().build();
+            logger.error("Failed to find the Behavior Change Intervention Instance id: {} associated with the participant id: {}. Error: {}",
+                    instanceRequest.getId(), instanceRequest.getPatientId(), e.getMessage());
         }
 
         return response;

@@ -7,6 +7,7 @@ import ca.uqam.latece.evo.server.core.event.BCIInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
+import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -245,6 +246,307 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
     public List<BehaviorChangeInterventionInstance> findByBehaviorChangeInterventionId(Long id) {
         ObjectValidator.validateId(id);
         return this.bciInstanceRepository.findByBehaviorChangeInterventionId(id);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance entities that have a status of READY and match the specified
+     * patient ID.
+     * @param patientId the unique identifier of the patient for which to find instances.
+     * @return a list of BehaviorChangeInterventionInstance entities with a status of READY associated with the specified
+     * patient ID.
+     * @throws IllegalArgumentException if the patientId is null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusReadyAndPatientId(Long patientId) {
+        return this.findByStatusAndPatientId(ExecutionStatus.READY, patientId);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance entities that have a status of IN_PROGRESS and match the
+     * specified patient ID.
+     * @param patientId the unique identifier of the patient for which to find instances.
+     * @return a list of BehaviorChangeInterventionInstance entities with a status of IN_PROGRESS associated with the
+     * specified patient ID.
+     * @throws IllegalArgumentException if the patientId is null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusInProgressAndPatientId(Long patientId) {
+        return this.findByStatusAndPatientId(ExecutionStatus.IN_PROGRESS, patientId);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance entities that have a status of FINISHED and match the
+     * specified patient ID.
+     * @param patientId the unique identifier of the patient for which to find instances.
+     * @return a list of BehaviorChangeInterventionInstance entities with a status of FINISHED associated with the
+     * specified patient ID.
+     * @throws IllegalArgumentException if the patientId is null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusFinishedAndPatientId(Long patientId) {
+        return this.findByStatusAndPatientId(ExecutionStatus.FINISHED, patientId);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance entities that have a status of UNKNOWN and match the
+     * specified patient ID.
+     * @param patientId the unique identifier of the patient for which to find instances.
+     * @return a list of BehaviorChangeInterventionInstance entities with a status of UNKNOWN associated with the
+     * specified patient ID.
+     * @throws IllegalArgumentException if the patientId is null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusUnknowAndPatientId(Long patientId) {
+        return this.findByStatusAndPatientId(ExecutionStatus.UNKNOWN, patientId);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance entities that have a status of STALLED and match the
+     * specified patient ID.
+     * @param patientId the unique identifier of the patient for which to find instances.
+     * @return a list of BehaviorChangeInterventionInstance entities with a status of STALLED associated with the
+     * specified patient ID.
+     * @throws IllegalArgumentException if the patientId is null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusStalledAndPatientId(Long patientId) {
+        return this.findByStatusAndPatientId(ExecutionStatus.STALLED, patientId);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance entities that have a status of SUSPENDED and match the
+     * specified patient ID.
+     * @param patientId the unique identifier of the patient for which to find instances.
+     * @return a list of BehaviorChangeInterventionInstance entities with a status of SUSPENDED associated with the
+     * specified patient ID.
+     * @throws IllegalArgumentException if the patientId is null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusSuspendedAndPatientId(Long patientId) {
+        return this.findByStatusAndPatientId(ExecutionStatus.SUSPENDED, patientId);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance objects based on the provided status and patient ID.
+     * @param status the execution status to filter the instances by, must not be null.
+     * @param patientId the ID of the patient whose instances are to be retrieved, must not be null.
+     * @return a list of BehaviorChangeInterventionInstance objects matching the provided status and patient ID.
+     * @throws IllegalArgumentException if status or patientId is null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusAndPatientId(ExecutionStatus status, Long patientId) {
+        ObjectValidator.validateObject(status);
+        ObjectValidator.validateId(patientId);
+        return this.bciInstanceRepository.findByStatusAndPatientId(status, patientId);
+    }
+
+    /**
+     * Finds a list of BehaviorChangeInterventionInstances filtered by status set to IN_PROGRESS, the given patient ID,
+     * and the given current phase ID.
+     * @param patientId the unique identifier of the patient whose intervention instances are being searched.
+     * @param currentPhaseId the unique identifier of the current phase to filter the intervention instances.
+     * @return a list of BehaviorChangeInterventionInstance objects matching the specified criteria.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusInProgressAndPatientIdAndCurrentPhaseId(Long patientId,
+                                                                                                        Long currentPhaseId) {
+        return this.findByStatusAndPatientIdAndCurrentPhaseId(ExecutionStatus.IN_PROGRESS, patientId, currentPhaseId);
+    }
+
+    /**
+     * Finds a list of BehaviorChangeInterventionInstances filtered by status set to FINISHED, the given patient ID,
+     * and the given current phase ID.
+     * @param patientId the unique identifier of the patient whose intervention instances are being searched.
+     * @param currentPhaseId the unique identifier of the current phase to filter the intervention instances.
+     * @return a list of BehaviorChangeInterventionInstance objects matching the specified criteria.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusFinishedAndPatientIdAndCurrentPhaseId(Long patientId,
+                                                                                                      Long currentPhaseId) {
+        return this.findByStatusAndPatientIdAndCurrentPhaseId(ExecutionStatus.FINISHED, patientId, currentPhaseId);
+    }
+
+    /**
+     * Finds a list of BehaviorChangeInterventionInstances filtered by status set to READY, the given patient ID,
+     * and the given current phase ID.
+     * @param patientId the unique identifier of the patient whose intervention instances are being searched.
+     * @param currentPhaseId the unique identifier of the current phase to filter the intervention instances.
+     * @return a list of BehaviorChangeInterventionInstance objects matching the specified criteria.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusReadyAndPatientIdAndCurrentPhaseId(Long patientId,
+                                                                                                   Long currentPhaseId) {
+        return this.findByStatusAndPatientIdAndCurrentPhaseId(ExecutionStatus.READY, patientId, currentPhaseId);
+    }
+
+    /**
+     * Finds a list of BehaviorChangeInterventionInstances filtered by status set to SUSPENDED, the given patient ID,
+     * and the given current phase ID.
+     * @param patientId the unique identifier of the patient whose intervention instances are being searched.
+     * @param currentPhaseId the unique identifier of the current phase to filter the intervention instances.
+     * @return a list of BehaviorChangeInterventionInstance objects matching the specified criteria.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusSuspendedAndPatientIdAndCurrentPhaseId(Long patientId,
+                                                                                                       Long currentPhaseId) {
+        return this.findByStatusAndPatientIdAndCurrentPhaseId(ExecutionStatus.SUSPENDED, patientId, currentPhaseId);
+    }
+
+    /**
+     * Finds a list of BehaviorChangeInterventionInstances filtered by status set to STALLED, the given patient ID,
+     * and the given current phase ID.
+     * @param patientId the unique identifier of the patient whose intervention instances are being searched.
+     * @param currentPhaseId the unique identifier of the current phase to filter the intervention instances.
+     * @return a list of BehaviorChangeInterventionInstance objects matching the specified criteria.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusStalledAndPatientIdAndCurrentPhaseId(Long patientId,
+                                                                                                     Long currentPhaseId) {
+        return this.findByStatusAndPatientIdAndCurrentPhaseId(ExecutionStatus.STALLED, patientId, currentPhaseId);
+    }
+
+    /**
+     * Finds a list of BehaviorChangeInterventionInstances filtered by status set to UNKNOWN, the given patient ID,
+     * and the given current phase ID.
+     * @param patientId the unique identifier of the patient whose intervention instances are being searched.
+     * @param currentPhaseId the unique identifier of the current phase to filter the intervention instances.
+     * @return a list of BehaviorChangeInterventionInstance objects matching the specified criteria.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusUnknowAndPatientIdAndCurrentPhaseId(Long patientId,
+                                                                                                    Long currentPhaseId) {
+        return this.findByStatusAndPatientIdAndCurrentPhaseId(ExecutionStatus.UNKNOWN, patientId, currentPhaseId);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance objects filtered by the given status, patient ID, and current phase ID.
+     * @param status The execution status used as a filter for the query.
+     * @param patientId The ID of the patient used as a filter for the query.
+     * @param currentPhaseId The ID of the current phase used as a filter for the query.
+     * @return A list of BehaviorChangeInterventionInstance objects that match the specified status, patient ID, and current phase ID.
+     *         Returns an empty list if no matching objects are found.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusAndPatientIdAndCurrentPhaseId(ExecutionStatus status,
+                                                                                              Long patientId,
+                                                                                              Long currentPhaseId) {
+        ObjectValidator.validateObject(status);
+        ObjectValidator.validateId(patientId);
+        ObjectValidator.validateId(currentPhaseId);
+        return this.bciInstanceRepository.findByStatusAndPatientIdAndCurrentPhaseId(status, patientId, currentPhaseId);
+    }
+
+    /**
+     * Retrieves a list of BehaviorChangeInterventionInstance entities based on their execution status, associated patient ID,
+     * current phase ID, and the status of the current phase.
+     * @param status the execution status (READY, IN_PROGRESS, SUSPENDED, STALLED, FINISHED, or UNKNOWN) of the behavior change
+     *               intervention instances to retrieve.
+     * @param patientId the patient id for whom the behavior change interventions are associated.
+     * @param currentPhaseId The ID of the current phase used as a filter for the query.
+     * @param currentPhaseStatus the execution status of the current phase of the behavior change interventions.
+     * @return a list of BehaviorChangeInterventionInstance entities that meet the specified criteria or an empty list
+     * if no instances match the provided parameters.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public List<BehaviorChangeInterventionInstance> findByStatusAndPatientIdAndCurrentPhaseIdAndCurrentPhaseStatus(
+            ExecutionStatus status, Long patientId, Long currentPhaseId, ExecutionStatus currentPhaseStatus) {
+        ObjectValidator.validateObject(status);
+        ObjectValidator.validateId(patientId);
+        ObjectValidator.validateId(currentPhaseId);
+        ObjectValidator.validateObject(currentPhaseStatus);
+        return this.bciInstanceRepository.findByStatusAndPatientIdAndCurrentPhaseIdAndCurrentPhaseStatus(status, patientId,
+                currentPhaseId, currentPhaseStatus);
+    }
+
+    /**
+     * Retrieves a BehaviorChangeInterventionInstance object by its ID, status, and associated patient ID.
+     * @param id the unique identifier of the behavior change intervention instance.
+     * @param status the execution status (READY, IN_PROGRESS, SUSPENDED, STALLED, FINISHED, or UNKNOWN) of the behavior
+     *               change intervention instance.
+     * @param patientId the unique identifier of the associated patient.
+     * @return the BehaviorChangeInterventionInstance matching the specified criteria, or null if no match is found.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public BehaviorChangeInterventionInstance findByIdAndStatusAndPatientId(Long id, ExecutionStatus status, Long patientId) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateObject(status);
+        ObjectValidator.validateId(patientId);
+        return this.bciInstanceRepository.findByIdAndStatusAndPatientId(id, status, patientId);
+    }
+
+    /**
+     * Retrieves a BehaviorChangeInterventionInstance based on its ID, status, and associated patient.
+     * @param id the unique identifier of the BehaviorChangeInterventionInstance
+     * @param status the execution status (READY, IN_PROGRESS, SUSPENDED, STALLED, FINISHED, or UNKNOWN) of the
+     *               BehaviorChangeInterventionInstance.
+     * @param patient the patient associated with the BehaviorChangeInterventionInstance.
+     * @return the matching BehaviorChangeInterventionInstance if found, or null if no match is found.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public BehaviorChangeInterventionInstance findByIdAndStatusAndPatient(Long id, ExecutionStatus status, Patient patient) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateObject(status);
+        ObjectValidator.validateObject(patient);
+        return this.bciInstanceRepository.findByIdAndStatusAndPatient(id, status, patient);
+    }
+
+    /**
+     * Finds a BehaviorChangeInterventionInstance by its unique identifier and associated patient.
+     * @param id the unique identifier of the BehaviorChangeInterventionInstance to retrieve.
+     * @param patient the patient associated with the BehaviorChangeInterventionInstance.
+     * @return the BehaviorChangeInterventionInstance that matches the given id and patient, or null if no match is found.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public BehaviorChangeInterventionInstance findByIdAndPatient(Long id, Patient patient) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateObject(patient);
+        return this.bciInstanceRepository.findByIdAndPatient(id, patient);
+    }
+
+    /**
+     * Retrieves a BehaviorChangeInterventionInstance by its unique identifier and associated patient ID.
+     * @param id the unique identifier of the BehaviorChangeInterventionInstance to be retrieved.
+     * @param patientId the unique identifier of the patient associated with the instance.
+     * @return the BehaviorChangeInterventionInstance that matches the provided id and patientId, or null if no match is found.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public BehaviorChangeInterventionInstance findByIdAndPatientId(Long id, Long patientId) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateId(patientId);
+        return this.bciInstanceRepository.findByIdAndPatientId(id, patientId);
+    }
+
+    /**
+     * Finds a BehaviorChangeInterventionInstance by its unique identifier, execution status, associated patient ID, and
+     * the ID of the current phase.
+     * @param id the unique identifier of the BehaviorChangeInterventionInstance.
+     * @param status the execution status of the BehaviorChangeInterventionInstance.
+     * @param patientId the unique identifier of the associated patient.
+     * @param currentPhaseId the unique identifier of the current phase.
+     * @return the BehaviorChangeInterventionInstance that matches the specified criteria, or null if no such instance is found.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public BehaviorChangeInterventionInstance findByIdAndStatusAndPatientIdAndCurrentPhaseId(Long id, ExecutionStatus status,
+                                                                                             Long patientId,
+                                                                                             Long currentPhaseId) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateObject(status);
+        ObjectValidator.validateId(patientId);
+        ObjectValidator.validateId(currentPhaseId);
+        return this.bciInstanceRepository.findByIdAndStatusAndPatientIdAndCurrentPhaseId(id, status, patientId, currentPhaseId);
+    }
+
+    /**
+     * Finds a BehaviorChangeInterventionInstance by its unique ID, status, associated patient, and the current phase ID.
+     * @param id the unique identifier of the BehaviorChangeInterventionInstance.
+     * @param status the execution status (READY, IN_PROGRESS, SUSPENDED, STALLED, FINISHED, or UNKNOWN) of the intervention instance.
+     * @param patient the patient associated with the intervention instance.
+     * @param currentPhaseId the identifier of the current phase of the intervention instance.
+     * @return the matching BehaviorChangeInterventionInstance, or null if no match is found.
+     * @throws IllegalArgumentException if any of the parameters are null.
+     */
+    public BehaviorChangeInterventionInstance findByIdAndStatusAndPatientAndCurrentPhaseId(Long id, ExecutionStatus status,
+                                                                                           Patient patient,
+                                                                                           Long currentPhaseId) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateObject(status);
+        ObjectValidator.validateObject(patient);
+        ObjectValidator.validateId(currentPhaseId);
+        return this.bciInstanceRepository.findByIdAndStatusAndPatientAndCurrentPhaseId(id, status, patient, currentPhaseId);
+
     }
 
     /**

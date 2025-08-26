@@ -10,6 +10,7 @@ import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionPhaseRepository;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.*;
+import ca.uqam.latece.evo.server.core.request.BCIInstanceRequest;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionInstanceService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 
@@ -105,6 +106,8 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     
     private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
 
+    private BCIInstanceRequest bciInstanceRequest;
+
     private static final String URL = "/behaviorchangeinterventioninstance";
 
     @BeforeEach
@@ -119,6 +122,12 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
         behaviorChangeInterventionPhase.setBehaviorChangeIntervention(behaviorChangeIntervention);
         bciInstance.setId(7L);
         bciBlock.setId(8L);
+
+        bciInstanceRequest = BCIInstanceRequest.bciInstanceRequestBuilder().
+                id(bciInstance.getId()).
+                status(bciInstance.getStatus()).
+                patient(patient).
+                build();
 
         when(patientRepository.save(patient)).thenReturn(patient);
         when(bciBlockInstanceRepository.save(blockInstance)).thenReturn(blockInstance);
@@ -228,5 +237,29 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     void testFindByBehaviorChangeInterventionId() throws Exception {
         when(bciInstanceRepository.findByBehaviorChangeInterventionId(bciInstance.getBehaviorChangeIntervention().getId())).thenReturn(Collections.singletonList(bciInstance));
         performGetRequest(URL + "/find/behaviorchangeintervention/" + bciInstance.getBehaviorChangeIntervention().getId(), "$[0].behaviorChangeIntervention.id", bciInstance.getBehaviorChangeIntervention().getId());
+    }
+
+    @Test
+    void testFindByIdAndStatusAndPatientId() throws Exception {
+        when(bciInstanceRepository.findByIdAndStatusAndPatientId(bciInstanceRequest.getId(), bciInstanceRequest.getStatus(), bciInstanceRequest.resolvePatientId())).thenReturn(bciInstance);
+        performGetRequest(URL + "/find/bciinstanceidstatuspatientid/instanceRequest", bciInstanceRequest, "$.id", bciInstance.getId());
+    }
+
+    @Test
+    void testFindByIdAndStatusAndPatient() throws Exception {
+        when(bciInstanceRepository.findByIdAndStatusAndPatient(bciInstanceRequest.getId(), bciInstanceRequest.getStatus(), bciInstanceRequest.getPatient())).thenReturn(bciInstance);
+        performGetRequest(URL + "/find/bciinstanceidstatuspatient/instanceRequest", bciInstanceRequest, "$.id", bciInstance.getId());
+    }
+
+    @Test
+    void testFindByIdAndPatient() throws Exception {
+        when(bciInstanceRepository.findByIdAndPatient(bciInstanceRequest.getId(), bciInstanceRequest.getPatient())).thenReturn(bciInstance);
+        performGetRequest(URL + "/find/bciinstanceidandpatient/instanceRequest", bciInstanceRequest, "$.id", bciInstance.getId());
+    }
+
+    @Test
+    void testFindByIdAndPatientId() throws Exception {
+        when(bciInstanceRepository.findByIdAndPatientId(bciInstanceRequest.getId(), bciInstanceRequest.resolvePatientId())).thenReturn(bciInstance);
+        performGetRequest(URL + "/find/bciinstanceidandpatientid/instanceRequest", bciInstanceRequest, "$.id", bciInstance.getId());
     }
 }
