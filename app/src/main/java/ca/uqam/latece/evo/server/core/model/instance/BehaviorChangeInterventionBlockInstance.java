@@ -2,8 +2,9 @@ package ca.uqam.latece.evo.server.core.model.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-
 import ca.uqam.latece.evo.server.core.interfaces.ProcessInstance;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -40,30 +41,53 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
             inverseJoinColumns = @JoinColumn(name = "bci_block_instance_activities_activity_id", referencedColumnName="bci_activity_instance_id"))
     private List<BCIActivityInstance> activities = new ArrayList<>();
 
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "bci_block_instance_behavior_change_intervention_block_id", referencedColumnName = "behavior_change_intervention_block_id",
+            nullable = false)
+    private BehaviorChangeInterventionBlock behaviorChangeInterventionBlock;
+
     @ManyToMany (mappedBy = "activities")
     private List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>();
 
     public BehaviorChangeInterventionBlockInstance() {}
 
-    public BehaviorChangeInterventionBlockInstance(ExecutionStatus status) {
+    public BehaviorChangeInterventionBlockInstance(@NotNull ExecutionStatus status) {
         super(status);
     }
 
-    public BehaviorChangeInterventionBlockInstance(ExecutionStatus status, TimeCycle stage) {
+    public BehaviorChangeInterventionBlockInstance(@NotNull ExecutionStatus status,
+                                                   LocalDate entryDate,
+                                                   LocalDate exitDate) {
+        super(status, entryDate, exitDate);
+    }
+
+    public BehaviorChangeInterventionBlockInstance(@NotNull ExecutionStatus status,
+                                                   @NotNull TimeCycle stage,
+                                                   @NotNull BehaviorChangeInterventionBlock bciBlock) {
        this(status);
        this.stage = stage;
+       this.behaviorChangeInterventionBlock = bciBlock;
     }
 
-    public BehaviorChangeInterventionBlockInstance(ExecutionStatus status, TimeCycle stage, List<BCIActivityInstance> activities) {
-        this(status, stage);
-        this.activities = activities;
+    public BehaviorChangeInterventionBlockInstance(@NotNull ExecutionStatus status,
+                                                   @NotNull TimeCycle stage,
+                                                   @NotNull List<BCIActivityInstance> activities,
+                                                   @NotNull BehaviorChangeInterventionBlock bciBloc) {
+        this(status, stage, bciBloc);
+        this.addActivities(activities);
     }
 
-    public BehaviorChangeInterventionBlockInstance(ExecutionStatus status, LocalDate entryDate, LocalDate exitDate, TimeCycle stage,
-                                                   List<BCIActivityInstance> activities) {
+    public BehaviorChangeInterventionBlockInstance(@NotNull ExecutionStatus status,
+                                                   LocalDate entryDate,
+                                                   LocalDate exitDate,
+                                                   @NotNull TimeCycle stage,
+                                                   @NotNull List<BCIActivityInstance> activities,
+                                                   @NotNull BehaviorChangeInterventionBlock bciBloc) {
         super(status, entryDate, exitDate);
         this.stage = stage;
-        this.activities = activities;
+        this.addActivities(activities);
+        this.behaviorChangeInterventionBlock = bciBloc;
     }
 
     public TimeCycle getStage() {
@@ -111,12 +135,21 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
         this.phases.addAll(phases);
     }
 
+    public BehaviorChangeInterventionBlock getBehaviorChangeInterventionBlock() {
+        return this.behaviorChangeInterventionBlock;
+    }
+
+    public void setBehaviorChangeInterventionBlock(BehaviorChangeInterventionBlock behaviorChangeInterventionBlock) {
+        this.behaviorChangeInterventionBlock = behaviorChangeInterventionBlock;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (super.equals(object)) {
             BehaviorChangeInterventionBlockInstance bciBlockInstance = (BehaviorChangeInterventionBlockInstance) object;
             return Objects.equals(this.getStage(), bciBlockInstance.getStage()) &&
-                    Objects.equals(this.getActivities(), bciBlockInstance.getActivities());
+                    Objects.equals(this.getActivities(), bciBlockInstance.getActivities()) &&
+                    Objects.equals(this.getBehaviorChangeInterventionBlock(), bciBlockInstance.getBehaviorChangeInterventionBlock());
         } else {
             return false;
         }
@@ -124,6 +157,6 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.getStage(), this.getActivities());
+        return Objects.hash(super.hashCode(), this.getStage(), this.getActivities(), this.getBehaviorChangeInterventionBlock());
     }
 }

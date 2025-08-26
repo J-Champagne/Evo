@@ -7,6 +7,7 @@ import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
@@ -67,6 +68,9 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     @Autowired
     private BehaviorChangeInterventionPhaseService behaviorChangeInterventionPhaseService;
 
+    @Autowired
+    private BehaviorChangeInterventionBlockService behaviorChangeInterventionBlockService;
+
     private BehaviorChangeInterventionInstance bciInstance;
 
     private static final String INTERVENTION_NAME = "Behavior Change Intervention - BCI Instance Test";
@@ -107,8 +111,11 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         List<BCIModuleInstance> modules = new ArrayList<>();
         modules.add(moduleInstance);
 
+        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
+                (PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION));
+
         BehaviorChangeInterventionBlockInstance blockInstance = bciBlockInstanceService.
-                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities));
+                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>();
         blocks.add(blockInstance);
 
@@ -215,8 +222,11 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         List<BCIModuleInstance> modules = new ArrayList<>();
         modules.add(moduleInstance);
 
+        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
+                (PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION));
+
         BehaviorChangeInterventionBlockInstance blockInstance = bciBlockInstanceService.
-                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities));
+                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>();
         blocks.add(blockInstance);
 

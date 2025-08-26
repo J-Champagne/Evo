@@ -60,7 +60,9 @@ public class BehaviorChangeInterventionPhaseInstance extends ActivityInstance im
         super(status);
     }
 
-    public BehaviorChangeInterventionPhaseInstance(@NotNull ExecutionStatus status, LocalDate entryDate, LocalDate exitDate) {
+    public BehaviorChangeInterventionPhaseInstance(@NotNull ExecutionStatus status,
+                                                   LocalDate entryDate,
+                                                   LocalDate exitDate) {
         super(status, entryDate, exitDate);
     }
 

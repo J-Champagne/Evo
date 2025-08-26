@@ -799,8 +799,10 @@ CREATE TABLE IF NOT EXISTS assessment_skill (
 CREATE TABLE IF NOT EXISTS bci_block_instance (
     bci_block_instance_id BIGSERIAL NOT NULL,
     bci_block_instance_stage VARCHAR(128) NOT NULL,
+    bci_block_instance_behavior_change_intervention_block_id BIGINT NOT NULL,
     CONSTRAINT bci_block_instance_pk PRIMARY KEY (bci_block_instance_id),
-    CONSTRAINT bci_block_instance_activity_instance_fkey FOREIGN KEY (bci_block_instance_id) REFERENCES activity_instance (activity_instance_id)
+    CONSTRAINT bci_block_instance_activity_instance_fkey FOREIGN KEY (bci_block_instance_id) REFERENCES activity_instance (activity_instance_id),
+    CONSTRAINT bci_block_instance_behavior_change_intervention_block_fkey FOREIGN KEY (bci_block_instance_behavior_change_intervention_block_id) REFERENCES behavior_change_intervention_block (behavior_change_intervention_block_id)
 );
 
 /***********************************************************************************************************************

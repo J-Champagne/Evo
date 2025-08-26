@@ -140,6 +140,21 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     }
 
     /**
+     * Finds and retrieves a list of BehaviorChangeInterventionBlockInstance entities
+     * associated with the specified behavior change intervention block ID.
+     *
+     * @param id the ID of the behavior change intervention block to find associated instances for;
+     *           must not be null or invalid.
+     * @return a list of BehaviorChangeInterventionBlockInstance entities associated with the given ID.
+     *         Returns an empty list if no instances are found.
+     * @throws IllegalArgumentException if the id is null.
+     */
+    public List<BehaviorChangeInterventionBlockInstance> findByBehaviorChangeInterventionBlockId(Long id) {
+        ObjectValidator.validateId(id);
+        return this.bciBlockInstanceRepository.findByBehaviorChangeInterventionBlockId(id);
+    }
+
+    /**
      * Checks if a BehaviorChangeInterventionBlockInstance exists in the database by its id
      * @param id Behavior Change Intervention Block Instance id.
      * @return True if existed, otherwise false.

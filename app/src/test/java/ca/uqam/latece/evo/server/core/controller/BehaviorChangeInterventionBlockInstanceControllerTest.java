@@ -3,6 +3,7 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.controller.instance.BehaviorChangeInterventionBlockInstanceController;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
@@ -36,6 +37,10 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {BehaviorChangeInterventionBlockInstance.class, BehaviorChangeInterventionBlockInstanceService.class,
         BehaviorChangeInterventionBlockInstanceController.class})
 public class BehaviorChangeInterventionBlockInstanceControllerTest extends AbstractControllerTest {
+    private static final String ENTRY_CONDITION = "Intervention ENTRY";
+
+    private static final String EXIT_CONDITION = "Intervention EXIT";
+
     @MockBean
     private BehaviorChangeInterventionBlockInstanceRepository bciBlockInstanceRepository;
 
@@ -54,8 +59,10 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
 
     private List<BCIActivityInstance> activities = List.of(activityInstance);
 
+    private BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(ENTRY_CONDITION, EXIT_CONDITION);
+
     private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(
-            ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities);
+            ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock);
 
     private static final String url = "/behaviorchangeinterventionblockinstance";
 
@@ -64,6 +71,7 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
     public void setUp() {
         activityInstance.setId(1L);
         blockInstance.setId(2L);
+        bciBlock.setId(3L);
         when(bciActivityInstanceRepo.save(activityInstance)).thenReturn(activityInstance);
         when(bciBlockInstanceRepository.save(blockInstance)).thenReturn(blockInstance);
     }
@@ -78,7 +86,7 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
     @Override
     void testUpdate() throws Exception {
         BehaviorChangeInterventionBlockInstance updated = new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED,
-                TimeCycle.END, blockInstance.getActivities());
+                TimeCycle.END, blockInstance.getActivities(), bciBlock);
         updated.setId(blockInstance.getId());
 
         when(bciBlockInstanceRepository.save(updated)).thenReturn(updated);
@@ -117,5 +125,13 @@ public class BehaviorChangeInterventionBlockInstanceControllerTest extends Abstr
         when(bciBlockInstanceRepository.findByActivitiesId(blockInstance.getActivities().getFirst().getId())).thenReturn(Collections.singletonList(blockInstance));
         performGetRequest(url + "/find/activities/" + blockInstance.getActivities().getFirst().getId(),
                 "$[0].id", blockInstance.getId());
+    }
+
+    @Test
+    void testFindByBehaviorChangeInterventionBlockId() throws Exception {
+        when(bciBlockInstanceRepository.findByBehaviorChangeInterventionBlockId(blockInstance.getBehaviorChangeInterventionBlock().getId()))
+                .thenReturn(Collections.singletonList(blockInstance));
+        performGetRequest(url + "/find/behaviorchangeinterventionblock/" + blockInstance.getBehaviorChangeInterventionBlock().getId(),
+                "$[0].behaviorChangeInterventionBlock.id", blockInstance.getBehaviorChangeInterventionBlock().getId());
     }
 }

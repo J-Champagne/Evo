@@ -3,7 +3,6 @@ package ca.uqam.latece.evo.server.core.controller.instance;
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
-import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionPhaseInstanceService;
 
@@ -376,7 +375,7 @@ public class BehaviorChangeInterventionPhaseInstanceController extends AbstractE
     }
 
     /**
-     * Finds BehaviorChangeInterventionPhaseInstance entities by the id of a behaviorchangeinterventionphase.
+     * Finds BehaviorChangeInterventionPhaseInstance entities by the id of a BehaviorChangeInterventionPhase.
      * @param id Long.
      * @return List<BehaviorChangeInterventionPhaseInstance> in JSON format.
      * @throws IllegalArgumentException if id is null.
@@ -398,7 +397,7 @@ public class BehaviorChangeInterventionPhaseInstanceController extends AbstractE
             }
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.error("Failed to find BehaviorChangeInterventionPhaseInstance by Behavior Change Intervention Id. Error: {}", e.getMessage());
+            logger.error("Failed to find BehaviorChangeInterventionPhaseInstance by Behavior Change Intervention Phase Id. Error: {}", e.getMessage());
         }
 
         return response;

@@ -4,6 +4,7 @@ import ca.uqam.latece.evo.server.core.controller.instance.BehaviorChangeInterven
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
@@ -68,8 +69,11 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
+    private BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock
+            (PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION);
+
     private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(
-            ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities);
+            ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock);
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
@@ -87,6 +91,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
         moduleInstance.setId(2L);
         phaseInstance.setId(3L);
         bciPhase.setId(4L);
+        bciBlock.setId(5L);
         when(bciBlockInstanceRepository.save(blockInstance)).thenReturn(blockInstance);
         when(bciModuleInstanceRepository.save(moduleInstance)).thenReturn(moduleInstance);
         when(bciPhaseInstanceRepository.save(phaseInstance)).thenReturn(phaseInstance);
@@ -102,7 +107,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
     @Override
     void testUpdate() throws Exception {
         BehaviorChangeInterventionBlockInstance blockInstance2 = new BehaviorChangeInterventionBlockInstance(
-                ExecutionStatus.STALLED, TimeCycle.END, activities);
+                ExecutionStatus.STALLED, TimeCycle.END, activities, bciBlock);
         blockInstance2.setId(4L);
         when(bciBlockInstanceRepository.save(blockInstance2)).thenReturn(blockInstance2);
 
@@ -171,7 +176,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
     @Test
     void testChangeCurrentBlock() throws Exception {
         BehaviorChangeInterventionBlockInstance currentBlock = new BehaviorChangeInterventionBlockInstance(
-                ExecutionStatus.STALLED, TimeCycle.END, activities);
+                ExecutionStatus.STALLED, TimeCycle.END, activities, bciBlock);
         currentBlock.setId(7L);
         when(bciBlockInstanceRepository.save(currentBlock)).thenReturn(currentBlock);
 
@@ -185,7 +190,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
     @Test
     void testChangeCurrentBlockWithPhaseIdAndCurrentBlock() throws Exception {
         BehaviorChangeInterventionBlockInstance currentBlock = new BehaviorChangeInterventionBlockInstance(
-                ExecutionStatus.STALLED, TimeCycle.END, activities);
+                ExecutionStatus.STALLED, TimeCycle.END, activities, bciBlock);
         currentBlock.setId(8L);
         when(bciBlockInstanceRepository.save(currentBlock)).thenReturn(currentBlock);
 
@@ -197,7 +202,7 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private BehaviorChangeInterventionPhaseInstance phaseInstanceBuilder(BCIModuleInstance module) {
         BehaviorChangeInterventionBlockInstance currentBlock = new BehaviorChangeInterventionBlockInstance(
-                ExecutionStatus.STALLED, TimeCycle.END, activities);
+                ExecutionStatus.STALLED, TimeCycle.END, activities, bciBlock);
         currentBlock.setId(10L);
         when(bciBlockInstanceRepository.save(currentBlock)).thenReturn(currentBlock);
 

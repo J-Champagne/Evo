@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.repository.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -28,4 +29,12 @@ public interface BehaviorChangeInterventionBlockInstanceRepository extends EvoRe
      * @throws IllegalArgumentException if id is null.
      */
     List<BehaviorChangeInterventionBlockInstance> findByActivitiesId(Long id);
+
+    /**
+     * Finds BehaviorChangeInterventionBlockInstance entities by their associated BehaviorChangeInterventionBlock id.
+     * @param id the id of the BehaviorChangeInterventionBlock associated with the intervention instances.
+     * @return a list of BehaviorChangeInterventionBlockInstance objects associated with the specified BehaviorChangeInterventionBlock id.
+     * @throws IllegalArgumentException if the id is null.
+     */
+    List<BehaviorChangeInterventionBlockInstance> findByBehaviorChangeInterventionBlockId(Long id);
 }

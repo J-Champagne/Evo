@@ -42,8 +42,10 @@ public class BCIInstanceTest {
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(bciActivityInstance));
 
+        BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION);
+
         BehaviorChangeInterventionBlockInstance bciBlockInstance = new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, LocalDate.now(),
-                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities);
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities, bciBlock);
 
         List<BehaviorChangeInterventionBlockInstance> blockInstances = new ArrayList<>(List.of(bciBlockInstance));
 

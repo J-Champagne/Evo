@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.repository.instance;
 
-import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.EvoRepository;
 

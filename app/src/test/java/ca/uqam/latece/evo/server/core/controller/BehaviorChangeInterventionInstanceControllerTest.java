@@ -5,6 +5,7 @@ import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.*;
@@ -83,8 +84,10 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
 
     private List<BCIModuleInstance> modules = List.of(moduleInstance);
 
+    private BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(PHASE_ENTRY_CONDITION, PHASE_EXIT_CONDITION);
+
     private BehaviorChangeInterventionBlockInstance blockInstance = new BehaviorChangeInterventionBlockInstance(
-            ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities);
+            ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock);
 
     private List<BehaviorChangeInterventionBlockInstance> blocks = List.of(blockInstance);
 
@@ -112,6 +115,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
         behaviorChangeInterventionPhase.setId(6L);
         behaviorChangeInterventionPhase.setBehaviorChangeIntervention(behaviorChangeIntervention);
         bciInstance.setId(7L);
+        bciBlock.setId(8L);
 
         when(patientRepository.save(patient)).thenReturn(patient);
         when(bciBlockInstanceRepository.save(blockInstance)).thenReturn(blockInstance);

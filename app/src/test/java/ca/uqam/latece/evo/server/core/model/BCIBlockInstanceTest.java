@@ -21,6 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author Edilton Lima dos Santos.
  */
 public class BCIBlockInstanceTest {
+    private static final String ENTRY_CONDITION = "Intervention ENTRY";
+
+    private static final String EXIT_CONDITION = "Intervention EXIT";
+
     private BehaviorChangeInterventionBlockInstance bciBlockInstance;
 
     private BCIActivityInstance bciActivityInstance;
@@ -39,8 +43,10 @@ public class BCIBlockInstanceTest {
 
         List<BCIActivityInstance> activities = new ArrayList<>(List.of(bciActivityInstance));
 
+        BehaviorChangeInterventionBlock bciBlock = new BehaviorChangeInterventionBlock(ENTRY_CONDITION, EXIT_CONDITION);
+
         bciBlockInstance = new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, LocalDate.now(),
-                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities);
+                DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.BEGINNING, activities, bciBlock);
     }
 
     @Test

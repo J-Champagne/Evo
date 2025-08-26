@@ -3,6 +3,7 @@ package ca.uqam.latece.evo.server.core.controller.instance;
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionBlockInstanceService;
 
 import org.slf4j.Logger;
@@ -217,6 +218,35 @@ public class BehaviorChangeInterventionBlockInstanceController extends AbstractE
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find BehaviorChangeInterventionBlockInstance entities by Activities Id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Finds BehaviorChangeInterventionBlockInstance entities by the id of a BehaviorChangeInterventionBlock.
+     * @param id Long.
+     * @return List<BehaviorChangeInterventionBlockInstance> in JSON format.
+     * @throws IllegalArgumentException if id is null.
+     */
+    @GetMapping("/find/behaviorchangeinterventionblock/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<BehaviorChangeInterventionBlockInstance>> findByBehaviorChangeInterventionBlockId(@PathVariable Long id) {
+        ResponseEntity<List<BehaviorChangeInterventionBlockInstance>> response;
+
+        try {
+            List<BehaviorChangeInterventionBlockInstance> result = bciBlockInstanceService.findByBehaviorChangeInterventionBlockId(id);
+
+            if (result != null && !result.isEmpty()) {
+                response = new ResponseEntity<>(result, HttpStatus.OK);
+                logger.info("Found BehaviorChangeInterventionBlockInstance by Behavior Change Intervention Block Id: {}", result);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find BehaviorChangeInterventionBlockInstance by Behavior Change Intervention Block Id");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find BehaviorChangeInterventionBlockInstance by Behavior Change Intervention Block Id. Error: {}", e.getMessage());
         }
 
         return response;

@@ -4,6 +4,7 @@ import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
@@ -39,6 +40,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ApplicationScope
 @ContextConfiguration(classes = {BehaviorChangeInterventionBlockInstance.class, BehaviorChangeInterventionBlockInstanceService.class})
 public class BehaviorChangeInterventionBlockInstanceServiceTest extends AbstractServiceTest {
+    private static final String ENTRY_CONDITION = "Intervention ENTRY";
+
+    private static final String EXIT_CONDITION = "Intervention EXIT";
+
     @Autowired
     BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
 
@@ -53,6 +58,9 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
 
     @Autowired
     private HealthCareProfessionalService healthCareProfessionalService;
+
+    @Autowired
+    private BehaviorChangeInterventionBlockService behaviorChangeInterventionBlockService;
 
     private BehaviorChangeInterventionBlockInstance blockInstance;
 
@@ -77,9 +85,12 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(activityInstance);
 
+        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
+                (ENTRY_CONDITION, EXIT_CONDITION));
+
         blockInstance = behaviorChangeInterventionBlockInstanceService.
                     create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
-                            DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities));
+                            DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, bciBlock));
     }
 
     @Test
@@ -115,7 +126,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     @Override
     void testFindAll() {
         behaviorChangeInterventionBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance(
-                ExecutionStatus.STALLED, TimeCycle.MIDDLE));
+                ExecutionStatus.STALLED, TimeCycle.MIDDLE, blockInstance.getBehaviorChangeInterventionBlock()));
         List<BehaviorChangeInterventionBlockInstance> results = behaviorChangeInterventionBlockInstanceService.findAll();
 
         assertEquals(2, results.size());

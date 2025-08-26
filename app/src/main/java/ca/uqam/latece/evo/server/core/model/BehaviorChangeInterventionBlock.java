@@ -15,12 +15,12 @@ import java.util.List;
  * BehaviorChangeInterventionBlock consists of an ID, entry conditions, and exit conditions.
  * @version 1.0
  * @author Edilton Lima dos Santos.
+ * @author Julien Champagne
  */
 @Entity
 @Table(name = "behavior_change_intervention_block")
 @JsonPropertyOrder({"id", "entryConditions", "exitConditions"})
 public class BehaviorChangeInterventionBlock extends AbstractEvoModel{
-
     @JsonProperty("id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,6 +64,12 @@ public class BehaviorChangeInterventionBlock extends AbstractEvoModel{
     @OneToMany(mappedBy = "bciBlockComposedOf", orphanRemoval = true, targetEntity = ComposedOf.class)
     private List<ComposedOf> composedOfList = new ArrayList<>();
 
+    public BehaviorChangeInterventionBlock() {}
+
+    public BehaviorChangeInterventionBlock(String entryConditions, String exitConditions) {
+        this.entryConditions = entryConditions;
+        this.exitConditions = exitConditions;
+    }
 
     @Override
     public void setId(Long id) {
