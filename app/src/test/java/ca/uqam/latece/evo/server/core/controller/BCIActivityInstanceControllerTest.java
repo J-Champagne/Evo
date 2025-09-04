@@ -3,7 +3,8 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.controller.instance.BCIActivityInstanceController;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
@@ -167,18 +168,5 @@ public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
         // Perform a GET request to test the controller.
         performGetRequest(URL_FIND + "participants/" + participant.getId(), "$[0].participants.[0].id",
                 participant.getId());
-    }
-
-    @Test
-    void testUpdateStatus() throws Exception {
-        // Mock behavior for bciActivityInstanceRepository.save
-        when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
-        // Mock behavior for Update status
-        bciActivityInstance.setStatus(ExecutionStatus.FINISHED);
-        when(bciActivityInstanceRepository.save(bciActivityInstance)).thenReturn(bciActivityInstance);
-        when(bciActivityInstanceRepository.findById(bciActivityInstance.getId())).thenReturn(Optional.of(bciActivityInstance));
-        // Perform a PUT request to test the controller.
-        performUpdateRequest(URL + "/update/"+ bciActivityInstance.getId() + "/status/" + bciActivityInstance.getStatus(),
-                bciActivityInstance, "$.status", bciActivityInstance.getStatus().toString());
     }
 }

@@ -1,11 +1,12 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
+import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -310,30 +311,35 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
     }
 
     /**
-     * Updates the status of a BCIActivityInstance.
-     * @param id The id of the BCIActivityInstance to be updated.
-     * @param status The new Execution status.
-     * @return ResponseEntity containing the BCIActivityInstance with the updated Execution status.
+     * Receives updates from the frontend for the progression of a BCIActivityInstance.
+     * @param clientEvent The clientEvent indicating the action the client wishes to perform.
+     * @param request The request containing information needed to properly handle the clientEvent.
+     * @return ResponseEntity containing the BCIActivityInstance with an updated Execution status or an error message
+     * detailing why the clientEvent could not be processed correctly.
      */
-    @PutMapping("/update/{id}/status/{status}")
+    @PutMapping("/clientupdate/{clientEvent}")
     @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<BCIActivityInstance> updateStatus(@PathVariable Long id, @PathVariable ExecutionStatus status) {
-        ResponseEntity<BCIActivityInstance> response;
+    public ResponseEntity<String> updateStatus(@PathVariable ClientEvent clientEvent,
+                                               @RequestBody BCIActivityInstanceRequest request) {
+        ResponseEntity<String> response;
 
         try {
-            BCIActivityInstance bciActivity = bciActivityInstanceService.updateStatus(id, status);
+            BCIActivityInstance bciActivity = bciActivityInstanceService.handleClientEvent(clientEvent, request);
 
             if (bciActivity != null) {
-                response = new ResponseEntity<>(bciActivity, HttpStatus.OK);
-                logger.info("Updated status of BCIActivityInstance with ID {} to {}", id, status);
+                response = new ResponseEntity<>(bciActivity.toString(), HttpStatus.OK);
+                logger.info("Correctly handled ClientEvent {} for BCIActivityInstance with ID {}",
+                        clientEvent, request.getId());
             } else {
                 response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                logger.info("Failed to update status of BCIActivityInstance with ID {} to {}", id, status);
+                logger.info("Failed to correctly handle ClientEvent {} for BCIActivityInstance with ID {}",
+                        clientEvent, request.getId());
             }
+
         } catch (Exception e) {
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            logger.info("Failed to update status of BCIActivityInstance with ID {} to {}. " +
-                    "Error: {}", id, status, e.getMessage());
+            response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            logger.info("Failed to correctly handle ClientEvent {}" +
+                    "Error: {}",  clientEvent, e.getMessage());
         }
 
         return response;

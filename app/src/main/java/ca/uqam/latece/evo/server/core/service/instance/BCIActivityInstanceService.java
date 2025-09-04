@@ -1,12 +1,14 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
+import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.event.BCIActivityInstanceEvent;
+import ca.uqam.latece.evo.server.core.exceptions.ExitConditionException;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
+import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -179,25 +182,28 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     }
 
     /**
-     * Updates the current status of a BCIActivityInstance.
-     * If the specified execution status is FINISHED, the exitDate of the BCIActivityInstance will be set.
-     * @param id the BCIActivityInstance id to be updated.
-     * @param status the execution status to be assigned to the BCIActivityInstance.
-     * @return the updated BCIActivityInstance, or null if the instance was not found
+     * Handles the specified clientEvent for a given BCIActivityInstance.
+     * @param clientEvent  The clientEvent indicating the action the client wishes to perform.
+     * @param request contains all the information required to properly handle the clientEvent.
+     * @return the updated BCIActivityInstance, or null if the instance was not found or if the clientEvent was not handled correctly
+     * @throws IllegalArgumentException if the request does not contain every required field to handle the clientEvent.
      */
-    public BCIActivityInstance updateStatus(Long id, ExecutionStatus status) {
-        BCIActivityInstance found = findById(id);
+    public BCIActivityInstance handleClientEvent(ClientEvent clientEvent, BCIActivityInstanceRequest request) throws ExitConditionException {
+        BCIActivityInstance found = null;
         BCIActivityInstance updated = null;
 
-        ObjectValidator.validateId(id);
-        ObjectValidator.validateObject(status);
-
-        if (found != null && status != null) {
-            found.setStatus(status);
-
-            switch (status) {
-                case FINISHED -> {
-                    found.setExitDate(LocalDate.now());
+        validateClientEvent(clientEvent, request);
+        found = findById(request.getId());
+        if (found != null) {
+            switch (clientEvent) {
+                case FINISH -> {
+                    List<String> failedExitConditions = checkExitConditions(found);
+                    if (failedExitConditions.isEmpty()) {
+                        found.setStatus(ExecutionStatus.FINISHED);
+                        found.setExitDate(LocalDate.now());
+                    } else {
+                        throw new ExitConditionException(createExitConditionErrorMsg(failedExitConditions, found.getId()));
+                    }
                 }
 
                 default -> {
@@ -211,5 +217,45 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
             }
         }
         return updated;
+    }
+
+    private void validateClientEvent(ClientEvent clientEvent, BCIActivityInstanceRequest request) {
+        ObjectValidator.validateObject(clientEvent);
+        ObjectValidator.validateObject(request);
+        ObjectValidator.validateId(request.getId());
+        ObjectValidator.validateId(request.getBciBlockInstanceId());
+        ObjectValidator.validateId(request.getBciPhaseInstanceId());
+        ObjectValidator.validateId(request.getBciInstanceId());
+    }
+
+    /**
+     * Checks if a BCIActivityInstance has met its exit conditions.
+     * @param bciActivityInstance The BCIActivity to retrieve the exit conditions from.
+     * @return True if all the exit conditions are met.
+     */
+    private List<String> checkExitConditions(BCIActivityInstance bciActivityInstance) {
+        List<String> exitConditions = new ArrayList<>();
+        String exitCondition = bciActivityInstance.getBciActivity().getPostconditions();
+
+        if (!exitCondition.isEmpty()) {
+            exitConditions.add(exitCondition);
+        }
+
+        return exitConditions;
+    }
+
+    /**
+     * Builds an error message for a BCIActivity from a list of unmet exitConditions.
+     * @param exitConditions the list of exitConditions to be added to the error message.
+     * @param id the id of the BCIActivity that could not be completed
+     * @return an error message with the specified BCIActivity and with all of the exitConditions that were not met
+     */
+    private String createExitConditionErrorMsg(List<String> exitConditions, Long id) {
+        String errorMsg = "The BCIActivityInstance with id " + id + " cannot be completed\n" +
+                "Some exit conditions were not met: \n";
+        for (String exitCondition : exitConditions) {
+            errorMsg += exitCondition + "\n" ;
+        }
+        return errorMsg;
     }
 }

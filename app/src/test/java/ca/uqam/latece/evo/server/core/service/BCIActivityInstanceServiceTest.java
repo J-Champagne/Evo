@@ -1,13 +1,12 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
-import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
-import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import ca.uqam.latece.evo.server.core.enumeration.*;
+import ca.uqam.latece.evo.server.core.exceptions.ExitConditionException;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
+import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
 import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
 import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
@@ -314,9 +313,24 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void testUpdateStatus() {
-        BCIActivityInstance updated = bciActivityInstanceService.updateStatus(bciActivityInstance.getId(),
-                ExecutionStatus.FINISHED);
+    void testHandleClientEventFinishFailExitConditionsNotMet() {
+        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(),
+                2L, 3L, 4L);
+        assertThrows(ExitConditionException.class, () -> bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request));
+    }
+
+    @Test
+    void testHandleClientEventFinishFailNullId() {
+        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(),
+                2L, null, 4L);
+        assertThrows(IllegalArgumentException.class, () -> bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request));
+    }
+
+    @Test
+    void testHandleClientEventFinishSuccess() {
+        bciActivityInstance.getBciActivity().setPostconditions("");
+        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), 2L, 3L, 4L);
+        BCIActivityInstance updated = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
         assertEquals(ExecutionStatus.FINISHED, updated.getStatus());
         assertNotNull(updated.getExitDate());
     }
