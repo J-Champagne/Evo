@@ -208,8 +208,8 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
      *              BCIBlockInstance and its state changes.
      */
     @EventListener(BCIBlockInstanceClientEvent.class)
-    public void handleBCIActivityInstanceEvents(BCIBlockInstanceClientEvent event) {
-        if (event != null && event.getEvoModel() != null && event.getClientEvent() != null) {
+    public void handleClientEvent(BCIBlockInstanceClientEvent event) {
+        if (event != null && event.getEvoModel() != null && event.getClientEvent() != null && event.getBciBlockInstanceId() != null) {
             BehaviorChangeInterventionBlockInstance blockInstance = findById(event.getBciBlockInstanceId());
 
             if (blockInstance != null) {
@@ -220,13 +220,11 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
                 switch(clientEvent) {
                     case ClientEvent.FINISH -> {
                         if (bciActivityInstance.getStatus() == ExecutionStatus.FINISHED) {
-                            if (blockInstance.findActivity(event.getEvoModel())) {
-                                List<String> failedExitConditions = checkExitConditions(blockInstance);
+                            List<String> failedExitConditions = checkExitConditions(blockInstance);
 
-                                if (failedExitConditions.isEmpty()) {
-                                    blockInstance.setStatus(ExecutionStatus.FINISHED);
-                                    blockInstance.setExitDate(LocalDate.now());
-                                }
+                            if (failedExitConditions.isEmpty()) {
+                                blockInstance.setStatus(ExecutionStatus.FINISHED);
+                                blockInstance.setExitDate(LocalDate.now());
                             }
                         }
                     }
@@ -245,7 +243,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
 
     /**
      * Checks if a BCIBlockInstance has met its exit conditions.
-     * @param BehaviorChangeInterventionBlockInstance The BCIBlockInstance to retrieve the exit conditions from.
+     * @param bciBlockInstance The BCIBlockInstance to retrieve the exit conditions from.
      * @return A List of exit conditions that were not met.
      */
     private List<String> checkExitConditions(BehaviorChangeInterventionBlockInstance bciBlockInstance) {

@@ -2,19 +2,14 @@ package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.*;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
+import ca.uqam.latece.evo.server.core.event.BCIInstanceClientEvent;
+import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.exceptions.ExitConditionException;
 import ca.uqam.latece.evo.server.core.model.*;
-import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
-import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
-import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
-import ca.uqam.latece.evo.server.core.model.instance.Participant;
+import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
-import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
-import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionBlockInstanceService;
-import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
-import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
+import ca.uqam.latece.evo.server.core.service.instance.*;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,6 +45,8 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     private BCIActivityService bciActivityService;
 
+    @Autowired BehaviorChangeInterventionPhaseService bciPhaseService;
+
     @Autowired
     private RequiresService requiresService;
 
@@ -78,6 +75,9 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
 
     @Autowired
+    BehaviorChangeInterventionPhaseInstanceService behaviorChangeInterventionPhaseInstanceService;
+
+    @Autowired
     private ApplicationEvents applicationEvents;
 
     private BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
@@ -96,6 +96,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
     private BehaviorChangeInterventionBlockInstance blockInstance;
+    private BehaviorChangeInterventionPhaseInstance phaseInstance;
 
     @BeforeEach
     void beforeEach() {
@@ -192,6 +193,16 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         blockInstance = behaviorChangeInterventionBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
                         DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, bciBlock));
+
+        List<BehaviorChangeInterventionBlockInstance> activitiesBlock = new ArrayList<>();
+        activitiesBlock.add(blockInstance);
+
+        List<BCIModuleInstance> modules = new ArrayList<>();
+
+        BehaviorChangeInterventionPhase bciPhase = bciPhaseService.create(new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
+
+        phaseInstance = behaviorChangeInterventionPhaseInstanceService
+                .create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, blockInstance, activitiesBlock, modules, bciPhase));
     }
 
     @AfterEach
@@ -351,17 +362,38 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Test
     void testHandleClientEventFinishFailNullId() {
         BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(),
-                2L, null, 4L);
+                2L, null, null);
         assertThrows(IllegalArgumentException.class, () -> bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request));
     }
 
     @Test
     void testHandleClientEventFinishSuccess() {
         bciActivityInstance.getBciActivity().setPostconditions("");
-        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(), 3L, 4L);
+        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(),
+                phaseInstance.getId(), 3L);
         BCIActivityInstance updated = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
+
         assertEquals(ExecutionStatus.FINISHED, updated.getStatus());
         assertNotNull(updated.getExitDate());
         assertEquals(1, applicationEvents.stream(BCIBlockInstanceClientEvent.class).count());
+    }
+
+    @Test
+    void handleBCIBlockInstanceClientEventsAllEntitiesFinished() {
+        bciActivityInstance.getBciActivity().setPostconditions("");
+        blockInstance.getBehaviorChangeInterventionBlock().setExitConditions("");
+        phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
+
+        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(),
+                phaseInstance.getId(), 3L);
+        BCIActivityInstance updated = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
+
+        assertEquals(ExecutionStatus.FINISHED, bciActivityInstance.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
+        //assertEquals(ExecutionStatus.FINISHED, bciInstance.getStatus());
+        assertEquals(1, applicationEvents.stream(BCIBlockInstanceClientEvent.class).count());
+        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
+        assertEquals(1, applicationEvents.stream(BCIInstanceClientEvent.class).count());
     }
 }

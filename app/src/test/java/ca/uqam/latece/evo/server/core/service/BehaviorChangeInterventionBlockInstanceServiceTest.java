@@ -199,7 +199,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
 
         // Creates the BCIBlockInstanceClientEvent
         BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(activityInstance, ClientEvent.FINISH,
-                blockInstance.getId(), 4L, 5L);
+                blockInstance.getId(), null, null);
 
         // Publish the event
         applicationEventPublisher.publishEvent(blockInstanceClientEvent);
@@ -217,7 +217,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
 
         // Creates the BCIBlockInstanceClientEvent
         BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(activityInstance, ClientEvent.FINISH,
-                blockInstance.getId(), 4L, 5L);
+                blockInstance.getId(), null, null);
 
         // Publish the event
         applicationEventPublisher.publishEvent(blockInstanceClientEvent);

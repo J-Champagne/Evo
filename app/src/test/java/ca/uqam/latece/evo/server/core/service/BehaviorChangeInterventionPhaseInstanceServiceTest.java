@@ -1,9 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.*;
-import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
-import ca.uqam.latece.evo.server.core.event.BCIModuleInstanceEvent;
-import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.*;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
@@ -76,6 +74,11 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
 
     private BehaviorChangeInterventionPhaseInstance phaseInstance;
 
+    private BehaviorChangeInterventionBlockInstance blockInstance;
+
+    private BCIActivityInstance activityInstance;
+
+
     @BeforeEach
     public void setUp() {
         Role role = roleService.create(new Role("Administrator"));
@@ -88,7 +91,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming", "Description",
                 ActivityType.BCI_ACTIVITY, "Intervention ENTRY", "Intervention EXIT"));
 
-        BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
+        activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
                 participants, bciActivity));
         List<BCIActivityInstance> activities = new ArrayList<>();
@@ -102,7 +105,7 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
                 ("Intervention ENTRY", "Intervention EXIT"));
 
-        BehaviorChangeInterventionBlockInstance blockInstance = behaviorChangeInterventionBlockInstanceService.
+        blockInstance = behaviorChangeInterventionBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, activities, bciBlock));
         List<BehaviorChangeInterventionBlockInstance> blocks = new ArrayList<>();
         blocks.add(blockInstance);
@@ -304,5 +307,43 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
                 filter(event -> event.getChangeAspect().equals(ChangeAspect.TERMINATED) &&
                         event.getEvoModel().getCurrentBlock().getStage().equals(TimeCycle.END) &&
                         event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED)).count());
+    }
+
+    @Test
+    void handleBCIPhaseInstanceClientEvents() {
+        activityInstance.setStatus(ExecutionStatus.FINISHED);
+        blockInstance.setStatus(ExecutionStatus.FINISHED);
+        phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
+
+        bciActivityInstanceService.update(activityInstance);
+        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+        behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
+
+        BCIPhaseInstanceClientEvent phaseInstanceClientEvent = new BCIPhaseInstanceClientEvent(blockInstance, ClientEvent.FINISH,
+                 phaseInstance.getId(), null);
+
+        applicationEventPublisher.publishEvent(phaseInstanceClientEvent);
+
+        assertEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
+        assertEquals(1, applicationEvents.stream(BCIInstanceClientEvent.class).count());
+    }
+
+    @Test
+    void handleBCIPhaseInstanceClientEventsFail() {
+        activityInstance.setStatus(ExecutionStatus.FINISHED);
+        blockInstance.setStatus(ExecutionStatus.FINISHED);
+
+        bciActivityInstanceService.update(activityInstance);
+        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+        phaseInstance = behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
+
+        BCIPhaseInstanceClientEvent phaseInstanceClientEvent = new BCIPhaseInstanceClientEvent(blockInstance, ClientEvent.FINISH,
+                phaseInstance.getId(), null);
+
+        applicationEventPublisher.publishEvent(phaseInstanceClientEvent);
+
+        assertNotEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.STALLED, phaseInstance.getStatus());
+        assertEquals(1, applicationEvents.stream(BCIInstanceClientEvent.class).count());
     }
 }
