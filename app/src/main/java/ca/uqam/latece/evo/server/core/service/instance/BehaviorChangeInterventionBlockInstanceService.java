@@ -1,24 +1,28 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.event.BCIActivityInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionBlockInstanceRepository;
-
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -198,19 +202,60 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     }
 
     /**
-     * Handles BCIActivityInstanceEvent by updating the corresponding BehaviorChangeInterventionBlockInstance
+     * Handles BCIBlockInstanceClientEvent by updating the corresponding BehaviorChangeInterventionBlockInstance
      * when specific conditions related to its execution status are met.
-     * @param event the BCIActivityInstanceEvent to be processed, which contains information about the
-     *              BCIActivityInstance and its state changes.
+     * @param event the BCIBlockInstanceClientEvent to be processed, which contains information about the
+     *              BCIBlockInstance and its state changes.
      */
-    @EventListener(BCIActivityInstanceEvent.class)
-    public void handleBCIActivityInstanceEvents(BCIActivityInstanceEvent event) {
-        if (event != null && event.getEvoModel() != null) {
-            ExecutionStatus newStatus = event.getEvoModel().getStatus();
+    @EventListener(BCIBlockInstanceClientEvent.class)
+    public void handleBCIActivityInstanceEvents(BCIBlockInstanceClientEvent event) {
+        if (event != null && event.getEvoModel() != null && event.getClientEvent() != null) {
+            BehaviorChangeInterventionBlockInstance blockInstance = findById(event.getBciBlockInstanceId());
 
-            if (newStatus == ExecutionStatus.FINISHED) {
-                //TODO Find associated BCIBlockInstance and check if entire block is finished
+            if (blockInstance != null) {
+                //Handle ClientEvents
+                BCIActivityInstance bciActivityInstance = event.getEvoModel();
+                ClientEvent clientEvent = event.getClientEvent();
+
+                switch(clientEvent) {
+                    case ClientEvent.FINISH -> {
+                        if (bciActivityInstance.getStatus() == ExecutionStatus.FINISHED) {
+                            if (blockInstance.findActivity(event.getEvoModel())) {
+                                List<String> failedExitConditions = checkExitConditions(blockInstance);
+
+                                if (failedExitConditions.isEmpty()) {
+                                    blockInstance.setStatus(ExecutionStatus.FINISHED);
+                                    blockInstance.setExitDate(LocalDate.now());
+                                }
+                            }
+                        }
+                    }
+                }
+
+                this.update(blockInstance);
+                this.publishEvent(new BCIPhaseInstanceClientEvent(blockInstance, clientEvent,
+                        event.getBciPhaseInstanceId(), event.getBciInstanceId()));
+
+            } else {
+                // TODO Error, BCIBlockInstanceId is NULL
+
             }
         }
+    }
+
+    /**
+     * Checks if a BCIBlockInstance has met its exit conditions.
+     * @param BehaviorChangeInterventionBlockInstance The BCIBlockInstance to retrieve the exit conditions from.
+     * @return A List of exit conditions that were not met.
+     */
+    private List<String> checkExitConditions(BehaviorChangeInterventionBlockInstance bciBlockInstance) {
+        List<String> exitConditions = new ArrayList<>();
+        String exitCondition = bciBlockInstance.getBehaviorChangeInterventionBlock().getExitConditions();
+
+        if (!exitCondition.isEmpty()) {
+            exitConditions.add(exitCondition);
+        }
+
+        return exitConditions;
     }
 }

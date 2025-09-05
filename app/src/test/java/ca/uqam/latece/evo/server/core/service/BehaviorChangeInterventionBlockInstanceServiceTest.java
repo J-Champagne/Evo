@@ -1,10 +1,9 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
-import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
-import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.enumeration.*;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.Role;
@@ -12,9 +11,12 @@ import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
-import ca.uqam.latece.evo.server.core.service.instance.*;
-
+import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
+import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionBlockInstanceService;
+import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
+import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,8 +31,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests methods found in BehaviorChangeInterventionBlockInstanceService in a containerized setup.
@@ -71,6 +72,8 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
 
     private BehaviorChangeInterventionBlockInstance blockInstance;
 
+    private BCIActivityInstance activityInstance;
+
     @BeforeEach
     public void setUp() {
         Role role = roleService.create(new Role("Administrator"));
@@ -83,7 +86,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         BCIActivity bciActivity = bciActivityService.create(new BCIActivity("Programming", "Description",
                 ActivityType.BCI_ACTIVITY, "Intervention ENTRY", "Intervention EXIT"));
 
-        BCIActivityInstance activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
+        activityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
                 ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
                 participants, bciActivity));
         List<BCIActivityInstance> activities = new ArrayList<>();
@@ -184,5 +187,44 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
                 filter(event -> event.getChangeAspect().equals(ChangeAspect.TERMINATED) &&
                         event.getEvoModel().getStage().equals(TimeCycle.END) &&
                         event.getEvoModel().getStatus().equals(ExecutionStatus.FINISHED)).count());
+    }
+
+    @Test
+    void handleBCIBlockInstanceClientEvents() {
+        // Update the BCIActivityInstance and BCIBlockInstance
+        activityInstance.setStatus(ExecutionStatus.FINISHED);
+        blockInstance.getBehaviorChangeInterventionBlock().setExitConditions("");
+        bciActivityInstanceService.update(activityInstance);
+        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+
+        // Creates the BCIBlockInstanceClientEvent
+        BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(activityInstance, ClientEvent.FINISH,
+                blockInstance.getId(), 4L, 5L);
+
+        // Publish the event
+        applicationEventPublisher.publishEvent(blockInstanceClientEvent);
+
+        // Test
+        assertEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
+        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
+    }
+
+    @Test
+    void handleBCIBlockInstanceClientEventsFail() {
+        // Update the BCIActivityInstance and BCIBlockInstance
+        activityInstance.setStatus(ExecutionStatus.FINISHED);
+        bciActivityInstanceService.update(activityInstance);
+
+        // Creates the BCIBlockInstanceClientEvent
+        BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(activityInstance, ClientEvent.FINISH,
+                blockInstance.getId(), 4L, 5L);
+
+        // Publish the event
+        applicationEventPublisher.publishEvent(blockInstanceClientEvent);
+
+        // Test
+        assertNotEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, blockInstance.getStatus());
+        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
     }
 }

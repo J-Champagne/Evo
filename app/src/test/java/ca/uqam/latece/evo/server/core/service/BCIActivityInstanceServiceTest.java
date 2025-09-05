@@ -1,13 +1,16 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.*;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.exceptions.ExitConditionException;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
+import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionBlockInstanceService;
 import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
 import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -17,8 +20,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
+import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,6 +40,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Edilton Lima dos Santos
  * @author Julien Champagne.
  */
+@RecordApplicationEvents
+@ApplicationScope
 @ContextConfiguration(classes = {BCIActivityInstanceService.class, BCIActivity.class})
 public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Autowired
@@ -62,6 +71,15 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     private HealthCareProfessionalService healthCareProfessionalService;
 
+    @Autowired
+    private BehaviorChangeInterventionBlockService behaviorChangeInterventionBlockService;
+
+    @Autowired
+    BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
+
+    @Autowired
+    private ApplicationEvents applicationEvents;
+
     private BCIActivityInstance bciActivityInstance = new BCIActivityInstance();
     private BCIActivity bciActivity = new BCIActivity();
     private BCIActivity bciActivity2 = new BCIActivity();
@@ -77,6 +95,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     private Participant participant = new Participant();
     private LocalDate localEntryDate = DateFormatter.convertDateStrTo_yyyy_MM_dd("2020/01/08");
     private LocalDate localExitDate = LocalDate.now();
+    private BehaviorChangeInterventionBlockInstance blockInstance;
 
     @BeforeEach
     void beforeEach() {
@@ -163,6 +182,16 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivityInstance.setBciActivity(bciActivity);
         bciActivityInstance.addParticipant(participant);
         bciActivityInstanceService.create(bciActivityInstance);
+
+        List<BCIActivityInstance> activities = new ArrayList<>();
+        activities.add(bciActivityInstance);
+
+        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
+                ("Intervention ENTRY", "Intervention EXIT"));
+
+        blockInstance = behaviorChangeInterventionBlockInstanceService.
+                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
+                        DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, bciBlock));
     }
 
     @AfterEach
@@ -329,9 +358,10 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Test
     void testHandleClientEventFinishSuccess() {
         bciActivityInstance.getBciActivity().setPostconditions("");
-        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), 2L, 3L, 4L);
+        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(), 3L, 4L);
         BCIActivityInstance updated = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
         assertEquals(ExecutionStatus.FINISHED, updated.getStatus());
         assertNotNull(updated.getExitDate());
+        assertEquals(1, applicationEvents.stream(BCIBlockInstanceClientEvent.class).count());
     }
 }

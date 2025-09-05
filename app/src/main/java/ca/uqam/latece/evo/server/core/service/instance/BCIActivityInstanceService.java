@@ -2,7 +2,7 @@ package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.event.BCIActivityInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.exceptions.ExitConditionException;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
@@ -213,12 +213,19 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
 
             updated = this.update(found);
             if (updated != null) {
-                this.publishEvent(new BCIActivityInstanceEvent(updated));
+                this.publishEvent(new BCIBlockInstanceClientEvent(updated, clientEvent, request.getBciBlockInstanceId(),
+                        request.getBciPhaseInstanceId(), request.getBciInstanceId()));
             }
         }
         return updated;
     }
 
+    /**
+     * Validates the required information found in a BCIActivityInstanceRequest for a clientEvent.
+     * @param clientEvent The client event
+     * @param request The BCIActivityRequest
+     * @Throws IllegalArgumentException if any of the validation fails to pass.
+     */
     private void validateClientEvent(ClientEvent clientEvent, BCIActivityInstanceRequest request) {
         ObjectValidator.validateObject(clientEvent);
         ObjectValidator.validateObject(request);
@@ -231,7 +238,7 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     /**
      * Checks if a BCIActivityInstance has met its exit conditions.
      * @param bciActivityInstance The BCIActivity to retrieve the exit conditions from.
-     * @return True if all the exit conditions are met.
+     * @return A List of exit conditions that were not met.
      */
     private List<String> checkExitConditions(BCIActivityInstance bciActivityInstance) {
         List<String> exitConditions = new ArrayList<>();
@@ -248,11 +255,12 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
      * Builds an error message for a BCIActivity from a list of unmet exitConditions.
      * @param exitConditions the list of exitConditions to be added to the error message.
      * @param id the id of the BCIActivity that could not be completed
-     * @return an error message with the specified BCIActivity and with all of the exitConditions that were not met
+     * @return an error message with the specified BCIActivity and all the exitConditions that were not met
      */
     private String createExitConditionErrorMsg(List<String> exitConditions, Long id) {
         String errorMsg = "The BCIActivityInstance with id " + id + " cannot be completed\n" +
                 "Some exit conditions were not met: \n";
+
         for (String exitCondition : exitConditions) {
             errorMsg += exitCondition + "\n" ;
         }

@@ -6,16 +6,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.Clock;
 
-/**
- * Represents an event corresponding to a ClientEvent in relation to a {@code BCIActivityInstance}.
- * This class inherits from {@code EvoEvent} and is designed to handle events specifically tied
- * to the {@code BCIActivityInstance} entity within the Evo+ framework.
- * @author Julien Champagne.
- */
-public class BCIActivityInstanceEvent extends EvoEvent<BCIActivityInstance> {
+public class BCIBlockInstanceClientEvent extends EvoEvent<BCIActivityInstance> {
     ClientEvent clientEvent;
-
-    Long bciActivityInstanceId;
 
     Long bciBlockInstanceId;
 
@@ -23,30 +15,26 @@ public class BCIActivityInstanceEvent extends EvoEvent<BCIActivityInstance> {
 
     Long bciInstanceId;
 
-    public BCIActivityInstanceEvent(@NotNull BCIActivityInstance evoModel,
+    public BCIBlockInstanceClientEvent(@NotNull BCIActivityInstance evoModel,
                                     @NotNull ClientEvent clientEvent,
-                                    @NotNull Long bciActivityInstanceId,
                                     @NotNull Long bciBlockInstanceId,
                                     @NotNull Long bciPhaseInstanceId,
                                     @NotNull Long bciInstanceId) {
         super(evoModel);
         this.clientEvent = clientEvent;
-        this.bciActivityInstanceId = bciActivityInstanceId;
         this.bciBlockInstanceId = bciBlockInstanceId;
         this.bciPhaseInstanceId = bciPhaseInstanceId;
         this.bciInstanceId = bciInstanceId;
     }
 
-    public BCIActivityInstanceEvent(@NotNull BCIActivityInstance evoModel,
+    public BCIBlockInstanceClientEvent(@NotNull BCIActivityInstance evoModel,
                                     @NotNull ClientEvent clientEvent,
-                                    @NotNull Long bciActivityInstanceId,
                                     @NotNull Long bciBlockInstanceId,
                                     @NotNull Long bciPhaseInstanceId,
                                     @NotNull Long bciInstanceId,
                                     @NotNull Clock clock) {
         super(evoModel,clock);
         this.clientEvent = clientEvent;
-        this.bciActivityInstanceId = bciActivityInstanceId;
         this.bciBlockInstanceId = bciBlockInstanceId;
         this.bciPhaseInstanceId = bciPhaseInstanceId;
         this.bciInstanceId = bciInstanceId;
@@ -59,10 +47,6 @@ public class BCIActivityInstanceEvent extends EvoEvent<BCIActivityInstance> {
 
     public ClientEvent getClientEvent() {
         return this.clientEvent;
-    }
-
-    public Long getBciActivityInstanceId() {
-        return bciActivityInstanceId;
     }
 
     public Long getBciBlockInstanceId() {

@@ -127,6 +127,15 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
         return removed;
     }
 
+    public boolean findActivity(BCIActivityInstance activityInstance) {
+        for (BCIActivityInstance activity : activities) {
+            if (activity.getId().equals(activityInstance.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List<BehaviorChangeInterventionPhaseInstance> getPhases() {
         return phases;
     }
