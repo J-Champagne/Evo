@@ -33,7 +33,7 @@ public class Interaction extends BCIActivity {
     private InteractionMode interactionMode;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JsonProperty("interactionInitiatorRole")
     @JoinColumn(name = "interaction_initiator_role_id", nullable = false)
     private Role interactionInitiatorRole;

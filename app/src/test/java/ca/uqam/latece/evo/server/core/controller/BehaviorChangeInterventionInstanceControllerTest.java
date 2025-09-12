@@ -122,6 +122,8 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
         behaviorChangeInterventionPhase.setBehaviorChangeIntervention(behaviorChangeIntervention);
         bciInstance.setId(7L);
         bciBlock.setId(8L);
+        bciActivity.setId(9L);
+        participant.setId(10L);
 
         bciInstanceRequest = BCIInstanceRequest.bciInstanceRequestBuilder().
                 id(bciInstance.getId()).
@@ -213,12 +215,12 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     void testChangeCurrentPhase() throws Exception {
         BehaviorChangeInterventionPhaseInstance currentPhase = new BehaviorChangeInterventionPhaseInstance(
                 ExecutionStatus.STALLED, phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules(), behaviorChangeInterventionPhase);
-        currentPhase.setId(10L);
+        currentPhase.setId(12L);
         when(bciPhaseInstanceRepository.save(currentPhase)).thenReturn(currentPhase);
 
         BehaviorChangeInterventionInstance updated = instanceBuilder(currentPhase);
 
-        performGetRequest(URL + "/changeCurrentPhase/bciInstance", updated, "$.currentPhase.id", 10L);
+        performGetRequest(URL + "/changeCurrentPhase/bciInstance", updated, "$.currentPhase.id", currentPhase.getId());
     }
 
     @Test
@@ -236,7 +238,7 @@ public class BehaviorChangeInterventionInstanceControllerTest extends AbstractCo
     @Test
     void testFindByBehaviorChangeInterventionId() throws Exception {
         when(bciInstanceRepository.findByBehaviorChangeInterventionId(bciInstance.getBehaviorChangeIntervention().getId())).thenReturn(Collections.singletonList(bciInstance));
-        performGetRequest(URL + "/find/behaviorchangeintervention/" + bciInstance.getBehaviorChangeIntervention().getId(), "$[0].behaviorChangeIntervention.id", bciInstance.getBehaviorChangeIntervention().getId());
+        performGetRequest(URL + "/find/behaviorchangeintervention/" + bciInstance.getBehaviorChangeIntervention().getId(), "$[0].behaviorChangeIntervention", bciInstance.getBehaviorChangeIntervention().getId());
     }
 
     @Test

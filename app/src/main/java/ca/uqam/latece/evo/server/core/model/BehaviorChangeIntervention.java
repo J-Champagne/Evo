@@ -1,7 +1,9 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -18,6 +20,7 @@ import java.util.List;
 @Entity
 @Table(name = "behavior_change_intervention")
 @JsonPropertyOrder({"id", "name"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class BehaviorChangeIntervention extends AbstractEvoModel {
     @JsonProperty("id")
     @Id
