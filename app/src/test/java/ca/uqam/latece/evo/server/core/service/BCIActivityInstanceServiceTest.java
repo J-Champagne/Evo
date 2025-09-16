@@ -4,10 +4,10 @@ import ca.uqam.latece.evo.server.core.enumeration.*;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
-import ca.uqam.latece.evo.server.core.exceptions.ExitConditionException;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
+import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.service.instance.*;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.AfterEach;
@@ -45,7 +45,14 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Autowired
     private BCIActivityService bciActivityService;
 
-    @Autowired BehaviorChangeInterventionPhaseService bciPhaseService;
+    @Autowired
+    private BehaviorChangeInterventionBlockService behaviorChangeInterventionBlockService;
+
+    @Autowired
+    private BehaviorChangeInterventionPhaseService bciPhaseService;
+
+    @Autowired
+    private BehaviorChangeInterventionService behaviorChangeInterventionService;
 
     @Autowired
     private RequiresService requiresService;
@@ -69,13 +76,19 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     private HealthCareProfessionalService healthCareProfessionalService;
 
     @Autowired
-    private BehaviorChangeInterventionBlockService behaviorChangeInterventionBlockService;
+    private PatientMedicalFileService patientMedicalFileService;
 
     @Autowired
-    BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
+    private PatientService patientService;
 
     @Autowired
-    BehaviorChangeInterventionPhaseInstanceService behaviorChangeInterventionPhaseInstanceService;
+    private BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
+
+    @Autowired
+    private BehaviorChangeInterventionPhaseInstanceService behaviorChangeInterventionPhaseInstanceService;
+
+    @Autowired
+    private BehaviorChangeInterventionInstanceService behaviorChangeInterventionInstanceService;
 
     @Autowired
     private ApplicationEvents applicationEvents;
@@ -97,6 +110,7 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     private LocalDate localExitDate = LocalDate.now();
     private BehaviorChangeInterventionBlockInstance blockInstance;
     private BehaviorChangeInterventionPhaseInstance phaseInstance;
+    private BehaviorChangeInterventionInstance bciInstance;
 
     @BeforeEach
     void beforeEach() {
@@ -203,6 +217,18 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
 
         phaseInstance = behaviorChangeInterventionPhaseInstanceService
                 .create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, blockInstance, activitiesBlock, modules, bciPhase));
+
+        List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>();
+        phases.add(phaseInstance);
+
+        BehaviorChangeIntervention behaviorChangeIntervention = behaviorChangeInterventionService.create(new BehaviorChangeIntervention("myProgram", "Entry Condition", "Exit Condition"));
+
+        PatientMedicalFile pmf = patientMedicalFileService.create(new PatientMedicalFile("Healthy"));
+
+        Patient patient = patientService.create(new Patient("Patient", "patient@gmail.com", "222-2222",
+                "1901-01-01", "Participant", "3333 Street", pmf));
+
+        bciInstance = behaviorChangeInterventionInstanceService.create(new BehaviorChangeInterventionInstance(ExecutionStatus.READY, patient, phaseInstance, phases, behaviorChangeIntervention));
     }
 
     @AfterEach
@@ -355,14 +381,18 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     @Test
     void testHandleClientEventFinishFailExitConditionsNotMet() {
         BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(),
-                2L, 3L, 4L);
-        assertThrows(ExitConditionException.class, () -> bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request));
+                blockInstance.getId(), phaseInstance.getId(), bciInstance.getId());
+        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
+
+        assertFalse(response.isSuccess());
+        assertFalse(response.getResponse().isEmpty());
+        assertTrue(response.getResponse().toString().contains("Post-conditions 2 - BCIActivity Test"));
     }
 
     @Test
     void testHandleClientEventFinishFailNullId() {
         BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(),
-                2L, null, null);
+                blockInstance.getId(), null, null);
         assertThrows(IllegalArgumentException.class, () -> bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request));
     }
 
@@ -370,12 +400,11 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     void testHandleClientEventFinishSuccess() {
         bciActivityInstance.getBciActivity().setPostconditions("");
         BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(),
-                phaseInstance.getId(), 3L);
-        BCIActivityInstance updated = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
+                phaseInstance.getId(), bciInstance.getId());
+        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
 
-        assertEquals(ExecutionStatus.FINISHED, updated.getStatus());
-        assertNotNull(updated.getExitDate());
-        assertEquals(1, applicationEvents.stream(BCIBlockInstanceClientEvent.class).count());
+        assertTrue(response.isSuccess());
+        assertFalse(response.getResponse().isEmpty());
     }
 
     @Test
@@ -383,15 +412,20 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         bciActivityInstance.getBciActivity().setPostconditions("");
         blockInstance.getBehaviorChangeInterventionBlock().setExitConditions("");
         phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
+        bciInstance.getBehaviorChangeIntervention().setExitConditions("");
 
         BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(),
-                phaseInstance.getId(), 3L);
-        BCIActivityInstance updated = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
+                phaseInstance.getId(), bciInstance.getId());
+        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
+
+        System.out.println();System.out.println();System.out.println();
+        System.out.println(response.getResponse().toPrettyString());
+        System.out.println();System.out.println();System.out.println();System.out.println();
 
         assertEquals(ExecutionStatus.FINISHED, bciActivityInstance.getStatus());
         assertEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
         assertEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
-        //assertEquals(ExecutionStatus.FINISHED, bciInstance.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, bciInstance.getStatus());
         assertEquals(1, applicationEvents.stream(BCIBlockInstanceClientEvent.class).count());
         assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
         assertEquals(1, applicationEvents.stream(BCIInstanceClientEvent.class).count());

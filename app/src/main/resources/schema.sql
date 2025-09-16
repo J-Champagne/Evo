@@ -552,6 +552,8 @@ behavior_change_intervention table: This table stores information about Behavior
 CREATE TABLE IF NOT EXISTS behavior_change_intervention (
     behavior_change_intervention_id BIGSERIAL NOT NULL,
     behavior_change_intervention_name VARCHAR(256) NOT NULL,
+    behavior_change_intervention_entry_conditions VARCHAR(256) NULL,
+    behavior_change_intervention_exit_conditions VARCHAR(256) NULL,
     CONSTRAINT behavior_change_intervention_pkey PRIMARY KEY (behavior_change_intervention_id),
     CONSTRAINT behavior_change_intervention_name_ukey UNIQUE (behavior_change_intervention_name)
 );

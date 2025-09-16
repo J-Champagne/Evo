@@ -5,6 +5,7 @@ import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
+import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.validation.Valid;
@@ -324,10 +325,10 @@ public class BCIActivityInstanceController extends AbstractEvoController<BCIActi
         ResponseEntity<String> response;
 
         try {
-            BCIActivityInstance bciActivity = bciActivityInstanceService.handleClientEvent(clientEvent, request);
+            ClientEventResponse serviceResponse = bciActivityInstanceService.handleClientEvent(clientEvent, request);
 
-            if (bciActivity != null) {
-                response = new ResponseEntity<>(bciActivity.toString(), HttpStatus.OK);
+            if (serviceResponse.isSuccess()) {
+                response = new ResponseEntity<>(serviceResponse.getResponse().toString(), HttpStatus.OK);
                 logger.info("Correctly handled ClientEvent {} for BCIActivityInstance with ID {}",
                         clientEvent, request.getId());
             } else {

@@ -10,9 +10,9 @@ import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionBlockInstanceRepository;
+import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +53,6 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
         ObjectValidator.validateObject(blockInstance.getActivities());
 
         saved = this.bciBlockInstanceRepository.save(blockInstance);
-        this.publishEvent(new BCIBlockInstanceEvent(saved, saved.getStage()));
         logger.info("BehaviorChangeInterventionBlockInstance created: {}", saved);
         return saved;
     }
@@ -76,12 +74,6 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
 
         if (found != null) {
             updated = this.bciBlockInstanceRepository.save(blockInstance);
-
-            // Publish the event only if BehaviorChangeInterventionBlockInstance Status equals in progress or Finished.
-            if ((updated.getStatus().equals(ExecutionStatus.IN_PROGRESS) || updated.getStatus().equals(ExecutionStatus.FINISHED)) &&
-                    !updated.getStage().equals(found.getStage())) {
-                this.publishEvent(new BCIBlockInstanceEvent(updated, updated.getStage()));
-            }
         }
         return updated;
     }
@@ -202,58 +194,76 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractEvoS
     }
 
     /**
-     * Handles BCIBlockInstanceClientEvent by updating the corresponding BehaviorChangeInterventionBlockInstance
-     * when specific conditions related to its execution status are met.
-     * @param event the BCIBlockInstanceClientEvent to be processed, which contains information about the
-     *              BCIBlockInstance and its state changes.
+     * Handles the specified clientEvent for a given BCIBlockInstance.
+     * Updates the related BCI Entities according to the clientEvent and checks entry/exit conditions when needed.
+     * May Publish an event to other services in order to correctly update its related BCI entities.
+     *
+     * @param event The clientEvent indicating the action the client wishes to perform.
+     * @throws IllegalArgumentException if the request does not contain every required field to handle the clientEvent.
      */
     @EventListener(BCIBlockInstanceClientEvent.class)
     public void handleClientEvent(BCIBlockInstanceClientEvent event) {
-        if (event != null && event.getEvoModel() != null && event.getClientEvent() != null && event.getBciBlockInstanceId() != null) {
-            BehaviorChangeInterventionBlockInstance blockInstance = findById(event.getBciBlockInstanceId());
+        BehaviorChangeInterventionBlockInstance blockInstance = null;
+        BehaviorChangeInterventionBlockInstance updated = null;
+        String failedEntryConditions = "";
+        String failedExitConditions = "";
+        boolean wasUpdated = false;
+
+        if (event != null && event.getActivityInstance() != null && event.getClientEvent() != null && event.getBciBlockInstanceId() != null
+                && event.getResponse() != null) {
+            ClientEventResponse response = event.getResponse();
+            blockInstance = findById(event.getBciBlockInstanceId());
 
             if (blockInstance != null) {
                 //Handle ClientEvents
-                BCIActivityInstance bciActivityInstance = event.getEvoModel();
+                BCIActivityInstance bciActivityInstance = event.getActivityInstance();
                 ClientEvent clientEvent = event.getClientEvent();
 
                 switch(clientEvent) {
                     case ClientEvent.FINISH -> {
                         if (bciActivityInstance.getStatus() == ExecutionStatus.FINISHED) {
-                            List<String> failedExitConditions = checkExitConditions(blockInstance);
+                            failedExitConditions = checkExitConditions(blockInstance);
 
                             if (failedExitConditions.isEmpty()) {
                                 blockInstance.setStatus(ExecutionStatus.FINISHED);
                                 blockInstance.setExitDate(LocalDate.now());
+                                wasUpdated = true;
                             }
                         }
                     }
                 }
 
-                this.update(blockInstance);
-                this.publishEvent(new BCIPhaseInstanceClientEvent(blockInstance, clientEvent,
-                        event.getBciPhaseInstanceId(), event.getBciInstanceId()));
+                //Update the response with information from BCIBlockInstance
+                response.addResponse(BehaviorChangeInterventionBlockInstance.class.getSimpleName(), blockInstance.getId(), blockInstance.getStatus(),
+                        failedEntryConditions, failedExitConditions);
 
-            } else {
-                // TODO Error, BCIBlockInstanceId is NULL
-
+                //Update the entity
+                if (wasUpdated) {
+                    updated = update(blockInstance);
+                    if (updated != null) {
+                        publishEvent(new BCIPhaseInstanceClientEvent(blockInstance, clientEvent,
+                                response, event.getBciPhaseInstanceId(), event.getBciInstanceId()));
+                    }
+                }
             }
         }
     }
 
     /**
-     * Checks if a BCIBlockInstance has met its exit conditions.
-     * @param bciBlockInstance The BCIBlockInstance to retrieve the exit conditions from.
-     * @return A List of exit conditions that were not met.
+     * Checks if a BCIBlockInstance has met its entry conditions.
+     * @param bciInstance The BCIActivity to retrieve the entry conditions from.
+     * @return All the entry conditions that were not met.
      */
-    private List<String> checkExitConditions(BehaviorChangeInterventionBlockInstance bciBlockInstance) {
-        List<String> exitConditions = new ArrayList<>();
-        String exitCondition = bciBlockInstance.getBehaviorChangeInterventionBlock().getExitConditions();
+    private String checkEntryConditions(BehaviorChangeInterventionBlockInstance bciInstance) {
+        return bciInstance.getBehaviorChangeInterventionBlock().getEntryConditions();
+    }
 
-        if (!exitCondition.isEmpty()) {
-            exitConditions.add(exitCondition);
-        }
-
-        return exitConditions;
+    /**
+     * Checks if a BCIBlockInstance has met its exit conditions.
+     * @param bciInstance The BCIActivity to retrieve the exit conditions from.
+     * @return All the exit conditions that were not met.
+     */
+    private String checkExitConditions(BehaviorChangeInterventionBlockInstance bciInstance) {
+        return bciInstance.getBehaviorChangeInterventionBlock().getExitConditions();
     }
 }

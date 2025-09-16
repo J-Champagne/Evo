@@ -1,17 +1,19 @@
 package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
+import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.event.BCIInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionInstanceRepository;
+import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,9 +71,6 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
 
         if (found != null) {
             updated = this.bciInstanceRepository.save(bciInstance);
-            if (!updated.getStatus().equals(ExecutionStatus.UNKNOWN)) {
-                this.publishEvent(new BCIInstanceEvent(updated));
-            }
         }
         return updated;
     }
@@ -563,5 +562,85 @@ public class BehaviorChangeInterventionInstanceService extends AbstractEvoServic
             this.update(event.getEvoModel());
             event.setChangeAspect(ChangeAspect.TERMINATED);
         }
+    }
+
+    /**
+     * Handles BCIInstanceClientEvent by updating the corresponding BehaviorChangeInterventionInstance
+     * when specific conditions related to its execution status are met.
+     * @param event the BCIInstanceClientEvent to be processed, which contains information about the
+     *              BCIInstance and its state changes.
+     */
+    @EventListener(BCIInstanceClientEvent.class)
+    public void handleClientEvent(BCIInstanceClientEvent event) {
+        BehaviorChangeInterventionInstance bciInstance = null;
+        String failedEntryConditions = "";
+        String failedExitConditions = "";
+        boolean wasUpdated = false;
+
+        if (event != null && event.getActivityInstance() != null && event.getClientEvent() != null && event.getBciInstanceId() != null
+                && event.getResponse() != null) {
+            ClientEventResponse response = event.getResponse();
+            bciInstance = findById(event.getBciInstanceId());
+
+            if (bciInstance != null) {
+                //Handle ClientEvents
+                BehaviorChangeInterventionPhaseInstance phaseInstance = event.getActivityInstance();
+                ClientEvent clientEvent = event.getClientEvent();
+
+                switch(clientEvent) {
+                    case ClientEvent.FINISH -> {
+                        if (phaseInstance.getStatus() == ExecutionStatus.FINISHED) {
+                            failedExitConditions = checkExitConditions(bciInstance);
+
+                            if (failedExitConditions.isEmpty()) {
+                                bciInstance.setStatus(ExecutionStatus.FINISHED);
+                                bciInstance.setExitDate(LocalDate.now());
+                                wasUpdated = true;
+
+                                //Set next current phase
+                                List<BehaviorChangeInterventionPhaseInstance> activities = bciInstance.getActivities();
+                                for (int i = 0; i < activities.size(); i++) {
+                                    BehaviorChangeInterventionPhaseInstance activity = activities.get(i);
+                                    if (activity.getId().equals(phaseInstance.getId())) {
+                                        int nextIndex = i + 1;
+                                        if (nextIndex < activities.size()) {
+                                            bciInstance.setCurrentPhase(activities.get(nextIndex));
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //Update the response with information from BCIInstance
+                response.addResponse(BehaviorChangeInterventionInstance.class.getSimpleName(), bciInstance.getId(), bciInstance.getStatus(),
+                        failedEntryConditions, failedExitConditions);
+
+                //Update the entity
+                if (wasUpdated) {
+                    this.update(bciInstance);
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if a BCIBlockInstance has met its entry conditions.
+     * @param bciInstance The BCIActivity to retrieve the entry conditions from.
+     * @return All the entry conditions that were not met.
+     */
+    private String checkEntryConditions(BehaviorChangeInterventionInstance bciInstance) {
+        return bciInstance.getBehaviorChangeIntervention().getEntryConditions();
+    }
+
+    /**
+     * Checks if a BCIBlockInstance has met its exit conditions.
+     * @param bciInstance The BCIActivity to retrieve the exit conditions from.
+     * @return All the exit conditions that were not met.
+     */
+    private String checkExitConditions(BehaviorChangeInterventionInstance bciInstance) {
+        return bciInstance.getBehaviorChangeIntervention().getExitConditions();
     }
 }

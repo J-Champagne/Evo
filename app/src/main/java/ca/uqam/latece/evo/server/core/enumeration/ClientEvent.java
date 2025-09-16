@@ -10,7 +10,8 @@ package ca.uqam.latece.evo.server.core.enumeration;
  */
 public enum ClientEvent {
     FINISH,
-    SELECT;
+    SELECT,
+    UNSPECIFIED;
 
     /**
      * Converts the specified ClientEvent to its corresponding string representation.
@@ -21,6 +22,7 @@ public enum ClientEvent {
         return switch (clientEvent) {
             case FINISH -> "Finish";
             case SELECT -> "Select";
+            case UNSPECIFIED -> "Unspecified";
         };
     }
 }

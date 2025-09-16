@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.event;
 
 import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
+import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.Clock;
@@ -12,35 +13,24 @@ import java.time.Clock;
  * BehaviorChangeIntervention entities from the client side of the application
  * @author Julien Champagne.
  */
-public class BCIInstanceClientEvent extends EvoEvent<BehaviorChangeInterventionPhaseInstance> {
-    ClientEvent clientEvent;
-
+public class BCIInstanceClientEvent extends EvoClientEvent<BehaviorChangeInterventionPhaseInstance> {
     Long bciInstanceId;
 
     public BCIInstanceClientEvent(@NotNull BehaviorChangeInterventionPhaseInstance evoModel,
                                   @NotNull ClientEvent clientEvent,
+                                  @NotNull ClientEventResponse response,
                                   @NotNull Long bciInstanceId) {
-        super(evoModel);
-        this.clientEvent = clientEvent;
+        super(evoModel, clientEvent, response);
         this.bciInstanceId = bciInstanceId;
     }
 
     public BCIInstanceClientEvent(@NotNull BehaviorChangeInterventionPhaseInstance evoModel,
                                   @NotNull ClientEvent clientEvent,
+                                  @NotNull ClientEventResponse response,
                                   @NotNull Long bciInstanceId,
                                   @NotNull Clock clock) {
-        super(evoModel,clock);
-        this.clientEvent = clientEvent;
+        super(evoModel,clientEvent, response, clock);
         this.bciInstanceId = bciInstanceId;
-    }
-
-    @Override
-    public BehaviorChangeInterventionPhaseInstance getEvoModel() {
-        return super.getEvoModel();
-    }
-
-    public ClientEvent getClientEvent() {
-        return this.clientEvent;
     }
 
     public Long getBciInstanceId() {

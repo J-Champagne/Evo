@@ -33,6 +33,16 @@ public class BehaviorChangeIntervention extends AbstractEvoModel {
     @Column(name = "behavior_change_intervention_name", nullable = false, unique = true, length = 256)
     private String name;
 
+    //@NotNull
+    @JsonProperty("entryConditions")
+    @Column(name = "behavior_change_intervention_entry_conditions", nullable = false, length = 256)
+    private String entryConditions;
+
+    //@NotNull
+    @JsonProperty("exitConditions")
+    @Column(name = "behavior_change_intervention_exit_conditions", nullable = false, length = 256)
+    private String exitConditions;
+
     @OneToMany(mappedBy = "behaviorChangeInterventionPhaseBci")
     private List<BehaviorChangeInterventionPhase> behaviorChangeInterventionPhases = new ArrayList<>();
 
@@ -40,6 +50,12 @@ public class BehaviorChangeIntervention extends AbstractEvoModel {
 
     public BehaviorChangeIntervention(String name) {
         this.name = name;
+    }
+
+    public BehaviorChangeIntervention(String name, String entryConditions, String exitConditions) {
+        this(name);
+        this.entryConditions = entryConditions;
+        this.exitConditions = exitConditions;
     }
 
     @Override
@@ -58,6 +74,22 @@ public class BehaviorChangeIntervention extends AbstractEvoModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEntryConditions() {
+        return entryConditions;
+    }
+
+    public void setEntryConditions(String entryConditions) {
+        this.entryConditions = entryConditions;
+    }
+
+    public String getExitConditions() {
+        return exitConditions;
+    }
+
+    public void setExitConditions(String exitConditions) {
+        this.exitConditions = exitConditions;
     }
 
     public List<BehaviorChangeInterventionPhase> getBehaviorChangeInterventionPhases() {
