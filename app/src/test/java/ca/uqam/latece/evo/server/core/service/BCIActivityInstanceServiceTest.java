@@ -1,6 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.*;
+import ca.uqam.latece.evo.server.core.event.BCIActivityClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
@@ -380,9 +381,9 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
 
     @Test
     void testHandleClientEventFinishFailExitConditionsNotMet() {
-        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(),
-                blockInstance.getId(), phaseInstance.getId(), bciInstance.getId());
-        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
+        BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(ClientEvent.FINISH,
+                bciActivityInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId());
+        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(bciActivityClientEvent);
 
         assertFalse(response.isSuccess());
         assertFalse(response.getResponse().isEmpty());
@@ -391,17 +392,18 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
 
     @Test
     void testHandleClientEventFinishFailNullId() {
-        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(),
-                blockInstance.getId(), null, null);
-        assertThrows(IllegalArgumentException.class, () -> bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request));
+        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(), null, null);
+
+        assertThrows(IllegalArgumentException.class, () -> bciActivityInstanceService.validateClientEvent(ClientEvent.FINISH, request));
     }
 
     @Test
     void testHandleClientEventFinishSuccess() {
         bciActivityInstance.getBciActivity().setPostconditions("");
-        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(),
-                phaseInstance.getId(), bciInstance.getId());
-        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
+
+        BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(ClientEvent.FINISH,
+                bciActivityInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId());
+        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(bciActivityClientEvent);
 
         assertTrue(response.isSuccess());
         assertFalse(response.getResponse().isEmpty());
@@ -414,13 +416,9 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
         phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
         bciInstance.getBehaviorChangeIntervention().setExitConditions("");
 
-        BCIActivityInstanceRequest request = new BCIActivityInstanceRequest(bciActivityInstance.getId(), blockInstance.getId(),
-                phaseInstance.getId(), bciInstance.getId());
-        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(ClientEvent.FINISH, request);
-
-        System.out.println();System.out.println();System.out.println();
-        System.out.println(response.getResponse().toPrettyString());
-        System.out.println();System.out.println();System.out.println();System.out.println();
+        BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(ClientEvent.FINISH,
+                bciActivityInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId());
+        ClientEventResponse response = bciActivityInstanceService.handleClientEvent(bciActivityClientEvent);
 
         assertEquals(ExecutionStatus.FINISHED, bciActivityInstance.getStatus());
         assertEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());

@@ -10,7 +10,7 @@ import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionB
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionPhaseInstanceRepository;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
-import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
+import ca.uqam.latece.evo.server.core.util.FailedConditions;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoService<BehaviorChangeInterventionPhaseInstance> {
+public class BehaviorChangeInterventionPhaseInstanceService extends AbstractBCIInstanceService<BehaviorChangeInterventionPhaseInstance, BCIPhaseInstanceClientEvent> {
     private static final Logger logger = LoggerFactory.getLogger(BehaviorChangeInterventionPhaseInstanceService.class);
 
     @Autowired
@@ -341,81 +341,100 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractEvoS
      * @param event the BCIPhaseInstanceClientEvent to be processed, which contains information about the
      *              BCIPhaseInstance and its state changes.
      */
+    @Override
     @EventListener(BCIPhaseInstanceClientEvent.class)
-    public void handleClientEvent(BCIPhaseInstanceClientEvent event) {
+    public ClientEventResponse handleClientEvent(BCIPhaseInstanceClientEvent event) {
         BehaviorChangeInterventionPhaseInstance phaseInstance = null;
+        BehaviorChangeInterventionBlockInstance blockInstance = null;
         BehaviorChangeInterventionPhaseInstance updated = null;
-        String failedEntryConditions = "";
-        String failedExitConditions = "";
-        boolean wasUpdated = false;
+        ClientEventResponse response = null;
+        ClientEvent clientEvent = null;
+        FailedConditions failedConditions = new FailedConditions();
+        boolean statusUpdated = false;
+        boolean blockUpdated = false;
 
         if (event != null && event.getActivityInstance() != null && event.getClientEvent() != null && event.getBciPhaseInstanceId() != null
                 && event.getResponse() != null) {
-            ClientEventResponse response = event.getResponse();
+            response = event.getResponse();
+            blockInstance = event.getActivityInstance();
             phaseInstance = findById(event.getBciPhaseInstanceId());
 
             if (phaseInstance != null) {
-                //Handle ClientEvents
-                BehaviorChangeInterventionBlockInstance blockInstance = event.getActivityInstance();
-                ClientEvent clientEvent = event.getClientEvent();
 
+                //Handle ClientEvents
+                clientEvent = event.getClientEvent();
                 switch (clientEvent) {
                     case ClientEvent.FINISH -> {
                         if (blockInstance.getStatus() == ExecutionStatus.FINISHED) {
-                            failedExitConditions = checkExitConditions(phaseInstance);
-
-                            if (failedExitConditions.isEmpty()) {
-                                phaseInstance.setStatus(ExecutionStatus.FINISHED);
-                                phaseInstance.setExitDate(LocalDate.now());
-                                wasUpdated = true;
-
-                                //Set next current block
-                                List<BehaviorChangeInterventionBlockInstance> activities = phaseInstance.getActivities();
-                                for (int i = 0; i < activities.size(); i++) {
-                                    BehaviorChangeInterventionBlockInstance activity = activities.get(i);
-                                    if (activity.getId().equals(blockInstance.getId())) {
-                                        int nextIndex = i + 1;
-                                        if (nextIndex < activities.size()) {
-                                            phaseInstance.setCurrentBlock(activities.get(nextIndex));
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
+                            statusUpdated = super.handleClientEventFinish(phaseInstance, failedConditions);
+                            blockUpdated = setNextCurrentBlock(phaseInstance, blockInstance, phaseInstance.getActivities());
                         }
                     }
                 }
+            }
 
-                //Update the response with information from BCIPhaseInstance
-                event.getResponse().addResponse(BehaviorChangeInterventionPhaseInstance.class.getSimpleName(), blockInstance.getId(), blockInstance.getStatus(),
-                        failedEntryConditions, failedExitConditions);
+            //Update the response with information from BCIPhaseInstance
+            event.getResponse().addResponse(BehaviorChangeInterventionPhaseInstance.class.getSimpleName(), event.getActivityInstance().getId(),
+                    event.getActivityInstance().getStatus(), failedConditions.getFailedEntryConditions(), failedConditions.getFailedExitConditions());
 
-                //Update the entity
-                if (wasUpdated) {
-                    updated = this.update(phaseInstance);
-                    if (updated != null) {
-                        this.publishEvent(new BCIInstanceClientEvent(phaseInstance, clientEvent, response, event.getBciInstanceId()));
-                    }
+            //Update the entity
+            if (statusUpdated || blockUpdated) {
+                updated = this.update(phaseInstance);
+                if (updated != null) {
+                    this.publishEvent(new BCIInstanceClientEvent(phaseInstance, clientEvent, response, event.getBciInstanceId()));
                 }
             }
         }
+
+        return response;
     }
 
     /**
-     * Checks if a BCIBlockInstance has met its entry conditions.
+     * Checks if a BCIPhaseInstance has met its entry conditions.
      * @param bciInstance The BCIActivity to retrieve the entry conditions from.
      * @return All the entry conditions that were not met.
      */
-    private String checkEntryConditions(BehaviorChangeInterventionPhaseInstance bciInstance) {
+    @Override
+    public String checkEntryConditions(BehaviorChangeInterventionPhaseInstance bciInstance) {
         return bciInstance.getBehaviorChangeInterventionPhase().getEntryConditions();
     }
 
     /**
-     * Checks if a BCIBlockInstance has met its exit conditions.
+     * Checks if a BCIPhaseInstance has met its exit conditions.
      * @param bciInstance The BCIActivity to retrieve the exit conditions from.
      * @return All the exit conditions that were not met.
      */
-    private String checkExitConditions(BehaviorChangeInterventionPhaseInstance bciInstance) {
+    @Override
+    public  String checkExitConditions(BehaviorChangeInterventionPhaseInstance bciInstance) {
         return bciInstance.getBehaviorChangeInterventionPhase().getExitConditions();
+    }
+
+    /**
+     * Updates the currentBlock with the next one present in the list of activities of a BehaviorChangeInterventionPhaseInstance.
+     * The currentBlock will not be updated if currentBlock is the last one present in the activities of the BehaviorChangeInterventionPhaseInstance.
+     * @param phaseInstance the BehaviorChangeInterventionPhaseInstance to be updated
+     * @param blockInstance the new currentBlock
+     * @param activities the list of BCIBlockInstance of phaseInstance
+     * @return true if the currentBlock was updated
+     */
+    private boolean setNextCurrentBlock(BehaviorChangeInterventionPhaseInstance phaseInstance, BehaviorChangeInterventionBlockInstance blockInstance,
+                                            List<BehaviorChangeInterventionBlockInstance> activities) {
+        boolean blockUpdated = false;
+
+        for (int i = 0; i < activities.size(); i++) {
+            BehaviorChangeInterventionBlockInstance activity = activities.get(i);
+
+            if (activity.getId().equals(blockInstance.getId())) {
+                int nextIndex = i + 1;
+                if (nextIndex < activities.size()) {
+                    phaseInstance.setCurrentBlock(activities.get(nextIndex));
+                    blockUpdated = true;
+                }
+
+                break;
+            }
+        }
+
+        return blockUpdated;
     }
 }

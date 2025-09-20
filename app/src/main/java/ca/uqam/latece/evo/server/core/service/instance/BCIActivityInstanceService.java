@@ -2,12 +2,13 @@ package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
+import ca.uqam.latece.evo.server.core.event.BCIActivityClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
 import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
-import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
+import ca.uqam.latece.evo.server.core.util.FailedConditions;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author Julien Champagne
  */
 @Service
-public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityInstance> {
+public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIActivityInstance, BCIActivityClientEvent > {
     private static final Logger logger = LoggerFactory.getLogger(BCIActivityInstanceService.class);
 
     @Autowired
@@ -185,47 +186,47 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
      * Updates the related BCI Entities according to the clientEvent and checks entry/exit conditions when needed.
      * May Publish an event to other services in order to correctly update its related BCI entities.
      *
-     * @param clientEvent The clientEvent indicating the action the client wishes to perform.
-     * @param request contains all the information required to properly handle the clientEvent.
+     * @param event The clientEvent indicating the action the client wishes to perform.
      * @return a ClientEventResponse with information on the success of the request as well as the updated entities in JSON format.
      * @throws IllegalArgumentException if the request does not contain every required field to handle the clientEvent.
      */
-    public ClientEventResponse handleClientEvent(ClientEvent clientEvent, BCIActivityInstanceRequest request) {
+    @Override
+    public ClientEventResponse handleClientEvent(BCIActivityClientEvent event) {
         BCIActivityInstance found = null;
         BCIActivityInstance updated = null;
+        ClientEvent clientEvent = null;
         ClientEventResponse response = null;
-        String failedEntryConditions = "";
-        String failedExitConditions = "";
+        FailedConditions failedConditions = new FailedConditions();
+        boolean wasUpdated = false;
 
-        validateClientEvent(clientEvent, request);
-        response = new ClientEventResponse(clientEvent);
-        found = findById(request.getId());
+        if (event != null && event.getClientEvent() != null && event.getBciInstanceId() != null
+                && event.getResponse() != null) {
 
-        if (found != null) {
-            //Handle ClientEvents
-            switch (clientEvent) {
-                case FINISH -> {
-                    failedExitConditions = checkExitConditions(found);
-                    if (failedExitConditions.isEmpty()) {
-                        response.setSuccess(true);
-                        found.setStatus(ExecutionStatus.FINISHED);
-                        found.setExitDate(LocalDate.now());
-                    }
+            found = findById(event.getBciActivityId());
+            response = event.getResponse();
+
+            if (found != null) {
+
+                //Handle ClientEvents
+                clientEvent = event.getClientEvent();
+                switch (clientEvent) {
+                    case FINISH -> wasUpdated = super.handleClientEventFinish(found, failedConditions);
                 }
-            }
 
-            //Update the response with information from BCIActivityInstance
-            response.addResponse(BCIActivityInstance.class.getSimpleName(), found.getId(), found.getStatus(),
-                    failedEntryConditions, failedExitConditions);
+                //Update the response with information from BCIActivityInstance
+                response.addResponse(BCIActivityInstance.class.getSimpleName(), found.getId(), found.getStatus(),
+                        failedConditions.getFailedEntryConditions(), failedConditions.getFailedExitConditions());
 
-            //Update the entity
-            if (response.isSuccess()) {
-                updated = this.update(found);
+                //Update the entity
+                if (wasUpdated) {
+                    updated = this.update(found);
 
-                if (updated != null) {
-                    //Will wait until all listeners are triggered
-                    this.publishEvent(new BCIBlockInstanceClientEvent(updated, clientEvent, response, request.getBciBlockInstanceId(),
-                            request.getBciPhaseInstanceId(), request.getBciInstanceId()));
+                    if (updated != null) {
+                        //Will wait until all listeners are triggered
+                        this.publishEvent(new BCIBlockInstanceClientEvent(updated, clientEvent, response, event.getBciBlockInstanceId(),
+                                event.getBciPhaseInstanceId(), event.getBciInstanceId()));
+                        response.setSuccess(true);
+                    }
                 }
             }
         }
@@ -234,26 +235,12 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
     }
 
     /**
-     * Validates the required information found in a BCIActivityInstanceRequest for a clientEvent.
-     * @param clientEvent The client event
-     * @param request The BCIActivityRequest
-     * @throws IllegalArgumentException if any of the validation fails to pass.
-     */
-    private void validateClientEvent(ClientEvent clientEvent, BCIActivityInstanceRequest request) {
-        ObjectValidator.validateObject(clientEvent);
-        ObjectValidator.validateObject(request);
-        ObjectValidator.validateId(request.getId());
-        ObjectValidator.validateId(request.getBciBlockInstanceId());
-        ObjectValidator.validateId(request.getBciPhaseInstanceId());
-        ObjectValidator.validateId(request.getBciInstanceId());
-    }
-
-    /**
      * Checks if a BCIActivityInstance has met its entry conditions.
      * @param bciInstance The BCIActivity to retrieve the entry conditions from.
      * @return All the entry conditions that were not met.
      */
-    private String checkEntryConditions(BCIActivityInstance bciInstance) {
+    @Override
+    public String checkEntryConditions(BCIActivityInstance bciInstance) {
         return bciInstance.getBciActivity().getPreconditions();
     }
 
@@ -262,7 +249,23 @@ public class BCIActivityInstanceService extends AbstractEvoService<BCIActivityIn
      * @param bciInstance The BCIActivity to retrieve the exit conditions from.
      * @return All the exit conditions that were not met.
      */
-    private String checkExitConditions(BCIActivityInstance bciInstance) {
+    @Override
+    public String checkExitConditions(BCIActivityInstance bciInstance) {
         return bciInstance.getBciActivity().getPostconditions();
+    }
+
+    /**
+     * Validates the required information found in a BCIActivityInstanceRequest for a clientEvent.
+     * @param clientEvent The client event
+     * @param request The BCIActivityRequest
+     * @throws IllegalArgumentException if any of the validation fails to pass.
+     */
+    public void validateClientEvent(ClientEvent clientEvent, BCIActivityInstanceRequest request) {
+        ObjectValidator.validateObject(clientEvent);
+        ObjectValidator.validateObject(request);
+        ObjectValidator.validateId(request.getId());
+        ObjectValidator.validateId(request.getBciBlockInstanceId());
+        ObjectValidator.validateId(request.getBciPhaseInstanceId());
+        ObjectValidator.validateId(request.getBciInstanceId());
     }
 }

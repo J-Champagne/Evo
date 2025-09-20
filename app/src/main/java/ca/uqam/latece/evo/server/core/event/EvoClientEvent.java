@@ -16,33 +16,45 @@ import java.time.Clock;
  * @param <T> the subtype of ActivityInstance
  */
 public class EvoClientEvent<T extends ActivityInstance> extends ApplicationEvent {
-    private T activityInstance;
+    private T activityInstance = null;
 
     private ClientEvent clientEvent;
 
     private ClientEventResponse response;
 
+    public EvoClientEvent(@NotNull ClientEvent clientEvent, @NotNull ClientEventResponse response) {
+        super(clientEvent);
+        this.clientEvent = clientEvent;
+        this.response = response;
+    }
+
+    public EvoClientEvent(@NotNull ClientEvent clientEvent, @NotNull ClientEventResponse response, @NotNull Clock clock) {
+        super(clientEvent, clock);
+        this.clientEvent = clientEvent;
+        this.response = response;
+    }
+
     public EvoClientEvent(@NotNull T activityInstance, @NotNull ClientEvent clientEvent, @NotNull ClientEventResponse response) {
-        super(activityInstance);
+        super(clientEvent);
         this.activityInstance = activityInstance;
         this.clientEvent = clientEvent;
         this.response = response;
     }
 
-    public EvoClientEvent(@NotNull T activityInstance, @NotNull ClientEvent clientEvent, @NotNull ClientEventResponse response,
+    public EvoClientEvent(T activityInstance, @NotNull ClientEvent clientEvent, @NotNull ClientEventResponse response,
                           @NotNull Clock clock) {
-        super(activityInstance, clock);
+        super(clientEvent, clock);
         this.activityInstance = activityInstance;
         this.clientEvent = clientEvent;
         this.response = response;
-    }
-
-    public ClientEvent getClientEvent() {
-        return clientEvent;
     }
 
     public T getActivityInstance() {
         return activityInstance;
+    }
+
+    public ClientEvent getClientEvent() {
+        return clientEvent;
     }
 
     public ClientEventResponse getResponse() {

@@ -314,6 +314,25 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
     } */
 
     @Test
+    void handleBCIPhaseInstanceClientEventsFail() {
+        activityInstance.setStatus(ExecutionStatus.FINISHED);
+        blockInstance.setStatus(ExecutionStatus.FINISHED);
+
+        bciActivityInstanceService.update(activityInstance);
+        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+        phaseInstance = behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
+
+        BCIPhaseInstanceClientEvent phaseInstanceClientEvent = new BCIPhaseInstanceClientEvent(blockInstance, ClientEvent.FINISH,
+                new ClientEventResponse(), phaseInstance.getId(), null);
+
+        applicationEventPublisher.publishEvent(phaseInstanceClientEvent);
+
+        assertNotEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.STALLED, phaseInstance.getStatus());
+        assertEquals(0, applicationEvents.stream(BCIInstanceClientEvent.class).count());
+    }
+
+    @Test
     void handleBCIPhaseInstanceClientEvents() {
         activityInstance.setStatus(ExecutionStatus.FINISHED);
         blockInstance.setStatus(ExecutionStatus.FINISHED);
@@ -333,31 +352,12 @@ public class BehaviorChangeInterventionPhaseInstanceServiceTest extends Abstract
         behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
 
         BCIPhaseInstanceClientEvent phaseInstanceClientEvent = new BCIPhaseInstanceClientEvent(blockInstance, ClientEvent.FINISH,
-                 new ClientEventResponse(), phaseInstance.getId(), null);
+                new ClientEventResponse(), phaseInstance.getId(), null);
 
         applicationEventPublisher.publishEvent(phaseInstanceClientEvent);
 
         assertEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
         assertEquals(phaseInstance.getCurrentBlock(), blockInstance2);
         assertEquals(1, applicationEvents.stream(BCIInstanceClientEvent.class).count());
-    }
-
-    @Test
-    void handleBCIPhaseInstanceClientEventsFail() {
-        activityInstance.setStatus(ExecutionStatus.FINISHED);
-        blockInstance.setStatus(ExecutionStatus.FINISHED);
-
-        bciActivityInstanceService.update(activityInstance);
-        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
-        phaseInstance = behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
-
-        BCIPhaseInstanceClientEvent phaseInstanceClientEvent = new BCIPhaseInstanceClientEvent(blockInstance, ClientEvent.FINISH,
-                new ClientEventResponse(), phaseInstance.getId(), null);
-
-        applicationEventPublisher.publishEvent(phaseInstanceClientEvent);
-
-        assertNotEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
-        assertEquals(ExecutionStatus.STALLED, phaseInstance.getStatus());
-        assertEquals(0, applicationEvents.stream(BCIInstanceClientEvent.class).count());
     }
 }

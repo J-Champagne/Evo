@@ -2,7 +2,6 @@ package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.event.EvoClientEvent;
 import ca.uqam.latece.evo.server.core.event.EvoEvent;
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -30,7 +29,7 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
     protected static final String ERROR_NAME_ALREADY_REGISTERED = "Name already registered!";
 
     @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    protected ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * Creates a evoModel in the database.
@@ -123,7 +122,7 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
      * @param event the event that could not be published because the application event publisher is null.
      * @return an {@code IllegalArgumentException} constructed with the appropriate error message.
      */
-    private IllegalArgumentException buildEventException(ApplicationEvent event){
+    protected IllegalArgumentException buildEventException(ApplicationEvent event){
         String errorMessage = String.format("Application Event Publisher is null. Cannot publish event: %s", event);
         IllegalArgumentException illegalArgumentException = new IllegalArgumentException(errorMessage);
         logger.error(illegalArgumentException.getMessage(), illegalArgumentException);
@@ -231,20 +230,6 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
             this.applicationEventPublisher.publishEvent(event);
             logger.info("{} created with event: {} || TimeCycle: {}", event.getEvoModel().getClass().getSimpleName(),
                     event, timeCycle);
-        } else {
-            throw this.buildEventException(event);
-        }
-    }
-
-    /**
-     * Publishes the given event using the application event publisher.
-     * If the application event publisher is not initialized, an exception is thrown.
-     * @param event the EvoClientEvent to be published.
-     */
-    public final void publishEvent(@NotNull EvoClientEvent event) {
-        if (this.applicationEventPublisher != null) {
-            this.applicationEventPublisher.publishEvent(event);
-            logger.info("{} created with event: {}", event.getActivityInstance().getClass().getSimpleName(), event);
         } else {
             throw this.buildEventException(event);
         }

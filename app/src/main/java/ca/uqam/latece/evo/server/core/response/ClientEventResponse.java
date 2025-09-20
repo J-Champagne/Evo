@@ -43,6 +43,9 @@ public class ClientEventResponse {
 
     public void setSuccess(boolean success) {
         this.success = success;
+        if (!this.response.isEmpty()) {
+            response.put("success", this.success);
+        }
     }
 
     /**
