@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Clock;
 
 public class BCIActivityClientEvent extends EvoClientEvent<BCIActivityInstance>  {
-    Long bciActivityId;
+    Long bciActivityInstanceId;
 
     Long bciBlockInstanceId;
 
@@ -16,35 +16,69 @@ public class BCIActivityClientEvent extends EvoClientEvent<BCIActivityInstance> 
 
     Long bciInstanceId;
 
+    Long newActivityInstanceId;
+
+    Long newBlockInstanceId;
+
+    Long newPhaseInstanceId;
 
 
     public BCIActivityClientEvent(     @NotNull ClientEvent clientEvent,
-                                       @NotNull Long bciActivityId,
+                                       @NotNull Long bciActivityInstanceId,
                                        @NotNull Long bciBlockInstanceId,
                                        @NotNull Long bciPhaseInstanceId,
                                        @NotNull Long bciInstanceId) {
         super(clientEvent, new ClientEventResponse(clientEvent));
-        this.bciActivityId = bciActivityId;
+        this.bciActivityInstanceId = bciActivityInstanceId;
         this.bciBlockInstanceId = bciBlockInstanceId;
         this.bciPhaseInstanceId = bciPhaseInstanceId;
         this.bciInstanceId = bciInstanceId;
     }
 
     public BCIActivityClientEvent(     @NotNull ClientEvent clientEvent,
-                                       @NotNull Long bciActivityId,
+                                       @NotNull Long bciActivityInstanceId,
                                        @NotNull Long bciBlockInstanceId,
                                        @NotNull Long bciPhaseInstanceId,
                                        @NotNull Long bciInstanceId,
                                        @NotNull Clock clock) {
         super(clientEvent, new ClientEventResponse(clientEvent), clock);
-        this.bciActivityId = bciActivityId;
+        this.bciActivityInstanceId = bciActivityInstanceId;
         this.bciBlockInstanceId = bciBlockInstanceId;
         this.bciPhaseInstanceId = bciPhaseInstanceId;
         this.bciInstanceId = bciInstanceId;
     }
 
-    public Long getBciActivityId() {
-        return bciActivityId;
+    public BCIActivityClientEvent(@NotNull ClientEvent clientEvent,
+                                  @NotNull Long bciActivityInstanceId,
+                                  @NotNull Long bciBlockInstanceId,
+                                  @NotNull Long bciPhaseInstanceId,
+                                  @NotNull Long bciInstanceId,
+                                  @NotNull Long newActivityInstanceId,
+                                  @NotNull Long newBlockInstanceId,
+                                  @NotNull Long newPhaseInstanceId) {
+        this(clientEvent, bciActivityInstanceId, bciBlockInstanceId, bciPhaseInstanceId, bciInstanceId);
+        this.newActivityInstanceId = newActivityInstanceId;
+        this.newBlockInstanceId = newBlockInstanceId;
+        this.newPhaseInstanceId = newPhaseInstanceId;
+    }
+
+    public BCIActivityClientEvent(@NotNull ClientEvent clientEvent,
+                                  @NotNull Long bciActivityInstanceId,
+                                  @NotNull Long bciBlockInstanceId,
+                                  @NotNull Long bciPhaseInstanceId,
+                                  @NotNull Long bciInstanceId,
+                                  @NotNull Long newActivityInstanceId,
+                                  @NotNull Long newBlockInstanceId,
+                                  @NotNull Long newPhaseInstanceId,
+                                  @NotNull Clock clock) {
+        this(clientEvent, bciActivityInstanceId, bciBlockInstanceId, bciPhaseInstanceId, bciInstanceId, clock);
+        this.newActivityInstanceId = newActivityInstanceId;
+        this.newBlockInstanceId = newBlockInstanceId;
+        this.newPhaseInstanceId = newPhaseInstanceId;
+    }
+
+    public Long getBciActivityInstanceId() {
+        return bciActivityInstanceId;
     }
 
     public Long getBciBlockInstanceId() {
@@ -57,5 +91,17 @@ public class BCIActivityClientEvent extends EvoClientEvent<BCIActivityInstance> 
 
     public Long getBciInstanceId() {
         return bciInstanceId;
+    }
+
+    public Long getNewActivityInstanceId() {
+        return newActivityInstanceId;
+    }
+
+    public Long getNewBlockInstanceId() {
+        return newBlockInstanceId;
+    }
+
+    public Long getNewPhaseInstanceId() {
+        return newPhaseInstanceId;
     }
 }

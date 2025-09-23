@@ -26,7 +26,7 @@ import java.util.List;
  * @author Julien Champagne
  */
 @Service
-public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIActivityInstance, BCIActivityClientEvent > {
+public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIActivityInstance, BCIActivityClientEvent> {
     private static final Logger logger = LoggerFactory.getLogger(BCIActivityInstanceService.class);
 
     @Autowired
@@ -202,7 +202,7 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
         if (event != null && event.getClientEvent() != null && event.getBciInstanceId() != null
                 && event.getResponse() != null) {
 
-            found = findById(event.getBciActivityId());
+            found = findById(event.getBciActivityInstanceId());
             response = event.getResponse();
 
             if (found != null) {
@@ -223,7 +223,7 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
 
                     if (updated != null) {
                         //Will wait until all listeners are triggered
-                        this.publishEvent(new BCIBlockInstanceClientEvent(updated, clientEvent, response, event.getBciBlockInstanceId(),
+                        super.publishEvent(new BCIBlockInstanceClientEvent<BCIActivityInstance>(updated, clientEvent, response, event.getBciBlockInstanceId(),
                                 event.getBciPhaseInstanceId(), event.getBciInstanceId()));
                         response.setSuccess(true);
                     }

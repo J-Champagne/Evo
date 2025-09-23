@@ -90,7 +90,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/bahaviorchangeinterventionphase", interventionPhase);
+        performCreateRequest("/behaviorchangeinterventionphase", interventionPhase);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
                 thenReturn(Optional.of(interventionToUpdate));
 
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/bahaviorchangeinterventionphase", interventionToUpdate,
+        performUpdateRequest("/behaviorchangeinterventionphase", interventionToUpdate,
                 "$.entryConditions",
                 interventionToUpdate.getEntryConditions());
     }
@@ -118,7 +118,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/bahaviorchangeinterventionphase/" + interventionPhase.getId(),
+        performDeleteRequest("/behaviorchangeinterventionphase/" + interventionPhase.getId(),
                 interventionPhase);
     }
 
@@ -140,7 +140,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
                 thenReturn(Optional.of(intervention));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeinterventionphase/find/" + intervention.getId(),
+        performGetRequest("/behaviorchangeinterventionphase/find/" + intervention.getId(),
                 "$.entryConditions", intervention.getEntryConditions());
     }
 
@@ -161,7 +161,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
                 thenReturn(Collections.singletonList(intervention));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeinterventionphase/find/entrycond/" +
+        performGetRequest("/behaviorchangeinterventionphase/find/entrycond/" +
                         intervention.getEntryConditions(), "$[0].entryConditions",
                 intervention.getEntryConditions());
     }
@@ -183,7 +183,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
                 thenReturn(Collections.singletonList(intervention));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeinterventionphase/find/exitcond/" + intervention.getExitConditions(),
+        performGetRequest("/behaviorchangeinterventionphase/find/exitcond/" + intervention.getExitConditions(),
                 "$[0].exitConditions", intervention.getExitConditions());
     }
 
@@ -196,7 +196,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
                 thenReturn(Collections.singletonList(interventionPhaseResult));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeinterventionphase/find/behaviorchangeintervention/" +
+        performGetRequest("/behaviorchangeinterventionphase/find/behaviorchangeintervention/" +
                         intervention.getId(), "$[0].exitConditions",
                 interventionPhaseResult.getExitConditions());
     }
@@ -221,7 +221,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
                 thenReturn(Collections.singletonList(interventionPhaseResult));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeinterventionphase/find/behaviorchangeinterventionblock/" +
+        performGetRequest("/behaviorchangeinterventionphase/find/behaviorchangeinterventionblock/" +
                         interventionBlock.getId(), "$[0].exitConditions",
                 interventionPhaseResult.getExitConditions());
     }
@@ -234,7 +234,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
         // Mock behavior for findByBciModules().
         when(interventionPhaseRepository.findByBciModules(module)).thenReturn(Collections.singletonList(interventionPhaseResult));
         // Perform a GET request to test the controller.
-        performGetRequestWithObject("/bahaviorchangeinterventionphase/find/bcimodules", module, "$[0].id", interventionPhaseResult.getId());
+        performGetRequestWithObject("/behaviorchangeinterventionphase/find/bcimodules", module, "$[0].id", interventionPhaseResult.getId());
     }
 
     @Test
@@ -245,7 +245,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
         // Mock behavior for findByBciModulesId().
         when(interventionPhaseRepository.findByBciModulesId(module.getId())).thenReturn(Collections.singletonList(interventionPhaseResult));
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeinterventionphase/find/bcimodules/" + module.getId(), "$[0].id", interventionPhaseResult.getId());
+        performGetRequest("/behaviorchangeinterventionphase/find/bcimodules/" + module.getId(), "$[0].id", interventionPhaseResult.getId());
     }
 
     @Test
@@ -256,7 +256,7 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
         // Mock behavior for findByBciModulesName().
         when(interventionPhaseRepository.findByBciModulesName(module.getName())).thenReturn(Collections.singletonList(interventionPhaseResult));
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeinterventionphase/find/bcimodules/name/" + module.getName(), "$[0].id", interventionPhaseResult.getId());
+        performGetRequest("/behaviorchangeinterventionphase/find/bcimodules/name/" + module.getName(), "$[0].id", interventionPhaseResult.getId());
     }
 
     @Test
@@ -267,6 +267,6 @@ public class BehaviorChangeInterventionPhaseControllerTest extends AbstractContr
                 thenReturn(Collections.singletonList(interventionPhase));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeinterventionphase","$[0].id",1);
+        performGetRequest("/behaviorchangeinterventionphase","$[0].id",1);
     }
 }

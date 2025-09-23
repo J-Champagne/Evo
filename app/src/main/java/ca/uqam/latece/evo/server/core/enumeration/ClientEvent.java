@@ -10,7 +10,7 @@ package ca.uqam.latece.evo.server.core.enumeration;
  */
 public enum ClientEvent {
     FINISH,
-    SELECT,
+    IN_PROGRESS,
     UNSPECIFIED;
 
     /**
@@ -21,7 +21,7 @@ public enum ClientEvent {
     public static String toString(ClientEvent clientEvent){
         return switch (clientEvent) {
             case FINISH -> "Finish";
-            case SELECT -> "Select";
+            case IN_PROGRESS -> "In Progress";
             case UNSPECIFIED -> "Unspecified";
         };
     }

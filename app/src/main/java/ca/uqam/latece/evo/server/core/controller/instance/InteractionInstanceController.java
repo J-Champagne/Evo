@@ -1,8 +1,12 @@
 package ca.uqam.latece.evo.server.core.controller.instance;
 
 import ca.uqam.latece.evo.server.core.controller.AbstractEvoController;
+import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
+import ca.uqam.latece.evo.server.core.event.BCIActivityClientEvent;
 import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
+import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
+import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.service.instance.InteractionInstanceService;
 
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
@@ -274,6 +278,46 @@ public class InteractionInstanceController extends AbstractEvoController<Interac
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find InteractionInstance by participant id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Receives updates from the frontend for the progression of an InteractionInstance.
+     * @param clientEvent The clientEvent indicating the action the client wishes to perform.
+     * @param request The request containing information needed to properly handle the clientEvent.
+     * @return ResponseEntity containing the InteractionInstance with an updated Execution status or an error message
+     * detailing why the clientEvent could not be processed correctly.
+     */
+    @PutMapping("/clientupdate/{clientEvent}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<String> updateStatus(@PathVariable ClientEvent clientEvent,
+                                               @RequestBody BCIActivityInstanceRequest request) {
+        ResponseEntity<String> response;
+
+        try {
+            interactionInstanceService.validateClientEvent(clientEvent, request);
+
+            BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent, request.getId(),
+                    request.getBciBlockInstanceId(), request.getBciPhaseInstanceId(), request.getBciInstanceId());
+
+            ClientEventResponse serviceResponse = interactionInstanceService.handleClientEvent(bciActivityClientEvent);
+
+            if (serviceResponse.isSuccess()) {
+                response = new ResponseEntity<>(serviceResponse.getResponse().toString(), HttpStatus.OK);
+                logger.info("Correctly handled ClientEvent {} for InteractionInstance with ID {}",
+                        clientEvent, request.getId());
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to correctly handle ClientEvent {} for InteractionInstance with ID {}",
+                        clientEvent, request.getId());
+            }
+
+        } catch (Exception e) {
+            response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            logger.info("Failed to correctly handle ClientEvent {}" +
+                    "Error: {}",  clientEvent, e.getMessage());
         }
 
         return response;

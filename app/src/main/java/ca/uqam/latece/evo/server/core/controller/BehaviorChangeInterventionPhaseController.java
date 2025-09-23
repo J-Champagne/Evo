@@ -27,7 +27,7 @@ import org.springframework.http.HttpStatus;
  * @author Edilton Lima dos Santos.
  */
 @RestController
-@RequestMapping("/bahaviorchangeinterventionphase")
+@RequestMapping("/behaviorchangeinterventionphase")
 public class BehaviorChangeInterventionPhaseController extends AbstractEvoController<BehaviorChangeInterventionPhase>  {
     private static final Logger logger = LoggerFactory.getLogger(BehaviorChangeInterventionPhaseController.class);
 

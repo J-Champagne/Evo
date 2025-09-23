@@ -19,6 +19,8 @@ public class BCIPhaseInstanceClientEvent extends EvoClientEvent<BehaviorChangeIn
 
     Long bciInstanceId;
 
+    Long newPhaseInstanceId;
+
     public BCIPhaseInstanceClientEvent(@NotNull BehaviorChangeInterventionBlockInstance activityInstance,
                                        @NotNull ClientEvent clientEvent,
                                        @NotNull ClientEventResponse response,
@@ -40,11 +42,36 @@ public class BCIPhaseInstanceClientEvent extends EvoClientEvent<BehaviorChangeIn
         this.bciInstanceId = bciInstanceId;
     }
 
+    public BCIPhaseInstanceClientEvent(@NotNull BehaviorChangeInterventionBlockInstance activityInstance,
+                                       @NotNull ClientEvent clientEvent,
+                                       @NotNull ClientEventResponse response,
+                                       @NotNull Long bciPhaseInstanceId,
+                                       @NotNull Long bciInstanceId,
+                                       @NotNull Long newPhaseInstanceId) {
+        this(activityInstance, clientEvent, response, bciPhaseInstanceId, bciInstanceId);
+        this.newPhaseInstanceId = newPhaseInstanceId;
+    }
+
+    public BCIPhaseInstanceClientEvent(@NotNull BehaviorChangeInterventionBlockInstance activityInstance,
+                                       @NotNull ClientEvent clientEvent,
+                                       @NotNull ClientEventResponse response,
+                                       @NotNull Long bciPhaseInstanceId,
+                                       @NotNull Long bciInstanceId,
+                                       @NotNull Long newPhaseInstanceId,
+                                       @NotNull Clock clock) {
+        this(activityInstance, clientEvent, response, bciPhaseInstanceId, bciInstanceId, clock);
+        this.newPhaseInstanceId = newPhaseInstanceId;
+    }
+
     public Long getBciPhaseInstanceId() {
         return bciPhaseInstanceId;
     }
 
     public Long getBciInstanceId() {
         return bciInstanceId;
+    }
+
+    public Long getNewPhaseInstanceId() {
+        return newPhaseInstanceId;
     }
 }

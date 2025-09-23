@@ -55,7 +55,7 @@ public class BehaviorChangeInterventionControllerTest extends AbstractController
     @Test
     @Override
     void testCreate() throws Exception {
-        performCreateRequest("/bahaviorchangeintervention", behaviorChangeIntervention);
+        performCreateRequest("/behaviorchangeintervention", behaviorChangeIntervention);
     }
 
     @Test
@@ -74,14 +74,14 @@ public class BehaviorChangeInterventionControllerTest extends AbstractController
                 thenReturn(Optional.of(interventionToUpdate));
 
         // Perform a PUT request to test the controller.
-        performUpdateRequest("/bahaviorchangeintervention", interventionToUpdate,"$.name",
+        performUpdateRequest("/behaviorchangeintervention", interventionToUpdate,"$.name",
                 interventionToUpdate.getName());
     }
 
     @Test
     @Override
     void testDeleteById() throws Exception {
-        performDeleteRequest("/bahaviorchangeintervention/" + behaviorChangeIntervention.getId(),
+        performDeleteRequest("/behaviorchangeintervention/" + behaviorChangeIntervention.getId(),
                 behaviorChangeIntervention);
     }
 
@@ -102,7 +102,7 @@ public class BehaviorChangeInterventionControllerTest extends AbstractController
                 thenReturn(Optional.of(intervention));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeintervention/find/" + intervention.getId(),
+        performGetRequest("/behaviorchangeintervention/find/" + intervention.getId(),
                 "$.name", intervention.getName());
     }
 
@@ -122,7 +122,7 @@ public class BehaviorChangeInterventionControllerTest extends AbstractController
                 thenReturn(Collections.singletonList(intervention));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeintervention/find/name/" + intervention.getName(),
+        performGetRequest("/behaviorchangeintervention/find/name/" + intervention.getName(),
                 "$[0].name", intervention.getName());
     }
 
@@ -158,11 +158,11 @@ public class BehaviorChangeInterventionControllerTest extends AbstractController
                 thenReturn(Collections.singletonList(intervention));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeintervention/find/behaviorchangeinterventionphase/" + phase1.getId(),
+        performGetRequest("/behaviorchangeintervention/find/behaviorchangeinterventionphase/" + phase1.getId(),
                 "$[0].name", intervention.getName());
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeintervention/find/behaviorchangeinterventionphase/" + phase1.getId(),
+        performGetRequest("/behaviorchangeintervention/find/behaviorchangeinterventionphase/" + phase1.getId(),
                 "$[0].behaviorChangeInterventionPhases.[0].id", intervention.getBehaviorChangeInterventionPhases().get(0).getId());
     }
 
@@ -174,6 +174,6 @@ public class BehaviorChangeInterventionControllerTest extends AbstractController
                 thenReturn(Collections.singletonList(behaviorChangeIntervention));
 
         // Perform a GET request to test the controller.
-        performGetRequest("/bahaviorchangeintervention","$[0].id",1);
+        performGetRequest("/behaviorchangeintervention","$[0].id",1);
     }
 }

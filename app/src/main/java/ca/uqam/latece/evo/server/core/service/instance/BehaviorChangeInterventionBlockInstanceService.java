@@ -30,7 +30,7 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCIInstanceService<BehaviorChangeInterventionBlockInstance, BCIBlockInstanceClientEvent> {
+public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCIInstanceService<BehaviorChangeInterventionBlockInstance, BCIBlockInstanceClientEvent<?>> {
     private static final Logger logger = LoggerFactory.getLogger(BehaviorChangeInterventionBlockInstanceService.class);
 
     @Autowired
@@ -201,7 +201,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
      */
     @Override
     @EventListener(BCIBlockInstanceClientEvent.class)
-    public ClientEventResponse handleClientEvent(BCIBlockInstanceClientEvent event) {
+    public ClientEventResponse handleClientEvent(BCIBlockInstanceClientEvent<?> event) {
         BehaviorChangeInterventionBlockInstance blockInstance = null;
         BehaviorChangeInterventionBlockInstance updated = null;
         ClientEventResponse response = null;
