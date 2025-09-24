@@ -297,7 +297,7 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
 
         BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent,
                 interactionInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId(), newInteractionInstance.getId(),
-                newBlockInstance.getId(), newBlockInstance.getId());
+                newBlockInstance.getId(), newPhaseInstance.getId());
         ClientEventResponse response = interactionInstanceService.handleClientEvent(bciActivityClientEvent);
 
         assertEquals(ExecutionStatus.IN_PROGRESS, newInteractionInstance.getStatus());

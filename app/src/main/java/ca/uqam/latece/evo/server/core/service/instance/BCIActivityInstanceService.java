@@ -5,6 +5,7 @@ import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.event.BCIActivityClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
 import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
@@ -208,9 +209,9 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
             if (found != null) {
 
                 //Handle ClientEvents
-                clientEvent = event.getClientEvent();
-                switch (clientEvent) {
+                switch (event.getClientEvent()) {
                     case FINISH -> wasUpdated = super.handleClientEventFinish(found, failedConditions);
+                    case IN_PROGRESS -> wasUpdated = handleClientEventInProgress(found, event.getNewActivityInstanceId(), response);
                 }
 
                 //Update the response with information from BCIActivityInstance
@@ -223,7 +224,7 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
 
                     if (updated != null) {
                         //Will wait until all listeners are triggered
-                        super.publishEvent(new BCIBlockInstanceClientEvent<BCIActivityInstance>(updated, clientEvent, response, event.getBciBlockInstanceId(),
+                        super.publishEvent(new BCIBlockInstanceClientEvent<BCIActivityInstance>(updated, event.getClientEvent(), response, event.getBciBlockInstanceId(),
                                 event.getBciPhaseInstanceId(), event.getBciInstanceId()));
                         response.setSuccess(true);
                     }
@@ -232,6 +233,39 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
         }
 
         return response;
+    }
+
+    /**
+     * Handles a ClientEvent IN_PROGRESS by updating the corresponding ActivityInstances when specific conditions
+     * related to its entry conditions are met. If the entry conditions are met, the oldActivityInstance will be set to
+     * SUSPENDED while the newActivityInstance will be set to IN_PROGRESS.
+     * @param oldActivityInstance the ActivityInstance no longer being progressed.
+     * @param newActivityInstanceId the id of the ActivityInstance that will be progressed.
+     * @param response a response object containing information on the updated entities in JSON format.
+     * @return true if the new activityInstances was updated.
+     */
+    public boolean handleClientEventInProgress(BCIActivityInstance oldActivityInstance, Long newActivityInstanceId,
+                                               ClientEventResponse response) {
+        FailedConditions failedConditions = new FailedConditions();
+        boolean wasUpdated = false;
+
+        BCIActivityInstance newActivityInstance = findById(newActivityInstanceId);
+
+        if (newActivityInstance != null) {
+            failedConditions.setFailedEntryConditions(checkEntryConditions(newActivityInstance));
+
+            if (failedConditions.getFailedEntryConditions().isEmpty()) {
+                newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+                oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
+                wasUpdated = update(newActivityInstance) != null;
+            }
+
+            response.addResponse(InteractionInstance.class.getSimpleName(), newActivityInstance.getId(),
+                    newActivityInstance.getStatus(), failedConditions.getFailedEntryConditions(),
+                    failedConditions.getFailedExitConditions());
+        }
+
+        return wasUpdated;
     }
 
     /**
