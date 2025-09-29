@@ -8,6 +8,7 @@ import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
 import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
+import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionBlockInstanceRepository;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.util.FailedConditions;
@@ -224,6 +225,8 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
                             wasUpdated = super.handleClientEventFinish(blockInstance, failedConditions);
                         }
                     }
+
+                    case IN_PROGRESS -> wasUpdated = handleClientEventInProgress(blockInstance, event.getNewBlockInstanceId(), response);
                 }
 
                 //Update the response with information from BCIBlockInstance
@@ -242,6 +245,41 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
         }
 
         return response;
+    }
+
+    /**
+     * Handles a ClientEvent IN_PROGRESS by updating the corresponding ActivityInstances when specific conditions
+     * related to its entry conditions are met. If the entry conditions are met, the oldActivityInstance will be set to
+     * SUSPENDED while the newActivityInstance will be set to IN_PROGRESS.
+     * @param oldActivityInstance the ActivityInstance no longer being progressed.
+     * @param newActivityInstanceId the id of the ActivityInstance that will be progressed.
+     * @param response a response object containing information on the updated entities in JSON format.
+     * @return true if the new activityInstances was updated.
+     */
+    public boolean handleClientEventInProgress(BehaviorChangeInterventionBlockInstance oldActivityInstance, Long newActivityInstanceId,
+                                               ClientEventResponse response) {
+        FailedConditions failedConditions = new FailedConditions();
+        boolean wasUpdated = false;
+
+        if (!oldActivityInstance.getId().equals(newActivityInstanceId)) {
+            BehaviorChangeInterventionBlockInstance newActivityInstance = findById(newActivityInstanceId);
+
+            if (newActivityInstance != null) {
+                failedConditions.setFailedEntryConditions(checkEntryConditions(newActivityInstance));
+
+                if (failedConditions.getFailedEntryConditions().isEmpty()) {
+                    newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+                    oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
+                    wasUpdated = update(newActivityInstance) != null;
+                }
+
+                response.addResponse(InteractionInstance.class.getSimpleName(), newActivityInstance.getId(),
+                        newActivityInstance.getStatus(), failedConditions.getFailedEntryConditions(),
+                        failedConditions.getFailedExitConditions());
+            }
+        }
+
+        return wasUpdated;
     }
 
     /**

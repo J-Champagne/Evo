@@ -225,7 +225,7 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
                     if (updated != null) {
                         //Will wait until all listeners are triggered
                         super.publishEvent(new BCIBlockInstanceClientEvent<BCIActivityInstance>(updated, event.getClientEvent(), response, event.getBciBlockInstanceId(),
-                                event.getBciPhaseInstanceId(), event.getBciInstanceId()));
+                                event.getBciPhaseInstanceId(), event.getBciInstanceId(), event.getNewBlockInstanceId(), event.getNewPhaseInstanceId()));
                         response.setSuccess(true);
                     }
                 }
@@ -249,20 +249,22 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
         FailedConditions failedConditions = new FailedConditions();
         boolean wasUpdated = false;
 
-        BCIActivityInstance newActivityInstance = findById(newActivityInstanceId);
+        if (!oldActivityInstance.getId().equals(newActivityInstanceId)) {
+            BCIActivityInstance newActivityInstance = findById(newActivityInstanceId);
 
-        if (newActivityInstance != null) {
-            failedConditions.setFailedEntryConditions(checkEntryConditions(newActivityInstance));
+            if (newActivityInstance != null) {
+                failedConditions.setFailedEntryConditions(checkEntryConditions(newActivityInstance));
 
-            if (failedConditions.getFailedEntryConditions().isEmpty()) {
-                newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
-                oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
-                wasUpdated = update(newActivityInstance) != null;
+                if (failedConditions.getFailedEntryConditions().isEmpty()) {
+                    newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+                    oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
+                    wasUpdated = update(newActivityInstance) != null;
+                }
+
+                response.addResponse(InteractionInstance.class.getSimpleName(), newActivityInstance.getId(),
+                        newActivityInstance.getStatus(), failedConditions.getFailedEntryConditions(),
+                        failedConditions.getFailedExitConditions());
             }
-
-            response.addResponse(InteractionInstance.class.getSimpleName(), newActivityInstance.getId(),
-                    newActivityInstance.getStatus(), failedConditions.getFailedEntryConditions(),
-                    failedConditions.getFailedExitConditions());
         }
 
         return wasUpdated;

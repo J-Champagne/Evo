@@ -72,7 +72,6 @@ public class BCIBlockInstanceClientEvent<A extends BCIActivityInstance> extends 
         this(activityInstance, clientEvent, response, bciBlockInstanceId, bciPhaseInstanceId, bciInstanceId, clock);
         this.newBlockInstanceId = newBlockInstanceId;
         this.newPhaseInstanceId = newPhaseInstanceId;
-        this.bciInstanceId = bciInstanceId;
     }
 
     public Long getBciBlockInstanceId() {

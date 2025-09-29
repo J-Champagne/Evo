@@ -66,6 +66,10 @@ public class EvoClientEvent<T extends ActivityInstance> extends ApplicationEvent
      * @return A JSON-formatted string that represents the current state of the ActivityInstance.
      */
     public String toString() {
-        return this.activityInstance.toString();
+        if (clientEvent != null) {
+            return this.activityInstance.toString();
+        } else {
+            return "NULL";
+        }
     }
 }

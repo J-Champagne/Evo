@@ -76,12 +76,14 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
 
     private BCIActivityInstance activityInstance;
 
+    private Participant participant;
+
     @BeforeEach
     public void setUp() {
         Role role = roleService.create(new Role("Administrator"));
         HealthCareProfessional hcp = healthCareProfessionalService.create(new HealthCareProfessional("Bob", "bob@gmail.com",
                 "222-2222", "Student", "New-York", "Health"));
-        Participant participant = participantService.create(new Participant(role, hcp));
+        participant = participantService.create(new Participant(role, hcp));
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
@@ -193,7 +195,9 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     }*/
 
     @Test
-    void handleBCIBlockInstanceClientEvents() {
+    void handleBCIBlockInstanceClientEventFinish() {
+        ClientEvent clientEvent = ClientEvent.FINISH;
+
         // Update the BCIActivityInstance and BCIBlockInstance
         activityInstance.setStatus(ExecutionStatus.FINISHED);
         blockInstance.getBehaviorChangeInterventionBlock().setExitConditions("");
@@ -201,7 +205,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         behaviorChangeInterventionBlockInstanceService.update(blockInstance);
 
         // Creates the BCIBlockInstanceClientEvent
-        BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(activityInstance, ClientEvent.FINISH,
+        BCIBlockInstanceClientEvent<BCIActivityInstance> blockInstanceClientEvent = new BCIBlockInstanceClientEvent<>(activityInstance, clientEvent,
                 new ClientEventResponse(), blockInstance.getId(), null, null);
 
         // Publish the event
@@ -219,7 +223,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         bciActivityInstanceService.update(activityInstance);
 
         // Creates the BCIBlockInstanceClientEvent
-        BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(activityInstance, ClientEvent.FINISH,
+        BCIBlockInstanceClientEvent<BCIActivityInstance> blockInstanceClientEvent = new BCIBlockInstanceClientEvent<>(activityInstance, ClientEvent.FINISH,
                 new ClientEventResponse(), blockInstance.getId(), null, null);
 
         // Publish the event
@@ -229,5 +233,48 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
         assertNotEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
         assertEquals(ExecutionStatus.IN_PROGRESS, blockInstance.getStatus());
         assertEquals(0, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
+    }
+
+    @Test
+    void handleBCIBlockInstanceClientEventsInProgress() {
+        ClientEvent clientEvent = ClientEvent.IN_PROGRESS;
+
+        // Update the BCIActivityInstance and BCIBlockInstance
+        activityInstance.setStatus(ExecutionStatus.SUSPENDED);
+        bciActivityInstanceService.update(activityInstance);
+
+        List<Participant> participants = new ArrayList<>();
+        participants.add(participant);
+
+        BCIActivity newBCIActivity = bciActivityService.create(new BCIActivity("new Programming", "Description",
+                ActivityType.BCI_ACTIVITY, "Intervention ENTRY", "Intervention EXIT"));
+        BCIActivityInstance newActivityInstance = bciActivityInstanceService.create(new BCIActivityInstance(
+                ExecutionStatus.IN_PROGRESS, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
+                participants, newBCIActivity));
+
+        List<BCIActivityInstance> activities = new ArrayList<>();
+        activities.add(newActivityInstance);
+
+        BehaviorChangeInterventionBlock newBCIBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
+                ("Intervention ENTRY", "Intervention EXIT"));
+        BehaviorChangeInterventionBlockInstance newBlockInstance = behaviorChangeInterventionBlockInstanceService.
+                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
+                        DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, newBCIBlock));
+
+        newBlockInstance.getBehaviorChangeInterventionBlock().setEntryConditions("");
+        behaviorChangeInterventionBlockInstanceService.update(newBlockInstance);
+        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+
+        // Creates the BCIBlockInstanceClientEvent
+        BCIBlockInstanceClientEvent<BCIActivityInstance> blockInstanceClientEvent = new BCIBlockInstanceClientEvent<>(activityInstance, clientEvent,
+                new ClientEventResponse(), blockInstance.getId(), null, null, newBlockInstance.getId(), null);
+
+        // Publish the event
+        applicationEventPublisher.publishEvent(blockInstanceClientEvent);
+
+        // Test
+        assertEquals(ExecutionStatus.SUSPENDED, blockInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, newBlockInstance.getStatus());
+        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
     }
 }

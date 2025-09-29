@@ -242,20 +242,22 @@ public class InteractionInstanceService extends AbstractBCIInstanceService<Inter
         FailedConditions failedConditions = new FailedConditions();
         boolean wasUpdated = false;
 
-        InteractionInstance newActivityInstance = findById(newActivityInstanceId);
+        if (!oldActivityInstance.getId().equals(newActivityInstanceId)) {
+            InteractionInstance newActivityInstance = findById(newActivityInstanceId);
 
-        if (newActivityInstance != null) {
-            failedConditions.setFailedEntryConditions(checkEntryConditions(newActivityInstance));
+            if (newActivityInstance != null) {
+                failedConditions.setFailedEntryConditions(checkEntryConditions(newActivityInstance));
 
-            if (failedConditions.getFailedEntryConditions().isEmpty()) {
-                newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
-                oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
-                wasUpdated = update(newActivityInstance) != null;
+                if (failedConditions.getFailedEntryConditions().isEmpty()) {
+                    newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+                    oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
+                    wasUpdated = update(newActivityInstance) != null;
+                }
+
+                response.addResponse(InteractionInstance.class.getSimpleName(), newActivityInstance.getId(),
+                        newActivityInstance.getStatus(), failedConditions.getFailedEntryConditions(),
+                        failedConditions.getFailedExitConditions());
             }
-
-            response.addResponse(InteractionInstance.class.getSimpleName(), newActivityInstance.getId(),
-                    newActivityInstance.getStatus(), failedConditions.getFailedEntryConditions(),
-                    failedConditions.getFailedExitConditions());
         }
 
         return wasUpdated;

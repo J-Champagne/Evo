@@ -440,40 +440,53 @@ public class BCIActivityInstanceServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void handleBCIActivityClientEventInProgressSuccess() {
+    void handleBCIActivityClientEventInProgress() {
         ClientEvent clientEvent = ClientEvent.IN_PROGRESS;
 
+        //Create additional BCIActivity, block, and phase instances and adds those to bciInstance
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
-        BCIActivity bciActivity = bciActivityService.create(new BCIActivity("newInteraction", "Description",
+        BCIActivity newBCIActivity = bciActivityService.create(new BCIActivity("newInteraction", "Description",
                 ActivityType.BCI_ACTIVITY, "precondition", "postcondition"));
         BCIActivityInstance newBCIActivityInstance = bciActivityInstanceService.create(new BCIActivityInstance(ExecutionStatus.READY, participants,
-                bciActivity));
+                newBCIActivity));
         newBCIActivityInstance.getBciActivity().setPreconditions("");
 
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(newBCIActivityInstance);
 
-        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
+        BehaviorChangeInterventionBlock newBCIBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
                 ("Intervention ENTRY", "Intervention EXIT"));
         BehaviorChangeInterventionBlockInstance newBlockInstance = behaviorChangeInterventionBlockInstanceService.
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
-                        DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, bciBlock));
+                        DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, newBCIBlock));
+        newBlockInstance.getBehaviorChangeInterventionBlock().setExitConditions("");
 
         List<BehaviorChangeInterventionBlockInstance> activitiesBlock = new ArrayList<>();
         activitiesBlock.add(blockInstance);
         List<BCIModuleInstance> modules = new ArrayList<>();
 
-        BehaviorChangeInterventionPhase bciPhase = bciPhaseService.create(new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
+        BehaviorChangeInterventionPhase newBCIPhase = bciPhaseService.create(new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
         BehaviorChangeInterventionPhaseInstance newPhaseInstance = behaviorChangeInterventionPhaseInstanceService
-                .create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, blockInstance, activitiesBlock, modules, bciPhase));
+                .create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, blockInstance, activitiesBlock, modules, newBCIPhase));
+        newPhaseInstance.getBehaviorChangeInterventionPhase().setEntryConditions("");
 
         BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent, bciActivityInstance.getId(),
                 blockInstance.getId(), phaseInstance.getId(), bciInstance.getId(), newBCIActivityInstance.getId(),
                 newBlockInstance.getId(), newPhaseInstance.getId());
+
+        bciInstance.addActivity(newPhaseInstance);
+
+        //Update the entry conditions
+        bciActivityInstanceService.update(newBCIActivityInstance);
+        behaviorChangeInterventionBlockInstanceService.update(newBlockInstance);
+        behaviorChangeInterventionPhaseInstanceService.update(newPhaseInstance);
+        behaviorChangeInterventionInstanceService.update(bciInstance);
+
         ClientEventResponse response = bciActivityInstanceService.handleClientEvent(bciActivityClientEvent);
 
+        //Test
         assertEquals(ExecutionStatus.IN_PROGRESS, newBCIActivityInstance.getStatus());
         assertEquals(ExecutionStatus.SUSPENDED, bciActivityInstance.getStatus());
     }
