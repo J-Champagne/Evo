@@ -14,8 +14,6 @@ import java.util.Objects;
 
 /**
  * Actor instance class.
- * @version 1.0
- * @author Edilton Lima dos Santos
  * @author Julien Champagne.
  */
 @Entity

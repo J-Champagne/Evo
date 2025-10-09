@@ -62,6 +62,20 @@ Also, JaCoCo mainly provides three essential metrics:
 
 **More information can be find at: https://www.jacoco.org/jacoco/**
 
+## Evo+ Project Reports
+The Evo+ Project Report was developed using Maven reports to provide an overview and detailed documentation of the project's current state. It includes:
+* Project Dependencies: The list of compiled dependencies for the Evo+ project.
+* Plugins: The list of plugins used in the project.
+* Quality Reports.
+    * Checkstyle: Report on coding style conventions.
+    * JaCoCo: Test Report coverage.
+    * Surefire: Report on the test results of the project.
+
+Steps to generate the report:
+1) Run `./mvnw clean install` to build the application.
+2) Use `./mvnw site` to generate the report.
+3) Access the report at `./app/target/site/index.html`.
+
 ## POSTMAN collection testing
 Postman is a tool used to test the API of this project. A collection of CRUD requests for the entities is included in the /doc folder.
 This collection can be imported in Postman, and each request can then be run sequentially, acting as a suite of tests.

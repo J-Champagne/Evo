@@ -17,8 +17,6 @@ import java.util.Objects;
 
 /**
  * ActivityInstance class.
- * @version 1.0
- * @author Edilton Lima dos Santos.
  * @author Julien Champagne
  */
 @Entity

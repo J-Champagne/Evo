@@ -1,5 +1,7 @@
 package ca.uqam.latece.evo.server.core.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.MappedSuperclass;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +18,8 @@ import java.util.Objects;
  * @author Edilton Lima dos Santos.
  */
 @MappedSuperclass
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.NONE)
 public abstract class AbstractEvoModel implements Serializable {
     @Serial
     private static final long serialVersionUID = -2420346134960559062L;
