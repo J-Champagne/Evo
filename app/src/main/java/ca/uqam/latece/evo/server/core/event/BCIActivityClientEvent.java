@@ -1,10 +1,13 @@
 package ca.uqam.latece.evo.server.core.event;
 
 import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import jakarta.validation.constraints.NotNull;
 
-public class BCIActivityClientEvent extends EvoClientEvent  {
+import java.time.Clock;
+
+public class BCIActivityClientEvent extends EvoClientEvent<BCIActivityInstance>  {
     Long bciActivityInstanceId;
 
     Long bciBlockInstanceId;
@@ -19,12 +22,26 @@ public class BCIActivityClientEvent extends EvoClientEvent  {
 
     Long newPhaseInstanceId;
 
-    public BCIActivityClientEvent(@NotNull ClientEvent clientEvent,
-                                  @NotNull Long bciActivityInstanceId,
-                                  @NotNull Long bciBlockInstanceId,
-                                  @NotNull Long bciPhaseInstanceId,
-                                  @NotNull Long bciInstanceId) {
+
+    public BCIActivityClientEvent(     @NotNull ClientEvent clientEvent,
+                                       @NotNull Long bciActivityInstanceId,
+                                       @NotNull Long bciBlockInstanceId,
+                                       @NotNull Long bciPhaseInstanceId,
+                                       @NotNull Long bciInstanceId) {
         super(clientEvent, new ClientEventResponse(clientEvent));
+        this.bciActivityInstanceId = bciActivityInstanceId;
+        this.bciBlockInstanceId = bciBlockInstanceId;
+        this.bciPhaseInstanceId = bciPhaseInstanceId;
+        this.bciInstanceId = bciInstanceId;
+    }
+
+    public BCIActivityClientEvent(     @NotNull ClientEvent clientEvent,
+                                       @NotNull Long bciActivityInstanceId,
+                                       @NotNull Long bciBlockInstanceId,
+                                       @NotNull Long bciPhaseInstanceId,
+                                       @NotNull Long bciInstanceId,
+                                       @NotNull Clock clock) {
+        super(clientEvent, new ClientEventResponse(clientEvent), clock);
         this.bciActivityInstanceId = bciActivityInstanceId;
         this.bciBlockInstanceId = bciBlockInstanceId;
         this.bciPhaseInstanceId = bciPhaseInstanceId;
@@ -40,6 +57,21 @@ public class BCIActivityClientEvent extends EvoClientEvent  {
                                   @NotNull Long newBlockInstanceId,
                                   @NotNull Long newPhaseInstanceId) {
         this(clientEvent, bciActivityInstanceId, bciBlockInstanceId, bciPhaseInstanceId, bciInstanceId);
+        this.newActivityInstanceId = newActivityInstanceId;
+        this.newBlockInstanceId = newBlockInstanceId;
+        this.newPhaseInstanceId = newPhaseInstanceId;
+    }
+
+    public BCIActivityClientEvent(@NotNull ClientEvent clientEvent,
+                                  @NotNull Long bciActivityInstanceId,
+                                  @NotNull Long bciBlockInstanceId,
+                                  @NotNull Long bciPhaseInstanceId,
+                                  @NotNull Long bciInstanceId,
+                                  @NotNull Long newActivityInstanceId,
+                                  @NotNull Long newBlockInstanceId,
+                                  @NotNull Long newPhaseInstanceId,
+                                  @NotNull Clock clock) {
+        this(clientEvent, bciActivityInstanceId, bciBlockInstanceId, bciPhaseInstanceId, bciInstanceId, clock);
         this.newActivityInstanceId = newActivityInstanceId;
         this.newBlockInstanceId = newBlockInstanceId;
         this.newPhaseInstanceId = newPhaseInstanceId;
