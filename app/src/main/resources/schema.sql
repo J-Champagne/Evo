@@ -1,10 +1,6 @@
 /***********************************************************************************************************************
 The provided SQL script defines a relational database structure involving multiple tables part of Evo+ implementation.
- - since 22.01.2025.
- - version 1.0
- - author Edilton Lima dos Santos.
 ***********************************************************************************************************************/
-
 
 /***********************************************************************************************************************
 role table: This table stores information about roles in the system (e.g., admin, user, etc.).
@@ -803,7 +799,7 @@ CREATE TABLE IF NOT EXISTS assessment_skill (
     bci_block_instance table: Holds data for the instances of bci_block (BehaviorChangeInterventionBlockInstance class).
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_block_instance (
-    bci_block_instance_id BIGSERIAL NOT NULL,
+    bci_block_instance_id BIGINT NOT NULL,
     bci_block_instance_stage VARCHAR(128) NOT NULL,
     bci_block_instance_behavior_change_intervention_block_id BIGINT NOT NULL,
     CONSTRAINT bci_block_instance_pk PRIMARY KEY (bci_block_instance_id),
@@ -834,8 +830,7 @@ CREATE TABLE IF NOT EXISTS bci_module_instance (
 );
 
 /***********************************************************************************************************************
-    bci_module_instance_activities table: Junction table for the many-to-many relationship
-        between bci_module_instance and bci_activity_instance.
+bci_module_instance_activities table: Junction table for the many-to-many relationship between bci_module_instance and bci_activity_instance.
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_module_instance_activities (
     bci_module_instance_activities_module_id BIGINT NOT NULL,
@@ -859,8 +854,7 @@ CREATE TABLE IF NOT EXISTS bci_phase_instance (
 );
 
 /***********************************************************************************************************************
-    bci_phase_instance_activities table: Junction table for the many-to-many relationship
-        between bci_phase_instance and bci_block_instance.
+bci_phase_instance_activities table: Junction table for the many-to-many relationship between bci_phase_instance and bci_block_instance.
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_phase_instance_activities (
     bci_phase_instance_activities_phase_id BIGINT NOT NULL,
@@ -871,8 +865,7 @@ CREATE TABLE IF NOT EXISTS bci_phase_instance_activities (
 );
 
 /***********************************************************************************************************************
-    bci_module_instance_activities table: Junction table for the many-to-many relationship
-        between bci_phase_instance and bci_module_instance.
+bci_module_instance_activities table: Junction table for the many-to-many relationship between bci_phase_instance and bci_module_instance.
  **********************************************************************************************************************/
 CREATE TABLE IF NOT EXISTS bci_phase_instance_modules (
     bci_phase_instance_modules_phase_id BIGINT NOT NULL,
@@ -889,7 +882,6 @@ CREATE TABLE IF NOT EXISTS bci_instance (
     bci_instance_id BIGINT NOT NULL,
     bci_instance_patient_id BIGINT NOT NULL,
     bci_instance_currentphase_id BIGINT,
-    bci_instance_activities_id BIGINT,
     bci_instance_behavior_change_intervention_id BIGINT NOT NULL,
     CONSTRAINT bci_instance_pk PRIMARY KEY (bci_instance_id),
     CONSTRAINT bci_instance_patient_fkey FOREIGN KEY (bci_instance_patient_id) REFERENCES patient (patient_id),

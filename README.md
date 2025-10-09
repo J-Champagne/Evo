@@ -92,3 +92,18 @@ These requests provide a measure of functional as well as end-to-end testing for
 The physical database model for Evo+ can be found in the folder: `../doc/evo_db model.png`
 
 **Note: This model needs to be updated with each database change.**
+
+
+## Evo+ POC data loading
+Before running the Evo+ in the POC test, executing the following steps to loading the data: 
+
+1) Drop all tables in the database schema if it exists.
+2) Build the application with `./mvnw clean install`.
+3) Rename the `../app/src/main/resources/mdata.txt` file to `data.sql`.
+4) Run it with `./mvnw spring-boot:run`.
+5) Navigate to `http://localhost:8080/actor/find/1`.
+6) After the data is loaded, rename the `data.sql` file to `mdata.txt`.
+
+`Notes:
+- You can run the script right in your database. Just rename the file to data.sql. Then, open and run the script using your database tool.
+- You can run the script right in IntelliJ if you want.`
