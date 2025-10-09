@@ -4,8 +4,7 @@ import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
-import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
+import ca.uqam.latece.evo.server.core.event.*;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.Role;
@@ -198,51 +197,52 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     void handleBCIBlockInstanceClientEventFinish() {
         ClientEvent clientEvent = ClientEvent.FINISH;
 
-        // Update the BCIActivityInstance and BCIBlockInstance
-        activityInstance.setStatus(ExecutionStatus.FINISHED);
+        //Set ExitConditions to blank in order to pass checkExitConditions()
         blockInstance.getBehaviorChangeInterventionBlock().setExitConditions("");
+
+        //Set ExecutionStatus to simulate previous chain of events from other services
+        activityInstance.setStatus(ExecutionStatus.FINISHED);
+
+        //Update the entities
         bciActivityInstanceService.update(activityInstance);
         behaviorChangeInterventionBlockInstanceService.update(blockInstance);
 
-        // Creates the BCIBlockInstanceClientEvent
-        BCIBlockInstanceClientEvent<BCIActivityInstance> blockInstanceClientEvent = new BCIBlockInstanceClientEvent<>(activityInstance, clientEvent,
+        //Create and publish the ClientEvent
+        BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(clientEvent,
                 new ClientEventResponse(), blockInstance.getId(), null, null);
-
-        // Publish the event
         applicationEventPublisher.publishEvent(blockInstanceClientEvent);
 
-        // Test
+        //Tests
         assertEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
         assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
     }
 
     @Test
     void handleBCIBlockInstanceClientEventsFail() {
-        // Update the BCIActivityInstance and BCIBlockInstance
+        ClientEvent clientEvent = ClientEvent.FINISH;
+
+        //Set ExecutionStatus to simulate previous chain of events from other services
         activityInstance.setStatus(ExecutionStatus.FINISHED);
+
+        //Update the entities
         bciActivityInstanceService.update(activityInstance);
 
-        // Creates the BCIBlockInstanceClientEvent
-        BCIBlockInstanceClientEvent<BCIActivityInstance> blockInstanceClientEvent = new BCIBlockInstanceClientEvent<>(activityInstance, ClientEvent.FINISH,
+        //Create and publish the ClientEvent
+        BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(clientEvent,
                 new ClientEventResponse(), blockInstance.getId(), null, null);
-
-        // Publish the event
         applicationEventPublisher.publishEvent(blockInstanceClientEvent);
 
-        // Test
+        //Tests
         assertNotEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
         assertEquals(ExecutionStatus.IN_PROGRESS, blockInstance.getStatus());
         assertEquals(0, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
     }
 
     @Test
-    void handleBCIBlockInstanceClientEventsInProgress() {
+    void checkAllEntryConditionsTest() {
         ClientEvent clientEvent = ClientEvent.IN_PROGRESS;
 
-        // Update the BCIActivityInstance and BCIBlockInstance
-        activityInstance.setStatus(ExecutionStatus.SUSPENDED);
-        bciActivityInstanceService.update(activityInstance);
-
+        //Create new entities to simulate selecting a new Activity in a different Block
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
@@ -261,20 +261,28 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
                 create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
                         DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, newBCIBlock));
 
+        //Set EntryConditions to blank in order to pass checkEntryConditions()
+        newActivityInstance.getBciActivity().setPreconditions("");
         newBlockInstance.getBehaviorChangeInterventionBlock().setEntryConditions("");
+
+        //Set ExecutionStatus to simulate previous chain of events from other services
+        activityInstance.setStatus(ExecutionStatus.SUSPENDED);
+
+        //Update the entities
+        bciActivityInstanceService.update(activityInstance);
         behaviorChangeInterventionBlockInstanceService.update(newBlockInstance);
         behaviorChangeInterventionBlockInstanceService.update(blockInstance);
 
-        // Creates the BCIBlockInstanceClientEvent
-        BCIBlockInstanceClientEvent<BCIActivityInstance> blockInstanceClientEvent = new BCIBlockInstanceClientEvent<>(activityInstance, clientEvent,
-                new ClientEventResponse(), blockInstance.getId(), null, null, newBlockInstance.getId(), null);
+        //Create and publish the ClientEvent
+        ClientEventResponse clientEventResponse = new ClientEventResponse();
+        BCIActivityCheckEntryConditionsClientEvent entryConditionEvent = new BCIActivityCheckEntryConditionsClientEvent(clientEvent,
+                clientEventResponse, activityInstance.getId(), blockInstance.getId(), 11L, newActivityInstance.getId(),
+                newBlockInstance.getId(), 11L);
+        BCIBlockInstanceCheckEntryConditionsClientEvent event = new BCIBlockInstanceCheckEntryConditionsClientEvent(entryConditionEvent);
+        applicationEventPublisher.publishEvent(event);
 
-        // Publish the event
-        applicationEventPublisher.publishEvent(blockInstanceClientEvent);
-
-        // Test
-        assertEquals(ExecutionStatus.SUSPENDED, blockInstance.getStatus());
+        //Tests
         assertEquals(ExecutionStatus.IN_PROGRESS, newBlockInstance.getStatus());
-        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
+        assertEquals(0, applicationEvents.stream(BCIPhaseInstanceCheckEntryConditionsClientEvent.class).count());
     }
 }

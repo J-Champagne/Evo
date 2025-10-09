@@ -2,10 +2,11 @@ package ca.uqam.latece.evo.server.core.service.instance;
 
 import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
+import ca.uqam.latece.evo.server.core.event.BCIActivityCheckEntryConditionsClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIActivityClientEvent;
+import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceCheckEntryConditionsClientEvent;
 import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
-import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIActivityInstanceRepository;
 import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
@@ -195,8 +196,8 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
     public ClientEventResponse handleClientEvent(BCIActivityClientEvent event) {
         BCIActivityInstance found = null;
         BCIActivityInstance updated = null;
-        ClientEvent clientEvent = null;
         ClientEventResponse response = null;
+        BCIActivityCheckEntryConditionsClientEvent entryConditionEvent = null;
         FailedConditions failedConditions = new FailedConditions();
         boolean wasUpdated = false;
 
@@ -207,27 +208,42 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
             response = event.getResponse();
 
             if (found != null) {
-
-                //Handle ClientEvents
                 switch (event.getClientEvent()) {
                     case FINISH -> wasUpdated = super.handleClientEventFinish(found, failedConditions);
-                    case IN_PROGRESS -> wasUpdated = handleClientEventInProgress(found, event.getNewActivityInstanceId(), response);
+
+                    case IN_PROGRESS -> {
+                        if (!event.getBciActivityInstanceId().equals(event.getNewActivityInstanceId())) {
+                            entryConditionEvent = new BCIActivityCheckEntryConditionsClientEvent(event.getClientEvent(), response,
+                                    event.getBciActivityInstanceId(), event.getBciBlockInstanceId(), event.getBciPhaseInstanceId(),
+                                    event.getNewActivityInstanceId(), event.getNewBlockInstanceId(), event.getNewPhaseInstanceId());
+
+                            checkAllEntryConditions(entryConditionEvent);
+                            if (entryConditionEvent.isNoFailedEntryConditions()) {
+                                wasUpdated = super.handleClientEventInProgress(found);
+                            }
+                        }
+                    }
                 }
 
                 //Update the response with information from BCIActivityInstance
                 response.addResponse(BCIActivityInstance.class.getSimpleName(), found.getId(), found.getStatus(),
                         failedConditions.getFailedEntryConditions(), failedConditions.getFailedExitConditions());
+            }
 
-                //Update the entity
-                if (wasUpdated) {
-                    updated = this.update(found);
+            //Update the entity
+            if (wasUpdated) {
+                updated = this.update(found);
 
-                    if (updated != null) {
-                        //Will wait until all listeners are triggered
-                        super.publishEvent(new BCIBlockInstanceClientEvent<BCIActivityInstance>(updated, event.getClientEvent(), response, event.getBciBlockInstanceId(),
-                                event.getBciPhaseInstanceId(), event.getBciInstanceId(), event.getNewBlockInstanceId(), event.getNewPhaseInstanceId()));
-                        response.setSuccess(true);
+                if (updated != null) {
+                    //Blocking, will wait until all listeners are triggered
+                    BCIBlockInstanceClientEvent blockInstanceClientEvent = new BCIBlockInstanceClientEvent(event.getClientEvent(), response, event.getBciBlockInstanceId(),
+                            event.getBciPhaseInstanceId(), event.getBciInstanceId());
+                    if (entryConditionEvent != null) {
+                        blockInstanceClientEvent.setEntryConditionEvent(entryConditionEvent);
                     }
+
+                    super.publishEvent(blockInstanceClientEvent);
+                    response.setSuccess(true);
                 }
             }
         }
@@ -236,38 +252,44 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
     }
 
     /**
-     * Handles a ClientEvent IN_PROGRESS by updating the corresponding ActivityInstances when specific conditions
-     * related to its entry conditions are met. If the entry conditions are met, the oldActivityInstance will be set to
-     * SUSPENDED while the newActivityInstance will be set to IN_PROGRESS.
-     * @param oldActivityInstance the ActivityInstance no longer being progressed.
-     * @param newActivityInstanceId the id of the ActivityInstance that will be progressed.
-     * @param response a response object containing information on the updated entities in JSON format.
-     * @return true if the new activityInstances was updated.
+     * Checks entry conditions for an ActivityInstance and its related entities. When all the entry conditions are satisfied,
+     * the execution status of the ActivityInstance is set to IN_PROGRESS and is updated in the database. If some, or all,
+     * entry conditions are not satisfied, then the event is updated to reflect those failures and the ActivityInstance is not updated.
+     * In either case, a response in JSON is also generated in the event.
+     * @param event the event containing information necessary to check all the entry conditions
      */
-    public boolean handleClientEventInProgress(BCIActivityInstance oldActivityInstance, Long newActivityInstanceId,
-                                               ClientEventResponse response) {
+    protected void checkAllEntryConditions(BCIActivityCheckEntryConditionsClientEvent event) {
+        BCIBlockInstanceCheckEntryConditionsClientEvent newEvent = new BCIBlockInstanceCheckEntryConditionsClientEvent(event);
         FailedConditions failedConditions = new FailedConditions();
-        boolean wasUpdated = false;
 
-        if (!oldActivityInstance.getId().equals(newActivityInstanceId)) {
-            BCIActivityInstance newActivityInstance = findById(newActivityInstanceId);
+        if (!event.getBciActivityId().equals(event.getNewBCIActivityId())) {
+            BCIActivityInstance newActivityInstance = findById(event.getNewBCIActivityId());
 
             if (newActivityInstance != null) {
                 failedConditions.setFailedEntryConditions(checkEntryConditions(newActivityInstance));
 
                 if (failedConditions.getFailedEntryConditions().isEmpty()) {
-                    newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
-                    oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
-                    wasUpdated = update(newActivityInstance) != null;
+                    //Check entry conditions of new block if the new activity is in a different block
+                    if (!event.getBCIBlockInstanceId().equals(event.getNewBCIBlockInstanceId())) {
+                        //Blocking, will wait until all listeners are triggered
+                        super.publishEvent(newEvent);
+                    }
+
+                    //If all entry condition of all related entities pass, then newEvent.NoFailedEntryConditions will be true
+                    if (event.isNoFailedEntryConditions()) {
+                        newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+                        update(newActivityInstance);
+                    }
+
+                } else {
+                    event.setNoFailedEntryConditions(false);
                 }
 
-                response.addResponse(InteractionInstance.class.getSimpleName(), newActivityInstance.getId(),
+                event.getResponse().addResponse("new" + BCIActivityInstance.class.getSimpleName(), newActivityInstance.getId(),
                         newActivityInstance.getStatus(), failedConditions.getFailedEntryConditions(),
                         failedConditions.getFailedExitConditions());
             }
         }
-
-        return wasUpdated;
     }
 
     /**
@@ -276,7 +298,7 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
      * @return All the entry conditions that were not met.
      */
     @Override
-    public String checkEntryConditions(BCIActivityInstance bciInstance) {
+    protected String checkEntryConditions(BCIActivityInstance bciInstance) {
         return bciInstance.getBciActivity().getPreconditions();
     }
 
@@ -286,7 +308,7 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
      * @return All the exit conditions that were not met.
      */
     @Override
-    public String checkExitConditions(BCIActivityInstance bciInstance) {
+    protected String checkExitConditions(BCIActivityInstance bciInstance) {
         return bciInstance.getBciActivity().getPostconditions();
     }
 

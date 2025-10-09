@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 
-abstract public class AbstractBCIInstanceService <A extends ActivityInstance, E extends EvoClientEvent<?>> extends AbstractEvoService<A> {
+abstract public class AbstractBCIInstanceService <A extends ActivityInstance, E extends EvoClientEvent> extends AbstractEvoService<A> {
     private static final Logger logger = LoggerFactory.getLogger(AbstractBCIInstanceService.class);
     /**
      * Handles ClientEvent by updating the corresponding ActivityInstance when specific conditions related to its execution status are met.
@@ -27,7 +27,7 @@ abstract public class AbstractBCIInstanceService <A extends ActivityInstance, E 
      * @param failedConditions the object containing the failed entry/exit conditions
      * @return true if activityInstance was updated
      */
-    public boolean handleClientEventFinish(A activityInstance, FailedConditions failedConditions) {
+    protected boolean handleClientEventFinish(A activityInstance, FailedConditions failedConditions) {
         boolean wasUpdated = false;
 
         failedConditions.setFailedExitConditions(checkExitConditions(activityInstance));
@@ -38,6 +38,17 @@ abstract public class AbstractBCIInstanceService <A extends ActivityInstance, E 
         }
 
         return wasUpdated;
+    }
+
+    /**
+     * Handles a ClientEvent IN_PROGRESS by updating the corresponding ActivityInstance to SUSPENDED.
+     * Assumes that entry conditions were previously checked and that another Activity was set to IN_PROGRESS.
+     * @param oldActivityInstance the ActivityInstance no longer being progressed.
+     * @return true if the oldActivityInstance was updated.
+     */
+    protected boolean handleClientEventInProgress(A oldActivityInstance) {
+        oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
+        return update(oldActivityInstance) != null;
     }
 
     /**
@@ -59,10 +70,10 @@ abstract public class AbstractBCIInstanceService <A extends ActivityInstance, E 
      * If the application event publisher is not initialized, an exception is thrown.
      * @param event the EvoClientEvent to be published.
      */
-    public final void publishEvent(@NotNull EvoClientEvent<A> event) {
+    public final void publishEvent(@NotNull EvoClientEvent event) {
         if (super.applicationEventPublisher != null) {
             this.applicationEventPublisher.publishEvent(event);
-            logger.info("{} created with event: {}", event.getActivityInstance().getClass().getSimpleName(), event);
+            logger.info("Created event: {}", event);
         } else {
             throw this.buildEventException(event);
         }

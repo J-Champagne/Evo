@@ -5,35 +5,41 @@ import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionP
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.Clock;
-
 /**
  * Represents an event corresponding to a ClientEvent in relation to a BCIInstance.
  * This class is designed to be handled by BCIInstanceService in the context of handling requests related to
  * BehaviorChangeIntervention entities from the client side of the application
  * @author Julien Champagne.
  */
-public class BCIInstanceClientEvent extends EvoClientEvent<BehaviorChangeInterventionPhaseInstance> {
+public class BCIInstanceClientEvent extends EvoClientEvent {
     Long bciInstanceId;
 
-    public BCIInstanceClientEvent(@NotNull BehaviorChangeInterventionPhaseInstance evoModel,
-                                  @NotNull ClientEvent clientEvent,
-                                  @NotNull ClientEventResponse response,
-                                  @NotNull Long bciInstanceId) {
-        super(evoModel, clientEvent, response);
-        this.bciInstanceId = bciInstanceId;
-    }
+    BehaviorChangeInterventionPhaseInstance bciPhaseInstance;
 
-    public BCIInstanceClientEvent(@NotNull BehaviorChangeInterventionPhaseInstance evoModel,
-                                  @NotNull ClientEvent clientEvent,
+    BCIActivityCheckEntryConditionsClientEvent entryConditionEvent;
+
+    public BCIInstanceClientEvent(@NotNull ClientEvent clientEvent,
                                   @NotNull ClientEventResponse response,
                                   @NotNull Long bciInstanceId,
-                                  @NotNull Clock clock) {
-        super(evoModel,clientEvent, response, clock);
+                                  @NotNull BehaviorChangeInterventionPhaseInstance bciPhaseInstance) {
+        super(clientEvent, response);
         this.bciInstanceId = bciInstanceId;
+        this.bciPhaseInstance = bciPhaseInstance;
     }
 
     public Long getBciInstanceId() {
         return bciInstanceId;
+    }
+
+    public BehaviorChangeInterventionPhaseInstance getBCIPhaseInstance() {
+        return bciPhaseInstance;
+    }
+
+    public BCIActivityCheckEntryConditionsClientEvent getEntryConditionEvent() {
+        return entryConditionEvent;
+    }
+
+    public void setEntryConditionEvent(BCIActivityCheckEntryConditionsClientEvent entryConditionEvent) {
+        this.entryConditionEvent = entryConditionEvent;
     }
 }

@@ -470,8 +470,8 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         blockInstance.setStatus(ExecutionStatus.FINISHED);
         phaseInstance.setStatus(ExecutionStatus.FINISHED);
 
-        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(phaseInstance, ClientEvent.FINISH,
-                new ClientEventResponse(), bciInstance.getId());
+        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(ClientEvent.FINISH,
+                new ClientEventResponse(), bciInstance.getId(), phaseInstance);
 
         applicationEventPublisher.publishEvent(instanceClientEvent);
 
@@ -491,8 +491,8 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         bciInstance.addActivity(phaseInstance2);
         bciInstance.getBehaviorChangeIntervention().setExitConditions("");
 
-        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(phaseInstance, ClientEvent.FINISH,
-                new ClientEventResponse(), bciInstance.getId());
+        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(ClientEvent.FINISH,
+                new ClientEventResponse(), bciInstance.getId(), phaseInstance);
         applicationEventPublisher.publishEvent(instanceClientEvent);
 
         assertEquals(ExecutionStatus.FINISHED, bciInstance.getStatus());
