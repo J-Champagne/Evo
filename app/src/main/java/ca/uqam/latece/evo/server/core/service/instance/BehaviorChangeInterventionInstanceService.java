@@ -4,9 +4,7 @@ import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.event.BCIInstanceClientEvent;
-import ca.uqam.latece.evo.server.core.event.BCIInstanceEvent;
-import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceEvent;
+import ca.uqam.latece.evo.server.core.event.*;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
@@ -572,7 +570,7 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
      */
     @Override
     @EventListener(BCIInstanceClientEvent.class)
-    public ClientEventResponse handleClientEvent(BCIInstanceClientEvent event) {
+    protected ClientEventResponse handleClientEvent(BCIInstanceClientEvent event) {
         BehaviorChangeInterventionInstance bciInstance = null;
         BehaviorChangeInterventionPhaseInstance phaseInstance = null;
         ClientEventResponse response = null;
@@ -581,10 +579,10 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
         boolean statusUpdated = false;
         boolean phaseUpdated = false;
 
-        if (event != null && event.getActivityInstance() != null && event.getClientEvent() != null && event.getBciInstanceId() != null
+        if (event != null && event.getBCIPhaseInstance() != null && event.getClientEvent() != null && event.getBciInstanceId() != null
                 && event.getResponse() != null) {
             bciInstance = findById(event.getBciInstanceId());
-            phaseInstance = event.getActivityInstance();
+            phaseInstance = event.getBCIPhaseInstance();
             response = event.getResponse();
 
             if (bciInstance != null) {
@@ -593,9 +591,20 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
                 clientEvent = event.getClientEvent();
                 switch(clientEvent) {
                     case ClientEvent.FINISH -> {
-                        if (phaseInstance.getStatus() == ExecutionStatus.FINISHED) {
-                            statusUpdated = super.handleClientEventFinish(bciInstance, failedConditions);
-                            phaseUpdated = setNextCurrentPhase(bciInstance, phaseInstance, bciInstance.getActivities());
+                        phaseUpdated = setNextCurrentPhase(bciInstance, phaseInstance, bciInstance.getActivities());
+                        if (!phaseUpdated) {
+                            if(checkIfAllPhaseAreFinished(bciInstance)) {
+                                statusUpdated = super.handleClientEventFinish(bciInstance, failedConditions);
+                            }
+                        } else {
+                            checkEntryConditionsForPhaseInBCIInstance(clientEvent, response, bciInstance.getCurrentPhase());
+                        }
+                    }
+
+                    case ClientEvent.IN_PROGRESS -> {
+                        if (event.getEntryConditionEvent().getNewBCIPhaseInstance() != null) {
+                            bciInstance.setCurrentPhase(event.getEntryConditionEvent().getNewBCIPhaseInstance());
+                            phaseUpdated = true;
                         }
                     }
                 }
@@ -635,6 +644,17 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
     }
 
     /**
+     *
+     * @param phaseInstance
+     */
+    protected void checkEntryConditionsForPhaseInBCIInstance(ClientEvent event, ClientEventResponse response,
+                                                             BehaviorChangeInterventionPhaseInstance phaseInstance) {
+        //Check entry conditions for Phases was omitted because activities in bciInstance are assumed to be sequential
+        publishEvent(new BCIInstanceToPhaseCheckEntryConditionsClientEvent(event, response, phaseInstance));
+
+    }
+
+    /**
      * Updates the currentPhase with the next one present in the list of activities of a BCIInstance.
      * The currentPhase will not be updated if currentPhase is the last one present in the activities of the BCIInstance.
      * @param bciInstance the BCIInstance to be updated
@@ -652,8 +672,11 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
             if (activity.getId().equals(phaseInstance.getId())) {
                 int nextIndex = i + 1;
                 if (nextIndex < activities.size()) {
-                    bciInstance.setCurrentPhase(activities.get(nextIndex));
+                    BehaviorChangeInterventionPhaseInstance newPhaseInstance = activities.get(nextIndex);
+                    newPhaseInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+                    bciInstance.setCurrentPhase(newPhaseInstance);
                     phaseUpdated = true;
+
                 }
 
                 break;
@@ -661,5 +684,19 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
         }
 
         return phaseUpdated;
+    }
+
+    /**
+     * Checks if every phaseInstance in a BCIInstance have the status of FINISHED
+     * @return true if every phase instance has status of FINISHED
+     */
+    private boolean checkIfAllPhaseAreFinished(BehaviorChangeInterventionInstance bciInstance) {
+        for (BehaviorChangeInterventionPhaseInstance phaseInstance : bciInstance.getActivities()) {
+            if (phaseInstance.getStatus() != ExecutionStatus.FINISHED) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

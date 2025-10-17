@@ -1,10 +1,7 @@
 package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.enumeration.*;
-import ca.uqam.latece.evo.server.core.event.BCIActivityClientEvent;
-import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
-import ca.uqam.latece.evo.server.core.event.BCIInstanceClientEvent;
-import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
+import ca.uqam.latece.evo.server.core.event.*;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
@@ -61,11 +58,10 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
     private BehaviorChangeInterventionBlockService behaviorChangeInterventionBlockService;
 
     @Autowired
-    private BehaviorChangeInterventionPhaseService bciPhaseService;
+    private BehaviorChangeInterventionPhaseService behaviorChangeInterventionPhaseService;
 
     @Autowired
     private BehaviorChangeInterventionService behaviorChangeInterventionService;
-
 
     @Autowired
     private BehaviorChangeInterventionBlockInstanceService behaviorChangeInterventionBlockInstanceService;
@@ -101,7 +97,7 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
                 ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
                 role, InteractionMedium.VIDEO));
 
-        interactionInstance = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
+        interactionInstance = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.IN_PROGRESS, participants,
                 interaction));
 
         List<BCIActivityInstance> activities = new ArrayList<>();
@@ -119,10 +115,10 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
 
         List<BCIModuleInstance> modules = new ArrayList<>();
 
-        BehaviorChangeInterventionPhase bciPhase = bciPhaseService.create(new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
+        BehaviorChangeInterventionPhase bciPhase = behaviorChangeInterventionPhaseService.create(new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
 
         phaseInstance = behaviorChangeInterventionPhaseInstanceService
-                .create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, blockInstance, activitiesBlock, modules, bciPhase));
+                .create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.IN_PROGRESS, blockInstance, activitiesBlock, modules, bciPhase));
 
         List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>();
         phases.add(phaseInstance);
@@ -134,7 +130,7 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
         Patient patient = patientService.create(new Patient("Patient", "patient@gmail.com", "222-2222",
                 "1901-01-01", "Participant", "3333 Street", pmf));
 
-        bciInstance = behaviorChangeInterventionInstanceService.create(new BehaviorChangeInterventionInstance(ExecutionStatus.READY, patient, phaseInstance, phases, behaviorChangeIntervention));
+        bciInstance = behaviorChangeInterventionInstanceService.create(new BehaviorChangeInterventionInstance(ExecutionStatus.IN_PROGRESS, patient, phaseInstance, phases, behaviorChangeIntervention));
     }
 
     @Test
@@ -234,17 +230,27 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void handleBCIBlockInstanceClientEventsAllEntitiesFinished() {
+    void testAllEntitiesFinished() {
         ClientEvent clientEvent = ClientEvent.FINISH;
+
+        //Set ExitConditions to blank in order to pass checkExitConditions()
         interactionInstance.getBciActivity().setPostconditions("");
         blockInstance.getBehaviorChangeInterventionBlock().setExitConditions("");
         phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
         bciInstance.getBehaviorChangeIntervention().setExitConditions("");
 
+        //Update the entities
+        interactionInstanceService.update(interactionInstance);
+        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+        behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
+        behaviorChangeInterventionInstanceService.update(bciInstance);
+
+        //Create and publish the ClientEvent
         BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent,
                 interactionInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId());
         ClientEventResponse response = interactionInstanceService.handleClientEvent(bciActivityClientEvent);
 
+        //Tests
         assertEquals(ExecutionStatus.FINISHED, interactionInstance.getStatus());
         assertEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
         assertEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
@@ -252,6 +258,147 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
         assertEquals(1, applicationEvents.stream(BCIBlockInstanceClientEvent.class).count());
         assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
         assertEquals(1, applicationEvents.stream(BCIInstanceClientEvent.class).count());
+        assertTrue(response.isSuccess());
+    }
+
+    @Test
+    void testOnlyOnePhaseFinished() {
+        ClientEvent clientEvent = ClientEvent.FINISH;
+
+        //Create new entities
+        List<Participant> participants = new ArrayList<>();
+        participants.add(participant);
+
+        Interaction interaction2 = interactionService.create(new Interaction("newInteraction2", "Description",
+                ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
+                role, InteractionMedium.VIDEO));
+        InteractionInstance interactionInstance2 = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
+                interaction2));
+        Interaction interaction3 = interactionService.create(new Interaction("newInteraction3", "Description",
+                ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
+                role, InteractionMedium.VIDEO));
+        InteractionInstance interactionInstance3 = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
+                interaction3));
+
+        List<BCIActivityInstance> bciActivityList = new ArrayList<>();
+        bciActivityList.add(interactionInstance2);
+        bciActivityList.add(interactionInstance3);
+
+        BehaviorChangeInterventionBlock behaviorChangeInterventionBlock2 = behaviorChangeInterventionBlockService.create(
+                new BehaviorChangeInterventionBlock("entry Conditions", "Exit conditions"));
+        BehaviorChangeInterventionBlockInstance behaviorChangeInterventionBlockInstance2 = behaviorChangeInterventionBlockInstanceService.create(
+                new BehaviorChangeInterventionBlockInstance(ExecutionStatus.READY, TimeCycle.BEGINNING, bciActivityList, behaviorChangeInterventionBlock2));
+
+        List<BehaviorChangeInterventionBlockInstance> bciBlockList = new ArrayList<>();
+        bciBlockList.add(behaviorChangeInterventionBlockInstance2);
+
+        List<BCIModuleInstance> moduleList = new ArrayList<>();
+
+        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase2 = behaviorChangeInterventionPhaseService.create(new BehaviorChangeInterventionPhase(
+                "entry Conditions", "Exit conditions"));
+        BehaviorChangeInterventionPhaseInstance behaviorChangeInterventionPhaseInstance2 = behaviorChangeInterventionPhaseInstanceService.create(
+                new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, behaviorChangeInterventionBlockInstance2, bciBlockList, moduleList, behaviorChangeInterventionPhase2));
+
+        bciInstance.addActivity(behaviorChangeInterventionPhaseInstance2);
+
+        //Set ExitConditions to blank in order to pass checkExitConditions() and checkEntryConditions()
+        interactionInstance.getBciActivity().setPostconditions("");
+        blockInstance.getBehaviorChangeInterventionBlock().setExitConditions("");
+        phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
+        interactionInstance2.getBciActivity().setPreconditions("");
+        behaviorChangeInterventionBlockInstance2.getBehaviorChangeInterventionBlock().setEntryConditions("");
+        behaviorChangeInterventionPhaseInstance2.getBehaviorChangeInterventionPhase().setEntryConditions("");
+
+        //Update the entities
+        interactionInstanceService.update(interactionInstance);
+        interactionInstanceService.update(interactionInstance2);
+        interactionInstanceService.update(interactionInstance3);
+        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+        behaviorChangeInterventionBlockInstanceService.update(behaviorChangeInterventionBlockInstance2);
+        behaviorChangeInterventionPhaseInstanceService.update(phaseInstance);
+        behaviorChangeInterventionPhaseInstanceService.update(behaviorChangeInterventionPhaseInstance2);
+        behaviorChangeInterventionInstanceService.update(bciInstance);
+
+        //Create and publish the ClientEvent
+        BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent,
+                interactionInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId());
+        ClientEventResponse response = interactionInstanceService.handleClientEvent(bciActivityClientEvent);
+
+        //Tests
+        assertEquals(ExecutionStatus.FINISHED, interactionInstance.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, blockInstance.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, bciInstance.getStatus());
+
+        assertEquals(ExecutionStatus.IN_PROGRESS, behaviorChangeInterventionPhaseInstance2.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, behaviorChangeInterventionBlockInstance2.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, interactionInstance2.getStatus());
+        assertEquals(ExecutionStatus.READY, interactionInstance3.getStatus());
+
+        assertEquals(1, applicationEvents.stream(BCIBlockInstanceClientEvent.class).count());
+        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
+        assertEquals(1, applicationEvents.stream(BCIInstanceClientEvent.class).count());
+        assertEquals(1, applicationEvents.stream(BCIInstanceToPhaseCheckEntryConditionsClientEvent.class).count());
+        assertEquals(1, applicationEvents.stream(BCIPhaseInstanceToBlockCheckEntryConditionClientEvent.class).count());
+        assertEquals(2, applicationEvents.stream(BCIBlockInstanceToActivityCheckEntryConditionsClientEvent.class).count());
+        assertTrue(response.isSuccess());
+    }
+
+    @Test
+    void handleBCIBlockInstanceClientEventsOneActivityInBlockFinished() {
+        ClientEvent clientEvent = ClientEvent.FINISH;
+
+        //Create new entities
+        List<Participant> participants = new ArrayList<>();
+        participants.add(participant);
+
+        Interaction interaction2 = interactionService.create(new Interaction("newInteraction2", "Description",
+                ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
+                role, InteractionMedium.VIDEO));
+        InteractionInstance interactionInstance2 = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
+                interaction2));
+        Interaction interaction3 = interactionService.create(new Interaction("newInteraction3", "Description",
+                ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
+                role, InteractionMedium.VIDEO));
+        InteractionInstance interactionInstance3 = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
+                interaction3));
+        Interaction interaction4 = interactionService.create(new Interaction("newInteraction4", "Description",
+                ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
+                role, InteractionMedium.VIDEO));
+        InteractionInstance interactionInstance4 = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.FINISHED, participants,
+                interaction4));
+
+        blockInstance.addActivity(interactionInstance2);
+        blockInstance.addActivity(interactionInstance3);
+        blockInstance.addActivity(interactionInstance4);
+
+
+        //Set ExitConditions to blank in order to pass checkExitConditions()
+        interactionInstance.getBciActivity().setPostconditions("");
+        interactionInstance2.getBciActivity().setPreconditions("");
+
+        //Update the entities
+        interactionInstanceService.update(interactionInstance);
+        interactionInstanceService.update(interactionInstance2);
+        behaviorChangeInterventionBlockInstanceService.update(blockInstance);
+
+        //Create and publish the ClientEvent
+        BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent,
+                interactionInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId());
+        ClientEventResponse response = interactionInstanceService.handleClientEvent(bciActivityClientEvent);
+
+        //Tests
+        assertEquals(ExecutionStatus.FINISHED, interactionInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, interactionInstance2.getStatus());
+        assertEquals(ExecutionStatus.READY, interactionInstance3.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, interactionInstance4.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, blockInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, bciInstance.getStatus());
+        assertEquals(1, applicationEvents.stream(BCIBlockInstanceClientEvent.class).count());
+        assertEquals(0, applicationEvents.stream(BCIPhaseInstanceClientEvent.class).count());
+        assertEquals(0, applicationEvents.stream(BCIInstanceClientEvent.class).count());
+        assertTrue(response.isSuccess());
     }
 
     @Test
@@ -268,6 +415,7 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
     void handleBCIActivityClientEventInProgressSuccess() {
         ClientEvent clientEvent = ClientEvent.IN_PROGRESS;
 
+        //Create new entities to simulate selecting a new Activity in a different Block and Phase
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
@@ -276,7 +424,6 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
                 role, InteractionMedium.VIDEO));
         InteractionInstance newInteractionInstance = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
                 interaction));
-        newInteractionInstance.getBciActivity().setPreconditions("");
 
         List<BCIActivityInstance> activities = new ArrayList<>();
         activities.add(interactionInstance);
@@ -284,23 +431,177 @@ public class InteractionInstanceServiceTest extends AbstractServiceTest {
         BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(new BehaviorChangeInterventionBlock
                 ("Intervention ENTRY", "Intervention EXIT"));
         BehaviorChangeInterventionBlockInstance newBlockInstance = behaviorChangeInterventionBlockInstanceService.
-                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.IN_PROGRESS, LocalDate.now(),
+                create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.READY, LocalDate.now(),
                         DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, bciBlock));
 
         List<BehaviorChangeInterventionBlockInstance> activitiesBlock = new ArrayList<>();
         activitiesBlock.add(blockInstance);
         List<BCIModuleInstance> modules = new ArrayList<>();
 
-        BehaviorChangeInterventionPhase bciPhase = bciPhaseService.create(new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
+        BehaviorChangeInterventionPhase bciPhase = behaviorChangeInterventionPhaseService.create(new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
         BehaviorChangeInterventionPhaseInstance newPhaseInstance = behaviorChangeInterventionPhaseInstanceService
                 .create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, blockInstance, activitiesBlock, modules, bciPhase));
 
+        bciInstance.addActivity(newPhaseInstance);
+
+        //Set EntryConditions to blank in order to pass checkEntryConditions()
+        newInteractionInstance.getBciActivity().setPreconditions("");
+        newBlockInstance.getBehaviorChangeInterventionBlock().setEntryConditions("");
+        newPhaseInstance.getBehaviorChangeInterventionPhase().setEntryConditions("");
+
+        //Update the entities
+        interactionInstanceService.update(newInteractionInstance);
+        behaviorChangeInterventionBlockInstanceService.update(newBlockInstance);
+        behaviorChangeInterventionPhaseInstanceService.update(newPhaseInstance);
+        behaviorChangeInterventionInstanceService.update(bciInstance);
+
+        //Create and publish the ClientEvent
         BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent,
                 interactionInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId(), newInteractionInstance.getId(),
                 newBlockInstance.getId(), newPhaseInstance.getId());
         ClientEventResponse response = interactionInstanceService.handleClientEvent(bciActivityClientEvent);
 
-        assertEquals(ExecutionStatus.IN_PROGRESS, newInteractionInstance.getStatus());
+        //Tests
         assertEquals(ExecutionStatus.SUSPENDED, interactionInstance.getStatus());
+        assertEquals(ExecutionStatus.SUSPENDED, blockInstance.getStatus());
+        assertEquals(ExecutionStatus.SUSPENDED, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, newInteractionInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, newBlockInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, newPhaseInstance.getStatus());
+        assertEquals(newPhaseInstance.getCurrentBlock().getId(), newBlockInstance.getId());
+        assertNotEquals(newPhaseInstance.getCurrentBlock().getId(), blockInstance.getId());
+        assertEquals(bciInstance.getCurrentPhase().getId(), newPhaseInstance.getId());
+        assertNotEquals(bciInstance.getCurrentPhase().getId(), phaseInstance.getId());
+        assertTrue(response.isSuccess());
+    }
+
+    @Test
+    void handleBCIActivityClientEventInProgressSuccessSamePhase() {
+        ClientEvent clientEvent = ClientEvent.IN_PROGRESS;
+
+        //Create new entities to simulate selecting a new Activity in a different Block and Phase
+        List<Participant> participants = new ArrayList<>();
+        participants.add(participant);
+
+        Interaction interaction = interactionService.create(new Interaction("newInteraction", "Description",
+                ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
+                role, InteractionMedium.VIDEO));
+        InteractionInstance newInteractionInstance = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
+                interaction));
+
+        List<BCIActivityInstance> activities = new ArrayList<>();
+        activities.add(interactionInstance);
+
+        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService.create(
+                new BehaviorChangeInterventionBlock("Intervention ENTRY", "Intervention EXIT"));
+        BehaviorChangeInterventionBlockInstance newBlockInstance = behaviorChangeInterventionBlockInstanceService.create
+                (new BehaviorChangeInterventionBlockInstance(ExecutionStatus.READY, LocalDate.now(),
+                        DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, bciBlock));
+
+        List<BehaviorChangeInterventionBlockInstance> activitiesBlock = new ArrayList<>();
+        activitiesBlock.add(blockInstance);
+
+        List<BCIModuleInstance> modules = new ArrayList<>();
+
+        BehaviorChangeInterventionPhase bciPhase = behaviorChangeInterventionPhaseService.create
+                (new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
+        BehaviorChangeInterventionPhaseInstance newPhaseInstance = behaviorChangeInterventionPhaseInstanceService.create
+                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, blockInstance, activitiesBlock, modules, bciPhase));
+
+        bciInstance.addActivity(newPhaseInstance);
+
+        //Set EntryConditions to blank in order to pass checkEntryConditions()
+        newInteractionInstance.getBciActivity().setPreconditions("");
+        newBlockInstance.getBehaviorChangeInterventionBlock().setEntryConditions("");
+        newPhaseInstance.getBehaviorChangeInterventionPhase().setEntryConditions("");
+
+        //Update the entities
+        interactionInstanceService.update(newInteractionInstance);
+        behaviorChangeInterventionBlockInstanceService.update(newBlockInstance);
+        behaviorChangeInterventionPhaseInstanceService.update(newPhaseInstance);
+        behaviorChangeInterventionInstanceService.update(bciInstance);
+
+        //Create and publish the ClientEvent
+        BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent,
+                interactionInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId(), newInteractionInstance.getId(),
+                newBlockInstance.getId(), phaseInstance.getId());
+        ClientEventResponse response = interactionInstanceService.handleClientEvent(bciActivityClientEvent);
+
+        //Tests
+        assertEquals(ExecutionStatus.SUSPENDED, interactionInstance.getStatus());
+        assertEquals(ExecutionStatus.SUSPENDED, blockInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, newInteractionInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, newBlockInstance.getStatus());
+        assertEquals(ExecutionStatus.READY, newPhaseInstance.getStatus());
+        assertEquals(phaseInstance.getCurrentBlock().getId(), newBlockInstance.getId());
+        assertNotEquals(phaseInstance.getCurrentBlock().getId(), blockInstance.getId());
+        assertEquals(bciInstance.getCurrentPhase().getId(), phaseInstance.getId());
+        assertNotEquals(bciInstance.getCurrentPhase().getId(), newPhaseInstance.getId());
+        assertTrue(response.isSuccess());
+    }
+
+    @Test
+    void handleBCIActivityClientEventInProgressFailEntryConditionInPhase() {
+        ClientEvent clientEvent = ClientEvent.IN_PROGRESS;
+
+        //Create new entities to simulate selecting a new Activity in a different Block and Phase
+        List<Participant> participants = new ArrayList<>();
+        participants.add(participant);
+
+        Interaction interaction = interactionService.create(new Interaction("newInteraction", "Description",
+                ActivityType.BCI_ACTIVITY, "precondition", "postcondition", InteractionMode.ASYNCHRONOUS,
+                role, InteractionMedium.VIDEO));
+        InteractionInstance newInteractionInstance = interactionInstanceService.create(new InteractionInstance(ExecutionStatus.READY, participants,
+                interaction));
+
+        List<BCIActivityInstance> activities = new ArrayList<>();
+        activities.add(interactionInstance);
+
+        BehaviorChangeInterventionBlock bciBlock = behaviorChangeInterventionBlockService
+                .create(new BehaviorChangeInterventionBlock("Intervention ENTRY", "Intervention EXIT"));
+        BehaviorChangeInterventionBlockInstance newBlockInstance = behaviorChangeInterventionBlockInstanceService
+                .create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.READY, LocalDate.now(),
+                        DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"), TimeCycle.MIDDLE, activities, bciBlock));
+
+        List<BehaviorChangeInterventionBlockInstance> activitiesBlock = new ArrayList<>();
+        activitiesBlock.add(blockInstance);
+        List<BCIModuleInstance> modules = new ArrayList<>();
+
+        BehaviorChangeInterventionPhase bciPhase = behaviorChangeInterventionPhaseService
+                .create(new BehaviorChangeInterventionPhase("Intervention ENTRY", "Intervention EXIT"));
+        BehaviorChangeInterventionPhaseInstance newPhaseInstance = behaviorChangeInterventionPhaseInstanceService
+                .create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY, blockInstance, activitiesBlock, modules, bciPhase));
+
+        bciInstance.addActivity(newPhaseInstance);
+
+        //Set EntryConditions to blank in order to pass checkEntryConditions()
+        newInteractionInstance.getBciActivity().setPreconditions("");
+        newBlockInstance.getBehaviorChangeInterventionBlock().setEntryConditions("");
+
+        //Update the entities
+        interactionInstanceService.update(newInteractionInstance);
+        behaviorChangeInterventionBlockInstanceService.update(newBlockInstance);
+        behaviorChangeInterventionPhaseInstanceService.update(newPhaseInstance);
+        behaviorChangeInterventionInstanceService.update(bciInstance);
+
+        //Create and publish the ClientEvent
+        BCIActivityClientEvent bciActivityClientEvent = new BCIActivityClientEvent(clientEvent,
+                interactionInstance.getId(), blockInstance.getId(), phaseInstance.getId(), bciInstance.getId(),
+                newInteractionInstance.getId(), newBlockInstance.getId(), newPhaseInstance.getId());
+        ClientEventResponse response = interactionInstanceService.handleClientEvent(bciActivityClientEvent);
+
+        //Tests
+        assertEquals(ExecutionStatus.IN_PROGRESS, interactionInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, blockInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.READY, newInteractionInstance.getStatus());
+        assertEquals(ExecutionStatus.READY, newBlockInstance.getStatus());
+        assertEquals(ExecutionStatus.READY, newPhaseInstance.getStatus());
+        assertEquals(phaseInstance.getCurrentBlock().getId(), blockInstance.getId());
+        assertNotEquals(phaseInstance.getCurrentBlock().getId(), newBlockInstance.getId());
+        assertEquals(bciInstance.getCurrentPhase().getId(), phaseInstance.getId());
+        assertNotEquals(bciInstance.getCurrentPhase().getId(), newPhaseInstance.getId());
+        assertFalse(response.isSuccess());
     }
 }

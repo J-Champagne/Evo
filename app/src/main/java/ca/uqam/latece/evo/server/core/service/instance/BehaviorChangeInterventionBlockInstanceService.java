@@ -4,11 +4,9 @@ import ca.uqam.latece.evo.server.core.enumeration.ChangeAspect;
 import ca.uqam.latece.evo.server.core.enumeration.ClientEvent;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceClientEvent;
-import ca.uqam.latece.evo.server.core.event.BCIBlockInstanceEvent;
-import ca.uqam.latece.evo.server.core.event.BCIPhaseInstanceClientEvent;
+import ca.uqam.latece.evo.server.core.event.*;
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
-import ca.uqam.latece.evo.server.core.model.instance.InteractionInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionBlockInstanceRepository;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.util.FailedConditions;
@@ -31,7 +29,7 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCIInstanceService<BehaviorChangeInterventionBlockInstance, BCIBlockInstanceClientEvent<?>> {
+public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCIInstanceService<BehaviorChangeInterventionBlockInstance, BCIBlockInstanceClientEvent> {
     private static final Logger logger = LoggerFactory.getLogger(BehaviorChangeInterventionBlockInstanceService.class);
 
     @Autowired
@@ -202,7 +200,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
      */
     @Override
     @EventListener(BCIBlockInstanceClientEvent.class)
-    public ClientEventResponse handleClientEvent(BCIBlockInstanceClientEvent<?> event) {
+    public ClientEventResponse handleClientEvent(BCIBlockInstanceClientEvent event) {
         BehaviorChangeInterventionBlockInstance blockInstance = null;
         BehaviorChangeInterventionBlockInstance updated = null;
         ClientEventResponse response = null;
@@ -210,23 +208,23 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
         FailedConditions failedConditions = new FailedConditions();
         boolean wasUpdated = false;
 
-        if (event != null && event.getActivityInstance() != null && event.getClientEvent() != null && event.getBciBlockInstanceId() != null
+        if (event != null && event.getClientEvent() != null && event.getBciBlockInstanceId() != null
                 && event.getResponse() != null) {
             response = event.getResponse();
             blockInstance = findById(event.getBciBlockInstanceId());
 
             if (blockInstance != null) {
-
-                //Handle ClientEvents
-                clientEvent = event.getClientEvent();
-                switch(clientEvent) {
-                    case ClientEvent.FINISH -> {
-                        if (event.getActivityInstance().getStatus() == ExecutionStatus.FINISHED) {
-                            wasUpdated = super.handleClientEventFinish(blockInstance, failedConditions);
-                        }
+                switch(event.getClientEvent()) {
+                    case FINISH ->  {
+                        checkEntryConditionsForBCIActivitiesInBlock(event.getClientEvent(), response, blockInstance);
+                        wasUpdated = super.handleClientEventFinish(blockInstance, failedConditions);
                     }
 
-                    case IN_PROGRESS -> wasUpdated = handleClientEventInProgress(blockInstance, event.getNewBlockInstanceId(), response);
+                    case IN_PROGRESS -> {
+                        if (!event.getBciBlockInstanceId().equals(event.getEntryConditionEvent().getNewBCIBlockInstanceId())) {
+                            wasUpdated = super.handleClientEventInProgress(blockInstance);
+                        }
+                    }
                 }
 
                 //Update the response with information from BCIBlockInstance
@@ -237,8 +235,12 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
                 if (wasUpdated) {
                     updated = update(blockInstance);
                     if (updated != null) {
-                        publishEvent(new BCIPhaseInstanceClientEvent(blockInstance, clientEvent,
-                                response, event.getBciPhaseInstanceId(), event.getBciInstanceId()));
+                        BCIPhaseInstanceClientEvent phaseInstanceClientEvent = new BCIPhaseInstanceClientEvent(event.getClientEvent(),
+                                response, event.getBciPhaseInstanceId(), event.getBciInstanceId(), updated);
+                        if (event.getEntryConditionEvent() != null) {
+                            phaseInstanceClientEvent.setEntryConditionEvent(event.getEntryConditionEvent());
+                        }
+                        publishEvent(phaseInstanceClientEvent);
                     }
                 }
             }
@@ -248,38 +250,76 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
     }
 
     /**
-     * Handles a ClientEvent IN_PROGRESS by updating the corresponding ActivityInstances when specific conditions
-     * related to its entry conditions are met. If the entry conditions are met, the oldActivityInstance will be set to
-     * SUSPENDED while the newActivityInstance will be set to IN_PROGRESS.
-     * @param oldActivityInstance the ActivityInstance no longer being progressed.
-     * @param newActivityInstanceId the id of the ActivityInstance that will be progressed.
-     * @param response a response object containing information on the updated entities in JSON format.
-     * @return true if the new activityInstances was updated.
+     * Checks entry conditions for an ActivityInstance and its related entities. When all the entry conditions are satisfied,
+     * the execution status of the ActivityInstance is set to IN_PROGRESS and is updated in the database. If some, or all,
+     * entry conditions are not satisfied, then the event is updated to reflect those failures and the ActivityInstance is not updated.
+     * In either case, a response in JSON is also generated in the event.
+     * @param event the event containing information necessary to check all the entry conditions
      */
-    public boolean handleClientEventInProgress(BehaviorChangeInterventionBlockInstance oldActivityInstance, Long newActivityInstanceId,
-                                               ClientEventResponse response) {
+    @EventListener(BCIBlockInstanceCheckEntryConditionsClientEvent.class)
+    protected void checkAllEntryConditions(BCIBlockInstanceCheckEntryConditionsClientEvent event) {
+        BCIActivityCheckEntryConditionsClientEvent entryConditionClientEvent = event.getEntryConditionClientEvent();
+        BCIPhaseInstanceCheckEntryConditionsClientEvent newEvent = new BCIPhaseInstanceCheckEntryConditionsClientEvent(entryConditionClientEvent);
         FailedConditions failedConditions = new FailedConditions();
-        boolean wasUpdated = false;
 
-        if (!oldActivityInstance.getId().equals(newActivityInstanceId)) {
-            BehaviorChangeInterventionBlockInstance newActivityInstance = findById(newActivityInstanceId);
+        if (!entryConditionClientEvent.getBCIBlockInstanceId().equals(entryConditionClientEvent.getNewBCIBlockInstanceId())) {
+            BehaviorChangeInterventionBlockInstance newBlockInstance = findById(entryConditionClientEvent.getNewBCIBlockInstanceId());
 
-            if (newActivityInstance != null) {
-                failedConditions.setFailedEntryConditions(checkEntryConditions(newActivityInstance));
-
+            if (newBlockInstance != null) {
+                failedConditions.setFailedEntryConditions(checkEntryConditions(newBlockInstance));
                 if (failedConditions.getFailedEntryConditions().isEmpty()) {
-                    newActivityInstance.setStatus(ExecutionStatus.IN_PROGRESS);
-                    oldActivityInstance.setStatus(ExecutionStatus.SUSPENDED);
-                    wasUpdated = update(newActivityInstance) != null;
+                    entryConditionClientEvent.setNewBCIBlockInstance(newBlockInstance);
+
+                    //Check entry conditions of new phase the new activity if is a different phase
+                    if (!entryConditionClientEvent.getBCIPhaseInstanceId().equals(entryConditionClientEvent.getNewBCIPhaseInstanceId())) {
+                        super.publishEvent(newEvent);
+                    }
+
+                    //If all entry condition of all related entities pass, then newEvent.NoFailedEntryConditions will be true
+                    if (entryConditionClientEvent.isNoFailedEntryConditions()) {
+                        newBlockInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+                        update(newBlockInstance);
+                    }
+
+                } else {
+                    entryConditionClientEvent.setNoFailedEntryConditions(false);
                 }
 
-                response.addResponse(InteractionInstance.class.getSimpleName(), newActivityInstance.getId(),
-                        newActivityInstance.getStatus(), failedConditions.getFailedEntryConditions(),
+                entryConditionClientEvent.getResponse().addResponse("new" + BehaviorChangeInterventionBlockInstance.class.getSimpleName(),
+                        newBlockInstance.getId(), newBlockInstance.getStatus(), failedConditions.getFailedEntryConditions(),
                         failedConditions.getFailedExitConditions());
             }
         }
+    }
 
-        return wasUpdated;
+    /**
+     * Checks the entry conditions of all BCIActivities inside a block by publishing an event to BCIActivityService.
+     * those events are published to any activity with the status of READY. If all the entry conditions of those activities,
+     * pass, their status is set to IN_PROGRESS and are updated in the database.
+     * @param clientEvent the ClientEvent.
+     * @param response a response object containing information on failed conditions and newly updated activities in JSON.
+     * @param blockInstance the block with the aggregate of bciActivities
+     */
+    private void checkEntryConditionsForBCIActivitiesInBlock(ClientEvent clientEvent, ClientEventResponse response,
+                                                      BehaviorChangeInterventionBlockInstance blockInstance) {
+        for (BCIActivityInstance activityInstance : blockInstance.getActivities()) {
+            if (activityInstance.getStatus() == ExecutionStatus.READY) {
+                publishEvent(new BCIBlockInstanceToActivityCheckEntryConditionsClientEvent<>(clientEvent, response, activityInstance));
+            }
+        }
+    }
+
+    /**
+     * Event listener for changes related to blocks and originating from BCIPhaseInstance.
+     * Helps with updating relevant entities when a block is FINISHED
+     * @param event
+     */
+    @EventListener(BCIPhaseInstanceToBlockCheckEntryConditionClientEvent.class)
+    protected void checkEntryConditionsForBCIActivitiesInBlock(BCIPhaseInstanceToBlockCheckEntryConditionClientEvent event) {
+        event.getBlockInstance().setStatus(ExecutionStatus.IN_PROGRESS);
+        if (update(event.getBlockInstance()) != null) {
+            checkEntryConditionsForBCIActivitiesInBlock(event.getClientEvent(), event.getResponse(), event.getBlockInstance());
+        }
     }
 
     /**
@@ -288,7 +328,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
      * @return All the entry conditions that were not met.
      */
     @Override
-    public String checkEntryConditions(BehaviorChangeInterventionBlockInstance bciInstance) {
+    protected String checkEntryConditions(BehaviorChangeInterventionBlockInstance bciInstance) {
         return bciInstance.getBehaviorChangeInterventionBlock().getEntryConditions();
     }
 
@@ -298,7 +338,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
      * @return All the exit conditions that were not met.
      */
     @Override
-    public String checkExitConditions(BehaviorChangeInterventionBlockInstance bciInstance) {
+    protected String checkExitConditions(BehaviorChangeInterventionBlockInstance bciInstance) {
         return bciInstance.getBehaviorChangeInterventionBlock().getExitConditions();
     }
 }

@@ -470,8 +470,8 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         blockInstance.setStatus(ExecutionStatus.FINISHED);
         phaseInstance.setStatus(ExecutionStatus.FINISHED);
 
-        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(phaseInstance, ClientEvent.FINISH,
-                new ClientEventResponse(), bciInstance.getId());
+        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(ClientEvent.FINISH,
+                new ClientEventResponse(), bciInstance.getId(), phaseInstance);
 
         applicationEventPublisher.publishEvent(instanceClientEvent);
 
@@ -480,7 +480,8 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     }
 
     @Test
-    void testHandleBCIInstanceClientEvent() {
+    void testHandleBCIInstanceClientEventFinishedNotAllPhaseFinished() {
+        bciInstance.setStatus(ExecutionStatus.IN_PROGRESS);
         activityInstance.setStatus(ExecutionStatus.FINISHED);
         blockInstance.setStatus(ExecutionStatus.FINISHED);
         phaseInstance.setStatus(ExecutionStatus.FINISHED);
@@ -490,13 +491,51 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
 
         bciInstance.addActivity(phaseInstance2);
         bciInstance.getBehaviorChangeIntervention().setExitConditions("");
+        phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
 
-        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(phaseInstance, ClientEvent.FINISH,
-                new ClientEventResponse(), bciInstance.getId());
+        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(ClientEvent.FINISH,
+                new ClientEventResponse(), bciInstance.getId(), phaseInstance);
         applicationEventPublisher.publishEvent(instanceClientEvent);
 
-        assertEquals(ExecutionStatus.FINISHED, bciInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, bciInstance.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.IN_PROGRESS, phaseInstance2.getStatus());
         assertEquals(phaseInstance2.getId(), bciInstance.getCurrentPhase().getId());
     }
 
+    @Test
+    void testHandleBCIInstanceClientEventFinishedAllPhaseFinished() {
+        ClientEvent event = ClientEvent.FINISH;
+
+        //Create new entities
+        BehaviorChangeInterventionPhaseInstance phaseInstance2 = bciPhaseInstanceService.create(new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.READY,
+                phaseInstance.getCurrentBlock(), phaseInstance.getActivities(), phaseInstance.getModules(), phaseInstance.getBehaviorChangeInterventionPhase()));
+
+        //Set EntryConditions to blank in order to pass checkEntryConditions() and update status to simulate end of bciInstance
+        bciInstance.addActivity(phaseInstance2);
+        bciInstance.setCurrentPhase(phaseInstance2);
+        bciInstance.getBehaviorChangeIntervention().setExitConditions("");
+        phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
+        phaseInstance2.getBehaviorChangeInterventionPhase().setExitConditions("");
+        activityInstance.setStatus(ExecutionStatus.FINISHED);
+        blockInstance.setStatus(ExecutionStatus.FINISHED);
+        phaseInstance.setStatus(ExecutionStatus.FINISHED);
+        phaseInstance2.setStatus(ExecutionStatus.FINISHED);
+
+        //Update the entities
+        bciInstanceService.update(bciInstance);
+        bciPhaseInstanceService.update(phaseInstance);
+        bciPhaseInstanceService.update(phaseInstance2);
+
+        //Create and publish the ClientEvent
+        BCIInstanceClientEvent instanceClientEvent = new BCIInstanceClientEvent(event, new ClientEventResponse(),
+                bciInstance.getId(), phaseInstance2);
+        applicationEventPublisher.publishEvent(instanceClientEvent);
+
+        //Tests
+        assertEquals(ExecutionStatus.FINISHED, bciInstance.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, phaseInstance.getStatus());
+        assertEquals(ExecutionStatus.FINISHED, phaseInstance2.getStatus());
+        assertEquals(phaseInstance2.getId(), bciInstance.getCurrentPhase().getId());
+    }
 }
