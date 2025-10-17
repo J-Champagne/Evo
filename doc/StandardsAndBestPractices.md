@@ -90,7 +90,7 @@ successfully be made, the developer can proceed with creating a merge request.
 > 
 > Review code and implement recommendations
 >
-> Merge changes to main branch and resolve conflicts
+> Merge changes to relevant* branch and resolve conflicts
 
 A merge request should be accompanied by a description that briefly describes 
 how the feature or the fix was implemented. Additionally, a code review
@@ -105,6 +105,16 @@ If not, the merge should be redone.
 
 Once a merge request is completed, the branch where the feature was developed should
 be automatically be deleted.
+
+*Note: A branch should be merged into main only if there are no branches dependent on said branch.
+If there are branches that depend on features implemented in another branch that was not yet merge into main, 
+these branches should be merged into the branches that they depend on.
+
+For example, if we have 3 branches, where Branch_2 depends on Branch_1:
+
+```Main->Branch_1->Branch_2```
+
+Then, Branch_2 should be merged into Branch_1 before Branch_1 is merge into Main.
 
 
 
