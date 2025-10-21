@@ -1,7 +1,7 @@
 package ca.uqam.latece.evo.server.core.request;
 
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
-import lombok.*;
+import lombok.Getter;
 
 import java.io.Serial;
 

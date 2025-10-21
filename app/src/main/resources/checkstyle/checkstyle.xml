@@ -4,11 +4,35 @@
         "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 <module name="Checker">
     <module name="TreeWalker">
+        <module name="AvoidNestedBlocks">
+            <!-- To configure the check to allow nested blocks in switch case. -->
+            <property name="allowInSwitchCase" value="true"/>
+            <property name="severity" value="warning" />
+        </module>
+        <!-- Checks that there are no import statements that use the * notation. -->
         <module name="AvoidStarImport">
             <property name="severity" value="warning" />
         </module>
+        <!-- Checks for empty blocks. -->
         <module name="EmptyBlock">
             <property name="severity" value="warning" />
+        </module>
+        <module name="EmptyCatchBlock">
+            <!-- To configure the check to suppress empty catch block if single-line comment inside is "This is expected". -->
+            <property name="commentFormat" value="This is expected"/>
+            <property name="severity" value="warning" />
+        </module>
+        <module name="DesignForExtension">
+            <property name="severity" value="warning" />
+        </module>
+        <!-- To configure the Check so that it allows public immutable fields (mostly for immutable classes). -->
+        <module name="VisibilityModifier">
+            <property name="allowPublicImmutableFields" value="true"/>
+            <property name="severity" value="warning" />
+        </module>
+        <!-- Specifies the maximum allowable number of lines in a method or constructor, and has default value 150. -->
+        <module name="MethodLength">
+            <property name="max" value="60"/>
         </module>
     </module>
 </module>

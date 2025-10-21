@@ -3,6 +3,59 @@ The provided SQL script defines a relational database structure involving multip
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
+Drop all tables if exists.
+***********************************************************************************************************************/
+drop table if exists required_skill cascade;
+drop table if exists skill_content cascade;
+drop table if exists bci_activity_instance_participants cascade;
+drop table if exists participant cascade;
+drop table if exists goal_setting_instance cascade;
+drop table if exists goal_setting cascade;
+drop table if exists reporting cascade;
+drop table if exists interaction_instance cascade;
+drop table if exists interaction cascade;
+drop table if exists behavior_performance cascade;
+drop table if exists behavior_performance_instance cascade;
+drop table if exists requires cascade;
+drop table if exists develops cascade;
+drop table if exists bci_activity_content cascade;
+drop table if exists content cascade;
+drop table if exists bci_activity_role cascade;
+drop table if exists composed_of cascade;
+drop table if exists compose_of_phase_block cascade;
+drop table if exists bci_module_skill cascade;
+drop table if exists module_composed_activity cascade;
+drop table if exists bci_phase_contains_module cascade;
+drop table if exists bci_module cascade;
+drop table if exists assessment_skill cascade;
+drop table if exists skill cascade;
+drop table if exists assessment cascade;
+drop table if exists role cascade;
+drop table if exists bci_block_instance_activities cascade;
+drop table if exists bci_module_instance_activities cascade;
+drop table if exists bci_activity_instance cascade;
+drop table if exists bci_activity cascade;
+drop table if exists bci_phase_instance_activities cascade;
+drop table if exists bci_phase_instance_modules cascade;
+drop table if exists bci_module_instance cascade;
+drop table if exists bci_instance_activities cascade;
+drop table if exists bci_referral_interventions cascade;
+drop table if exists bci_instance cascade;
+drop table if exists bci_phase_instance cascade;
+drop table if exists behavior_change_intervention_phase cascade;
+drop table if exists behavior_change_intervention cascade;
+drop table if exists bci_block_instance cascade;
+drop table if exists activity_instance cascade;
+drop table if exists behavior_change_intervention_block cascade;
+drop table if exists bci_referral cascade;
+drop table if exists healthcare_professional cascade;
+drop table if exists patient_assessment cascade;
+drop table if exists patient cascade;
+drop table if exists actor cascade;
+drop table if exists patient_medicalfile cascade;
+
+
+/***********************************************************************************************************************
 role table: This table stores information about roles in the system (e.g., admin, user, etc.).
 - Columns:
   - role_id: A unique identifier for each role. It's type BIGSERIAL, meaning it's an auto-incrementing integer.

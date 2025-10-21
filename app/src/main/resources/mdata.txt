@@ -4,6 +4,20 @@ Note: Before running this script, drop all tables and create a new schema using 
 `../app/src/main/resources`.
 ***********************************************************************************************************************/
 
+
+
+/***********************************************************************************************************************
+Scenario of test.
+The scenario was created to test the happy path. Thus, the scenario involves patient Martin Aghion (id: 5) and a Behavioral
+Change Intervention Instance (id: 108), which is an instance of Behavioral Change Intervention (id: 2) with two phases:
+
+- Phase 1 (id: 106) was set to “IN_PROGRESS” and marked as the current phase. It contains one Block (id: 103), also
+“IN_PROGRESS” and at the “BEGINNING” stage. This Block contains an Activity (id: 99), likewise “IN_PROGRESS.”
+- Phase 2 (id: 107) was initialized as “READY.” It includes two blocks: Block 1 (id: 104), the Current Block, is at the
+'UNSPECIFIED' stage and “READY” status with a single Activity (id: 100) also “READY.” Block 2 (id: 105), also 'UNSPECIFIED'
+and “READY,” contains two Activities (ids: 101 and 102), both with “READY” status.
+***********************************************************************************************************************/
+
 /***********************************************************************************************************************
 role
 ***********************************************************************************************************************/
@@ -18,35 +32,35 @@ INSERT INTO "role" (role_name,role_description) VALUES
 bci_activity - Activity and Interaction.
 ***********************************************************************************************************************/
 INSERT INTO bci_activity (bci_activity_name,bci_activity_description,bci_activity_type,bci_activity_preconditions,bci_activity_postconditions,bci_activity_type_class) VALUES
-	 ('Activity POC 1','Activity POC 1 - Description','BCI_ACTIVITY','Activity POC 1 - Preconditions','Activity POC 1 - Postconditions',NULL),
-	 ('Activity POC 2','Activity POC 2 - Description','BCI_ACTIVITY','Activity POC 2 - Preconditions','Activity POC 2 - Postconditions',NULL),
-	 ('Activity POC 3','Activity POC 3 - Description','BCI_ACTIVITY','Activity POC 3 - Preconditions','Activity POC 3 - Postconditions',NULL),
-	 ('Activity POC 4','Activity POC 4 - Description','BCI_ACTIVITY','Activity POC 4 - Preconditions','Activity POC 4 - Postconditions',NULL),
-	 ('Activity POC 5','Activity POC 5 - Description','BCI_ACTIVITY','Activity POC 5 - Preconditions','Activity POC 5 - Postconditions',NULL),
-	 ('Interaction POC 1','Interaction POC 1 - Description','BCI_ACTIVITY','Interaction POC 1 - Preconditions','Interaction POC 1 - Postconditions',NULL),
-	 ('Interaction POC 2','Interaction POC 2 - Description','BCI_ACTIVITY','Interaction POC 2 - Preconditions','Interaction POC 2 - Postconditions',NULL),
-	 ('Activity POC 8','Activity POC 8 - Description','BCI_ACTIVITY','Activity POC 8 - Preconditions','Activity POC 8 - Posconditions',NULL),
-	 ('Activity POC 9','Activity POC 9 - Description','BCI_ACTIVITY','Activity POC 9 - Preconditions','Activity POC 9 - Posconditions',NULL),
-	 ('Activity POC 10','Activity POC 10 - Description','BCI_ACTIVITY','Activity POC 10 - Preconditions','Activity POC 10 - Posconditions',NULL);
+	 ('Activity POC 1','Activity POC 1 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 2','Activity POC 2 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 3','Activity POC 3 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 4','Activity POC 4 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 5','Activity POC 5 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Interaction POC 1','Interaction POC 1 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Interaction POC 2','Interaction POC 2 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 8','Activity POC 8 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 9','Activity POC 9 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 10','Activity POC 10 - Description','BCI_ACTIVITY','x->true','x->true',NULL);
 INSERT INTO bci_activity (bci_activity_name,bci_activity_description,bci_activity_type,bci_activity_preconditions,bci_activity_postconditions,bci_activity_type_class) VALUES
-	 ('Activity POC 11','Activity POC 11 - Description','BCI_ACTIVITY','Activity POC 11 - Preconditions','Activity POC 11 - Posconditions',NULL),
-	 ('Activity POC 12','Activity POC 12 - Description','BCI_ACTIVITY','Activity POC 12 - Preconditions','Activity POC 12 - Posconditions',NULL),
-	 ('Activity POC 13','Activity POC 13 - Description','BCI_ACTIVITY','Activity POC 13 - Preconditions','Activity POC 13 - Posconditions',NULL),
-	 ('Activity POC 14','Activity POC 14 - Description','BCI_ACTIVITY','Activity POC 14 - Preconditions','Activity POC 14 - Posconditions',NULL),
-	 ('Activity POC 15','Activity POC 15 - Description','BCI_ACTIVITY','Activity POC 15 - Preconditions','Activity POC 15 - Posconditions',NULL),
-	 ('Activity POC 16','Activity POC 16 - Description','BCI_ACTIVITY','Activity POC 16 - Preconditions','Activity POC 16 - Posconditions',NULL),
-	 ('Activity POC 17','Activity POC 17 - Description','BCI_ACTIVITY','Activity POC 17 - Preconditions','Activity POC 17 - Posconditions',NULL),
-	 ('Activity POC 18','Activity POC 18 - Description','BCI_ACTIVITY','Activity POC 18 - Preconditions','Activity POC 18 - Posconditions',NULL),
-	 ('Activity POC 19','Activity POC 19 - Description','BCI_ACTIVITY','Activity POC 19 - Preconditions','Activity POC 19 - Posconditions',NULL),
-	 ('Activity POC 20','Activity POC 20 - Description','BCI_ACTIVITY','Activity POC 20 - Preconditions','Activity POC 20 - Posconditions',NULL);
+	 ('Activity POC 11','Activity POC 11 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 12','Activity POC 12 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 13','Activity POC 13 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 14','Activity POC 14 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 15','Activity POC 15 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 16','Activity POC 16 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 17','Activity POC 17 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 18','Activity POC 18 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 19','Activity POC 19 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 20','Activity POC 20 - Description','BCI_ACTIVITY','x->true','x->true',NULL);
 INSERT INTO bci_activity (bci_activity_name,bci_activity_description,bci_activity_type,bci_activity_preconditions,bci_activity_postconditions,bci_activity_type_class) VALUES
-	 ('Activity POC 21','Activity POC 21 - Description','BCI_ACTIVITY','Activity POC 21 - Preconditions','Activity POC 21 - Posconditions',NULL),
-	 ('Activity POC 22','Activity POC 22 - Description','BCI_ACTIVITY','Activity POC 22 - Preconditions','Activity POC 22 - Posconditions',NULL),
-	 ('Activity POC 23','Activity POC 23 - Description','BCI_ACTIVITY','Activity POC 23 - Preconditions','Activity POC 23 - Posconditions',NULL),
-	 ('Activity POC 24','Activity POC 24 - Description','BCI_ACTIVITY','Activity POC 24 - Preconditions','Activity POC 24 - Posconditions',NULL),
-	 ('Activity POC 25','Activity POC 25 - Description','BCI_ACTIVITY','Activity POC 25 - Preconditions','Activity POC 25 - Posconditions',NULL),
-	 ('Activity POC 26','Activity POC 26 - Description','BCI_ACTIVITY','Activity POC 26 - Preconditions','Activity POC 26 - Posconditions',NULL),
-	 ('Activity POC 27','Activity POC 27 - Description','BCI_ACTIVITY','Activity POC 27 - Preconditions','Activity POC 27 - Posconditions',NULL);
+	 ('Activity POC 21','Activity POC 21 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 22','Activity POC 22 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 23','Activity POC 23 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 24','Activity POC 24 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 25','Activity POC 25 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 26','Activity POC 26 - Description','BCI_ACTIVITY','x->true','x->true',NULL),
+	 ('Activity POC 27','Activity POC 27 - Description','BCI_ACTIVITY','x->true','x->true',NULL);
 
 
 /***********************************************************************************************************************
@@ -194,21 +208,23 @@ INSERT INTO skill (skill_name,skill_description,skill_type,skill_sub_skill_id,sk
 BehaviorChangeInterventionBlock
 ***********************************************************************************************************************/
 INSERT INTO behavior_change_intervention_block (behavior_change_intervention_block_entry_conditions,behavior_change_intervention_block_exit_conditions) VALUES
-	 ('Block Entry Condition POC 1','Block Exit Condition POC 1'),
-	 ('Block Entry Condition POC 2','Block Exit Condition POC 2'),
-	 ('Block Entry Condition POC 3','Block Exit Condition POC 3'),
-	 ('Block Entry Condition POC 4','Block Exit Condition POC 4'),
-	 ('Block Entry Condition POC 5','Block Exit Condition POC 5'),
-	 ('Block Entry Condition POC 6','Block Exit Condition POC 6'),
-	 ('Block Entry Condition POC 7','Block Exit Condition POC 7'),
-	 ('Block Entry Condition POC 8','Block Exit Condition POC 8'),
-	 ('Block Entry Condition POC 9','Block Exit Condition POC 9'),
-	 ('Block Entry Condition POC 10','Block Exit Condition POC 10'),
-	 ('Block Entry Condition POC 11','Block Exit Condition POC 11'),
-     ('Block Entry Condition POC 12','Block Exit Condition POC 12'),
-     ('Block Entry Condition POC 13','Block Exit Condition POC 13'),
-     ('Block Entry Condition POC 14','Block Exit Condition POC 14');
-
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+	 ('x->true','x->true'),
+     ('x->true','x->true'),
+     ('x->true','x->true'),
+     ('x->true','x->true'),
+     ('x->true','x->true'),
+     ('x->true','x->true'),
+     ('x->true','x->true');
 
 /***********************************************************************************************************************
 composed_of - association between block and activity.
@@ -242,28 +258,34 @@ INSERT INTO composed_of (composed_of_time_cycle,composed_of_order,composed_of_bc
 	 ('UNSPECIFIED',2,24,12),
 	 ('UNSPECIFIED',1,25,13),
 	 ('UNSPECIFIED',2,26,13),
-	 ('UNSPECIFIED',1,27,14);
+	 ('UNSPECIFIED',1,27,14),
+	 ('BEGINNING',1,1,15),
+     ('UNSPECIFIED',1,2,16),
+     ('UNSPECIFIED',1,3,17),
+     ('UNSPECIFIED',2,4,17);
 
 
 /***********************************************************************************************************************
 behavior_change_intervention
 ***********************************************************************************************************************/
-INSERT INTO behavior_change_intervention (behavior_change_intervention_name) VALUES
-	 ('Intervention POC 1'),
-	 ('Intervention POC 2');
+INSERT INTO behavior_change_intervention (behavior_change_intervention_name,behavior_change_intervention_entry_conditions,behavior_change_intervention_exit_conditions) VALUES
+	 ('Intervention POC 1','x->true','x->true'),
+	 ('Intervention POC Scenario - 2','x->true','x->true');
 
 
 /***********************************************************************************************************************
 behavior_change_intervention_phase
 ***********************************************************************************************************************/
 INSERT INTO behavior_change_intervention_phase (behavior_change_intervention_phase_entry_conditions,behavior_change_intervention_phase_exit_conditions,behavior_change_intervention_phase_bci_id) VALUES
-	 ('Phase Entry Condition POC 1','Phase Exit Condition POC 1',1),
-	 ('Phase Entry Condition POC 2','Phase Exit Condition POC 2',1),
-	 ('Phase Entry Condition POC 3','Phase Exit Condition POC 3',1),
-	 ('Phase Entry Condition POC 4','Phase Exit Condition POC 4',1),
-	 ('Phase Entry Condition POC 5','Phase Exit Condition POC 5',1),
-	 ('Phase Entry Condition POC 6','Phase Exit Condition POC 6',1),
-	 ('Phase Entry Condition POC 7','Phase Exit Condition POC 7',1);
+	 ('x->true','x->true',1),
+	 ('x->true','x->true',1),
+	 ('x->true','x->true',1),
+	 ('x->true','x->true',1),
+	 ('x->true','x->true',1),
+	 ('x->true','x->true',1),
+	 ('x->true','x->true',1),
+	 ('x->true','x->true',2),
+	 ('x->true','x->true',2);
 
 
 /***********************************************************************************************************************
@@ -284,7 +306,10 @@ INSERT INTO compose_of_phase_block (compose_of_phase_block_bci_phase_id,compose_
 	 (6,11),
 	 (6,12),
 	 (7,13),
-	 (7,14);
+	 (7,14),
+	 (8,15),
+     (9,16),
+     (9,17);
 
 
 /***********************************************************************************************************************
@@ -294,7 +319,8 @@ INSERT INTO actor (actor_name,actor_email,actor_contact_information) VALUES
 	 ('Pierre Drapeau','p.drapeau@gmail.com','99999'),
 	 ('Marie Leblanc','marie@gmail.com','88888'),
 	 ('Marie Drapeau','marie.drapeau@gmail.com','77777'),
-	 ('Jhon Carrey','jcarrey@gmail.com','66666');
+	 ('Java Carrey','jcarrey@gmail.com','66666'),
+     ('Martin Aghion','martin.aghion@gmail.com','55555');
 
 
 /***********************************************************************************************************************
@@ -302,7 +328,8 @@ patient_medicalfile
 ***********************************************************************************************************************/
 INSERT INTO patient_medicalfile (patient_medicalfile_date,patient_medicalfile_medicalhistory) VALUES
 	 ('2025-08-06','Healthy'),
-	 ('2025-05-06','Healthy');
+	 ('2025-05-06','Healthy'),
+     ('2025-10-06','Healthy');
 
 
 /***********************************************************************************************************************
@@ -310,7 +337,8 @@ patient
 ***********************************************************************************************************************/
 INSERT INTO patient (patient_id,patient_birthdate,patient_occupation,patient_address,patient_patient_medical_file_id) VALUES
 	 (1,'1990-01-01','Software Developer','3333 Street',1),
-	 (2,'1995-06-07','Student','72 Street Vert',2);
+	 (2,'1995-06-07','Student','72 Street Vert',2),
+     (5,'1985-10-10','Engineer','4 Street',3);
 
 
 /***********************************************************************************************************************
@@ -328,7 +356,8 @@ INSERT INTO participant (participant_role_id,participant_actor_id) VALUES
 	 (2,1),
 	 (2,2),
 	 (3,3),
-	 (3,4);
+	 (3,4),
+     (2,5);
 
 
 /***********************************************************************************************************************
@@ -442,6 +471,17 @@ INSERT INTO activity_instance (activity_instance_status,activity_instance_entry_
 	 ('READY',NULL,NULL),
 	 ('READY',NULL,NULL),
 	 ('IN_PROGRESS','2025-10-10',NULL);
+INSERT INTO activity_instance (activity_instance_status,activity_instance_entry_date,activity_instance_exit_date) VALUES
+	 ('IN_PROGRESS','2025-10-15',NULL),
+	 ('READY',NULL,NULL),
+	 ('READY',NULL,NULL),
+	 ('READY',NULL,NULL),
+	 ('IN_PROGRESS','2025-10-15',NULL),
+	 ('READY',NULL,NULL),
+	 ('READY',NULL,NULL),
+	 ('IN_PROGRESS','2025-10-15',NULL),
+     ('READY',NULL,NULL),
+     ('IN_PROGRESS','2025-10-15',NULL);
 
 
 
@@ -508,6 +548,11 @@ INSERT INTO bci_activity_instance (bci_activity_instance_id,bci_activity_instanc
 	 (74,25),
 	 (75,26),
 	 (76,27);
+INSERT INTO bci_activity_instance (bci_activity_instance_id,bci_activity_instance_bci_activity_id) VALUES
+	 (99,1),
+	 (100,2),
+	 (101,3),
+	 (102,4);
 
 
 /***********************************************************************************************************************
@@ -704,6 +749,19 @@ INSERT INTO bci_activity_instance_participants (bci_activity_instance_participan
 	 (76,3);
 INSERT INTO bci_activity_instance_participants (bci_activity_instance_participants_bci_activity_instance_id,bci_activity_instance_participants_participant_id) VALUES
 	 (76,4);
+INSERT INTO bci_activity_instance_participants (bci_activity_instance_participants_bci_activity_instance_id,bci_activity_instance_participants_participant_id) VALUES
+	 (99,5),
+	 (99,3),
+     (99,4),
+     (100,5),
+     (100,3),
+     (100,4),
+     (101,5),
+     (101,3),
+     (101,4),
+	 (102,2),
+	 (102,3),
+     (102,4);
 
 
 /***********************************************************************************************************************
@@ -741,6 +799,10 @@ INSERT INTO bci_block_instance (bci_block_instance_id,bci_block_instance_stage,b
 	 (88,'UNSPECIFIED',12),
 	 (89,'UNSPECIFIED',13),
 	 (90,'UNSPECIFIED',14);
+INSERT INTO bci_block_instance (bci_block_instance_id,bci_block_instance_stage,bci_block_instance_behavior_change_intervention_block_id) VALUES
+	 (103,'BEGINNING',15),
+	 (104,'UNSPECIFIED',16),
+	 (105,'UNSPECIFIED',17);
 
 
 /***********************************************************************************************************************
@@ -806,6 +868,11 @@ INSERT INTO bci_block_instance_activities (bci_block_instance_activities_block_i
 	 (89,74),
 	 (89,75),
 	 (90,76);
+INSERT INTO bci_block_instance_activities (bci_block_instance_activities_block_id,bci_block_instance_activities_activity_id) VALUES
+	 (103,99),
+	 (104,100),
+	 (105,101),
+	 (105,102);
 
 
 /***********************************************************************************************************************
@@ -827,10 +894,13 @@ INSERT INTO bci_phase_instance (bci_phase_instance_id,bci_phase_instance_current
 	 (95,85,5),
 	 (96,87,6),
 	 (97,89,7);
+INSERT INTO bci_phase_instance (bci_phase_instance_id,bci_phase_instance_currentblock_id,bci_phase_instance_behavior_change_intervention_phase_id) VALUES
+	 (106,103,8),
+	 (107,104,9);
 
 
 /***********************************************************************************************************************
-bci_phase_instance_activities - association between bci_phase_instance_activities_phase and bci_block_instance.
+bci_phase_instance_activities - association between bci_phase_instance and bci_block_instance.
 ***********************************************************************************************************************/
 INSERT INTO bci_phase_instance_activities (bci_phase_instance_activities_phase_id,bci_phase_instance_activities_block_id) VALUES
 	 (42,28),
@@ -864,6 +934,10 @@ INSERT INTO bci_phase_instance_activities (bci_phase_instance_activities_phase_i
 	 (96,88),
 	 (97,89),
 	 (97,90);
+INSERT INTO bci_phase_instance_activities (bci_phase_instance_activities_phase_id,bci_phase_instance_activities_block_id) VALUES
+	 (106,103),
+	 (107,104),
+	 (107,105);
 
 
 /***********************************************************************************************************************
@@ -871,7 +945,8 @@ bci_instance
 ***********************************************************************************************************************/
 INSERT INTO bci_instance (bci_instance_id,bci_instance_patient_id,bci_instance_currentphase_id,bci_instance_behavior_change_intervention_id) VALUES
 	 (49,1,42,1),
-	 (98,2,91,1);
+	 (98,2,91,1),
+	 (108,5,106,2);
 
 
 /***********************************************************************************************************************
@@ -893,3 +968,6 @@ INSERT INTO bci_instance_activities (bci_instance_activities_bci_id,bci_instance
 	 (98,95),
 	 (98,96),
 	 (98,97);
+INSERT INTO bci_instance_activities (bci_instance_activities_bci_id,bci_instance_activities_phase_id) VALUES
+	 (108,106),
+	 (108,107);

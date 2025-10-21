@@ -4,7 +4,8 @@ import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
