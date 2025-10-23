@@ -10,6 +10,7 @@ import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.util.FailedConditions;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+import ca.uqam.latece.evo.server.core.util.StringToLambdaConverter;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -321,7 +322,13 @@ public class InteractionInstanceService extends AbstractBCIInstanceService<Inter
      */
     @Override
     public String checkEntryConditions(InteractionInstance bciInstance) {
-        return bciInstance.getBciActivity().getPreconditions();
+        String condition = bciInstance.getBciActivity().getPreconditions();
+
+        if (StringToLambdaConverter.convertConditionStringToLambda(condition)) {
+            condition = "";
+        }
+
+        return condition;
     }
 
     /**
@@ -331,7 +338,13 @@ public class InteractionInstanceService extends AbstractBCIInstanceService<Inter
      */
     @Override
     public String checkExitConditions(InteractionInstance bciInstance) {
-        return bciInstance.getBciActivity().getPostconditions();
+        String condition = bciInstance.getBciActivity().getPostconditions();
+
+        if (StringToLambdaConverter.convertConditionStringToLambda(condition)) {
+            condition = "";
+        }
+
+        return condition;
     }
 
     /**

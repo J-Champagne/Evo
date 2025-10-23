@@ -12,6 +12,7 @@ import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterven
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.util.FailedConditions;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
+import ca.uqam.latece.evo.server.core.util.StringToLambdaConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -630,7 +631,13 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
      */
     @Override
     public String checkEntryConditions(BehaviorChangeInterventionInstance bciInstance) {
-        return bciInstance.getBehaviorChangeIntervention().getEntryConditions();
+        String condition = bciInstance.getBehaviorChangeIntervention().getEntryConditions();
+
+        if (StringToLambdaConverter.convertConditionStringToLambda(condition)) {
+            condition = "";
+        }
+
+        return condition;
     }
 
     /**
@@ -640,7 +647,13 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
      */
     @Override
     public String checkExitConditions(BehaviorChangeInterventionInstance bciInstance) {
-        return bciInstance.getBehaviorChangeIntervention().getExitConditions();
+        String condition = bciInstance.getBehaviorChangeIntervention().getExitConditions();
+
+        if (StringToLambdaConverter.convertConditionStringToLambda(condition)) {
+            condition = "";
+        }
+
+        return condition;
     }
 
     /**
