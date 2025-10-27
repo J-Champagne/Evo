@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
 import ca.uqam.latece.evo.server.core.service.instance.PatientAssessmentService;
 import ca.uqam.latece.evo.server.core.service.instance.PatientService;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +63,7 @@ public class PatientAssessmentServiceTest extends AbstractServiceTest {
     void testDeleteById() {
         patientAssessmentService.deleteById(paSaved.getId());
 
-        assertThrows(EntityNotFoundException.class, () -> patientAssessmentService.findById(paSaved.getId()));
+        assertFalse(patientAssessmentService.existsById(paSaved.getId()));
     }
 
     @Test

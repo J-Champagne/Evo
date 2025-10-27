@@ -147,12 +147,11 @@ public class GoalSettingService extends AbstractEvoService<GoalSetting> {
      * @param id The GoalSetting Id to filter GoalSetting entities by, must not be null.
      * @return the GoalSetting with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws RuntimeException if the goal setting not found.
      */
     @Override
     public GoalSetting findById(Long id) {
         ObjectValidator.validateId(id);
-        return goalSettingRepository.findById(id).get();
+        return goalSettingRepository.findById(id).orElse(null);
     }
 
     /**

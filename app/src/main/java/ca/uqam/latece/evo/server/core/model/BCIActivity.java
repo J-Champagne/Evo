@@ -66,7 +66,7 @@ public class BCIActivity extends Activity {
     private List<Content> contentBCIActivities = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     @JoinTable(
             name = "bci_activity_role",
             joinColumns = @JoinColumn(name = "bci_activity_role_bci_activity_id", referencedColumnName="bci_activity_id"),

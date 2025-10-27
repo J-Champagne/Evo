@@ -11,7 +11,6 @@ import ca.uqam.latece.evo.server.core.model.instance.*;
 import ca.uqam.latece.evo.server.core.service.instance.*;
 
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +23,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The test class for the {@link BCIModuleInstanceService}, responsible for testing its various functionalities. This
@@ -110,7 +108,7 @@ public class BCIModuleInstanceServiceTest extends AbstractServiceTest {
     @Override
     void testDeleteById() {
         bciModuleInstanceService.deleteById(moduleInstance.getId());
-        assertThrows(EntityNotFoundException.class, () -> bciModuleInstanceService.findById(moduleInstance.getId()));
+        assertFalse(bciModuleInstanceService.existsById(moduleInstance.getId()));
     }
 
     @Test

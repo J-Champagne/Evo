@@ -7,7 +7,6 @@ import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -127,8 +126,7 @@ public class HealthCareProfessionalService extends AbstractEvoService<HealthCare
     @Override
     public HealthCareProfessional findById(Long id) {
         ObjectValidator.validateId(id);
-        return hcpRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("HealthCareProfessional not found!"));
+        return hcpRepository.findById(id).orElse(null);
     }
 
     /**

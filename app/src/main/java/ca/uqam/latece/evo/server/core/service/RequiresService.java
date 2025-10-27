@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.model.Requires;
 import ca.uqam.latece.evo.server.core.repository.RequiresRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,13 +110,11 @@ public class RequiresService extends AbstractEvoService<Requires> {
      * @param id the unique identifier of the requires to be retrieved.
      * @return the requires corresponding to the specified identifier.
      * @throws IllegalArgumentException if the provided id is null or invalid.
-     * @throws EntityNotFoundException if the requires not found.
      */
     @Override
     public Requires findById(Long id) {
         ObjectValidator.validateId(id);
-        return requiresRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Requires not found!"));
+        return requiresRepository.findById(id).orElse(null);
     }
 
     /**

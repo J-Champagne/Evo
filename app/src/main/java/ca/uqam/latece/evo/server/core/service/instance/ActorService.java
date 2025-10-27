@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.repository.instance.ActorRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,8 +129,7 @@ public class ActorService extends AbstractEvoService<Actor> {
 	@Override
 	public Actor findById(Long id) {
 		ObjectValidator.validateId(id);
-		return actorRepository.findById(id).
-				orElseThrow(() -> new EntityNotFoundException("Actor not found!"));
+		return actorRepository.findById(id).orElse(null);
 	}
 
 	/**

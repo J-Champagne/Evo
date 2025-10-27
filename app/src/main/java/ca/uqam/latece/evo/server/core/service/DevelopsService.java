@@ -4,7 +4,6 @@ import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.model.Develops;
 import ca.uqam.latece.evo.server.core.repository.DevelopsRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,13 +50,11 @@ public class DevelopsService extends AbstractEvoService<Develops> {
      * @param id The Content Id to filter Develops entities by, must not be null.
      * @return the Develops with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws EntityNotFoundException in case the given Develops not found.
      */
     @Override
     public Develops findById(Long id) {
         ObjectValidator.validateId(id);
-        return developsRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Develops not found!"));
+        return developsRepository.findById(id).orElse(null);
     }
 
     /**

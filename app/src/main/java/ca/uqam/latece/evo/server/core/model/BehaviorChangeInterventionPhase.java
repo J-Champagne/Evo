@@ -43,7 +43,7 @@ public class BehaviorChangeInterventionPhase extends AbstractEvoModel {
     @Column(name = "behavior_change_intervention_phase_exit_conditions", nullable = false, length = 256)
     private String exitConditions;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
     @JoinColumn(name = "behavior_change_intervention_phase_bci_id", nullable = true)
     private BehaviorChangeIntervention behaviorChangeInterventionPhaseBci;
 
@@ -52,12 +52,11 @@ public class BehaviorChangeInterventionPhase extends AbstractEvoModel {
      * BehaviorChangeInterventionPhase entity via a many-to-many relationship.
      * The relationship is managed on the "blockBehaviorChangeInterventionPhases" side defined in the
      * BehaviorChangeInterventionBlock entity. Cascade operations include PERSIST and MERGE, ensuring changes in
-     * BehaviorChangeInterventionPhase propagate to associated BehaviorChangeInterventionBlock accordingly. The fetch
-     * type is LAZY, meaning the associated BehaviorChangeInterventionBlock are fetched only when explicitly accessed.
+     * BehaviorChangeInterventionPhase propagate to associated BehaviorChangeInterventionBlock accordingly.
      */
     @ManyToMany(mappedBy = "blockBehaviorChangeInterventionPhases",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     @JsonIgnore
     private List<BehaviorChangeInterventionBlock> behaviorChangeInterventionBlocks = new ArrayList<>();
 
@@ -68,7 +67,7 @@ public class BehaviorChangeInterventionPhase extends AbstractEvoModel {
      */
     @ManyToMany(mappedBy = "behaviorChangeInterventionPhases",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<BCIModule> bciModules = new LinkedHashSet<>();
 

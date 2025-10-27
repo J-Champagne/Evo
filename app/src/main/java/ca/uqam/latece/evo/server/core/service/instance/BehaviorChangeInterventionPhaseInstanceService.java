@@ -13,7 +13,6 @@ import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.util.FailedConditions;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import ca.uqam.latece.evo.server.core.util.StringToLambdaConverter;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -242,8 +241,7 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractBCII
     @Override
     public BehaviorChangeInterventionPhaseInstance findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciPhaseInstanceRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("BehaviorChangeInterventionPhaseInstance not found"));
+        return this.bciPhaseInstanceRepository.findById(id).orElse(null);
     }
 
     /**

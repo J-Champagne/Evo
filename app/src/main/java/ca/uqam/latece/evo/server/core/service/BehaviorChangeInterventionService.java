@@ -3,7 +3,6 @@ package ca.uqam.latece.evo.server.core.service;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,13 +151,11 @@ public class BehaviorChangeInterventionService extends AbstractEvoService<Behavi
      * @param id the unique identifier of the behavior change intervention to be retrieved.
      * @return the behavior change intervention corresponding to the specified identifier.
      * @throws IllegalArgumentException if the provided id is null or invalid.
-     * @throws EntityNotFoundException if the behavior change intervention not found.
      */
     @Override
     public BehaviorChangeIntervention findById(Long id) {
         ObjectValidator.validateId(id);
-        return behaviorChangeInterventionRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Behavior Change Intervention not found!"));
+        return behaviorChangeInterventionRepository.findById(id).orElse(null);
     }
 
     /**

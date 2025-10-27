@@ -7,7 +7,6 @@ import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Skill;
 import ca.uqam.latece.evo.server.core.repository.AssessmentRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,13 +174,11 @@ public class AssessmentService extends AbstractEvoService<Assessment> {
      * @param id The Assessment id to filter Assessment entities by, must not be null.
      * @return the Assessment with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws EntityNotFoundException if the Assessment not found.
      */
     @Override
     public Assessment findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.assessmentRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Assessment not found!"));
+        return this.assessmentRepository.findById(id).orElse(null);
     }
 
     /**

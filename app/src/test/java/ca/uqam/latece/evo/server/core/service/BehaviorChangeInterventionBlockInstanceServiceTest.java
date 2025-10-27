@@ -18,7 +18,6 @@ import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventio
 import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalService;
 import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,8 +127,7 @@ public class BehaviorChangeInterventionBlockInstanceServiceTest extends Abstract
     @Override
     void testDeleteById() {
         behaviorChangeInterventionBlockInstanceService.deleteById(blockInstance.getId());
-        assertThrows(EntityNotFoundException.class, () -> behaviorChangeInterventionBlockInstanceService.
-                findById(blockInstance.getId()));
+        assertFalse(behaviorChangeInterventionBlockInstanceService.existsById(blockInstance.getId()));
     }
 
     @Test

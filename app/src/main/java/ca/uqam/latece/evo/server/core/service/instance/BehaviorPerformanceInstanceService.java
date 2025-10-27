@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.model.instance.BehaviorPerformanceInstance
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorPerformanceInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,13 +111,11 @@ public class BehaviorPerformanceInstanceService extends AbstractEvoService<Behav
      * @param id the unique identifier of the behavior performance instance to be retrieved.
      * @return the behavior performance instance corresponding to the specified identifier.
      * @throws IllegalArgumentException if the provided id is null or invalid.
-     * @throws EntityNotFoundException if the behavior performance instance not found.
      */
     @Override
     public BehaviorPerformanceInstance findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.behaviorPerformanceInstanceRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Behavior Performance Instance not found!"));
+        return this.behaviorPerformanceInstanceRepository.findById(id).orElse(null);
     }
 
     /**

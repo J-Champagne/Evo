@@ -1,6 +1,5 @@
 package ca.uqam.latece.evo.server.core.service;
 
-import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.event.EvoEvent;
 import ca.uqam.latece.evo.server.core.model.AbstractEvoModel;
@@ -135,18 +134,6 @@ public abstract class AbstractEvoService <T extends AbstractEvoModel> implements
      * @throws IllegalArgumentException if the {@code applicationEventPublisher} is null, logging the relevant error.
      */
     public final void publishEvent(@NotNull T evoModel) {
-        this.publishEvent(evoModel, TimeCycle.UNSPECIFIED);
-    }
-
-    /**
-     * Publishes an event for the given evoModel using the application's event publisher.
-     * This event is published after an update ot the ExecutionStatus of the evoModel.
-     * @param evoModel the updated model for which the event is published. Must not be null.
-     * @param status The old execution status, its value before the update. Must not be null.
-     * @throws IllegalArgumentException if the {@code applicationEventPublisher} is null, logging the relevant error.
-     */
-    public final void publishEvent(@NotNull T evoModel, @NotNull ExecutionStatus status) {
-        //TODO
         this.publishEvent(evoModel, TimeCycle.UNSPECIFIED);
     }
 

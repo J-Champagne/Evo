@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.repository.instance.ParticipantRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,8 +114,7 @@ public class ParticipantService extends AbstractEvoService<Participant> {
     @Override
     public Participant findById(Long id) {
         ObjectValidator.validateId(id);
-        return participantRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Participant not found"));
+        return participantRepository.findById(id).orElse(null);
     }
 
     /**

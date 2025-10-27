@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.repository.instance.BCIReferralRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.transaction.Transactional;
@@ -118,8 +117,7 @@ public class BCIReferralService extends AbstractEvoService<BCIReferral> {
     @Override
     public BCIReferral findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciReferralRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("BCIReferral not found"));
+        return this.bciReferralRepository.findById(id).orElse(null);
     }
 
     /**

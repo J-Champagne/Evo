@@ -4,7 +4,6 @@ import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.repository.RoleRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,13 +169,11 @@ public class RoleService extends AbstractEvoService<Role> {
      * @param id the unique identifier of the role to be retrieved.
      * @return the role corresponding to the specified identifier.
      * @throws IllegalArgumentException if the provided id is null or invalid.
-     * @throws EntityNotFoundException if the role not found.
      */
     @Override
     public Role findById(Long id) {
         ObjectValidator.validateId(id);
-        return roleRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Role not found!"));
+        return roleRepository.findById(id).orElse(null);
     }
 
     /**

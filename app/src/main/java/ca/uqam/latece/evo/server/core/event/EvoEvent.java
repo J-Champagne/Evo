@@ -17,6 +17,9 @@ import java.time.Clock;
  * and {@code Clock} information.
  *
  * @param <T> the type of the Evo model associated with this event, which must extend {@code AbstractEvoModel}.
+ *
+ * @version 1.0
+ * @author Edilton Lima dos Santos.
  */
 public class EvoEvent<T extends AbstractEvoModel> extends ApplicationEvent {
     @Serial

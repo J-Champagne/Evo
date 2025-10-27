@@ -35,7 +35,7 @@ public class Role extends AbstractEvoModel {
     @Column(name = "role_description", nullable = true, length = 250)
     private String description;
 
-    @ManyToMany(mappedBy = "parties", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "parties", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private List<BCIActivity> bciActivities = new ArrayList<>();
 
     @JsonProperty("interactionInitiator")

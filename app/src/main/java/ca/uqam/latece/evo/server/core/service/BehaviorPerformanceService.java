@@ -4,7 +4,6 @@ import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.model.BehaviorPerformance;
 import ca.uqam.latece.evo.server.core.repository.BehaviorPerformanceRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,13 +146,11 @@ public class BehaviorPerformanceService extends AbstractEvoService<BehaviorPerfo
      * @param id the unique identifier of the behavior performance to be retrieved.
      * @return the behavior performance corresponding to the specified identifier.
      * @throws IllegalArgumentException if the provided id is null or invalid.
-     * @throws EntityNotFoundException if the behavior performance not found.
      */
     @Override
     public BehaviorPerformance findById(Long id) {
         ObjectValidator.validateId(id);
-        return behaviorPerformanceRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Behavior Performance not found!"));
+        return behaviorPerformanceRepository.findById(id).orElse(null);
     }
 
     /**

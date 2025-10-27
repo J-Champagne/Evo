@@ -146,12 +146,11 @@ public class ReportingService extends AbstractEvoService<Reporting> {
      * @param id The Reporting Id to filter Reporting entities by, must not be null.
      * @return the Reporting with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws RuntimeException if the goal setting not found.
      */
     @Override
     public Reporting findById(Long id) {
         ObjectValidator.validateId(id);
-        return reportingRepository.findById(id).get();
+        return reportingRepository.findById(id).orElse(null);
     }
 
     /**

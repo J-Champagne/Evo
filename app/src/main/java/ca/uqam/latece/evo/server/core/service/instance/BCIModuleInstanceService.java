@@ -10,7 +10,6 @@ import ca.uqam.latece.evo.server.core.repository.instance.BCIModuleInstanceRepos
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,8 +161,7 @@ public class BCIModuleInstanceService extends AbstractEvoService<BCIModuleInstan
     @Override
     public BCIModuleInstance findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciModuleInstanceRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("BCIModuleInstance not found"));
+        return this.bciModuleInstanceRepository.findById(id).orElse(null);
     }
 
     /**

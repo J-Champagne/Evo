@@ -7,7 +7,6 @@ import ca.uqam.latece.evo.server.core.enumeration.InteractionMode;
 import ca.uqam.latece.evo.server.core.model.Interaction;
 import ca.uqam.latece.evo.server.core.repository.InteractionRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,13 +142,11 @@ public class InteractionService extends AbstractEvoService<Interaction> {
      * @param id The Interaction Id to filter Interaction entities by, must not be null.
      * @return the Interaction with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws EntityNotFoundException if the Interaction not found.
      */
     @Override
     public Interaction findById(Long id) {
         ObjectValidator.validateId(id);
-        return interactionRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Interaction not found!"));
+        return interactionRepository.findById(id).orElse(null);
     }
 
     /**

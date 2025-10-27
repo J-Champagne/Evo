@@ -12,7 +12,6 @@ import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.util.FailedConditions;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import ca.uqam.latece.evo.server.core.util.StringToLambdaConverter;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,8 +107,7 @@ public class BehaviorChangeInterventionBlockInstanceService extends AbstractBCII
     @Override
     public BehaviorChangeInterventionBlockInstance findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciBlockInstanceRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("BehaviorChangeInterventionBlockInstance not found."));
+        return this.bciBlockInstanceRepository.findById(id).orElse(null);
     }
 
     /**

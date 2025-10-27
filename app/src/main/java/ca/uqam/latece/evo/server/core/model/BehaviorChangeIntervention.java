@@ -33,17 +33,15 @@ public class BehaviorChangeIntervention extends AbstractEvoModel {
     @Column(name = "behavior_change_intervention_name", nullable = false, unique = true, length = 256)
     private String name;
 
-    //@NotNull
     @JsonProperty("entryConditions")
     @Column(name = "behavior_change_intervention_entry_conditions", nullable = false, length = 256)
     private String entryConditions;
 
-    //@NotNull
     @JsonProperty("exitConditions")
     @Column(name = "behavior_change_intervention_exit_conditions", nullable = false, length = 256)
     private String exitConditions;
 
-    @OneToMany(mappedBy = "behaviorChangeInterventionPhaseBci")
+    @OneToMany(mappedBy = "behaviorChangeInterventionPhaseBci", fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = BehaviorChangeInterventionPhase.class)
     private List<BehaviorChangeInterventionPhase> behaviorChangeInterventionPhases = new ArrayList<>();
 
     public BehaviorChangeIntervention() {}

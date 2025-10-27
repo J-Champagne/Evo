@@ -4,7 +4,6 @@ import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.model.Skill;
 import ca.uqam.latece.evo.server.core.repository.SkillRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -141,13 +140,11 @@ public class SkillService extends AbstractEvoService<Skill> {
      * Finds and retrieves a list of skills based on their id.
      * @param id the id of the skills to search for.
      * @return a list of skills matching the given type.
-     * @throws EntityNotFoundException in case the given Role not found.
      */
     @Override
     public Skill findById(Long id) {
         ObjectValidator.validateId(id);
-      return skillRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Skill not found!"));
+      return skillRepository.findById(id).orElse(null);
     }
 
     /**

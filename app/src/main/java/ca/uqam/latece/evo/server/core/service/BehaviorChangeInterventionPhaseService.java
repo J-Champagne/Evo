@@ -4,7 +4,6 @@ import ca.uqam.latece.evo.server.core.model.BCIModule;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionPhaseRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,13 +101,11 @@ public class BehaviorChangeInterventionPhaseService extends AbstractEvoService<B
      * @param id the unique identifier of the behavior change intervention phase to be retrieved.
      * @return the behavior change intervention phase corresponding to the specified identifier.
      * @throws IllegalArgumentException if the provided id is null or invalid.
-     * @throws EntityNotFoundException if the behavior change intervention phase not found.
      */
     @Override
     public BehaviorChangeInterventionPhase findById(Long id) {
         ObjectValidator.validateId(id);
-        return behaviorChangeInterventionPhaseRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Behavior Change Intervention Phase not found!"));
+        return behaviorChangeInterventionPhaseRepository.findById(id).orElse(null);
     }
 
     /**

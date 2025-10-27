@@ -6,7 +6,6 @@ import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.model.instance.PatientAssessment;
 import ca.uqam.latece.evo.server.core.service.instance.*;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,8 +93,7 @@ public class BCIReferralServiceTest extends AbstractServiceTest {
     void testDeleteById() {
         bciReferralService.deleteById(bcirSaved.getId());
 
-        assertThrows(EntityNotFoundException.class, () -> bciReferralService.
-                findById(bcirSaved.getId()));
+        assertFalse(bciReferralService.existsById(bcirSaved.getId()));
     }
 
     @Test

@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Skill;
 import ca.uqam.latece.evo.server.core.repository.BCIModuleRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,13 +174,11 @@ public class BCIModuleService extends AbstractEvoService<BCIModule> {
      * @param id The BCIModule Id to filter BCIModule entities by, must not be null.
      * @return the BCIModule with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws EntityNotFoundException if the BCIModule not found.
      */
     @Override
     public BCIModule findById(Long id) {
         ObjectValidator.validateId(id);
-        return moduleRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("BCI Module not found!"));
+        return moduleRepository.findById(id).orElse(null);
     }
 
     /**

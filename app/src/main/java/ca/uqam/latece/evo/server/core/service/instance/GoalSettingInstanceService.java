@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.repository.instance.GoalSettingInstanceRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,12 +98,10 @@ public class GoalSettingInstanceService extends AbstractEvoService<GoalSettingIn
      * @param id The GoalSettingInstance Id to filter GoalSettingInstance entities by, must not be null.
      * @return the GoalSettingInstance with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws RuntimeException if the goal setting not found.
      */
     public GoalSettingInstance findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.goalSettingInstanceRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("GoalSetting Instance not found!"));
+        return this.goalSettingInstanceRepository.findById(id).orElse(null);
     }
 
     /**

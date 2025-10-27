@@ -4,7 +4,6 @@ import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.repository.BCIActivityRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,13 +128,11 @@ public class BCIActivityService extends AbstractEvoService<BCIActivity> {
      * @param id The BCIActivity Id to filter BCIActivity entities by, must not be null.
      * @return the BCIActivity with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws EntityNotFoundException if the BCIActivity not found.
      */
     @Override
     public BCIActivity findById(Long id) {
         ObjectValidator.validateId(id);
-        return bciActivityRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("BCI Activity not found!"));
+        return bciActivityRepository.findById(id).orElse(null);
     }
 
     /**

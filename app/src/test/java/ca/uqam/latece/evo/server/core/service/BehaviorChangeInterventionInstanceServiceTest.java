@@ -11,7 +11,6 @@ import ca.uqam.latece.evo.server.core.testsFactory.instances.BCIBlocInstanceTest
 import ca.uqam.latece.evo.server.core.testsFactory.instances.BCIPhaseInstanceTestFactory;
 import ca.uqam.latece.evo.server.core.testsFactory.instances.BCIInstanceTestFactory;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -183,8 +182,7 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
     @Override
     void testDeleteById() {
         bciInstanceService.deleteById(bciInstance.getId());
-        assertThrows(EntityNotFoundException.class, () -> bciInstanceService.
-                findById(bciInstance.getId()));
+        assertFalse(bciInstanceService.existsById(bciInstance.getId()));
     }
 
     @Test

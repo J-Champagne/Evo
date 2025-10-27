@@ -6,7 +6,6 @@ import ca.uqam.latece.evo.server.core.repository.instance.PatientRepository;
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,8 +128,7 @@ public class PatientService extends AbstractEvoService<Patient> {
     @Override
     public Patient findById(Long id) {
         ObjectValidator.validateId(id);
-        return patientRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Patient not found!"));
+        return patientRepository.findById(id).orElse(null);
     }
 
     /**

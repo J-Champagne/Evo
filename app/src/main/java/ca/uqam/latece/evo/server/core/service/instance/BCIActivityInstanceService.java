@@ -12,7 +12,6 @@ import ca.uqam.latece.evo.server.core.request.BCIActivityInstanceRequest;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.util.FailedConditions;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,12 +100,10 @@ public class BCIActivityInstanceService extends AbstractBCIInstanceService<BCIAc
      * @param id the id of the BCIActivityInstance to find. Must not be null.
      * @return the BCIActivityInstance with the given id.
      * @throws IllegalArgumentException if id is null.
-     * @throws EntityNotFoundException if no BCIActivityInstance is found with the given id.
      */
     public BCIActivityInstance findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.bciActivityInstanceRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("BCIActivityInstance not found!"));
+        return this.bciActivityInstanceRepository.findById(id).orElse(null);
     }
 
     /**

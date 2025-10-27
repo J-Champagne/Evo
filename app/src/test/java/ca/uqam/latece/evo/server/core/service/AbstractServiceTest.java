@@ -1,47 +1,34 @@
 package ca.uqam.latece.evo.server.core.service;
 
+import ca.uqam.latece.evo.server.core.config.EvoTestcontainersConfig;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.ComponentScan;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
 
 /**
- * Abstract base class for integration testing of service layer functionalities.
- * This class provides a test context configuration using Spring Boot's testing annotations
- * and Testcontainers for managing a PostgreSQL database container.
+ * Abstract base class for service layer unit tests, designed to standardize the structure and methodology for testing
+ * CRUD operations and related functionality within a given service. By extending this class, implementers gain access
+ * to a common set of abstract test methods which must be overridden to validate the behavior of specific service
+ * implementations.
+ * <p>
+ * This class provides a foundation for defining tests related to persistence operations on entities, ensuring consistency
+ * and correctness across different service layers in the application.
  * <p>
  * The class is annotated with:
  * - @DataJpaTest: To configure a JPA-specific application context for testing.
  * - @AutoConfigureTestDatabase: To configure an external database for tests without replacing it.
- * - @Testcontainers: To enable Testcontainers for container-based testing.
  * - @ComponentScan: To locate components, services, and repositories within specified base packages.
  * <p>
- * Designed to be extended by service-specific test classes, this class enforces the implementation
- * of abstract methods to verify common database interactions such as saving, updating, finding, and deleting entities.
- * <p>
+ *
+ * @version 1.0
  * @author Edilton Lima dos Santos.
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Testcontainers
 @ComponentScan(basePackages = {"ca.uqam.latece.evo.server.core.repository",
         "ca.uqam.latece.evo.server.core.service", "ca.uqam.latece.evo.server.core"})
-public abstract class AbstractServiceTest {
-    /**
-     * Provides a PostgreSQL container for integration testing.
-     * This container is configured to use the official PostgreSQL Docker image version 15-alpine.
-     * It is annotated with @Container and @ServiceConnection to integrate seamlessly with test environments.
-     * <p>Note:<p/> When using Testcontainers, connection details can be automatically created for a service running in a container
-     *
-     */
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
-            "postgres:17.2"
-    );
+public abstract class AbstractServiceTest extends EvoTestcontainersConfig {
 
     /**
      * Abstract method to test the functionality of saving an entity in the database.

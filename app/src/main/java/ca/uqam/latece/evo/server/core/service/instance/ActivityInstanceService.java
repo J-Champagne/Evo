@@ -6,7 +6,6 @@ import ca.uqam.latece.evo.server.core.repository.instance.ActivityInstanceReposi
 import ca.uqam.latece.evo.server.core.service.AbstractEvoService;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,8 +109,7 @@ public class ActivityInstanceService extends AbstractEvoService<ActivityInstance
     @Override
     public ActivityInstance findById(Long id) {
         ObjectValidator.validateId(id);
-        return this.activityInstanceRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("ActivityInstance not found"));
+        return this.activityInstanceRepository.findById(id).orElse(null);
     }
 
     /**

@@ -4,7 +4,6 @@ import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.ComposedOf;
 import ca.uqam.latece.evo.server.core.repository.ComposedOfRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,13 +70,11 @@ public class ComposedOfService extends AbstractEvoService<ComposedOf> {
      * @param id the unique identifier of the composedOf to be retrieved.
      * @return the composedOf corresponding to the specified identifier.
      * @throws IllegalArgumentException if the provided id is null or invalid.
-     * @throws EntityNotFoundException if the composedOf not found.
      */
     @Override
     public ComposedOf findById(Long id) {
         ObjectValidator.validateId(id);
-        return composedOfRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("ComposedOf not found!"));
+        return composedOfRepository.findById(id).orElse(null);
     }
 
     /**
@@ -96,6 +93,18 @@ public class ComposedOfService extends AbstractEvoService<ComposedOf> {
      */
     public List<ComposedOf> findByOrder(int order) {
         return composedOfRepository.findByOrder(order);
+    }
+
+    /**
+     * Finds a list of ComposedOf entities based on the provided BCIActivity ID and BCI Block ID.
+     * @param bciActivityId the ID of the BCIActivity associated with ComposedOf.
+     * @param bciBlockId the ID of the Behavior Change Intervention Block associated with ComposedOf.
+     * @return a list of ComposedOf entities matching the given BCIActivity ID and BCI Block ID.
+     */
+    public List<ComposedOf> findByBciActivityComposedOfIdAndBciBlockComposedOfId(Long bciActivityId, Long bciBlockId) {
+        ObjectValidator.validateId(bciActivityId);
+        ObjectValidator.validateId(bciBlockId);
+        return composedOfRepository.findByBciActivityComposedOf_Id_AndBciBlockComposedOf_Id(bciActivityId, bciBlockId);
     }
 
     /**

@@ -3,7 +3,6 @@ package ca.uqam.latece.evo.server.core.service;
 import ca.uqam.latece.evo.server.core.model.instance.Actor;
 import ca.uqam.latece.evo.server.core.service.instance.ActorService;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +53,7 @@ public class ActorServiceTest extends AbstractServiceTest {
     public void testDeleteById() {
         actorService.deleteById(actorSaved.getId());
 
-        assertThrows(EntityNotFoundException.class, () -> actorService.
-                findById(actorSaved.getId()));
+        assertFalse(actorService.existsById(actorSaved.getId()));
     }
 
     @Test

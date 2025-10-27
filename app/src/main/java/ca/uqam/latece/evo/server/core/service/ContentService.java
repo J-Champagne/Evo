@@ -3,7 +3,6 @@ package ca.uqam.latece.evo.server.core.service;
 import ca.uqam.latece.evo.server.core.model.Content;
 import ca.uqam.latece.evo.server.core.repository.ContentRepository;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,13 +149,11 @@ public class ContentService extends AbstractEvoService<Content> {
      * @param id The Content Id to filter Content entities by, must not be null.
      * @return the Content with the given id or Optional#empty() if none found.
      * @throws IllegalArgumentException – if id is null.
-     * @throws EntityNotFoundException in case the given Content not found.
      */
     @Override
     public Content findById(Long id){
         ObjectValidator.validateId(id);
-        return contentRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Content not found!"));
+        return contentRepository.findById(id).orElse(null);
     }
 
     /**
