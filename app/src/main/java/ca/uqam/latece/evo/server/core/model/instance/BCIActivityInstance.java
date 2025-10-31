@@ -26,7 +26,7 @@ import java.util.Objects;
 @PrimaryKeyJoinColumn(name="bci_activity_instance_id", referencedColumnName = "activity_instance_id")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class BCIActivityInstance extends ActivityInstance {
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "bci_activity_instance_participants",
             joinColumns = @JoinColumn(name = "bci_activity_instance_participants_bci_activity_instance_id", referencedColumnName="bci_activity_instance_id"),
@@ -34,7 +34,7 @@ public class BCIActivityInstance extends ActivityInstance {
     private List<Participant> participants = new ArrayList<>(3);
 
     //@NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "bci_activity_instance_bci_activity_id", referencedColumnName = "bci_activity_id",
             nullable = false)
     private BCIActivity bciActivity;

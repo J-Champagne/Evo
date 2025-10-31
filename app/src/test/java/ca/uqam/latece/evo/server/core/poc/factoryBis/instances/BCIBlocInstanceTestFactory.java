@@ -1,12 +1,12 @@
-package ca.uqam.latece.evo.server.core.testsFactory.instances;
+package ca.uqam.latece.evo.server.core.poc.factoryBis.instances;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
+import ca.uqam.latece.evo.server.core.poc.factoryBis.recipes.BCIBlocRecipeTestFactory;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionBlockInstanceService;
-import ca.uqam.latece.evo.server.core.testsFactory.receipes.BCIBlocRecipeTestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,14 +34,22 @@ public class BCIBlocInstanceTestFactory {
     @Autowired
     private BehaviorChangeInterventionBlockInstanceService bciBlockInstanceService;
 
+    public BehaviorChangeInterventionBlockInstance getBlockInstance(BehaviorChangeInterventionBlock behaviorChangeInterventionBlock,BCIActivityInstance... activities) {
+
+        List<BCIActivityInstance> listActivities = new ArrayList<>();
+        Collections.addAll(listActivities, activities);
+
+        return bciBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, listActivities, behaviorChangeInterventionBlock));
+    }
+
     public BehaviorChangeInterventionBlockInstance getBlocWithTrueConditions(BCIActivityInstance... activities) {
 
         List<BCIActivityInstance> listActivities = new ArrayList<>();
         Collections.addAll(listActivities, activities);
 
-        BehaviorChangeInterventionBlock bciBlock = bciBlocRecipeTestFactory.getBlocReceipeWithTrueConditions();
+        BehaviorChangeInterventionBlock behaviorChangeInterventionBlock = bciBlocRecipeTestFactory.getBlocRecipeWithTrueConditions();
 
-        return bciBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, listActivities, bciBlock));
+        return bciBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, listActivities, behaviorChangeInterventionBlock));
     }
 
     public BehaviorChangeInterventionBlockInstance getBlocWithFalseConditions(BCIActivityInstance... activities) {
@@ -49,9 +57,9 @@ public class BCIBlocInstanceTestFactory {
         List<BCIActivityInstance> listActivities = new ArrayList<>();
         Collections.addAll(listActivities, activities);
 
-        BehaviorChangeInterventionBlock bciBlock = bciBlocRecipeTestFactory.getBlocReceipeWithFalseConditions();
+        BehaviorChangeInterventionBlock behaviorChangeInterventionBlock = bciBlocRecipeTestFactory.getBlocRecipeWithFalseConditions();
 
 
-        return bciBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, listActivities, bciBlock));
+        return bciBlockInstanceService.create(new BehaviorChangeInterventionBlockInstance(ExecutionStatus.STALLED, TimeCycle.BEGINNING, listActivities, behaviorChangeInterventionBlock));
     }
 }

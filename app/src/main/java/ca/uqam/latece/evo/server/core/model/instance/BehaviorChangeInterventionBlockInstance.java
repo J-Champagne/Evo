@@ -34,7 +34,7 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
     private TimeCycle stage;
 
     @NotNull
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "bci_block_instance_activities",
             joinColumns = @JoinColumn(name = "bci_block_instance_activities_block_id", referencedColumnName="bci_block_instance_id"),
@@ -42,12 +42,12 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
     private List<BCIActivityInstance> activities = new ArrayList<>();
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "bci_block_instance_behavior_change_intervention_block_id", referencedColumnName = "behavior_change_intervention_block_id",
             nullable = false)
     private BehaviorChangeInterventionBlock behaviorChangeInterventionBlock;
 
-    @ManyToMany (mappedBy = "activities")
+    @ManyToMany (mappedBy = "activities", fetch = FetchType.EAGER)
     private List<BehaviorChangeInterventionPhaseInstance> phases = new ArrayList<>();
 
     public BehaviorChangeInterventionBlockInstance() {}

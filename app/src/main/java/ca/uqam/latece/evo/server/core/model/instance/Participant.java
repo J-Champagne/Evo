@@ -26,12 +26,12 @@ public class Participant extends AbstractEvoModel {
     private Long id;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "participant_role_id", referencedColumnName = "role_id")
     private Role role;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "participant_actor_id", referencedColumnName = "actor_id")
     private Actor actor;
 

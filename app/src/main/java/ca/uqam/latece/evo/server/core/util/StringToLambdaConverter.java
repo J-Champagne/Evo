@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import pl.joegreen.lambdaFromString.LambdaCreationException;
 import pl.joegreen.lambdaFromString.LambdaFactory;
 import pl.joegreen.lambdaFromString.TypeReference;
@@ -12,6 +13,7 @@ import java.util.function.Function;
  * This class is a wrapper for the pl.joegreen library that provides methods for converting a String to a lambda expression.
  * Should properly handle exceptions thrown by this library.
  */
+@Component
 public class StringToLambdaConverter {
     private static final Logger logger = LogManager.getLogger(StringToLambdaConverter.class);
 

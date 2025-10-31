@@ -1,4 +1,4 @@
-package ca.uqam.latece.evo.server.core.testsFactory.instances;
+package ca.uqam.latece.evo.server.core.poc.factoryBis.instances;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
@@ -7,9 +7,9 @@ import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
 import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
+import ca.uqam.latece.evo.server.core.poc.factoryBis.recipes.BCIPhaseRecipeTestFactory;
 import ca.uqam.latece.evo.server.core.service.instance.BCIModuleInstanceService;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionPhaseInstanceService;
-import ca.uqam.latece.evo.server.core.testsFactory.receipes.BCIPhaseRecipeTestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,13 +30,25 @@ import java.util.*;
 public class BCIPhaseInstanceTestFactory {
 
     @Autowired
-    private BCIModuleInstanceService bciModuleInstanceService;
-
-    @Autowired
     BCIPhaseRecipeTestFactory bciPhaseRecipeTestFactory;
 
     @Autowired
+    private BCIModuleInstanceService bciModuleInstanceService;
+
+    @Autowired
     private BehaviorChangeInterventionPhaseInstanceService bciPhaseInstanceService;
+
+    public BehaviorChangeInterventionPhaseInstance getPhaseInstance(BehaviorChangeInterventionPhase behaviorChangeInterventionPhase,BehaviorChangeInterventionBlockInstance... blocs) {
+
+        List<BehaviorChangeInterventionBlockInstance> listBlocs = new ArrayList<>();
+        Collections.addAll(listBlocs, blocs);
+
+        Optional<BehaviorChangeInterventionBlockInstance> firstBlock = Arrays.stream(blocs).findFirst();
+        List<BCIModuleInstance> modules = buildModules(listBlocs);
+
+        return bciPhaseInstanceService.create
+                (new BehaviorChangeInterventionPhaseInstance(ExecutionStatus.STALLED, firstBlock.get(), listBlocs, modules, behaviorChangeInterventionPhase));
+    }
 
     public BehaviorChangeInterventionPhaseInstance getPhaseWithTrueConditions(BehaviorChangeInterventionBlockInstance... blocs) {
 
@@ -47,7 +59,7 @@ public class BCIPhaseInstanceTestFactory {
         List<BCIModuleInstance> modules = buildModules(listBlocs);
 
 
-        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = bciPhaseRecipeTestFactory.getPhaseWithTrueConditions();
+        BehaviorChangeInterventionPhase behaviorChangeInterventionPhase = bciPhaseRecipeTestFactory.getPhaseRecipeWithTrueConditions();
 
 
         return bciPhaseInstanceService.create

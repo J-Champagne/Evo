@@ -38,7 +38,7 @@ public class BehaviorChangeInterventionInstance extends ActivityInstance impleme
     private BehaviorChangeInterventionPhaseInstance currentPhase;
 
     @NotNull
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "bci_instance_activities",
             joinColumns = @JoinColumn(name = "bci_instance_activities_bci_id", referencedColumnName="bci_instance_id"),
@@ -46,7 +46,7 @@ public class BehaviorChangeInterventionInstance extends ActivityInstance impleme
     private List<BehaviorChangeInterventionPhaseInstance> activities = new ArrayList<>();
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "bci_instance_behavior_change_intervention_id", referencedColumnName = "behavior_change_intervention_id", nullable = false)
     private BehaviorChangeIntervention behaviorChangeIntervention;
 

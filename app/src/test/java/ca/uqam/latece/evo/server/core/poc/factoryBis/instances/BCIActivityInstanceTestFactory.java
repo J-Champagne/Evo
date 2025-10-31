@@ -1,4 +1,4 @@
-package ca.uqam.latece.evo.server.core.testsFactory.instances;
+package ca.uqam.latece.evo.server.core.poc.factoryBis.instances;
 
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.model.BCIActivity;
@@ -6,10 +6,9 @@ import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.model.instance.Patient;
-import ca.uqam.latece.evo.server.core.service.RoleService;
+import ca.uqam.latece.evo.server.core.poc.factoryBis.actors.ParticipantTestFactory;
+import ca.uqam.latece.evo.server.core.poc.factoryBis.recipes.BCIActivityRecipeTestFactory;
 import ca.uqam.latece.evo.server.core.service.instance.BCIActivityInstanceService;
-import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
-import ca.uqam.latece.evo.server.core.testsFactory.receipes.BCIActivityRecipeTestFactory;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,27 +31,40 @@ import java.util.List;
 public class BCIActivityInstanceTestFactory {
 
     @Autowired
-    private RoleService roleService;
-
-    @Autowired
-    private ParticipantService participantService;
-
-    @Autowired
-    private BCIActivityInstanceService bciActivityInstanceService;
+    ParticipantTestFactory patientTestFactory;
 
     @Autowired
     private BCIActivityRecipeTestFactory bciActivityRecipeTestFactory;
 
+    @Autowired
+    private BCIActivityInstanceService bciActivityInstanceService;
+
+    public BCIActivityInstance getActivityInstance(Patient patient, Role role,BCIActivity bciActivity) {
+
+        //set up BCIActivity dependencies
+        Participant participant = patientTestFactory.getParticipant(patient, role);
+
+        List<Participant> participants = new ArrayList<>();
+        participants.add(participant);
+
+
+        //create and return the BCIActivity instance
+        return bciActivityInstanceService.create(new BCIActivityInstance(
+                ExecutionStatus.READY, LocalDate.now(), DateFormatter.convertDateStrTo_yyyy_MM_dd("2026/01/08"),
+                participants, bciActivity));
+
+    }
 
     public BCIActivityInstance getFirstActivityWithTrueConditions(Patient patient, Role role) {
 
         //set up BCIActivity dependencies
-        Participant participant = participantService.create(new Participant(role, patient));
+        Participant participant = patientTestFactory.getParticipant(patient, role);
 
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
 
         BCIActivity bciActivity = bciActivityRecipeTestFactory.getFirstReceipeWithTrueConditions();
+
 
         //create and return the BCIActivity instance
         return bciActivityInstanceService.create(new BCIActivityInstance(
@@ -64,7 +76,7 @@ public class BCIActivityInstanceTestFactory {
     public BCIActivityInstance getSecondActivityWithTrueConditions(Patient patient, Role role) {
 
         //set up BCIActivity dependencies
-        Participant participant = participantService.create(new Participant(role, patient));
+        Participant participant = patientTestFactory.getParticipant(patient, role);
 
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);
@@ -80,7 +92,7 @@ public class BCIActivityInstanceTestFactory {
     public BCIActivityInstance getThirdActivityWithTrueConditions(Patient patient, Role role) {
 
         //set up BCIActivity dependencies
-        Participant participant = participantService.create(new Participant(role, patient));
+        Participant participant = patientTestFactory.getParticipant(patient, role);
 
         List<Participant> participants = new ArrayList<>();
         participants.add(participant);

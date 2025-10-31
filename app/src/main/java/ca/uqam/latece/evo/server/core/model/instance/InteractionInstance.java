@@ -20,7 +20,7 @@ import java.util.List;
 @JsonPropertyOrder({"id", "status", "entryDate", "exitDate", "participants", "interaction"})
 public class InteractionInstance extends BCIActivityInstance {
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "interaction_instance_interaction_id", referencedColumnName = "interaction_id",
             nullable = false)
     private Interaction interaction;

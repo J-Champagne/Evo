@@ -4,15 +4,14 @@ import ca.uqam.latece.evo.server.core.enumeration.*;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.*;
+import ca.uqam.latece.evo.server.core.poc.factoryBis.instances.BCIActivityInstanceTestFactory;
+import ca.uqam.latece.evo.server.core.poc.factoryBis.instances.BCIBlocInstanceTestFactory;
+import ca.uqam.latece.evo.server.core.poc.factoryBis.instances.BCIInstanceTestFactory;
+import ca.uqam.latece.evo.server.core.poc.factoryBis.instances.BCIPhaseInstanceTestFactory;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.service.instance.*;
-import ca.uqam.latece.evo.server.core.testsFactory.instances.BCIActivityInstanceTestFactory;
-import ca.uqam.latece.evo.server.core.testsFactory.instances.BCIBlocInstanceTestFactory;
-import ca.uqam.latece.evo.server.core.testsFactory.instances.BCIPhaseInstanceTestFactory;
-import ca.uqam.latece.evo.server.core.testsFactory.instances.BCIInstanceTestFactory;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -555,66 +554,4 @@ public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServi
         assertEquals(ExecutionStatus.FINISHED, phaseInstance2.getStatus());
         assertEquals(phaseInstance2.getId(), bciInstance.getCurrentPhase().getId());
     }
-
-    @Disabled
-    @Test
-    void testHandleBCIInstanceClientEventFinishedFirstBlocAndTriggerSecondOne() {
-
-        //Arrange
-        Patient patient = patientService.create(new Patient("Jack", "jack@gmail.com",
-                "221-2221", "54 January 1956", "health-professionnel", "2345 Street"));
-        Role role = roleService.create(new Role("Doctor"));
-
-        BCIActivityInstance activityInstance1 = bciActivityInstanceTestFactory.getFirstActivityWithTrueConditions(patient,role);
-        activityInstance1.getBciActivity().setPreconditions("");
-        activityInstance1.getBciActivity().setPostconditions("");
-
-        BCIActivityInstance activityInstance2 = bciActivityInstanceTestFactory.getSecondActivityWithTrueConditions(patient,role);
-        activityInstance2.getBciActivity().setPreconditions("");
-        activityInstance2.getBciActivity().setPostconditions("");
-
-        BCIActivityInstance ActivityInstance3 = bciActivityInstanceTestFactory.getThirdActivityWithTrueConditions(patient,role);
-        ActivityInstance3.getBciActivity().setPreconditions("");
-        ActivityInstance3.getBciActivity().setPostconditions("");
-
-        BehaviorChangeInterventionBlockInstance blockInstance1 = bciBlocInstanceTestFactory.getBlocWithTrueConditions(activityInstance1);
-        blockInstance1.getBehaviorChangeInterventionBlock().setEntryConditions("");
-        blockInstance1.getBehaviorChangeInterventionBlock().setExitConditions("");
-
-        BehaviorChangeInterventionBlockInstance blockInstance2 = bciBlocInstanceTestFactory.getBlocWithTrueConditions(activityInstance2,ActivityInstance3);
-        blockInstance2.getBehaviorChangeInterventionBlock().setEntryConditions("");
-        blockInstance2.getBehaviorChangeInterventionBlock().setExitConditions("");
-
-        BehaviorChangeInterventionPhaseInstance phaseInstance = bciPhaseInstanceTestFactory.getPhaseWithTrueConditions(blockInstance1,blockInstance2);
-        phaseInstance.getBehaviorChangeInterventionPhase().setEntryConditions("");
-        phaseInstance.getBehaviorChangeInterventionPhase().setExitConditions("");
-
-        BehaviorChangeInterventionInstance bciInstance = bciInstanceTestFactory.getIntervention(patient,phaseInstance);
-        bciInstance.getBehaviorChangeIntervention().setEntryConditions("");
-        bciInstance.getBehaviorChangeIntervention().setExitConditions("");
-
-
-        //Act
-        ClientEventResponse response = new ClientEventResponse();
-        ClientEvent clientEvent = ClientEvent.FINISH;
-        BCIInstanceClientEvent eventTrigger = new BCIInstanceClientEvent(
-                clientEvent,
-                response,
-                bciInstance.getId(),
-                phaseInstance
-        );
-        applicationEventPublisher.publishEvent(eventTrigger);
-
-
-        //Assert
-        assertEquals(ExecutionStatus.FINISHED, activityInstance1.getStatus());
-        assertEquals(ExecutionStatus.FINISHED, blockInstance1.getStatus());
-        assertEquals(ExecutionStatus.IN_PROGRESS, activityInstance2.getStatus());
-        assertEquals(ExecutionStatus.IN_PROGRESS, ActivityInstance3.getStatus());
-        assertEquals(ExecutionStatus.IN_PROGRESS, blockInstance2.getStatus());
-        assertTrue(response.isSuccess());
-
-    }
-
-
 }
