@@ -1,7 +1,11 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
-import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
+import ca.uqam.latece.evo.server.core.model.BCIModule;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
+import ca.uqam.latece.evo.server.core.model.Skill;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionBlockRepository;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionPhaseRepository;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionRepository;
@@ -9,7 +13,7 @@ import ca.uqam.latece.evo.server.core.service.BehaviorChangeInterventionPhaseSer
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -29,13 +33,13 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {BehaviorChangeInterventionPhaseController.class,
         BehaviorChangeInterventionPhaseService.class, BehaviorChangeInterventionPhase.class})
 public class BehaviorChangeInterventionPhaseControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private BehaviorChangeInterventionPhaseRepository interventionPhaseRepository;
 
-    @MockBean
+    @MockitoBean
     private BehaviorChangeInterventionRepository behaviorChangeInterventionRepository;
 
-    @MockBean
+    @MockitoBean
     private BehaviorChangeInterventionBlockRepository interventionBlockRepository;
 
     private BehaviorChangeInterventionPhase interventionPhase;

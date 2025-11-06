@@ -3,7 +3,9 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.controller.instance.GoalSettingInstanceController;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
-import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.GoalSetting;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
+import ca.uqam.latece.evo.server.core.model.Role;
 import ca.uqam.latece.evo.server.core.model.instance.GoalSettingInstance;
 import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
 import ca.uqam.latece.evo.server.core.model.instance.Participant;
@@ -13,7 +15,7 @@ import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDate;
@@ -37,7 +39,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {GoalSettingInstanceController.class, GoalSettingInstanceService.class, GoalSettingInstance.class})
 public class GoalSettingInstanceControllerTest extends AbstractControllerTest {
 
-    @MockBean
+    @MockitoBean
     private GoalSettingInstanceRepository goalSettingInstanceRepository;
 
     private GoalSettingInstance goalSettingInstance = new GoalSettingInstance();

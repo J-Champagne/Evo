@@ -27,11 +27,12 @@
         <java.version>21</java.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
-        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <lombok.version>1.18.38</lombok.version>
         <maven-surefire-report-plugin.version>3.5.3</maven-surefire-report-plugin.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <rest-assured.version>5.5.6</rest-assured.version>
+        <lambda-from-string.version>1.7</lambda-from-string.version>
     </properties>
 
     <!-- DEPENDENCIES -->
@@ -106,7 +107,7 @@
         <dependency>
             <groupId>pl.joegreen</groupId>
             <artifactId>lambda-from-string</artifactId>
-            <version>1.7</version>
+            <version>${lambda-from-string.version}</version>
         </dependency>
 
         <!-- Maven Reports Plugin -->
@@ -120,6 +121,28 @@
     <!-- BUILD -->
     <build>
         <plugins>
+
+            <!-- This plugin is parte of the Mockito agent configuration in Maven's surefire plugin. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Add Mockito as an agent to Maven's surefire plugin. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+                </configuration>
+            </plugin>
+
             <!-- JaCoCO is a tool for generating Code Coverage (CC) reports for Java projects.
             CC is a software metric used to measure how many lines of our code are executed
             during automated tests. -->

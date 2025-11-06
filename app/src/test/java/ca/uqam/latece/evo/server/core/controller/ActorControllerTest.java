@@ -8,7 +8,7 @@ import ca.uqam.latece.evo.server.core.service.instance.ActorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.mockito.Mockito.when;
@@ -28,7 +28,7 @@ import java.util.Optional;
 @WebMvcTest(controllers = ActorController.class)
 @ContextConfiguration(classes = {ActorController.class, ActorService.class, Actor.class})
 public class ActorControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private ActorRepository actorRepository;
 
     private Actor actor = new Actor("Bernard", "bernard@gmail.com", "222-222-2222");

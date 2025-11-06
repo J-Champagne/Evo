@@ -3,13 +3,19 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
-import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.Reporting;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
+import ca.uqam.latece.evo.server.core.model.Content;
+import ca.uqam.latece.evo.server.core.model.Develops;
+import ca.uqam.latece.evo.server.core.model.Requires;
+import ca.uqam.latece.evo.server.core.model.Role;
+import ca.uqam.latece.evo.server.core.model.Skill;
 import ca.uqam.latece.evo.server.core.repository.ReportingRepository;
 import ca.uqam.latece.evo.server.core.service.ReportingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
@@ -29,7 +35,7 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = ReportingController.class)
 @ContextConfiguration(classes = {ReportingController.class, ReportingService.class, Reporting.class})
 public class ReportingControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private ReportingRepository reportingRepository;
 
     private Reporting reporting = new Reporting();

@@ -9,7 +9,12 @@ import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
 import ca.uqam.latece.evo.server.core.model.Role;
-import ca.uqam.latece.evo.server.core.model.instance.*;
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
+import ca.uqam.latece.evo.server.core.model.instance.HealthCareProfessional;
+import ca.uqam.latece.evo.server.core.model.instance.Participant;
 import ca.uqam.latece.evo.server.core.repository.instance.BCIModuleInstanceRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionBlockInstanceRepository;
 import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionPhaseInstanceRepository;
@@ -19,7 +24,7 @@ import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDate;
@@ -44,13 +49,13 @@ public class BehaviorChangeInterventionPhaseInstanceControllerTest extends Abstr
 
     private static final String PHASE_EXIT_CONDITION = "Intervention Phase EXIT";
 
-    @MockBean
+    @MockitoBean
     BehaviorChangeInterventionPhaseInstanceRepository bciPhaseInstanceRepository;
 
-    @MockBean
+    @MockitoBean
     BehaviorChangeInterventionBlockInstanceRepository bciBlockInstanceRepository;
 
-    @MockBean
+    @MockitoBean
     BCIModuleInstanceRepository bciModuleInstanceRepository;
 
     private Role role = new Role("Administrator");

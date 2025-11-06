@@ -10,7 +10,7 @@ import ca.uqam.latece.evo.server.core.service.instance.PatientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = PatientController.class)
 @ContextConfiguration(classes = {PatientController.class, PatientService.class, Patient.class})
 public class PatientControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private PatientRepository patientRepository;
 
-    @MockBean
+    @MockitoBean
     private PatientMedicalFileRepository patientMedicalFileRepository;
 
     private PatientMedicalFile pmf = new PatientMedicalFile("Healthy");

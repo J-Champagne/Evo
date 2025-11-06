@@ -11,11 +11,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 /**
  * The class AbstractControllerTest implemented to supporting the test controller implementation.
- * @author Edilton Lima dos Santos && Julien Champagne.
+ * @author Edilton Lima dos Santos
+ * @author Julien Champagne.
  */
 @WebMvcTest
 public abstract class AbstractControllerTest {
@@ -108,7 +111,7 @@ public abstract class AbstractControllerTest {
         mockMvc.perform(post(urlTemplate)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(evoModel.toString()))
-                        .andExpect(status().isCreated()); // Check if the insert was performed via the HttpStatus OK (201).
+                .andExpect(status().isCreated()); // Check if the insert was performed via the HttpStatus OK (201).
     }
 
     /**

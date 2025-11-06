@@ -569,7 +569,7 @@ public class BehaviorChangeInterventionInstanceService extends AbstractBCIInstan
      */
     @Override
     @EventListener(BCIInstanceClientEvent.class)
-    protected ClientEventResponse handleClientEvent(BCIInstanceClientEvent event) {
+    public ClientEventResponse handleClientEvent(BCIInstanceClientEvent event) {
         BehaviorChangeInterventionInstance bciInstance = null;
         BehaviorChangeInterventionPhaseInstance phaseInstance = null;
         ClientEventResponse response = null;

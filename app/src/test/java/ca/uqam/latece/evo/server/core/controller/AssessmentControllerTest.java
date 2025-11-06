@@ -1,13 +1,31 @@
 package ca.uqam.latece.evo.server.core.controller;
 
-import ca.uqam.latece.evo.server.core.enumeration.*;
-import ca.uqam.latece.evo.server.core.model.*;
-import ca.uqam.latece.evo.server.core.repository.*;
+import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
+import ca.uqam.latece.evo.server.core.enumeration.Scale;
+import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
+import ca.uqam.latece.evo.server.core.enumeration.SkillType;
+import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
+import ca.uqam.latece.evo.server.core.model.Assessment;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
+import ca.uqam.latece.evo.server.core.model.ComposedOf;
+import ca.uqam.latece.evo.server.core.model.Content;
+import ca.uqam.latece.evo.server.core.model.Develops;
+import ca.uqam.latece.evo.server.core.model.Requires;
+import ca.uqam.latece.evo.server.core.model.Role;
+import ca.uqam.latece.evo.server.core.model.Skill;
+import ca.uqam.latece.evo.server.core.repository.AssessmentRepository;
+import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionBlockRepository;
+import ca.uqam.latece.evo.server.core.repository.ComposedOfRepository;
+import ca.uqam.latece.evo.server.core.repository.ContentRepository;
+import ca.uqam.latece.evo.server.core.repository.DevelopsRepository;
+import ca.uqam.latece.evo.server.core.repository.RequiresRepository;
+import ca.uqam.latece.evo.server.core.repository.RoleRepository;
+import ca.uqam.latece.evo.server.core.repository.SkillRepository;
 import ca.uqam.latece.evo.server.core.service.AssessmentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -25,21 +43,21 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = AssessmentController.class)
 @ContextConfiguration(classes = {AssessmentController.class, AssessmentService.class, Assessment.class})
 public class AssessmentControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private AssessmentRepository assessmentRepository;
-    @MockBean
+    @MockitoBean
     private RoleRepository roleRepository;
-    @MockBean
+    @MockitoBean
     private SkillRepository skillRepository;
-    @MockBean
+    @MockitoBean
     private RequiresRepository requiresRepository;
-    @MockBean
+    @MockitoBean
     private ContentRepository contentRepository;
-    @MockBean
+    @MockitoBean
     private DevelopsRepository developsRepository;
-    @MockBean
+    @MockitoBean
     private ComposedOfRepository composedOfRepository;
-    @MockBean
+    @MockitoBean
     private BehaviorChangeInterventionBlockRepository behaviorChangeInterventionBlockRepository;
 
     private Assessment assessment = new Assessment();

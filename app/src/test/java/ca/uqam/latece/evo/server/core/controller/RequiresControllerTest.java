@@ -3,13 +3,16 @@ package ca.uqam.latece.evo.server.core.controller;
 import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
-import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.Requires;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
+import ca.uqam.latece.evo.server.core.model.Role;
+import ca.uqam.latece.evo.server.core.model.Skill;
 import ca.uqam.latece.evo.server.core.repository.RequiresRepository;
 import ca.uqam.latece.evo.server.core.service.RequiresService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -29,7 +32,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {RequiresController.class, RequiresService.class, Requires.class})
 public class RequiresControllerTest extends AbstractControllerTest {
 
-    @MockBean
+    @MockitoBean
     private RequiresRepository requiresRepository;
 
     private Requires requires = new Requires();

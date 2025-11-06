@@ -14,7 +14,7 @@ import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDate;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = BCIActivityInstanceController.class)
 @ContextConfiguration(classes = {BCIActivityInstanceController.class, BCIActivityInstanceService.class, BCIActivityInstance.class})
 public class BCIActivityInstanceControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private BCIActivityInstanceRepository bciActivityInstanceRepository;
 
     private BCIActivityInstance bciActivityInstance = new BCIActivityInstance();

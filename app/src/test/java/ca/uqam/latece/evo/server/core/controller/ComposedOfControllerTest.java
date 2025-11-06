@@ -4,13 +4,19 @@ import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.SkillLevel;
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.ComposedOf;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
+import ca.uqam.latece.evo.server.core.model.Content;
+import ca.uqam.latece.evo.server.core.model.Develops;
+import ca.uqam.latece.evo.server.core.model.Role;
+import ca.uqam.latece.evo.server.core.model.Skill;
 import ca.uqam.latece.evo.server.core.repository.ComposedOfRepository;
 import ca.uqam.latece.evo.server.core.service.ComposedOfService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
@@ -30,7 +36,7 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = ComposedOfController.class)
 @ContextConfiguration(classes = {ComposedOfController.class, ComposedOfService.class, ComposedOf.class})
 public class ComposedOfControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private ComposedOfRepository composedOfRepository;
 
     private ComposedOf composedOf = new ComposedOf();

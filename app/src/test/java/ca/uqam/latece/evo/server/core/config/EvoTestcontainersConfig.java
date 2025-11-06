@@ -2,10 +2,11 @@ package ca.uqam.latece.evo.server.core.config;
 
 
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
 
 
 /**
@@ -19,7 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * Key Features:
  * - Pre-configured Docker image for PostgreSQL, customizable via system property.
  * - Automatic setup and teardown of the PostgreSQL container.
- * - Easy integration with the Spring Boot application context via @ServiceConnection.
+ * - Easy integration with the Spring Boot application context via {@code @Container} and {@code @ServiceConnection}.
  * <p>
  * Use this class to streamline the testing process for database-dependent components, ensuring their behavior is validated
  * in an isolated, repeatable environment.
@@ -66,7 +67,19 @@ public class EvoTestcontainersConfig {
      */
     @Container
     @ServiceConnection
-    private static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(DOCKER_IMAGE_NAME);
+    private static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(DOCKER_IMAGE_NAME);
+
+    /**
+     * Configures dynamic properties for integration tests by registering properties related to the PostgreSQL database
+     * container, such as JDBC URL, username, and password.
+     * @param registry the {@code DynamicPropertyRegistry} instance used to define properties dynamically.
+     */
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
+    }
 
     /**
      * Checks if the PostgreSQL container managed by Testcontainers is currently running.

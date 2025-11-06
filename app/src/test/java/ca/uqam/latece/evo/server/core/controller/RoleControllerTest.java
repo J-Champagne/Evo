@@ -9,7 +9,7 @@ import ca.uqam.latece.evo.server.core.service.RoleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -28,10 +28,10 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {RoleController.class, RoleService.class, Role.class})
 public class RoleControllerTest extends AbstractControllerTest {
 
-    @MockBean
+    @MockitoBean
     private RoleRepository roleRepository;
 
-    @MockBean
+    @MockitoBean
     private BCIActivityRepository bciActivityRepository;
 
     private Role role = new Role();

@@ -5,11 +5,25 @@ import ca.uqam.latece.evo.server.core.enumeration.ActivityType;
 import ca.uqam.latece.evo.server.core.enumeration.ExecutionStatus;
 import ca.uqam.latece.evo.server.core.enumeration.OutcomeType;
 import ca.uqam.latece.evo.server.core.enumeration.TimeCycle;
-import ca.uqam.latece.evo.server.core.model.*;
-import ca.uqam.latece.evo.server.core.model.instance.*;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionBlock;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
+import ca.uqam.latece.evo.server.core.model.Role;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionBlockInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BehaviorChangeInterventionPhaseInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BCIModuleInstance;
+import ca.uqam.latece.evo.server.core.model.instance.BCIActivityInstance;
+import ca.uqam.latece.evo.server.core.model.instance.Participant;
+import ca.uqam.latece.evo.server.core.model.instance.Patient;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionPhaseRepository;
 import ca.uqam.latece.evo.server.core.repository.BehaviorChangeInterventionRepository;
-import ca.uqam.latece.evo.server.core.repository.instance.*;
+import ca.uqam.latece.evo.server.core.repository.instance.BCIModuleInstanceRepository;
+import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionBlockInstanceRepository;
+import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionInstanceRepository;
+import ca.uqam.latece.evo.server.core.repository.instance.BehaviorChangeInterventionPhaseInstanceRepository;
+import ca.uqam.latece.evo.server.core.repository.instance.PatientRepository;
 import ca.uqam.latece.evo.server.core.request.BCIInstanceRequest;
 import ca.uqam.latece.evo.server.core.service.instance.BehaviorChangeInterventionInstanceService;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -17,7 +31,7 @@ import ca.uqam.latece.evo.server.core.util.DateFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDate;
@@ -39,25 +53,25 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {BehaviorChangeInterventionInstance.class, BehaviorChangeInterventionInstanceService.class,
         BehaviorChangeInterventionInstanceController.class})
 public class BehaviorChangeInterventionInstanceControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     BehaviorChangeInterventionInstanceRepository bciInstanceRepository;
 
-    @MockBean
+    @MockitoBean
     BehaviorChangeInterventionPhaseInstanceRepository bciPhaseInstanceRepository;
 
-    @MockBean
+    @MockitoBean
     BehaviorChangeInterventionBlockInstanceRepository bciBlockInstanceRepository;
 
-    @MockBean
+    @MockitoBean
     BCIModuleInstanceRepository bciModuleInstanceRepository;
 
-    @MockBean
+    @MockitoBean
     PatientRepository patientRepository;
 
-    @MockBean
+    @MockitoBean
     BehaviorChangeInterventionRepository behaviorChangeInterventionRepository;
 
-    @MockBean
+    @MockitoBean
     BehaviorChangeInterventionPhaseRepository behaviorChangeInterventionPhaseRepository;
 
     private BehaviorChangeIntervention behaviorChangeIntervention = new BehaviorChangeIntervention("My Intervention");

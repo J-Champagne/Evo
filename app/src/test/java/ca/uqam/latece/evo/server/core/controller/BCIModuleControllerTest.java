@@ -1,13 +1,15 @@
 package ca.uqam.latece.evo.server.core.controller;
 
 import ca.uqam.latece.evo.server.core.enumeration.SkillType;
-import ca.uqam.latece.evo.server.core.model.*;
+import ca.uqam.latece.evo.server.core.model.BCIModule;
+import ca.uqam.latece.evo.server.core.model.BehaviorChangeInterventionPhase;
+import ca.uqam.latece.evo.server.core.model.Skill;
 import ca.uqam.latece.evo.server.core.repository.BCIModuleRepository;
 import ca.uqam.latece.evo.server.core.service.BCIModuleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -25,7 +27,7 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = BCIModuleController.class)
 @ContextConfiguration(classes = {BCIModuleController.class, BCIModuleService.class, BCIModule.class})
 public class BCIModuleControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private BCIModuleRepository bciModuleRepository;
 
     private BCIModule bciModule = new BCIModule();

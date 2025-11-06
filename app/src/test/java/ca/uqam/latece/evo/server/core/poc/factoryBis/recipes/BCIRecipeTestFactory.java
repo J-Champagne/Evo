@@ -1,10 +1,14 @@
 package ca.uqam.latece.evo.server.core.poc.factoryBis.recipes;
 
+import ca.uqam.latece.evo.server.core.model.BCIActivity;
 import ca.uqam.latece.evo.server.core.model.BehaviorChangeIntervention;
+import ca.uqam.latece.evo.server.core.service.BCIActivityService;
 import ca.uqam.latece.evo.server.core.util.ConditionConverter;
 import ca.uqam.latece.evo.server.core.service.BehaviorChangeInterventionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 
 /**
@@ -19,11 +23,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class BCIRecipeTestFactory {
 
-    @Autowired
-    private BehaviorChangeInterventionService behaviorChangeInterventionService;
+    private final BCIActivityService bciActivityService;
+    private final BehaviorChangeInterventionService behaviorChangeInterventionService;
+    private final ConditionConverter conditionConverter;
 
     @Autowired
-    private ConditionConverter conditionConverter;
+    public BCIRecipeTestFactory(BCIActivityService bciActivityService, BehaviorChangeInterventionService behaviorChangeInterventionService, ConditionConverter conditionConverter) {
+        this.bciActivityService = bciActivityService;
+        this.behaviorChangeInterventionService = behaviorChangeInterventionService;
+        this.conditionConverter = conditionConverter;
+    }
 
 
     public BehaviorChangeIntervention getRecipe() {
@@ -41,6 +50,20 @@ public class BCIRecipeTestFactory {
 
     }
 
+    public List<BCIActivity> getAllBCIActivity() {
+        return bciActivityService.findAll();
+    }
 
+    public BCIActivity getById(Long id) {
+        return bciActivityService.findById(id);
+    }
+
+    public BehaviorChangeIntervention getBehaviorChangeInterventionById(Long id) {
+        return behaviorChangeInterventionService.findById(id);
+    }
+
+    public List<BehaviorChangeIntervention> getAllBehaviorChangeInterventions() {
+        return behaviorChangeInterventionService.findAll();
+    }
 
 }

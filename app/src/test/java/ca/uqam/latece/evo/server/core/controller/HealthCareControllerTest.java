@@ -8,7 +8,7 @@ import ca.uqam.latece.evo.server.core.service.instance.HealthCareProfessionalSer
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = HealthCareControllerTest.class)
 @ContextConfiguration(classes = {HealthCareProfessionalController.class, HealthCareProfessionalService.class, HealthCareProfessional.class})
 public class HealthCareControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     HealthCareProfessionalRepository healthCareProfessionalRepository;
 
     HealthCareProfessional hcp = new HealthCareProfessional("Bob", "Bobross@gmail.com", "514-222-2222",

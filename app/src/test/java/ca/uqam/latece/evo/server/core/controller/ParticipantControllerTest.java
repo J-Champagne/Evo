@@ -12,7 +12,7 @@ import ca.uqam.latece.evo.server.core.service.instance.ParticipantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -32,13 +32,13 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(controllers = ParticipantController.class)
 @ContextConfiguration(classes = {Participant.class, ParticipantService.class, ParticipantController.class})
 public class ParticipantControllerTest extends AbstractControllerTest {
-    @MockBean
+    @MockitoBean
     private ParticipantRepository participantRepository;
 
-    @MockBean
+    @MockitoBean
     private HealthCareProfessionalRepository healthCareProfessionalRepository;
 
-    @MockBean
+    @MockitoBean
     private RoleRepository roleRepository;
 
     private Role role = new Role("Administrator");
