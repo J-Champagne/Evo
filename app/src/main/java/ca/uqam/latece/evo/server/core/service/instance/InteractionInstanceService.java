@@ -305,6 +305,7 @@ public class InteractionInstanceService extends AbstractBCIInstanceService<Inter
         failedConditions.setFailedEntryConditions(checkEntryConditions(interactionInstance));
         if (failedConditions.getFailedEntryConditions().isEmpty()) {
             interactionInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+            interactionInstance.setEntryDate(LocalDate.now());
             update(interactionInstance);
 
             event.getResponse().addResponse(

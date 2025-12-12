@@ -35,6 +35,7 @@ public class BehaviorChangeInterventionBlockInstance extends ActivityInstance im
 
     @NotNull
     @ManyToMany(fetch = FetchType.EAGER)
+    @OrderBy("id ASC")
     @JoinTable(
             name = "bci_block_instance_activities",
             joinColumns = @JoinColumn(name = "bci_block_instance_activities_block_id", referencedColumnName="bci_block_instance_id"),

@@ -39,6 +39,7 @@ public class BehaviorChangeInterventionInstance extends ActivityInstance impleme
 
     @NotNull
     @OneToMany(fetch = FetchType.EAGER)
+    @OrderBy("id ASC")
     @JoinTable(
             name = "bci_instance_activities",
             joinColumns = @JoinColumn(name = "bci_instance_activities_bci_id", referencedColumnName="bci_instance_id"),
@@ -60,6 +61,7 @@ public class BehaviorChangeInterventionInstance extends ActivityInstance impleme
                                               BehaviorChangeInterventionPhaseInstance currentPhase,
                                               List<BehaviorChangeInterventionPhaseInstance> activities) {
         this(status);
+        this.setEntryDate(LocalDate.now());
         this.patient = patient;
         this.currentPhase = currentPhase;
         this.activities = activities;

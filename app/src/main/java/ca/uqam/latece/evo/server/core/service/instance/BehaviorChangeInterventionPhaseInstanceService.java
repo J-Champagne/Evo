@@ -511,6 +511,7 @@ public class BehaviorChangeInterventionPhaseInstanceService extends AbstractBCII
                 if (nextIndex < activities.size()) {
                     BehaviorChangeInterventionBlockInstance newBlockInstance = activities.get(nextIndex);
                     newBlockInstance.setStatus(ExecutionStatus.IN_PROGRESS);
+                    newBlockInstance.setEntryDate(LocalDate.now());
                     phaseInstance.setCurrentBlock(newBlockInstance);
                     blockUpdated = true;
                 }

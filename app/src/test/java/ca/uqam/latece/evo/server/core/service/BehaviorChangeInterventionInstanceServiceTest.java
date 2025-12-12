@@ -4,10 +4,6 @@ import ca.uqam.latece.evo.server.core.enumeration.*;
 import ca.uqam.latece.evo.server.core.event.BCIInstanceClientEvent;
 import ca.uqam.latece.evo.server.core.model.*;
 import ca.uqam.latece.evo.server.core.model.instance.*;
-import ca.uqam.latece.evo.server.core.poc.factoryBis.instances.BCIActivityInstanceTestFactory;
-import ca.uqam.latece.evo.server.core.poc.factoryBis.instances.BCIBlocInstanceTestFactory;
-import ca.uqam.latece.evo.server.core.poc.factoryBis.instances.BCIInstanceTestFactory;
-import ca.uqam.latece.evo.server.core.poc.factoryBis.instances.BCIPhaseInstanceTestFactory;
 import ca.uqam.latece.evo.server.core.response.ClientEventResponse;
 import ca.uqam.latece.evo.server.core.service.instance.*;
 import ca.uqam.latece.evo.server.core.util.DateFormatter;
@@ -36,19 +32,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ApplicationScope
 @ContextConfiguration(classes = {BehaviorChangeInterventionInstance.class, BehaviorChangeInterventionInstanceService.class})
 public class BehaviorChangeInterventionInstanceServiceTest extends AbstractServiceTest {
-
-
-    @Autowired
-    private BCIActivityInstanceTestFactory bciActivityInstanceTestFactory;
-
-    @Autowired
-    private BCIBlocInstanceTestFactory bciBlocInstanceTestFactory;
-
-    @Autowired
-    private BCIPhaseInstanceTestFactory bciPhaseInstanceTestFactory;
-
-    @Autowired
-    private BCIInstanceTestFactory bciInstanceTestFactory;
 
     @Autowired
     private BehaviorChangeInterventionInstanceService bciInstanceService;
