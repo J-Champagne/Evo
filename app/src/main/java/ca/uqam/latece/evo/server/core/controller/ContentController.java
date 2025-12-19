@@ -11,6 +11,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -55,6 +56,40 @@ public class ContentController extends AbstractEvoController<Content> {
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to create new Content. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Inserts a Content in the database.
+     * @param content the Content entity.
+     * @param file the file to be stored
+     * @return The saved Content.
+     * @throws IllegalArgumentException in case the given Content is null.
+     * @throws OptimisticLockingFailureException when the Content uses optimistic locking and has a version attribute with
+     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+     *           present but does not exist in the database.
+     */
+    @PostMapping(params = "file=true")
+    @ResponseStatus(HttpStatus.CREATED) // 201
+    public ResponseEntity<Content> create(@Valid @RequestBody Content content, @RequestParam("file") MultipartFile file) {
+        ResponseEntity<Content> response;
+
+        try {
+            ObjectValidator.validateObject(content);
+            Content saved = contentService.create(content, file);
+
+            if (saved != null && saved.getId() > 0) {
+                response = new ResponseEntity<>(saved, HttpStatus.CREATED);
+                logger.info("Created new Content and stored file: {} {}", saved, saved.getFilepath());
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to create new Content or to store file.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to create new Content or to store file. Error: {}", e.getMessage());
         }
 
         return response;

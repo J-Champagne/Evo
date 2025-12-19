@@ -31,7 +31,7 @@ public class LocalStorage implements StorageService {
     }
 
     @Override
-    public void store(MultipartFile file) {
+    public String store(MultipartFile file) {
         ObjectValidator.validateFilepath(file.getOriginalFilename());
 
         try {
@@ -55,6 +55,7 @@ public class LocalStorage implements StorageService {
             throw new StorageException("Failed to store file", e);
         }
 
+        return file.getOriginalFilename();
     }
 
     @Override

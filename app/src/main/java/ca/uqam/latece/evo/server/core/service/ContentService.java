@@ -2,6 +2,7 @@ package ca.uqam.latece.evo.server.core.service;
 
 import ca.uqam.latece.evo.server.core.model.Content;
 import ca.uqam.latece.evo.server.core.repository.ContentRepository;
+import ca.uqam.latece.evo.server.core.util.LocalStorage;
 import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +23,8 @@ import java.util.List;
 @Transactional
 public class ContentService extends AbstractEvoService<Content> {
     private static final Logger logger = LoggerFactory.getLogger(ContentService.class);
+
+    LocalStorage localStorage;
 
     @Autowired
     private ContentRepository contentRepository;
@@ -43,6 +47,36 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
+
+        // Name should be unique.
+        if (this.existsByName(content.getName())) {
+            throw this.createDuplicateException(content);
+        } else {
+            contentCreated = this.save(content);
+
+            logger.info("Content created: {}", contentCreated);
+        }
+
+        return contentCreated;
+    }
+
+    /**
+     * Inserts a Content in the database and a file in the system.
+     * @param content the Content entity.
+     * @param file the file to be stored
+     * @return The saved Content.
+     * @throws IllegalArgumentException in case the given Content is null.
+     * @throws OptimisticLockingFailureException when the Content uses optimistic locking and has a version attribute with
+     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+     *           present but does not exist in the database.
+     */
+    public Content create(Content content, MultipartFile file){
+        Content contentCreated = null;
+        String filepath;
+
+        ObjectValidator.validateObject(content);
+        ObjectValidator.validateString(content.getName());
+        ObjectValidator.validateString(content.getDescription());
         ObjectValidator.validateString(content.getFilepath());
 
         // Name should be unique.
@@ -50,7 +84,9 @@ public class ContentService extends AbstractEvoService<Content> {
             throw this.createDuplicateException(content);
         } else {
             contentCreated = this.save(content);
-            logger.info("Content created: {}", contentCreated);
+            filepath = localStorage.store(file);
+
+            logger.info("Content created and file stored: {} {}", contentCreated, filepath);
         }
 
         return contentCreated;
