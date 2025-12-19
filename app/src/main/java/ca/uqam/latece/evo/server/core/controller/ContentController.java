@@ -84,7 +84,7 @@ public class ContentController extends AbstractEvoController<Content> {
 
             if (saved != null && saved.getId() > 0) {
                 response = new ResponseEntity<>(saved, HttpStatus.CREATED);
-                logger.info("Created new Content and stored file: {} {}", saved, saved.getFilepath());
+                logger.info("Created new Content and stored file: {} {}", saved, saved.getFilename());
             } else {
                 response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                 logger.info("Failed to create new Content or to store file.");

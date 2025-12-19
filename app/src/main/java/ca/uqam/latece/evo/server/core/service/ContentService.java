@@ -24,7 +24,7 @@ import java.util.List;
 public class ContentService extends AbstractEvoService<Content> {
     private static final Logger logger = LoggerFactory.getLogger(ContentService.class);
 
-    LocalStorage localStorage = new LocalStorage();
+
 
     @Autowired
     private ContentRepository contentRepository;
@@ -53,7 +53,6 @@ public class ContentService extends AbstractEvoService<Content> {
             throw this.createDuplicateException(content);
         } else {
             contentCreated = this.save(content);
-
             logger.info("Content created: {}", contentCreated);
         }
 
@@ -77,13 +76,17 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
-        //ojectValidator.validateString(content.getFilepath());
+
+        if (!content.getFilename().equals(file.getOriginalFilename())) {
+            throw new IllegalArgumentException("File should have the same name as the one specified in content");
+        }
 
         // Name should be unique.
         if (this.existsByName(content.getName())) {
             throw this.createDuplicateException(content);
         } else {
             contentCreated = this.save(content);
+            LocalStorage localStorage = new LocalStorage("content/" + content.getId());
             filepath = localStorage.store(file);
 
             logger.info("Content created and file stored: {} {}", contentCreated, filepath);

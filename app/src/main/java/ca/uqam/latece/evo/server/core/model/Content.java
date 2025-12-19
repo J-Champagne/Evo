@@ -37,8 +37,8 @@ public class Content extends AbstractEvoModel {
     @Column(name = "content_type", nullable = false, length = 256)
     private String type;
 
-    @Column(name = "content_filepath", nullable = true, length = 256)
-    private String filepath;
+    @Column(name = "content_filename", nullable = true, length = 256)
+    private String filename;
 
     /**
      * Represents a collection of associated Skill entities linked to the Content entity
@@ -64,16 +64,16 @@ public class Content extends AbstractEvoModel {
      */
     @ManyToMany(mappedBy = "contentBCIActivities",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.EAGER)
+            fetch = FetchType.LAZY)
     private List<BCIActivity> bciActivitiesContent = new ArrayList<>();
 
     public Content() {}
 
-    public Content(String name, String description, String type, String filepath, List<Skill> skills) {
+    public Content(String name, String description, String type, String filename, List<Skill> skills) {
         this.name = name;
         this.description = description;
         this.type = type;
-        this.filepath = filepath;
+        this.filename = filename;
         this.skills = skills;
     }
 
@@ -101,12 +101,12 @@ public class Content extends AbstractEvoModel {
         return type;
     }
 
-    public void setFilpath(String filepath) {
-        this.filepath = filepath;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
-    public String getFilepath() {
-        return filepath;
+    public String getFilename() {
+        return filename;
     }
 
     public void setDescription(String description) {
@@ -172,5 +172,4 @@ public class Content extends AbstractEvoModel {
             }
         }
     }
-
 }

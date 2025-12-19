@@ -18,16 +18,25 @@ import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
 public class LocalStorage implements StorageService {
-    private final Path root = Paths.get("./app/files");
+    private final static String BASE_FOLDER = "./app/files";
 
-    private String location = "activities";
+    private final Path root;
+
+    private String location;
+
+    public LocalStorage(String location) {
+        this.location = location;
+        root = Paths.get(BASE_FOLDER, location);
+
+        try {
+            Files.createDirectories(root);
+        } catch (IOException e) {
+            throw new StorageException("Could not create local storage directory " + root.toString(), e);
+        }
+    }
 
     public String getLocation() {
         return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 
     @Override
