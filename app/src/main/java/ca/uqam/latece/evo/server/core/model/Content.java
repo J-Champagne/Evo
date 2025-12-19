@@ -37,7 +37,7 @@ public class Content extends AbstractEvoModel {
     @Column(name = "content_type", nullable = false, length = 256)
     private String type;
 
-    @Column(name = "content_filepath", nullable = false, length = 256)
+    @Column(name = "content_filepath", nullable = true, length = 256)
     private String filepath;
 
     /**
@@ -64,7 +64,7 @@ public class Content extends AbstractEvoModel {
      */
     @ManyToMany(mappedBy = "contentBCIActivities",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     private List<BCIActivity> bciActivitiesContent = new ArrayList<>();
 
     public Content() {}

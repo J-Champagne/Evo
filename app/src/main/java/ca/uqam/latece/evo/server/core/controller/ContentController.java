@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,9 +72,10 @@ public class ContentController extends AbstractEvoController<Content> {
      *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
      *           present but does not exist in the database.
      */
-    @PostMapping(params = "file=true")
+    @PostMapping(params = "file=true",
+                consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED) // 201
-    public ResponseEntity<Content> create(@Valid @RequestBody Content content, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Content> create(@Valid @ModelAttribute Content content, @RequestParam("file") MultipartFile file) {
         ResponseEntity<Content> response;
 
         try {

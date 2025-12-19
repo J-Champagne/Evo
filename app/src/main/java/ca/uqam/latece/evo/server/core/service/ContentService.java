@@ -24,7 +24,7 @@ import java.util.List;
 public class ContentService extends AbstractEvoService<Content> {
     private static final Logger logger = LoggerFactory.getLogger(ContentService.class);
 
-    LocalStorage localStorage;
+    LocalStorage localStorage = new LocalStorage();
 
     @Autowired
     private ContentRepository contentRepository;
@@ -77,7 +77,7 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
-        ObjectValidator.validateString(content.getFilepath());
+        //ojectValidator.validateString(content.getFilepath());
 
         // Name should be unique.
         if (this.existsByName(content.getName())) {

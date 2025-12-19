@@ -18,7 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
 public class LocalStorage implements StorageService {
-    private final Path root = Paths.get("./files");
+    private final Path root = Paths.get("./app/files");
 
     private String location = "activities";
 
