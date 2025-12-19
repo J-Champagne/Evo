@@ -43,6 +43,7 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
+        ObjectValidator.validateString(content.getFilepath());
 
         // Name should be unique.
         if (this.existsByName(content.getName())) {

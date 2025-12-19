@@ -32,6 +32,8 @@ public class LocalStorage implements StorageService {
 
     @Override
     public void store(MultipartFile file) {
+        ObjectValidator.validateFilepath(file.getOriginalFilename());
+
         try {
             if (file.isEmpty() || file.getOriginalFilename() == null) {
                 throw new StorageException("File is empty or undefined");

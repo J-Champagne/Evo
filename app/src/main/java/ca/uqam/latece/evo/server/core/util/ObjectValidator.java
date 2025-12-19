@@ -106,4 +106,9 @@ public class ObjectValidator {
             throw new IllegalArgumentException(ERROR_INVALID_EMAIL);
         }
     }
+
+    public static void validateFilepath(String filepath) {
+        ObjectValidator.validateString(filepath);
+        //TODO Check for path traversal
+    }
 }
