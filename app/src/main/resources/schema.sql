@@ -261,6 +261,7 @@ CREATE TABLE IF NOT EXISTS content (
     content_name VARCHAR(128) NOT NULL,
     content_description VARCHAR(256) NOT NULL,
     content_type VARCHAR(256) NULL,
+    content_filepath VARCHAR(256) NULL,
     CONSTRAINT content_pkey PRIMARY KEY (content_id),
     CONSTRAINT content_content_name_ukey UNIQUE (content_name)
 );

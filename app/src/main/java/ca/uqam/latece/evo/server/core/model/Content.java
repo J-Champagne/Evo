@@ -37,6 +37,9 @@ public class Content extends AbstractEvoModel {
     @Column(name = "content_type", nullable = false, length = 256)
     private String type;
 
+    @Column(name = "content_filepath", nullable = false, length = 256)
+    private String filepath;
+
     /**
      * Represents a collection of associated Skill entities linked to the Content entity
      * via a many-to-many relationship.
@@ -66,10 +69,11 @@ public class Content extends AbstractEvoModel {
 
     public Content() {}
 
-    public Content(String name, String description, String type, List<Skill> skills) {
+    public Content(String name, String description, String type, String filepath, List<Skill> skills) {
         this.name = name;
         this.description = description;
         this.type = type;
+        this.filepath = filepath;
         this.skills = skills;
     }
 
@@ -95,6 +99,14 @@ public class Content extends AbstractEvoModel {
 
     public String getType() {
         return type;
+    }
+
+    public void setFilpath(String filepath) {
+        this.filepath = filepath;
+    }
+
+    public String getFilepath() {
+        return filepath;
     }
 
     public void setDescription(String description) {
