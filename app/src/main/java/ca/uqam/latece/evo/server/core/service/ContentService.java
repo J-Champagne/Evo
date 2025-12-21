@@ -161,6 +161,10 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateString(content.getDescription());
         ObjectValidator.validateFilename(content.getFilename());
 
+        if (!content.getFilename().equals(file.getOriginalFilename())) {
+            throw new IllegalArgumentException("File should have the same name as the one specified in content");
+        }
+
         // Name should unique.
         if (this.existsByName(content.getName())) {
             throw this.createDuplicateException(content);
