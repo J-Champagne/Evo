@@ -47,6 +47,10 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
 
+        if (content.getFilename() != null || !content.getFilename().isEmpty()) {
+            throw new IllegalArgumentException("Filename should be empty since no files were sent");
+        }
+
         // Name should be unique.
         if (this.existsByName(content.getName())) {
             throw this.createDuplicateException(content);
@@ -70,11 +74,12 @@ public class ContentService extends AbstractEvoService<Content> {
      */
     public Content create(Content content, MultipartFile file){
         Content contentCreated = null;
-        String filepath;
+        String filename;
 
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
+        ObjectValidator.validateFilename(content.getFilename());
 
         if (!content.getFilename().equals(file.getOriginalFilename())) {
             throw new IllegalArgumentException("File should have the same name as the one specified in content");
@@ -86,9 +91,9 @@ public class ContentService extends AbstractEvoService<Content> {
         } else {
             contentCreated = this.save(content);
             LocalStorage localStorage = new LocalStorage("content", content.getId().toString());
-            filepath = localStorage.store(file);
+            filename = localStorage.store(file);
 
-            logger.info("Content created and file stored: {} {}", contentCreated, filepath);
+            logger.info("Content created and file stored: {} {}", contentCreated, filename);
         }
 
         return contentCreated;
@@ -123,12 +128,46 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
 
+        if (content.getFilename() != null || !content.getFilename().isEmpty()) {
+            throw new IllegalArgumentException("Filename should be empty since no files were sent");
+        }
+
         // Name should unique.
         if (this.existsByName(content.getName())) {
             throw this.createDuplicateException(content);
         } else {
             contentUpdated = this.save(content);
             logger.info("Content updated: {}", contentUpdated);
+        }
+
+        return contentUpdated;
+    }
+
+    /**
+     * Updates the Content in the database and its associated file in the system.
+     * @param content the Content entity.
+     * @param file the file to be stored
+     * @return The saved Content.
+     * @throws IllegalArgumentException in case the given Content is null.
+     * @throws OptimisticLockingFailureException when the Content uses optimistic locking and has a version attribute with
+     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+     *           present but does not exist in the database.
+     */
+    public Content update(Content content, MultipartFile file){
+        Content contentUpdated = null;
+
+        ObjectValidator.validateObject(content);
+        ObjectValidator.validateString(content.getName());
+        ObjectValidator.validateString(content.getDescription());
+        ObjectValidator.validateFilename(content.getFilename());
+
+        // Name should unique.
+        if (this.existsByName(content.getName())) {
+            throw this.createDuplicateException(content);
+        } else {
+            contentUpdated = this.save(content);
+            LocalStorage localStorage = new LocalStorage("content", contentUpdated.getId().toString());
+            logger.info("Content with file updated: {} {}", contentUpdated, content.getFilename());
         }
 
         return contentUpdated;

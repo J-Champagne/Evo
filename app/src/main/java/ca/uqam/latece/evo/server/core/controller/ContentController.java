@@ -130,6 +130,41 @@ public class ContentController extends AbstractEvoController<Content> {
     }
 
     /**
+     * Updates the Content in the database.
+     * @param content the Content entity.
+     * @param file the file to be stored
+     * @return The saved Content.
+     * @throws IllegalArgumentException in case the given Content is null.
+     * @throws OptimisticLockingFailureException when the Content uses optimistic locking and has a version attribute with
+     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+     *           present but does not exist in the database.
+     */
+    @PutMapping(params = "file=true",
+                consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<Content> update(@Valid @ModelAttribute Content content, @RequestParam("file") MultipartFile file) {
+        ResponseEntity<Content> response;
+
+        try {
+            ObjectValidator.validateObject(content);
+            Content updated = contentService.update(content, file);
+
+            if (updated != null && updated.getId() > 0) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated Content with file: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to update Content with file.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update Content with file. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
      * Deletes the content with the given id.
      * <p>
      * If the content is not found in the persistence store it is silently ignored.
