@@ -48,39 +48,8 @@ public class LocalStorage implements StorageService {
 
     @Override
     public String store(MultipartFile file) {
-        String filename;
-        String sanitizedFilename;
-
-        try {
-            if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
-                throw new StorageException("File is empty or does not have a name");
-            }
-
-            filename = Paths.get(file.getOriginalFilename()).getFileName().toString();
-            String name = extractFilename(filename);
-            String extension = extractExtension(filename);
-
-            //Sanitize file name for vulnerabilities
-            if (!containsIllegalCharacters(name) && !containsIllegalCharacters(extension)) {
-                sanitizedFilename = name + "." + extension;
-            } else {
-                throw new StorageException("The file's name contains illegal characters");
-            }
-
-            //Create path and copy bytes
-            Path path = root.resolve(Paths.get(sanitizedFilename))
-                    .normalize()
-                    .toAbsolutePath();
-
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-        } catch (IOException e) {
-            throw new StorageException("Failed to store file", e);
-        }
-
-        return filename;
+        String sanitizedFilename = sanitizeFilename(file);
+        return this.store(file, sanitizedFilename);
     }
 
     @Override
@@ -96,16 +65,49 @@ public class LocalStorage implements StorageService {
 
             if (resource.exists() || resource.isReadable()) {
                 return resource;
-
             } else {
-                throw new StorageFileNotFoundException(
-                        "Could not read file: " + filename);
+                throw new StorageFileNotFoundException("Could not read file: " + filename);
             }
         }
 
         catch (MalformedURLException e) {
             throw new StorageFileNotFoundException("Could not read file: " + filename, e);
         }
+    }
+
+    private String store(MultipartFile file, String filename) {
+        if (file.isEmpty() || filename.isEmpty()) {throw new StorageException("File is empty or has no name");}
+
+        Path path = root.resolve(Paths.get(filename)).normalize().toAbsolutePath();
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new StorageException("Failed to store file", e);
+        }
+
+        return filename;
+    }
+
+    private String sanitizeFilename(MultipartFile file) {
+        String sanitizedFilename;
+
+        if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
+            throw new StorageException("File is empty or does not have a name");
+        }
+
+        String filename = Paths.get(file.getOriginalFilename()).getFileName().toString();
+        String name = extractFilename(filename);
+        String extension = extractExtension(filename);
+
+        //Sanitize file name for vulnerabilities
+        if (!containsIllegalCharacters(name) && !containsIllegalCharacters(extension)) {
+            sanitizedFilename = name + "." + extension;
+        } else {
+            throw new StorageException("The file's name contains illegal characters");
+        }
+
+        return sanitizedFilename;
     }
 
     private String extractFilename(String filename) {
