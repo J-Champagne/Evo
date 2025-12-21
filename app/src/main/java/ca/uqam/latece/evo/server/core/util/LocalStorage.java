@@ -5,7 +5,6 @@ import ca.uqam.latece.evo.server.core.exceptions.StorageFileNotFoundException;
 import ca.uqam.latece.evo.server.core.interfaces.StorageService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.stream.Stream;
 
 public class LocalStorage implements StorageService {
     private final static String BASE_FOLDER = "./app/files";
@@ -68,11 +66,6 @@ public class LocalStorage implements StorageService {
     }
 
     @Override
-    public Stream<Path> loadAll() {
-        return Stream.empty();
-    }
-
-    @Override
     public Path load(String fileName) {
         return root.resolve(fileName);
     }
@@ -95,10 +88,5 @@ public class LocalStorage implements StorageService {
         catch (MalformedURLException e) {
             throw new StorageFileNotFoundException("Could not read file: " + filename, e);
         }
-    }
-
-    @Override
-    public void deleteAll() {
-        FileSystemUtils.deleteRecursively(root.toFile());
     }
 }
