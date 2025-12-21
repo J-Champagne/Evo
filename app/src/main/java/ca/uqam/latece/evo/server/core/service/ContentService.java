@@ -85,7 +85,7 @@ public class ContentService extends AbstractEvoService<Content> {
             throw this.createDuplicateException(content);
         } else {
             contentCreated = this.save(content);
-            LocalStorage localStorage = new LocalStorage("content/" + content.getId());
+            LocalStorage localStorage = new LocalStorage("content", content.getId().toString());
             filepath = localStorage.store(file);
 
             logger.info("Content created and file stored: {} {}", contentCreated, filepath);
@@ -251,7 +251,7 @@ public class ContentService extends AbstractEvoService<Content> {
     public Resource findFile(Long id, String fileName) {
         ObjectValidator.validateId(id);
         ObjectValidator.validateString(fileName);
-        LocalStorage localStorage = new LocalStorage("content/" + id);
+        LocalStorage localStorage = new LocalStorage("content", id.toString());
         return localStorage.loadAsResource(fileName);
     }
 }
