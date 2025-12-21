@@ -7,10 +7,9 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -73,7 +72,7 @@ public class ContentController extends AbstractEvoController<Content> {
      *           present but does not exist in the database.
      */
     @PostMapping(params = "file=true",
-                consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED) // 201
     public ResponseEntity<Content> create(@Valid @ModelAttribute Content content, @RequestParam("file") MultipartFile file) {
         ResponseEntity<Content> response;
@@ -169,6 +168,43 @@ public class ContentController extends AbstractEvoController<Content> {
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find Content by id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Retrieves a Content and its associated file with an id.
+     * @param id The Content id to filter Content entities by, must not be null.
+     * @return the requested Content with its associated file or Optional#empty() if none found.
+     * @throws IllegalArgumentException – if id is null.
+     */
+    @GetMapping(value = "/find/file/{id}/{filename}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<Resource> findFile(@PathVariable Long id, @PathVariable String filename) {
+        ResponseEntity<Resource> response;
+
+        try {
+            Resource contentFile = contentService.findFile(id, filename);
+
+            if (contentFile != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentDisposition(ContentDisposition
+                        .attachment()
+                        .filename(filename)
+                        .build());
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+                response = new ResponseEntity<>(contentFile, headers, HttpStatus.OK);
+                logger.info("Found file of Content with id and name: {} {}", id, filename);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find file of Content with id and name: {} {}", id, filename);
+            }
+
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find file of Content. Error: {}", e.getMessage());
         }
 
         return response;

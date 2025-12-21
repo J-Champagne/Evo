@@ -7,6 +7,7 @@ import ca.uqam.latece.evo.server.core.util.ObjectValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +24,6 @@ import java.util.List;
 @Transactional
 public class ContentService extends AbstractEvoService<Content> {
     private static final Logger logger = LoggerFactory.getLogger(ContentService.class);
-
-
 
     @Autowired
     private ContentRepository contentRepository;
@@ -246,5 +245,13 @@ public class ContentService extends AbstractEvoService<Content> {
     @Override
     public List<Content> findAll(){
         return contentRepository.findAll();
+    }
+
+
+    public Resource findFile(Long id, String fileName) {
+        ObjectValidator.validateId(id);
+        ObjectValidator.validateString(fileName);
+        LocalStorage localStorage = new LocalStorage("content/" + id);
+        return localStorage.loadAsResource(fileName);
     }
 }
