@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 
 public class LocalStorage implements StorageService {
     private final static String BASE_FOLDER = "./app/files";
@@ -25,6 +26,12 @@ public class LocalStorage implements StorageService {
     private final String location;
 
     private final String id;
+
+    public LocalStorage() {
+        root = Paths.get(BASE_FOLDER);
+        location = "";
+        id = "";
+    }
 
     public LocalStorage(String location, String id) {
         this.location = location;
@@ -48,8 +55,41 @@ public class LocalStorage implements StorageService {
 
     @Override
     public String store(MultipartFile file) {
-        String sanitizedFilename = sanitizeFilename(file);
+        if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
+            throw new StorageException("File is empty or does not have a name");
+        }
+
+        String filename = Paths.get(file.getOriginalFilename()).getFileName().toString();
+        String sanitizedFilename = sanitizeFilename(filename);
+
         return this.store(file, sanitizedFilename);
+    }
+
+    @Override
+    public void delete(String filename) {
+        try {
+            Path file = root.resolve(filename).normalize().toAbsolutePath();
+            Files.deleteIfExists(file);
+            //TODO
+        } catch (IOException e) {
+            throw new StorageException("Failed to delete file", e);
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        Path folder = root.toAbsolutePath().normalize();
+        try (Stream<Path> files = Files.list(folder)) {
+            files.forEach(path -> {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException e) {
+                    throw new StorageException("Failed to delete file " + path.getFileName(), e);
+                }
+            });
+        } catch (IOException e) {
+            throw new StorageException("Failed to open folder when deleting files", e);
+        }
     }
 
     @Override
@@ -89,18 +129,11 @@ public class LocalStorage implements StorageService {
         return filename;
     }
 
-    private String sanitizeFilename(MultipartFile file) {
+    public String sanitizeFilename(String filename) {
         String sanitizedFilename;
-
-        if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
-            throw new StorageException("File is empty or does not have a name");
-        }
-
-        String filename = Paths.get(file.getOriginalFilename()).getFileName().toString();
         String name = extractFilename(filename);
         String extension = extractExtension(filename);
 
-        //Sanitize file name for vulnerabilities
         if (!containsIllegalCharacters(name) && !containsIllegalCharacters(extension)) {
             sanitizedFilename = name + "." + extension;
         } else {

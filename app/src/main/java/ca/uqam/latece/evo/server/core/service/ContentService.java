@@ -121,21 +121,18 @@ public class ContentService extends AbstractEvoService<Content> {
      *           present but does not exist in the database.
      */
     @Override
-    public Content update(Content content){
+    public Content update(Content content) {
         Content contentUpdated = null;
+        Content contentFound = findById(content.getId());
 
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
-
         if (content.getFilename() != null || !content.getFilename().isEmpty()) {
             throw new IllegalArgumentException("Filename should be empty since no files were sent");
         }
 
-        // Name should unique.
-        if (this.existsByName(content.getName())) {
-            throw this.createDuplicateException(content);
-        } else {
+        if (contentFound != null) {
             contentUpdated = this.save(content);
             logger.info("Content updated: {}", contentUpdated);
         }
@@ -153,24 +150,24 @@ public class ContentService extends AbstractEvoService<Content> {
      *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
      *           present but does not exist in the database.
      */
-    public Content update(Content content, MultipartFile file){
+    public Content update(Content content, MultipartFile file) {
         Content contentUpdated = null;
+        Content contentFound = findById(content.getId());
 
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
         ObjectValidator.validateFilename(content.getFilename());
-
         if (!content.getFilename().equals(file.getOriginalFilename())) {
             throw new IllegalArgumentException("File should have the same name as the one specified in content");
         }
 
-        // Name should unique.
-        if (this.existsByName(content.getName())) {
-            throw this.createDuplicateException(content);
-        } else {
+        if (contentFound != null) {
+            String oldFilename = contentFound.getFilename();
             contentUpdated = this.save(content);
             LocalStorage localStorage = new LocalStorage("content", contentUpdated.getId().toString());
+            localStorage.delete(oldFilename);
+            localStorage.store(file);
             logger.info("Content with file updated: {} {}", contentUpdated, content.getFilename());
         }
 
@@ -198,9 +195,11 @@ public class ContentService extends AbstractEvoService<Content> {
      * @throws IllegalArgumentException in case the given id is null.
      */
     @Override
-    public void deleteById(Long id){
+    public void deleteById(Long id) {
         ObjectValidator.validateId(id);
         contentRepository.deleteById(id);
+        LocalStorage localStorage = new LocalStorage("content", id.toString());
+        localStorage.deleteAll();
         logger.info("Content deleted: {}", id);
     }
 
