@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 public class LocalStorage implements StorageService {
     private final static String BASE_FOLDER = "./app/files";
 
-    private final static String[] ILLEGAL_CHARS = new String[]{"/", "\\", "."};
+    private final static String[] ILLEGAL_CHARS = new String[]{"/", "\\", ".", "*"};
 
     private final Path root;
 
@@ -144,20 +144,13 @@ public class LocalStorage implements StorageService {
         }
     }
 
-    private String store(MultipartFile file, String filename) {
-        if (file.isEmpty() || filename.isEmpty()) {throw new StorageException("File is empty or has no name");}
-
-        Path path = root.resolve(Path.of(filename)).normalize().toAbsolutePath();
-
-        try (InputStream inputStream = file.getInputStream()) {
-            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new StorageException("Failed to store file", e);
-        }
-
-        return filename;
-    }
-
+    /**
+     * Breaks down a filename into its name and its extension in order to verify the presence of illegal characters
+     * that could present a security risk.
+     * @param filename the filename to be analyzed
+     * @return a filename containing to illegal characters
+     * @throws StorageException if the filename contained illegal characters
+     */
     public String sanitizeFilename(String filename) {
         String sanitizedFilename;
         String name = extractFilename(filename);
@@ -170,6 +163,20 @@ public class LocalStorage implements StorageService {
         }
 
         return sanitizedFilename;
+    }
+
+    private String store(MultipartFile file, String filename) {
+        if (file.isEmpty() || filename.isEmpty()) {throw new StorageException("File is empty or has no name");}
+
+        Path path = root.resolve(Path.of(filename)).normalize().toAbsolutePath();
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new StorageException("Failed to store file", e);
+        }
+
+        return filename;
     }
 
     private String extractFilename(String filename) {
