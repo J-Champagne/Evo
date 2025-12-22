@@ -47,7 +47,7 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
 
-        if (content.getFilename() != null || !content.getFilename().isEmpty()) {
+        if (content.getFilename() != null && !content.getFilename().isEmpty()) {
             throw new IllegalArgumentException("Filename should be empty since no files were sent");
         }
 
@@ -128,7 +128,7 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
-        if (content.getFilename() != null || !content.getFilename().isEmpty()) {
+        if (content.getFilename() != null && !content.getFilename().isEmpty()) {
             throw new IllegalArgumentException("Filename should be empty since no files were sent");
         }
 

@@ -10,8 +10,8 @@ import ca.uqam.latece.evo.server.core.service.ContentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -78,16 +78,17 @@ public class ContentControllerTest extends AbstractControllerTest {
     @Test
     @Override
     void testUpdate() throws Exception {
-        // Create the Content.
+        Content content = new Content("Content", "Content of activity", "text", null, null);
         content.setId(1L);
-        content.setName("Content 2");
-        content.setType("Content type 2");
-        content.setDescription("Content description 2");
-
-        // Save in the database.
         when(contentRepository.save(content)).thenReturn(content);
-        // Perform a PUT request to test the controller.
-        performUpdateRequest(URL, content, "$.name",content.getName());
+
+        Content contentUpdated = new Content(content.getName(), content.getDescription(), "pdf", null, null);
+        contentUpdated.setId(content.getId());
+
+        when(contentRepository.save(contentUpdated)).thenReturn(contentUpdated);
+        when(contentRepository.findById(contentUpdated.getId())).thenReturn(Optional.of(contentUpdated));
+
+        performUpdateRequest(URL, contentUpdated, "$.type", contentUpdated.getType());
     }
 
     @Test
