@@ -50,6 +50,10 @@ public class LocalStorage implements StorageService {
         }
     }
 
+    public Path getRoot() {
+        return root;
+    }
+
     public String getLocation() {
         return location;
     }
@@ -183,7 +187,12 @@ public class LocalStorage implements StorageService {
         String filenameWithoutExtension = "";
 
         if (filename != null && !filename.isEmpty()) {
-            filenameWithoutExtension = filename.substring(0, filename.lastIndexOf('.'));
+            int index = filename.lastIndexOf('.');
+            if (index != -1) {
+                filenameWithoutExtension = filename.substring(0, filename.lastIndexOf('.'));
+            } else {
+                throw new StorageException("Filename does not contain an extension");
+            }
         }
 
         return filenameWithoutExtension;
