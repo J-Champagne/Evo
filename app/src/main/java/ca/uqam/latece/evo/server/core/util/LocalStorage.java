@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
@@ -28,7 +27,7 @@ public class LocalStorage implements StorageService {
     private final String id;
 
     public LocalStorage() {
-        root = Paths.get(BASE_FOLDER);
+        root = Path.of(BASE_FOLDER);
         location = "";
         id = "";
     }
@@ -36,7 +35,7 @@ public class LocalStorage implements StorageService {
     public LocalStorage(String location, String id) {
         this.location = location;
         this.id = id;
-        root = Paths.get(BASE_FOLDER, location, id);
+        root = Path.of(BASE_FOLDER, location, id);
 
         try {
             Files.createDirectories(root);
@@ -59,7 +58,7 @@ public class LocalStorage implements StorageService {
             throw new StorageException("File is empty or does not have a name");
         }
 
-        String filename = Paths.get(file.getOriginalFilename()).getFileName().toString();
+        String filename = Path.of(file.getOriginalFilename()).getFileName().toString();
         String sanitizedFilename = sanitizeFilename(filename);
 
         return this.store(file, sanitizedFilename);
@@ -118,7 +117,7 @@ public class LocalStorage implements StorageService {
     private String store(MultipartFile file, String filename) {
         if (file.isEmpty() || filename.isEmpty()) {throw new StorageException("File is empty or has no name");}
 
-        Path path = root.resolve(Paths.get(filename)).normalize().toAbsolutePath();
+        Path path = root.resolve(Path.of(filename)).normalize().toAbsolutePath();
 
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
