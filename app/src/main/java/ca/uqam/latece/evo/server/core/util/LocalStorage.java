@@ -15,6 +15,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
+/**
+ * Class responsible for local storage of files.
+ * Files will be stored at the folder specified by root, which is at `./app/files` by default.
+ * Files associated to an entity should be stored at a location that represents that relationship.
+ * For example, a Content entity with ID=1 should store files at `./app/files/content/1`.
+ */
 public class LocalStorage implements StorageService {
     private final static String BASE_FOLDER = "./app/files";
 
@@ -52,6 +58,13 @@ public class LocalStorage implements StorageService {
         return id;
     }
 
+    /**
+     * Stores a file at folder specified by root (BASE_FOLDER/location/id) after verifying that its name does not
+     * contain any illegal characters.
+     * @param file the file to be stored
+     * @return String representing the path of the file
+     * @throws StorageException if the file could not be stored or if its name contains illegal characters
+     */
     @Override
     public String store(MultipartFile file) {
         if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
@@ -64,17 +77,23 @@ public class LocalStorage implements StorageService {
         return this.store(file, sanitizedFilename);
     }
 
+    /**
+     * Deletes a file
+     * @param filename the name of the file to be deleted
+     */
     @Override
     public void delete(String filename) {
         try {
             Path file = root.resolve(filename).normalize().toAbsolutePath();
             Files.deleteIfExists(file);
-            //TODO
         } catch (IOException e) {
             throw new StorageException("Failed to delete file", e);
         }
     }
 
+    /**
+     * Deletes all file at folder specified by root (BASE_FOLDER/location/id)
+     */
     @Override
     public void deleteAll() {
         Path folder = root.toAbsolutePath().normalize();
@@ -91,11 +110,22 @@ public class LocalStorage implements StorageService {
         }
     }
 
+    /**
+     * Returns a Path pointing to a file specified by filename.
+     * The file must be at the folder specified by root (BASE_FOLDER/location/id).
+     * @param fileName the name of the file
+     * @return a Path pointing to the file
+     */
     @Override
     public Path load(String fileName) {
         return root.resolve(fileName);
     }
 
+    /**
+     * Loads a file as a Resource usable by the Spring framework
+     * @param filename the name of the file
+     * @return the file in the form of a Resource
+     */
     @Override
     public Resource loadAsResource(String filename) {
         try {
