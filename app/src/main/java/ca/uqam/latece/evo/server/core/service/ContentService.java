@@ -128,11 +128,17 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateObject(content);
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
+
         if (content.getFilename() != null && !content.getFilename().isEmpty()) {
             throw new IllegalArgumentException("Filename should be empty since no files were sent");
-        }
 
-        if (contentFound != null) {
+        } else if (contentFound == null) {
+            throw new IllegalArgumentException("Content " + content.getName() + " not found!");
+
+        } else if (!content.getName().equals(contentFound.getName()) && contentRepository.existsByName(content.getName())) {
+            throw this.createDuplicateException(content);
+
+        } else {
             contentUpdated = this.save(content);
             logger.info("Content updated: {}", contentUpdated);
         }
@@ -158,11 +164,17 @@ public class ContentService extends AbstractEvoService<Content> {
         ObjectValidator.validateString(content.getName());
         ObjectValidator.validateString(content.getDescription());
         ObjectValidator.validateFilename(content.getFilename());
+
         if (!content.getFilename().equals(file.getOriginalFilename())) {
             throw new IllegalArgumentException("File should have the same name as the one specified in content");
-        }
 
-        if (contentFound != null) {
+        } else if (contentFound == null) {
+            throw new IllegalArgumentException("Content " + content.getName() + " not found!");
+
+        } else if (!content.getName().equals(contentFound.getName()) && contentRepository.existsByName(content.getName())) {
+            throw this.createDuplicateException(content);
+
+        } else {
             String oldFilename = contentFound.getFilename();
             contentUpdated = this.save(content);
             LocalStorage localStorage = new LocalStorage("content", contentUpdated.getId().toString());
