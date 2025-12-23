@@ -302,6 +302,12 @@ public class ContentService extends AbstractEvoService<Content> {
     }
 
 
+    /**
+     * Gets a file associated to a Content entity
+     * @param id the id of the Content entity
+     * @param fileName the name of the file to be retrieved
+     * @return the file
+     */
     public Resource findFile(Long id, String fileName) {
         ObjectValidator.validateId(id);
         ObjectValidator.validateString(fileName);
