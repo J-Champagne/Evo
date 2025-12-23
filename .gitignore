@@ -31,4 +31,4 @@ replay_pid*
 .idea/
 target/
 /.project
-./app/files
+files/*
