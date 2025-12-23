@@ -209,9 +209,13 @@ public class ContentService extends AbstractEvoService<Content> {
     @Override
     public void deleteById(Long id) {
         ObjectValidator.validateId(id);
+        Content content = findById(id);
+        if (content != null && content.getFilename() != null && !content.getFilename().isEmpty()) {
+            LocalStorage localStorage = new LocalStorage("content", id.toString());
+            localStorage.deleteAll();
+        }
         contentRepository.deleteById(id);
-        LocalStorage localStorage = new LocalStorage("content", id.toString());
-        localStorage.deleteAll();
+
         logger.info("Content deleted: {}", id);
     }
 
