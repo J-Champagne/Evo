@@ -1,11 +1,12 @@
 package ca.uqam.latece.evo.server.core.util;
 
 import ca.uqam.latece.evo.server.core.exceptions.StorageException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -13,13 +14,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class LocalStorageTest {
-    @TempDir
-    private Path tempRoot;
+    private final LocalStorage localStorage = new LocalStorage("test", "0");
+
+    @AfterAll
+    public static void tearDown() throws IOException {
+        Files.deleteIfExists(Path.of("./files/test/0/test.txt"));
+        Files.deleteIfExists(Path.of("./files/test/0"));
+        Files.deleteIfExists(Path.of("./files/test"));
+        Files.deleteIfExists(Path.of("./files"));
+    }
 
     @Test
     void store() throws Exception {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "test.txt",
@@ -36,9 +42,7 @@ public class LocalStorageTest {
 
     @Test
     void rejectsPathTraversal() {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
-        MockMultipartFile file = new MockMultipartFile(
+       MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "../illegal*.txt",
                 "text/plain",
@@ -51,8 +55,6 @@ public class LocalStorageTest {
 
     @Test
     void rejectsFilenameNoExtension() {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "../illegalt../xt",
@@ -66,8 +68,6 @@ public class LocalStorageTest {
 
     @Test
     void rejectsEmptyFile() {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "empty.txt",
@@ -81,8 +81,6 @@ public class LocalStorageTest {
 
     @Test
     void rejectsNullFilename() {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 null,
@@ -96,8 +94,6 @@ public class LocalStorageTest {
 
     @Test
     void delete() {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "test.txt",
@@ -114,8 +110,6 @@ public class LocalStorageTest {
 
     @Test
     void deleteAll() {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "test.txt",
@@ -142,8 +136,6 @@ public class LocalStorageTest {
 
     @Test
     void load() {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "test.txt",
@@ -160,8 +152,6 @@ public class LocalStorageTest {
 
     @Test
     void loadAsResource() {
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "test.txt",
@@ -180,8 +170,6 @@ public class LocalStorageTest {
     @Test
     void sanitizeFilename() {
         String filename = "../../../";
-        LocalStorage localStorage = new LocalStorage(tempRoot.toString(), "0");
-
         assertThatThrownBy(() -> localStorage.sanitizeFilename(filename))
                 .isInstanceOf(StorageException.class);
     }
