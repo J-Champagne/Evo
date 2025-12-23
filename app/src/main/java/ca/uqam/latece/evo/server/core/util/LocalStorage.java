@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * For example, a Content entity with ID=1 should store files at `./app/files/content/1`.
  */
 public class LocalStorage implements StorageService {
-    private final static String BASE_FOLDER = "./app/files";
+    private final static String BASE_FOLDER = "./files";
 
     private final static String[] ILLEGAL_CHARS = new String[]{"/", "\\", ".", "*"};
 
