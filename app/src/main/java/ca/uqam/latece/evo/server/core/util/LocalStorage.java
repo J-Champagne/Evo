@@ -3,6 +3,8 @@ package ca.uqam.latece.evo.server.core.util;
 import ca.uqam.latece.evo.server.core.exceptions.StorageException;
 import ca.uqam.latece.evo.server.core.exceptions.StorageFileNotFoundException;
 import ca.uqam.latece.evo.server.core.interfaces.StorageService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,9 +24,11 @@ import java.util.stream.Stream;
  * For example, a Content entity with ID=1 should store files at `./app/files/content/1`.
  */
 public class LocalStorage implements StorageService {
-    private final static String BASE_FOLDER = "files";
+    private static final Logger logger = LogManager.getLogger(LocalStorage.class);
 
-    private final static String[] ILLEGAL_CHARS = new String[]{"/", "\\", ".", "*"};
+    private static final String BASE_FOLDER = "files";
+
+    private static final String[] ILLEGAL_CHARS = new String[]{"/", "\\", ".", "*"};
 
     private final Path root;
 
@@ -42,12 +46,6 @@ public class LocalStorage implements StorageService {
         this.location = location;
         this.id = id;
         root = Path.of(BASE_FOLDER, location, id);
-
-        try {
-            Files.createDirectories(root);
-        } catch (IOException e) {
-            throw new StorageException("Could not create local storage directory " + root, e);
-        }
     }
 
     public static String getBaseFolder() {
@@ -79,10 +77,19 @@ public class LocalStorage implements StorageService {
             throw new StorageException("File is empty or does not have a name");
         }
 
+        try {
+            Files.createDirectories(root);
+        } catch (IOException e) {
+            throw new StorageException("Could not create local storage directory " + root, e);
+        }
+
         String filename = Path.of(file.getOriginalFilename()).getFileName().toString();
         String sanitizedFilename = sanitizeFilename(filename);
+        String storedFile = this.store(file, sanitizedFilename);
 
-        return this.store(file, sanitizedFilename);
+        String storedMsg = "File "+ sanitizedFilename + " stored at " + root;
+        logger.info(storedMsg);
+        return storedFile;
     }
 
     /**
@@ -94,16 +101,20 @@ public class LocalStorage implements StorageService {
         try {
             Path file = root.resolve(filename).normalize().toAbsolutePath();
             Files.deleteIfExists(file);
+
+            String deleteMsg = "File "+ filename + " deleted at " + root;
+            logger.info(deleteMsg);
+
         } catch (IOException e) {
             throw new StorageException("Failed to delete file", e);
         }
     }
 
     /**
-     * Deletes all file at folder specified by root (BASE_FOLDER/location/id)
+     * Deletes all files at folder specified by root (BASE_FOLDER/location/id)
      */
     @Override
-    public void deleteAll() {
+    public void deleteAll() throws StorageException {
         Path folder = root.toAbsolutePath().normalize();
         try (Stream<Path> files = Files.list(folder)) {
             files.forEach(path -> {
@@ -113,8 +124,12 @@ public class LocalStorage implements StorageService {
                     throw new StorageException("Failed to delete file " + path.getFileName(), e);
                 }
             });
+            String deleteAllMsg = "Files deleted at " + root;
+            logger.info(deleteAllMsg);
+
         } catch (IOException e) {
-            throw new StorageException("Failed to open folder when deleting files", e);
+            String noDirectoryMsg = "Directory does not exist at " + root;
+            logger.info(noDirectoryMsg);
         }
     }
 
