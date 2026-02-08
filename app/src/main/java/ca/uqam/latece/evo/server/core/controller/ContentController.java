@@ -7,10 +7,11 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -61,6 +62,41 @@ public class ContentController extends AbstractEvoController<Content> {
     }
 
     /**
+     * Inserts a Content in the database.
+     * @param content the Content entity.
+     * @param file the file to be stored
+     * @return The saved Content.
+     * @throws IllegalArgumentException in case the given Content is null.
+     * @throws OptimisticLockingFailureException when the Content uses optimistic locking and has a version attribute with
+     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+     *           present but does not exist in the database.
+     */
+    @PostMapping(params = "file=true",
+                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED) // 201
+    public ResponseEntity<Content> create(@Valid @ModelAttribute Content content, @RequestParam("file") MultipartFile file) {
+        ResponseEntity<Content> response;
+
+        try {
+            ObjectValidator.validateObject(content);
+            Content saved = contentService.create(content, file);
+
+            if (saved != null && saved.getId() > 0) {
+                response = new ResponseEntity<>(saved, HttpStatus.CREATED);
+                logger.info("Created new Content and stored file: {} {}", saved, saved.getFilename());
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Failed to create new Content or to store file.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to create new Content or to store file. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
      * Updates the Content in the database.
      * @param content the Content entity.
      * @return The saved Content.
@@ -88,6 +124,41 @@ public class ContentController extends AbstractEvoController<Content> {
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to update Content. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Updates the Content in the database.
+     * @param content the Content entity.
+     * @param file the file to be stored
+     * @return The saved Content.
+     * @throws IllegalArgumentException in case the given Content is null.
+     * @throws OptimisticLockingFailureException when the Content uses optimistic locking and has a version attribute with
+     *           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
+     *           present but does not exist in the database.
+     */
+    @PutMapping(params = "file=true",
+                consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<Content> update(@Valid @ModelAttribute Content content, @RequestParam("file") MultipartFile file) {
+        ResponseEntity<Content> response;
+
+        try {
+            ObjectValidator.validateObject(content);
+            Content updated = contentService.update(content, file);
+
+            if (updated != null && updated.getId() > 0) {
+                response = new ResponseEntity<>(updated, HttpStatus.OK);
+                logger.info("Updated Content with file: {}", updated);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to update Content with file.");
+            }
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to update Content with file. Error: {}", e.getMessage());
         }
 
         return response;
@@ -132,6 +203,43 @@ public class ContentController extends AbstractEvoController<Content> {
         } catch (Exception e) {
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             logger.error("Failed to find Content by id. Error: {}", e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * Retrieves a Content and its associated file with an id.
+     * @param id The Content id to filter Content entities by, must not be null.
+     * @return the requested Content with its associated file or Optional#empty() if none found.
+     * @throws IllegalArgumentException – if id is null.
+     */
+    @GetMapping(value = "/find/file/{id}/{filename}")
+    @ResponseStatus(HttpStatus.OK) // 200
+    public ResponseEntity<Resource> findFile(@PathVariable Long id, @PathVariable String filename) {
+        ResponseEntity<Resource> response;
+
+        try {
+            Resource contentFile = contentService.findFile(id, filename);
+
+            if (contentFile != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentDisposition(ContentDisposition
+                        .attachment()
+                        .filename(filename)
+                        .build());
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+                response = new ResponseEntity<>(contentFile, headers, HttpStatus.OK);
+                logger.info("Found file of Content with id and name: {} {}", id, filename);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                logger.info("Failed to find file of Content with id and name: {} {}", id, filename);
+            }
+
+        } catch (Exception e) {
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Failed to find file of Content. Error: {}", e.getMessage());
         }
 
         return response;

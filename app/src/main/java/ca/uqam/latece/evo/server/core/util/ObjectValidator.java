@@ -21,6 +21,7 @@ public class ObjectValidator {
     private static final String ERROR_OBJECT_NULL = "The Object is null!";
     private static final String ERROR_EMPTY_MESSAGE = "The string is empty!";
     private static final String ERROR_INVALID_EMAIL = "The email is invalid!";
+    private static final String ERROR_INVALID_FILENAME = "The filename is empty or contains illegal characters!";
 
     /**
      * A compiled regular expression pattern used to validate email addresses.
@@ -104,6 +105,19 @@ public class ObjectValidator {
         if (!EMAIL_PATTERN.matcher(email).matches()){
             logger.error(ERROR_INVALID_EMAIL);
             throw new IllegalArgumentException(ERROR_INVALID_EMAIL);
+        }
+    }
+
+    /**
+     * Validates if filename is null, empty, or contains illegal characters
+     * @param filename The filename to be analyzed
+     @throws IllegalArgumentException if filename is invalid
+     */
+    public static void validateFilename(String filename) {
+        LocalStorage localStorage = new LocalStorage();
+        if (filename == null || filename.isEmpty() || localStorage.sanitizeFilename(filename) == null) {
+            logger.error(ERROR_INVALID_FILENAME);
+            throw new IllegalArgumentException(ERROR_INVALID_FILENAME);
         }
     }
 }
